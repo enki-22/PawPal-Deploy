@@ -4,8 +4,12 @@ from django.contrib.auth.views import LogoutView as DjangoLogoutView
 print("Loading users/urls.py")
 
 try:
-    from .views import RegisterView, LoginView, LogoutView, UserProfileView, login_view, register_view, test_view
+    from .views import RegisterView, LoginView, LogoutView, UserProfileView, login_view, register_view, register_step1_view, register_step2_view, test_view
     urlpatterns = [
+        # Multi-step registration (NEW - add these lines)
+        path('web/register/', register_step1_view, name='register_step1'),
+        path('web/register/contact/', register_step2_view, name='register_step2'),
+        
         # Template-based URLs (web interface)
         path('web/login/', login_view, name='login'),
         path('web/register/', register_view, name='register'),

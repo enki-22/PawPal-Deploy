@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Step 2 - PawPal{% endblock %}
+
+{% block header %}Create Your PawPal Account - Contact Information{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <div style="flex: 1; background-color: #28a745; height: 4px; margin-right: 5px;"></div>
+        <div style="flex: 1; background-color: #007bff; height: 4px; margin-left: 5px;"></div>
+    </div>
+    <small>Step 2 of 2: Contact Information</small>
+</div>
+
+<div style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+    <h6>Account Info:</h6>
+    <p><strong>Username:</strong> {{ username }}<br>
+       <strong>Email:</strong> {{ email }}</p>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    
+    {% if form.errors %}
+        <div class="alert alert-error">
+            {{ form.errors }}
+        </div>
+    {% endif %}
+    
+    <div class="form-group">
+        <label for="{{ form.phone_number.id_for_label }}">Phone Number:</label>
+        {{ form.phone_number }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.province.id_for_label }}">Province:</label>
+        {{ form.province }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.city.id_for_label }}">City:</label>
+        {{ form.city }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.address.id_for_label }}">Complete Address (Optional):</label>
+        {{ form.address }}
+    </div>
+    
+    <div style="display: flex; justify-content: space-between;">
+        <a href="{% url 'register_step1' %}" class="btn" style="background-color: #6c757d;">← Back</a>
+        <button type="submit" class="btn">Create Account</button>
+    </div>
+</form>
+{% endblock %}

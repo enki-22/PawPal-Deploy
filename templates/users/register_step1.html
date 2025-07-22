@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Step 1 - PawPal{% endblock %}
+
+{% block header %}Create Your PawPal Account - Account Information{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <div style="flex: 1; background-color: #007bff; height: 4px; margin-right: 5px;"></div>
+        <div style="flex: 1; background-color: #e9ecef; height: 4px; margin-left: 5px;"></div>
+    </div>
+    <small>Step 1 of 2: Account Information</small>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    
+    {% if form.errors %}
+        <div class="alert alert-error">
+            {{ form.errors }}
+        </div>
+    {% endif %}
+    
+    <div class="form-group">
+        <label for="{{ form.username.id_for_label }}">Username:</label>
+        {{ form.username }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.email.id_for_label }}">Email:</label>
+        {{ form.email }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.password1.id_for_label }}">Password:</label>
+        {{ form.password1 }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.password2.id_for_label }}">Confirm Password:</label>
+        {{ form.password2 }}
+    </div>
+    
+    <button type="submit" class="btn">Next: Contact Information →</button>
+</form>
+
+<p style="margin-top: 20px;">
+    Already have an account? <a href="{% url 'login' %}">Login here</a>
+</p>
+{% endblock %}
