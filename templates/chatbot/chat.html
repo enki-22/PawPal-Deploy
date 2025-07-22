@@ -1,0 +1,95 @@
+
+
+
+
+
+
+{% extends 'base.html' %}
+
+{% block title %}AI Veterinary Assistant - PawPal{% endblock %}
+
+{% block header %}
+    Welcome {{ user.username }}! - AI Veterinary Assistant
+    <a href="{% url 'logout' %}" style="float: right;" class="btn">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div id="chat-container" style="height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 20px; background-color: #fafafa;">
+    <div id="chat-messages">
+        <div class="message bot-message">
+            <strong>AI Vet:</strong> Hello! I'm your AI veterinary assistant. How can I help you with your pet today?
+        </div>
+    </div>
+</div>
+
+<form id="chat-form" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <input type="text" id="message-input" name="message" placeholder="Ask about your pet's health..." required>
+    </div>
+    <button type="submit" class="btn">Send Message</button>
+</form>
+
+<style>
+    .message {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 8px;
+    }
+    .user-message {
+        background-color: #007bff;
+        color: white;
+        text-align: right;
+    }
+    .bot-message {
+        background-color: #e9ecef;
+        color: #333;
+    }
+</style>
+
+<script>
+document.getElementById('chat-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const messageInput = document.getElementById('message-input');
+    const message = messageInput.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message to chat
+    addMessage(message, 'user-message', 'You');
+    messageInput.value = '';
+    
+    // Send to backend
+    fetch('{% url "chat" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({message: message})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.response) {
+            addMessage(data.response, 'bot-message', 'AI Vet');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        addMessage('Sorry, there was an error processing your message.', 'bot-message', 'AI Vet');
+    });
+});
+
+function addMessage(text, className, sender) {
+    const chatMessages = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${className}`;
+    messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+    chatMessages.appendChild(messageDiv);
+    
+    // Scroll to bottom
+    document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
+}
+</script>
+{% endblock %}

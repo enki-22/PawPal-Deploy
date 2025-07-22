@@ -8,10 +8,15 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-    is_vet_admin = models.BooleanField(default=False)
+    is_vet_admin = models.BooleanField(default=False, help_text="Check if this user is a veterinarian/admin")
+    
+    class Meta:
+        verbose_name = "Pet Owner Profile"  # Display name in admin
+        verbose_name_plural = "Pet Owner Profiles"
     
     def __str__(self):
-        return f"{self.user.username}'s profile"
+        user_type = "Vet Admin" if self.is_vet_admin else "Pet Owner"
+        return f"{self.user.username} ({user_type})"
 
 # Signal to create profile when user is created
 @receiver(post_save, sender=User)

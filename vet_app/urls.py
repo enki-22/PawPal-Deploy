@@ -17,9 +17,17 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.shortcuts import redirect
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Add debug print
+
+    # Web interface (NEW - add when templates are ready)
+    path('', lambda request: redirect('/users/web/login/')),  # Redirect to your actual login URL
+    path('users/', include('users.urls')),
+    path('chat/', include('chatbot.urls')),
+    
+    # API endpoints (existing - keep these working)
     path('api/users/', include('users.urls')),
+    path('api/chatbot/', include('chatbot.urls')),
 ]
