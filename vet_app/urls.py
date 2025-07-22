@@ -23,11 +23,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Web interface (NEW - add when templates are ready)
-    path('', lambda request: redirect('/users/web/login/')),  # Redirect to your actual login URL
+    path('', lambda request: redirect('/users/web/login/')),  # Redirect to actual login URL
     path('users/', include('users.urls')),
     path('chat/', include('chatbot.urls')),
     
-    # API endpoints (existing - keep these working)
+    # API endpoints
     path('api/users/', include('users.urls')),
     path('api/chatbot/', include('chatbot.urls')),
 ]
