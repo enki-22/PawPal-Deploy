@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     #Local apps
     'users',
     'pets',
+    'chatbot',  # Add this line
 ]
 
     # Django REST Framework settings
@@ -78,7 +79,7 @@ ROOT_URLCONF = 'vet_app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -101,7 +102,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'pawpalDB',
         'USER': 'postgres',
-        'PASSWORD': 'geriboi27',
+        'PASSWORD': 'kielitofedelino',
         'HOST': 'localhost',
         'PORT': '5432',
     }
