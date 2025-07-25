@@ -6,11 +6,18 @@ class Conversation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"Conversation {self.id} - {self.user.username}"
+
 class Message(models.Model):
-    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE)
     content = models.TextField()
-    is_user = models.BooleanField()  # True if user message, False if AI response
-    created_at = models.DateTimeField(auto_now_add=True)
+    is_user = models.BooleanField()
+    created_at = models.DateTimeField(auto_now_add=True)  # Add this field
     
     class Meta:
         ordering = ['created_at']
+
+    def __str__(self):
+        sender = "User" if self.is_user else "AI"
+        return f"{sender}: {self.content[:50]}..."

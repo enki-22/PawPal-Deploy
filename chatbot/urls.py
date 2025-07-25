@@ -7,4 +7,5 @@ urlpatterns = [
     
     # API URL (change name to avoid conflict)
     path('chat/', views.chat, name='chat_api'),
+    path('debug/', views.debug_openai, name='debug_openai'),
 ]

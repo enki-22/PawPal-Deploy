@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Layout from './Layout';
-import Alert from './Alert';
-import ProgressBar from './ProgressBar';
 import { useRegistration } from '../context/RegistrationContext';
+import Alert from './Alert';
 
 const RegisterStep1 = () => {
   const { registrationData, updateStep1 } = useRegistration();
   const [formData, setFormData] = useState(registrationData.step1);
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -61,90 +60,194 @@ const RegisterStep1 = () => {
   };
 
   return (
-    <Layout title="Create Your PawPal Account - Account Information">
-      <div className="max-w-md mx-auto">
-        <ProgressBar currentStep={1} totalSteps={2} />
+    <div className="min-h-screen bg-[#D8CAED] flex items-center justify-center p-4">
+      <div className="max-w-4xl w-full bg-white rounded-lg shadow-xl overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          {/* Left Side - PawPal Promotional Panel */}
+          <div className="bg-[#815FB3] text-white p-8 md:p-12 flex flex-col justify-center">
+            <div className="text-center">
+              <div className="mb-4">
+                <div className="inline-flex items-center">
+                  <span className="text-4xl mr-2">🐾</span>
+                  <h1 className="text-[#FFF07B] font-museo font-black text-[47px] leading-[100%] tracking-[0%]">
+                    PAWPAL
+                  </h1>
+                </div>
+              </div>
+              
+              <h2 className="text-[20px] font-bold leading-[100%] tracking-[0%] text-center mb-4" 
+                  style={{ fontFamily: 'Raleway' }}>
+                Your pet&apos;s health companion
+              </h2>
+              
+              <p className="text-[16px] font-medium leading-[100%] tracking-[0%] mb-8" 
+                 style={{ fontFamily: 'Raleway' }}>
+                Get instant answers to your pet health questions, track vaccinations, and receive personalized care recommendations.
+              </p>
+              
+              <div className="space-y-3 text-left">
+                <div className="flex items-center">
+                  <span className="text-yellow-400 mr-3">🐾</span>
+                  <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
+                        style={{ fontFamily: 'Raleway' }}>
+                    24/7 Pet Health Support
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-yellow-400 mr-3">🐾</span>
+                  <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
+                        style={{ fontFamily: 'Raleway' }}>
+                    Personalized Care
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-yellow-400 mr-3">🐾</span>
+                  <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
+                        style={{ fontFamily: 'Raleway' }}>
+                    Track Vaccinations and Medications
+                  </span>
+                </div>
+              </div>
+              
+              <div className="mt-8 flex justify-center space-x-2">
+                <div className="w-8 h-2 bg-purple-800 rounded-full"></div>
+                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+              </div>
+            </div>
+          </div>
 
-        <form onSubmit={handleSubmit}>
-          {Object.keys(errors).length > 0 && (
-            <Alert type="error">
-              <ul className="list-disc list-inside">
-                {Object.values(errors).map((error, index) => (
-                  <li key={index}>{error}</li>
-                ))}
-              </ul>
-            </Alert>
-          )}
-          
-          <div className="form-group">
-            <label htmlFor="username" className="form-label">Username:</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              className={`form-input ${errors.username ? 'border-red-500' : ''}`}
-              required
-            />
-            {errors.username && <span className="text-red-600 text-sm">{errors.username}</span>}
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="email" className="form-label">Email:</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className={`form-input ${errors.email ? 'border-red-500' : ''}`}
-              required
-            />
-            {errors.email && <span className="text-red-600 text-sm">{errors.email}</span>}
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="password1" className="form-label">Password:</label>
-            <input
-              type="password"
-              id="password1"
-              name="password1"
-              value={formData.password1}
-              onChange={handleChange}
-              className={`form-input ${errors.password1 ? 'border-red-500' : ''}`}
-              required
-            />
-            {errors.password1 && <span className="text-red-600 text-sm">{errors.password1}</span>}
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="password2" className="form-label">Confirm Password:</label>
-            <input
-              type="password"
-              id="password2"
-              name="password2"
-              value={formData.password2}
-              onChange={handleChange}
-              className={`form-input ${errors.password2 ? 'border-red-500' : ''}`}
-              required
-            />
-            {errors.password2 && <span className="text-red-600 text-sm">{errors.password2}</span>}
-          </div>
-          
-          <button type="submit" className="btn w-full">
-            Next: Contact Information →
-          </button>
-        </form>
+          {/* Right Side - Registration Form */}
+          <div className="p-8 md:p-12">
+            <div className="max-w-sm mx-auto">
+              <div className="text-center mb-8">
+                <h2 className="text-[30px] font-bold leading-[100%] tracking-[5%] text-center mb-2" 
+                    style={{ fontFamily: 'Raleway' }}>
+                  Get Started
+                </h2>
+                <p className="text-[18px] font-light leading-[100%] tracking-[0%] text-center mb-4" 
+                   style={{ fontFamily: 'Raleway' }}>
+                  Already have an account?{' '}
+                  <Link 
+                    to="/login" 
+                    className="text-gray-900 font-semibold hover:underline"
+                  >
+                    Sign In
+                  </Link>
+                </p>
+                <div className="text-[18px] font-medium leading-[100%] tracking-[0%] text-left mb-4" 
+                     style={{ fontFamily: 'Raleway' }}>
+                  1 ) Account Information
+                </div>
+              </div>
 
-        <p className="text-center text-gray-600 mt-5">
-          Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 hover:underline">
-            Login here
-          </Link>
-        </p>
+              {Object.keys(errors).length > 0 && (
+                <Alert type="error">
+                  <ul className="list-disc list-inside">
+                    {Object.values(errors).map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </Alert>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label htmlFor="username" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
+                         style={{ fontFamily: 'Raleway' }}>
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%]"
+                    style={{ fontFamily: 'Raleway' }}
+                    required
+                  />
+                  {errors.username && <span className="text-red-600 text-sm">{errors.username}</span>}
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
+                         style={{ fontFamily: 'Raleway' }}>
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%]"
+                    style={{ fontFamily: 'Raleway' }}
+                    required
+                  />
+                  {errors.email && <span className="text-red-600 text-sm">{errors.email}</span>}
+                </div>
+
+                <div>
+                  <label htmlFor="password1" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
+                         style={{ fontFamily: 'Raleway' }}>
+                    Password
+                  </label>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password1"
+                    name="password1"
+                    value={formData.password1}
+                    onChange={handleChange}
+                    className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%]"
+                    style={{ fontFamily: 'Raleway' }}
+                    required
+                  />
+                  {errors.password1 && <span className="text-red-600 text-sm">{errors.password1}</span>}
+                </div>
+
+                <div>
+                  <label htmlFor="password2" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
+                         style={{ fontFamily: 'Raleway' }}>
+                    Confirm Password
+                  </label>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password2"
+                    name="password2"
+                    value={formData.password2}
+                    onChange={handleChange}
+                    className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%]"
+                    style={{ fontFamily: 'Raleway' }}
+                    required
+                  />
+                  {errors.password2 && <span className="text-red-600 text-sm">{errors.password2}</span>}
+                  <div className="mt-2">
+                    <label className="flex items-center text-[16px] font-light leading-[100%] tracking-[0%]" 
+                           style={{ fontFamily: 'Raleway' }}>
+                      <input
+                        type="checkbox"
+                        checked={showPassword}
+                        onChange={(e) => setShowPassword(e.target.checked)}
+                        className="mr-2"
+                      />
+                      Show Password
+                    </label>
+                  </div>
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="w-full bg-[#815FB3] hover:bg-[#6d4a96] text-white font-medium py-3 px-4 rounded-full transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#815FB3] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ fontFamily: 'Raleway' }}
+                >
+                  Next
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

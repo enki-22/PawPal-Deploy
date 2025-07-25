@@ -16,6 +16,9 @@ module.exports = {
         warning: '#ffc107',
         info: '#17a2b8',
       },
+      fontFamily: {
+        'museo': ['Museo Moderno', 'sans-serif'],
+      },
       animation: {
         'pulse-custom': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       }
