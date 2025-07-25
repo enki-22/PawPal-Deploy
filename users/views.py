@@ -120,13 +120,41 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
     
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        # Extract user data for UserRegistrationSerializer
+        user_data = {
+            'username': request.data.get('username'),
+            'email': request.data.get('email'),
+            'password': request.data.get('password'),
+            'password_confirm': request.data.get('password_confirm', request.data.get('password')),
+            'first_name': request.data.get('first_name', ''),
+            'last_name': request.data.get('last_name', '')
+        }
+        
+        serializer = self.get_serializer(data=user_data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        
+        # Update the user profile with additional data from React form
+        profile = user.profile  # This gets the UserProfile created by signal
+        profile.phone_number = request.data.get('phone_number', '')
+        
+        # Combine city, province, and address into one address field
+        city = request.data.get('city', '')
+        province = request.data.get('province', '')
+        address_line = request.data.get('address', '')
+        
+        full_address = f"{city}, {province}"
+        if address_line:
+            full_address += f"\n{address_line}"
+        
+        profile.address = full_address.strip()
+        profile.save()
+        
         token, created = Token.objects.get_or_create(user=user)
         return Response({
             "user": UserSerializer(user).data,
-            "token": token.key
+            "token": token.key,
+            "message": "Registration successful!"
         }, status=status.HTTP_201_CREATED)
 
 class LoginView(ObtainAuthToken):

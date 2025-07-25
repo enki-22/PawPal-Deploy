@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Layout from './Layout';
-import axios from 'axios';
 
 const Chat = () => {
   const [messages, setMessages] = useState([
@@ -51,7 +51,7 @@ const Chat = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:8000/chatbot/chat/',
+        'http://localhost:8000/api/chatbot/chat/',
         { message: message },
         {
           headers: {

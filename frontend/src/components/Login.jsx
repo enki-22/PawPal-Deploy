@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import Layout from './Layout';
 import Alert from './Alert';
+import Layout from './Layout';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -84,7 +84,7 @@ const Login = () => {
         </button>
 
         <p className="text-center text-gray-600 mt-5">
-          Don't have an account?{' '}
+        Don&apos;t have an account?{' '}
           <Link to="/register/step1" className="text-primary hover:underline">
             Register here
           </Link>

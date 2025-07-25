@@ -1,5 +1,5 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext();
 
@@ -11,7 +11,7 @@ export const useAuth = () => {
   return context;
 };
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
 // Configure axios defaults
 axios.defaults.timeout = 10000;
@@ -90,7 +90,8 @@ export const AuthProvider = ({ children }) => {
       const response = await axios.post(`${API_BASE_URL}/users/register/`, userData, {
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
+        timeout: 10000,
       });
       
       console.log('Registration successful:', response.data);
