@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import pawIcon from '../Assets/Images/paw-icon.png';
 import { useAuth } from '../context/AuthContext';
 
 const Chat = () => {
@@ -96,16 +97,29 @@ const Chat = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#D8CAED] flex">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Left Sidebar */}
       <div className={`${sidebarVisible ? 'w-64' : 'w-0'} bg-[#C8B5E6] transition-all duration-300 ease-in-out overflow-hidden flex flex-col`}>
         <div className="p-4 min-w-64">
           {/* Header */}
-          <div className="flex items-center mb-8">
-            <span className="text-2xl mr-2">🐾</span>
-            <h1 className="text-[#815FB3] text-xl font-bold" style={{ fontFamily: 'Museo Moderno' }}>
-              PAWPAL
-            </h1>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center">
+              <img src={pawIcon} alt="Paw" className="w-8 h-8 mr-2" 
+                   style={{ filter: 'brightness(0) saturate(100%) invert(32%) sepia(18%) saturate(1234%) hue-rotate(237deg) brightness(96%) contrast(86%)' }} />
+              <h1 className="text-[#815FB3] text-[20px] font-black text-center" 
+                  style={{ fontFamily: 'MuseoModerno', fontWeight: 900, lineHeight: 'normal' }}>
+                PAWPAL
+              </h1>
+            </div>
+            <button 
+              onClick={() => setSidebarVisible(!sidebarVisible)}
+              className="p-2 hover:bg-purple-200 rounded-lg transition-colors text-[#815FB3]"
+              title="Hide sidebar"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
           </div>
 
           {/* New Chat Button */}
@@ -181,17 +195,19 @@ const Chat = () => {
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col bg-white">
         {/* Header */}
-        <div className="bg-white border-b p-4 flex items-center justify-between">
+        <div className="bg-[#F0F0F0] p-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <button 
-              onClick={() => setSidebarVisible(!sidebarVisible)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              title={sidebarVisible ? 'Hide sidebar' : 'Show sidebar'}
-            >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+            {!sidebarVisible && (
+              <button 
+                onClick={() => setSidebarVisible(true)}
+                className="p-2 hover:bg-gray-200 rounded-lg transition-colors text-gray-600"
+                title="Show sidebar"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            )}
             <h2 className="text-[24px] font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
               Hello, {user?.username || 'User'}!
             </h2>
@@ -258,12 +274,12 @@ const Chat = () => {
           </div>
         </div>
 
-        {/* Chat Messages Area - Full Width */}
+        {/* Chat Messages Area */}
         <div className="flex-1 flex flex-col">
           {/* Messages Container */}
           <div 
             ref={chatContainerRef}
-            className="flex-1 overflow-y-auto p-6 space-y-4 max-w-4xl mx-auto w-full"
+            className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#F0F0F0]"
           >
             {messages.map((message) => (
               <div
@@ -271,13 +287,13 @@ const Chat = () => {
                 className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                  className={`max-w-sm px-4 py-3 rounded-lg shadow-sm ${
                     message.isUser
-                      ? 'bg-[#815FB3] text-white'
-                      : 'bg-gray-100 text-gray-900'
+                      ? 'bg-[#815FB3] text-white rounded-br-none'
+                      : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
                   }`}
                 >
-                  <p className="text-[14px]" style={{ fontFamily: 'Raleway' }}>
+                  <p className="text-[14px] leading-relaxed" style={{ fontFamily: 'Raleway' }}>
                     {message.content}
                   </p>
                 </div>
@@ -285,7 +301,7 @@ const Chat = () => {
             ))}
             {loading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 text-gray-900 px-4 py-2 rounded-lg">
+                <div className="bg-white text-gray-800 border border-gray-200 px-4 py-3 rounded-lg rounded-bl-none shadow-sm">
                   <p className="text-[14px] animate-pulse" style={{ fontFamily: 'Raleway' }}>
                     Typing...
                   </p>
@@ -295,7 +311,8 @@ const Chat = () => {
           </div>
 
           {/* Input Area */}
-          <div className="p-6 border-t bg-gray-50">
+          <div className="p-6 bg-[#F0F0F0]" 
+               style={{ borderRadius: '10px 10px 0 0' }}>
             <div className="max-w-4xl mx-auto">
               <form onSubmit={handleSubmit} className="flex space-x-3">
                 <input
@@ -303,7 +320,7 @@ const Chat = () => {
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder="How can I help you today?"
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] text-[14px]"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] focus:border-transparent text-[14px] bg-[#E4DEED]"
                   style={{ fontFamily: 'Raleway' }}
                   disabled={loading}
                   required
@@ -311,9 +328,9 @@ const Chat = () => {
                 <button
                   type="submit"
                   disabled={loading || !messageInput.trim()}
-                  className="bg-[#815FB3] hover:bg-[#6d4a96] text-white p-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-[#815FB3] hover:bg-[#6d4a96] text-white p-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 transform rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
                 </button>

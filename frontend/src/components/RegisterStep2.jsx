@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import pawIcon from '../Assets/Images/paw-icon.png';
+import pawBullet from '../Assets/Images/paw.png';
 import { useAuth } from '../context/AuthContext';
 import { useRegistration } from '../context/RegistrationContext';
 import Alert from './Alert';
@@ -87,7 +89,7 @@ const RegisterStep2 = () => {
                   <>
                     <div className="mb-4">
                       <div className="inline-flex items-center">
-                        <span className="text-4xl mr-2">🐾</span>
+                        <img src={pawIcon} alt="Paw" className="w-16 h-16 mr-2" />
                         <h1 className="text-[#FFF07B] font-museo font-black text-[47px] leading-[100%] tracking-[0%]">
                           PAWPAL
                         </h1>
@@ -97,30 +99,28 @@ const RegisterStep2 = () => {
                     <h2 className="text-[20px] font-bold leading-[100%] tracking-[0%] text-center mb-4" 
                         style={{ fontFamily: 'Raleway' }}>
                       Your pet&apos;s health companion
-                    </h2>
-                    
-                    <p className="text-[16px] font-medium leading-[100%] tracking-[0%] mb-8" 
+                    </h2>                    <p className="text-[16px] font-medium leading-[100%] tracking-[0%] mb-8" 
                        style={{ fontFamily: 'Raleway' }}>
                       Get instant answers to your pet health questions, track vaccinations, and receive personalized care recommendations.
                     </p>
                     
                     <div className="space-y-3 text-left">
                       <div className="flex items-center">
-                        <span className="text-yellow-400 mr-3">🐾</span>
+                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
                         <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
                               style={{ fontFamily: 'Raleway' }}>
                           24/7 Pet Health Support
                         </span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-yellow-400 mr-3">🐾</span>
+                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
                         <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
                               style={{ fontFamily: 'Raleway' }}>
                           Personalized Care
                         </span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-yellow-400 mr-3">🐾</span>
+                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
                         <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
                               style={{ fontFamily: 'Raleway' }}>
                           Track Vaccinations and Medications
@@ -132,7 +132,7 @@ const RegisterStep2 = () => {
                   <>
                     <div className="mb-4">
                       <div className="inline-flex items-center">
-                        <span className="text-4xl mr-2">🐾</span>
+                        <img src={pawIcon} alt="Paw" className="w-16 h-16 mr-2" />
                         <h1 className="text-[#FFF07B] font-museo font-black text-[47px] leading-[100%] tracking-[0%]">
                           PAWPAL
                         </h1>

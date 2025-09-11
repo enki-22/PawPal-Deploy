@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import pawIcon from '../Assets/Images/paw-icon.png';
+import pawBullet from '../Assets/Images/paw.png';
 import { useAuth } from '../context/AuthContext';
 import Alert from './Alert';
-
 const Login = () => {
   const [formData, setFormData] = useState({
     username: '',
@@ -76,7 +77,7 @@ const Login = () => {
                   <div>
                     <label htmlFor="username" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
                            style={{ fontFamily: 'Raleway' }}>
-                      Email
+                      Username
                     </label>
                     <input
                       type="text"
@@ -151,7 +152,7 @@ const Login = () => {
                   <>
                     <div className="mb-4">
                       <div className="inline-flex items-center">
-                        <span className="text-4xl mr-2">🐾</span>
+                        <img src={pawIcon} alt="Paw" className="w-16 h-16" />
                         <h1 className="text-[#FFF07B] font-museo font-black text-[47px] leading-[100%] tracking-[0%]">
                           PAWPAL
                         </h1>
@@ -172,21 +173,21 @@ const Login = () => {
                     
                     <div className="space-y-3">
                       <div className="flex items-center">
-                        <span className="text-yellow-400 mr-3">🐾</span>
+                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
                         <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
                               style={{ fontFamily: 'Raleway' }}>
                           24/7 Pet Health Support
                         </span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-yellow-400 mr-3">🐾</span>
+                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
                         <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
                               style={{ fontFamily: 'Raleway' }}>
                           Personalized Care
                         </span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-yellow-400 mr-3">🐾</span>
+                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
                         <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
                               style={{ fontFamily: 'Raleway' }}>
                           Track Vaccinations and Medications

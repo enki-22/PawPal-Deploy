@@ -21,6 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-d_d@#1xmtar_fg2v_c#ls8uo)ag%5x935x@79fk^--4%s!^!7s'
+GEMINI_API_KEY = 'AIzaSyDXsFtKFC5YKxcm5JEL45XicLPjKuEIsFc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     #Third-party apps or the rest django framework
     'rest_framework',
     'rest_framework.authtoken',  # For token authentication
+    'corsheaders',
     
     
     
@@ -65,6 +67,7 @@ REST_FRAMEWORK = {
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -75,6 +78,37 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'vet_app.urls'
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",    # Add this line
+    "http://127.0.0.1:3001",    # Add this line  
+    "http://localhost:3002",  
+    "http://127.0.0.1:3002",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
 TEMPLATES = [
     {
@@ -96,13 +130,13 @@ WSGI_APPLICATION = 'vet_app.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+#
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'pawpalDB',
         'USER': 'postgres',
-        'PASSWORD': 'kielitofedelino',
+        'PASSWORD': 'geriboi27',
         'HOST': 'localhost',
         'PORT': '5432',
     }
