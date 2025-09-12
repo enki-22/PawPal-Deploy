@@ -4,6 +4,7 @@ import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
 import { useAuth } from '../context/AuthContext';
 import Alert from './Alert';
+
 const Login = () => {
   const [formData, setFormData] = useState({
     username: '',
@@ -28,18 +29,29 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setLoading(true);
 
-    const result = await login(formData);
-    
-    if (result.success) {
-      navigate('/chat');
-    } else {
-      setError(result.error);
+    try {
+      const { username, password } = formData;
+      console.log('Attempting login with:', { username, password: password.length + ' chars' });
+      
+      const result = await login({ username, password });
+      
+      console.log('Login result:', result);
+      
+      if (result.success) {
+        console.log('Login successful, should redirect to /chat');
+        navigate('/chat');
+      } else {
+        setError(result.error || 'Invalid credentials');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Login failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   return (
@@ -152,7 +164,12 @@ const Login = () => {
                   <>
                     <div className="mb-4">
                       <div className="inline-flex items-center">
-                        <img src={pawIcon} alt="Paw" className="w-16 h-16" />
+                        {/* Use pawIcon if available, fallback to emoji */}
+                        {pawIcon ? (
+                          <img src={pawIcon} alt="Paw" className="w-16 h-16" />
+                        ) : (
+                          <span className="text-4xl mr-2">🐾</span>
+                        )}
                         <h1 className="text-[#FFF07B] font-museo font-black text-[47px] leading-[100%] tracking-[0%]">
                           PAWPAL
                         </h1>
@@ -173,21 +190,34 @@ const Login = () => {
                     
                     <div className="space-y-3">
                       <div className="flex items-center">
-                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
+                        {/* Use pawBullet if available, fallback to emoji */}
+                        {pawBullet ? (
+                          <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
+                        ) : (
+                          <span className="text-yellow-400 mr-3">🐾</span>
+                        )}
                         <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
                               style={{ fontFamily: 'Raleway' }}>
                           24/7 Pet Health Support
                         </span>
                       </div>
                       <div className="flex items-center">
-                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
+                        {pawBullet ? (
+                          <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
+                        ) : (
+                          <span className="text-yellow-400 mr-3">🐾</span>
+                        )}
                         <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
                               style={{ fontFamily: 'Raleway' }}>
                           Personalized Care
                         </span>
                       </div>
                       <div className="flex items-center">
-                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
+                        {pawBullet ? (
+                          <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
+                        ) : (
+                          <span className="text-yellow-400 mr-3">🐾</span>
+                        )}
                         <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
                               style={{ fontFamily: 'Raleway' }}>
                           Track Vaccinations and Medications
@@ -237,8 +267,6 @@ const Login = () => {
                     className={`w-2 h-2 rounded-full transition-colors duration-200 ${showClinicInfo ? 'bg-[#FFF07B]' : 'bg-purple-400 hover:bg-[#FFF07B] cursor-pointer'}`}
                   />
                 </div>
-
-                {/* Remove the separate icon */}
               </div>
             </div>
           </div>
