@@ -30,5 +30,45 @@ class Message(models.Model):
         ordering = ['created_at']
     
     def __str__(self):
-        role = "User" if self.is_user else "AI"
-        return f"{role}: {self.content[:50]}..."
+        sender = "User" if self.is_user else "AI"
+        return f"{sender}: {self.content[:50]}..."
+
+# New model for AI Diagnoses
+class Diagnosis(models.Model):
+    SEVERITY_CHOICES = [
+        ('low', 'Low'),
+        ('moderate', 'Moderate'),
+        ('high', 'High'),
+        ('critical', 'Critical'),
+    ]
+    
+    SPECIES_CHOICES = [
+        ('dog', 'Dog'),
+        ('cat', 'Cat'),
+        ('bird', 'Bird'),
+        ('rabbit', 'Rabbit'),
+        ('other', 'Other'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    pet_name = models.CharField(max_length=100)
+    animal_type = models.CharField(max_length=50, choices=SPECIES_CHOICES, default='dog')
+    breed = models.CharField(max_length=100, blank=True, null=True)
+    symptoms = models.TextField()
+    diagnosis = models.TextField()
+    severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES, default='moderate')
+    case_id = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = "Diagnoses"
+    
+    def __str__(self):
+        return f"{self.pet_name} - {self.case_id}"
+    
+    def save(self, *args, **kwargs):
+        if not self.case_id:
+            from datetime import datetime
+            self.case_id = f"PDX-{datetime.now().strftime('%Y-%m%d')}-{str(self.id or '').zfill(3)}"
+        super().save(*args, **kwargs)

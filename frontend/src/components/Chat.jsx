@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import pawIcon from '../Assets/Images/paw-icon.png';
 import { useAuth } from '../context/AuthContext';
 
+
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [conversations, setConversations] = useState([]);
@@ -20,24 +21,29 @@ const Chat = () => {
   const navigate = useNavigate();
   const { user, token, logout } = useAuth();
 
+
   // API Base URL
   const API_BASE_URL = 'http://127.0.0.1:8000/api';
+
 
   // Load conversations on component mount
   useEffect(() => {
     loadConversations();
   }, []);
 
+
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   };
+
 
   const loadConversations = async () => {
     try {
@@ -48,9 +54,10 @@ const Chat = () => {
         }
       });
 
+
       if (response.data && response.data.conversations) {
         setConversations(response.data.conversations);
-        
+       
         // If no current conversation and conversations exist, load the most recent one
         if (!currentConversationId && response.data.conversations.length > 0) {
           const mostRecent = response.data.conversations[0];
@@ -68,6 +75,7 @@ const Chat = () => {
     }
   };
 
+
   const loadConversation = async (conversationId) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/chatbot/conversations/${conversationId}/`, {
@@ -76,11 +84,12 @@ const Chat = () => {
         }
       });
 
+
       if (response.data) {
         setCurrentConversationId(conversationId);
         setCurrentConversationTitle(response.data.conversation.title);
         setShowModeSelection(false);
-        
+       
         // Convert messages to frontend format
         const formattedMessages = response.data.messages.map(msg => ({
           id: msg.id,
@@ -89,9 +98,9 @@ const Chat = () => {
           sender: msg.sender,
           timestamp: msg.timestamp,
         }));
-        
+       
         setMessages(formattedMessages);
-        
+       
         // Determine chat mode from conversation title
         if (response.data.conversation.title.includes('Symptom Check:')) {
           setChatMode('symptom_checker');
@@ -104,6 +113,7 @@ const Chat = () => {
     }
   };
 
+
   const createNewConversation = async () => {
     try {
       const response = await axios.post(`${API_BASE_URL}/chatbot/conversations/new/`, {}, {
@@ -112,13 +122,14 @@ const Chat = () => {
         }
       });
 
+
       if (response.data && response.data.conversation) {
         setCurrentConversationId(response.data.conversation.id);
         setCurrentConversationTitle(response.data.conversation.title);
         setShowModeSelection(true);
         setChatMode(null);
         setMessages([]);
-        
+       
         // Reload conversations to update sidebar
         loadConversations();
       }
@@ -126,6 +137,7 @@ const Chat = () => {
       console.error('Error creating new conversation:', error);
     }
   };
+
 
   // Mode Selection Component
   const ModeSelection = () => (
@@ -140,6 +152,7 @@ const Chat = () => {
           </p>
         </div>
 
+
         {/* Main content area with illustration and cards side by side */}
         <div className="flex flex-col lg:flex-row items-start justify-center gap-8 w-full">
           {/* Illustration */}
@@ -150,7 +163,7 @@ const Chat = () => {
               className="w-72 h-72 object-contain"
             />
           </div>
-          
+         
           {/* Quick action buttons - stacked vertically */}
           <div className="flex flex-col gap-4 w-full max-w-xl">
             <div
@@ -177,8 +190,8 @@ const Chat = () => {
                 Learn about typical behaviors, habits, diet, and health patterns specific to your pet's breed, age, and species. Perfect for new pet parents or anyone looking to better understand what's considered "normal" for their furry companion.
               </p>
             </div>
-            
-            <div 
+           
+            <div
               onClick={() => selectMode('symptom_checker')}
               className="bg-[#FFF4C9] rounded-2xl p-6 cursor-pointer hover:bg-[#fff0b3] transition-colors w-full min-h-[130px]"
             >
@@ -202,14 +215,16 @@ const Chat = () => {
     </div>
   );
 
+
   const selectMode = (mode) => {
     setChatMode(mode);
     setShowModeSelection(false);
-    
+   
     // Set initial message based on mode
-    const initialMessage = mode === 'general' 
+    const initialMessage = mode === 'general'
       ? "Hi! I'm here to help you understand what's normal and healthy for your pet. Feel free to ask about typical behaviors, diet, exercise needs, or general care tips for your furry friend!"
       : "Hello! I'm your AI symptom checker. Please describe any symptoms or unusual behaviors you've noticed in your pet, and I'll help you understand what they might indicate. Remember, this doesn't replace professional veterinary care.";
+
 
     setMessages([{
       id: Date.now(),
@@ -218,16 +233,17 @@ const Chat = () => {
       sender: 'PawPal',
       timestamp: new Date().toISOString(),
     }]);
-    
+   
     setCurrentConversationTitle(mode === 'general' ? 'Pet Health Guide' : 'Symptom Checker');
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+   
     const message = messageInput.trim();
     if (!message || loading) return;
-    
+   
     // Add user message to UI immediately
     const userMessage = {
       id: Date.now() + Math.random(),
@@ -240,10 +256,11 @@ const Chat = () => {
     setMessageInput('');
     setLoading(true);
 
+
     try {
       const response = await axios.post(
         `${API_BASE_URL}/chatbot/chat/`,
-        { 
+        {
           message: message,
           conversation_id: currentConversationId,
           chat_mode: chatMode // Add chat mode
@@ -256,6 +273,7 @@ const Chat = () => {
         }
       );
 
+
       if (response.data && response.data.response) {
         // Add AI response to UI
         const aiMessage = {
@@ -266,7 +284,7 @@ const Chat = () => {
           timestamp: new Date().toISOString(),
         };
         setMessages(prev => [...prev, aiMessage]);
-        
+       
         // Update conversation info
         if (response.data.conversation_id) {
           setCurrentConversationId(response.data.conversation_id);
@@ -274,7 +292,7 @@ const Chat = () => {
         if (response.data.conversation_title) {
           setCurrentConversationTitle(response.data.conversation_title);
         }
-        
+       
         // Reload conversations to update sidebar
         loadConversations();
       } else {
@@ -295,6 +313,7 @@ const Chat = () => {
     }
   };
 
+
   // Handle logout and dropdown functionality
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -303,16 +322,19 @@ const Chat = () => {
       }
     };
 
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [dropdownVisible]);
 
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+
 
   return (
     <div className="h-screen bg-gray-50 flex overflow-hidden">
@@ -323,14 +345,14 @@ const Chat = () => {
           <div className="flex-shrink-0 p-4">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center">
-                <img src={pawIcon} alt="Paw" className="w-8 h-8 mr-2" 
+                <img src={pawIcon} alt="Paw" className="w-8 h-8 mr-2"
                      style={{ filter: 'brightness(0) saturate(100%) invert(32%) sepia(18%) saturate(1234%) hue-rotate(237deg) brightness(96%) contrast(86%)' }} />
-                <h1 className="text-[#815FB3] text-[20px] font-black text-center" 
+                <h1 className="text-[#815FB3] text-[20px] font-black text-center"
                     style={{ fontFamily: 'MuseoModerno', fontWeight: 900, lineHeight: 'normal' }}>
                   PAWPAL
                 </h1>
               </div>
-              <button 
+              <button
                 onClick={() => setSidebarVisible(!sidebarVisible)}
                 className="p-2 hover:bg-purple-200 rounded-lg transition-colors text-[#815FB3]"
                 title="Hide sidebar"
@@ -341,15 +363,17 @@ const Chat = () => {
               </button>
             </div>
 
+
             {/* New Chat Button */}
-            <button 
+            <button
               onClick={createNewConversation}
-              className="w-full bg-[#FFF07B] text-black py-3 px-4 rounded-lg mb-6 text-[16px] font-medium hover:bg-yellow-300 transition-colors" 
+              className="w-full bg-[#FFF07B] text-black py-3 px-4 rounded-lg mb-6 text-[16px] font-medium hover:bg-yellow-300 transition-colors"
               style={{ fontFamily: 'Raleway' }}
             >
               + New Chat
             </button>
           </div>
+
 
           {/* Scrollable Conversations List */}
           <div className="flex-1 overflow-y-auto px-4 pb-4">
@@ -385,6 +409,7 @@ const Chat = () => {
                   </div>
                 )}
 
+
                 {/* Recent Conversations */}
                 <div>
                   <h3 className="text-[14px] font-medium text-gray-700 mb-3" style={{ fontFamily: 'Raleway' }}>
@@ -416,13 +441,14 @@ const Chat = () => {
         </div>
       </div>
 
+
       {/* Main Chat Area - Fixed Height */}
       <div className="flex-1 flex flex-col bg-white h-full">
         {/* Fixed Header */}
         <div className="flex-shrink-0 bg-[#F0F0F0] p-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             {!sidebarVisible && (
-              <button 
+              <button
                 onClick={() => setSidebarVisible(true)}
                 className="p-2 hover:bg-gray-200 rounded-lg transition-colors text-gray-600"
                 title="Show sidebar"
@@ -436,7 +462,7 @@ const Chat = () => {
               {currentConversationTitle}
             </h2>
           </div>
-          
+         
           {/* User Dropdown */}
           <div className="relative dropdown-container">
             <button
@@ -455,6 +481,7 @@ const Chat = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
+
 
             {dropdownVisible && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
@@ -475,13 +502,14 @@ const Chat = () => {
           </div>
         </div>
 
+
         {/* Chat Messages Area - Conditional */}
         <div className="flex-1 flex flex-col min-h-0">
           {showModeSelection ? (
             <ModeSelection />
           ) : (
             <>
-              <div 
+              <div
                 ref={chatContainerRef}
                 className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#F0F0F0] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400"
                 style={{
@@ -494,7 +522,7 @@ const Chat = () => {
                   {chatMode && (
                     <div className="flex justify-center mb-4">
                       <div className={`px-4 py-2 rounded-full text-sm font-medium ${
-                        chatMode === 'general' 
+                        chatMode === 'general'
                           ? 'bg-pink-100 text-pink-700'
                           : 'bg-yellow-100 text-yellow-700'
                       }`} style={{ fontFamily: 'Raleway' }}>
@@ -502,6 +530,7 @@ const Chat = () => {
                       </div>
                     </div>
                   )}
+
 
                   {messages.map((message) => (
                     <div
@@ -533,6 +562,7 @@ const Chat = () => {
                 </div>
               </div>
 
+
               {/* Fixed Input Area */}
               <div className="flex-shrink-0 p-6 bg-[#F0F0F0]">
                 <div className="max-w-4xl mx-auto">
@@ -553,7 +583,7 @@ const Chat = () => {
                       Change Mode
                     </button>
                   </div>
-                  
+                 
                   <form onSubmit={handleSubmit} className="relative">
                     <input
                       type="text"
@@ -589,7 +619,7 @@ const Chat = () => {
                       </button>
                     </div>
                   </form>
-                  
+                 
                   <p className="text-[14px] text-gray-500 mt-3 text-center" style={{ fontFamily: 'Raleway' }}>
                     PawPal is an AI-powered assistant designed to provide guidance on pet health and care. It does not replace professional veterinary consultation.
                   </p>
@@ -603,4 +633,8 @@ const Chat = () => {
   );
 };
 
+
 export default Chat;
+
+
+

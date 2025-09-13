@@ -5,6 +5,7 @@ import pawBullet from '../Assets/Images/paw.png';
 import { useAuth } from '../context/AuthContext';
 import Alert from './Alert';
 
+
 const Login = () => {
   const [formData, setFormData] = useState({
     username: '',
@@ -14,11 +15,12 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showClinicInfo, setShowClinicInfo] = useState(false);
-  
+ 
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const successMessage = location.state?.message;
+
 
   const handleChange = (e) => {
     setFormData({
@@ -27,19 +29,21 @@ const Login = () => {
     });
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
+
     try {
       const { username, password } = formData;
       console.log('Attempting login with:', { username, password: password.length + ' chars' });
-      
+     
       const result = await login({ username, password });
-      
+     
       console.log('Login result:', result);
-      
+     
       if (result.success) {
         console.log('Login successful, should redirect to /chat');
         navigate('/chat');
@@ -54,6 +58,7 @@ const Login = () => {
     }
   };
 
+
   return (
     <div className="min-h-screen bg-[#D8CAED] flex items-center justify-center p-4">
       <div className="max-w-5xl w-full bg-white rounded-lg shadow-xl overflow-hidden">
@@ -63,15 +68,15 @@ const Login = () => {
             <div className="flex flex-col justify-center">
               <div className="max-w-sm mx-auto w-full">
                 <div className="text-center mb-8">
-                  <h2 className="text-[30px] font-bold leading-[100%] tracking-[5%] text-center mb-2" 
+                  <h2 className="text-[30px] font-bold leading-[100%] tracking-[5%] text-center mb-2"
                       style={{ fontFamily: 'Raleway' }}>
                     Sign In
                   </h2>
-                  <p className="text-[18px] font-light leading-[100%] tracking-[0%] text-center" 
+                  <p className="text-[18px] font-light leading-[100%] tracking-[0%] text-center"
                      style={{ fontFamily: 'Raleway' }}>
                     Don&apos;t have an account yet?{' '}
-                    <Link 
-                      to="/register/step1" 
+                    <Link
+                      to="/register/step1"
                       className="text-gray-900 font-semibold hover:underline"
                     >
                       Sign Up
@@ -79,15 +84,17 @@ const Login = () => {
                   </p>
                 </div>
 
+
                 {successMessage && (
                   <Alert type="success" message={successMessage} />
                 )}
-                
+               
                 <Alert type="error" message={error} onClose={() => setError('')} />
+
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <label htmlFor="username" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
+                    <label htmlFor="username" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2"
                            style={{ fontFamily: 'Raleway' }}>
                       Username
                     </label>
@@ -104,8 +111,9 @@ const Login = () => {
                     />
                   </div>
 
+
                   <div>
-                    <label htmlFor="password" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
+                    <label htmlFor="password" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2"
                            style={{ fontFamily: 'Raleway' }}>
                       Password
                     </label>
@@ -121,7 +129,7 @@ const Login = () => {
                       required
                     />
                     <div className="mt-2">
-                      <label className="flex items-center text-[16px] font-light leading-[100%] tracking-[0%]" 
+                      <label className="flex items-center text-[16px] font-light leading-[100%] tracking-[0%]"
                              style={{ fontFamily: 'Raleway' }}>
                         <input
                           type="checkbox"
@@ -134,18 +142,20 @@ const Login = () => {
                     </div>
                   </div>
 
+
                   <div className="text-left">
-                    <Link 
-                      to="/forgot-password" 
+                    <Link
+                      to="/forgot-password"
                       className="text-purple-600 hover:text-purple-500 text-sm"
                     >
                       Forgot Password?
                     </Link>
                   </div>
 
+
                   <div className="flex justify-center">
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       className="bg-[#815FB3] hover:bg-[#6d4a96] text-white font-medium py-3 px-16 rounded-lg shadow-lg hover:shadow-xl transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#815FB3] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{ fontFamily: 'Raleway' }}
                       disabled={loading}
@@ -156,6 +166,7 @@ const Login = () => {
                 </form>
               </div>
             </div>
+
 
             {/* Right Side - PawPal Promotional Panel */}
             <div className="bg-[#815FB3] text-white p-10 rounded-lg flex flex-col justify-center min-h-[500px]">
@@ -175,19 +186,19 @@ const Login = () => {
                         </h1>
                       </div>
                     </div>
-                    
-                    <h2 className="text-[20px] font-bold leading-[100%] tracking-[0%] text-center mb-4" 
+                   
+                    <h2 className="text-[20px] font-bold leading-[100%] tracking-[0%] text-center mb-4"
                         style={{ fontFamily: 'Raleway' }}>
                       Your pet&apos;s health companion
                     </h2>
-                    
-                    <div className="text-[16px] font-medium leading-[150%] tracking-[0%] mb-8 text-center" 
+                   
+                    <div className="text-[16px] font-medium leading-[150%] tracking-[0%] mb-8 text-center"
                          style={{ fontFamily: 'Raleway' }}>
                       <div>Get instant answers to your pet health</div>
                       <div>questions, track vaccinations, and receive</div>
                       <div>personalized care recommendations.</div>
                     </div>
-                    
+                   
                     <div className="space-y-3">
                       <div className="flex items-center">
                         {/* Use pawBullet if available, fallback to emoji */}
@@ -196,7 +207,7 @@ const Login = () => {
                         ) : (
                           <span className="text-yellow-400 mr-3">🐾</span>
                         )}
-                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
+                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]"
                               style={{ fontFamily: 'Raleway' }}>
                           24/7 Pet Health Support
                         </span>
@@ -207,7 +218,7 @@ const Login = () => {
                         ) : (
                           <span className="text-yellow-400 mr-3">🐾</span>
                         )}
-                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
+                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]"
                               style={{ fontFamily: 'Raleway' }}>
                           Personalized Care
                         </span>
@@ -218,7 +229,7 @@ const Login = () => {
                         ) : (
                           <span className="text-yellow-400 mr-3">🐾</span>
                         )}
-                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
+                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]"
                               style={{ fontFamily: 'Raleway' }}>
                           Track Vaccinations and Medications
                         </span>
@@ -235,7 +246,7 @@ const Login = () => {
                         </h1>
                       </div>
                     </div>
-                    
+                   
                     <div className="w-full bg-white rounded-lg p-6 mx-auto flex items-center justify-center mb-4">
                       <div className="text-[#815FB3] text-center">
                         <div className="flex items-center justify-center mb-2">
@@ -256,7 +267,7 @@ const Login = () => {
                     </div>
                   </>
                 )}
-                
+               
                 <div className="mt-8 flex justify-center space-x-2">
                   <button
                     onClick={() => setShowClinicInfo(false)}
@@ -276,4 +287,8 @@ const Login = () => {
   );
 };
 
+
 export default Login;
+
+
+
