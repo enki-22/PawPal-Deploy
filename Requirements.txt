@@ -1,3 +1,6 @@
 Django
 PostgreSQL
 psycopg2
+Pillow
+djangorestframework
+django-cors-headers

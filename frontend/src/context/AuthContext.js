@@ -43,44 +43,68 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (credentials) => {
-    try {
-      console.log('Attempting login to:', `${API_BASE_URL}/users/login/`);
-      const response = await axios.post(`${API_BASE_URL}/users/login/`, credentials, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      
-      const { token: newToken, ...userData } = response.data;
-      
-      localStorage.setItem('token', newToken);
-      setToken(newToken);
+  try {
+    console.log('Attempting login to:', `${API_BASE_URL}/users/login/`);
+    console.log('Login credentials:', credentials); // Debug log
+    
+    const response = await axios.post(`${API_BASE_URL}/users/login/`, credentials, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    console.log('Login response:', response.data); // Debug log
+    
+    // Handle different response structures
+    const token = response.data.token;
+    const userData = response.data.user || response.data;
+    
+    if (token) {
+      localStorage.setItem('token', token);
+      setToken(token);
       setUser(userData);
       
       return { success: true };
-    } catch (error) {
-      console.log('Login error:', error);
-      
-      if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-        return { 
-          success: false, 
-          error: 'Cannot connect to server. Please check:\n1. Django backend is running (python manage.py runserver)\n2. CORS is properly configured\n3. Backend is accessible on port 8000' 
-        };
-      }
-      
-      if (error.code === 'ECONNREFUSED') {
-        return { 
-          success: false, 
-          error: 'Connection refused. Make sure Django backend is running on port 8000.' 
-        };
-      }
-      
+    } else {
+      console.error('No token in response:', response.data);
       return { 
         success: false, 
-        error: error.response?.data?.error || error.response?.data?.detail || 'Login failed' 
+        error: 'Invalid response from server - no token received' 
       };
     }
-  };
+  } catch (error) {
+    console.log('Login error:', error);
+    console.log('Error response:', error.response?.data);
+    console.log('Error status:', error.response?.status);
+    
+    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+      return { 
+        success: false, 
+        error: 'Cannot connect to server. Please check:\n1. Django backend is running (python manage.py runserver)\n2. CORS is properly configured\n3. Backend is accessible on port 8000' 
+      };
+    }
+    
+    if (error.code === 'ECONNREFUSED') {
+      return { 
+        success: false, 
+        error: 'Connection refused. Make sure Django backend is running on port 8000.' 
+      };
+    }
+    
+    // Handle 401 Unauthorized
+    if (error.response?.status === 401) {
+      return { 
+        success: false, 
+        error: 'Invalid username or password' 
+      };
+    }
+    
+    return { 
+      success: false, 
+      error: error.response?.data?.error || error.response?.data?.detail || 'Login failed' 
+    };
+  }
+};
 
   const register = async (userData) => {
     try {
