@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import pawIcon from '../Assets/Images/paw-icon.png';
 import { useAuth } from '../context/AuthContext';
+import Sidebar from './Sidebar';
+import ProfileButton from './ProfileButton';
 
 
 const Chat = () => {
@@ -183,11 +184,11 @@ const Chat = () => {
                   />
                 </div>
                 <span className="text-[16px] font-bold" style={{ fontFamily: 'Raleway', color: '#000000' }}>
-                  What's normal for my pet?
+                  What&apos;s normal for my pet?
                 </span>
               </div>
               <p className="text-[13px] leading-relaxed text-gray-700" style={{ fontFamily: 'Raleway' }}>
-                Learn about typical behaviors, habits, diet, and health patterns specific to your pet's breed, age, and species. Perfect for new pet parents or anyone looking to better understand what's considered "normal" for their furry companion.
+                Learn about typical behaviors, habits, diet, and health patterns specific to your pet&apos;s breed, age, and species. Perfect for new pet parents or anyone looking to better understand what&apos;s considered &ldquo;normal&rdquo; for their furry companion.
               </p>
             </div>
            
@@ -206,7 +207,7 @@ const Chat = () => {
                 </span>
               </div>
               <p className="text-[13px] text-gray-700 leading-relaxed" style={{ fontFamily: 'Raleway' }}>
-                Not sure if your pet's symptoms are serious? Use our AI-powered Symptom Checker to get insights into possible causes based on current signs and behaviors. While not a replacement for a vet, it's a helpful first step.
+                Not sure if your pet&apos;s symptoms are serious? Use our AI-powered Symptom Checker to get insights into possible causes based on current signs and behaviors. While not a replacement for a vet, it&apos;s a helpful first step.
               </p>
             </div>
           </div>
@@ -224,8 +225,6 @@ const Chat = () => {
     const initialMessage = mode === 'general'
       ? "Hi! I'm here to help you understand what's normal and healthy for your pet. Feel free to ask about typical behaviors, diet, exercise needs, or general care tips for your furry friend!"
       : "Hello! I'm your AI symptom checker. Please describe any symptoms or unusual behaviors you've noticed in your pet, and I'll help you understand what they might indicate. Remember, this doesn't replace professional veterinary care.";
-
-
     setMessages([{
       id: Date.now(),
       content: initialMessage,
@@ -337,115 +336,26 @@ const Chat = () => {
 
 
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
-      {/* Left Sidebar - Fixed Height with Internal Scrolling */}
-      <div className={`${sidebarVisible ? 'w-64' : 'w-0'} bg-[#C8B5E6] transition-all duration-300 ease-in-out overflow-hidden flex flex-col h-full`}>
-        <div className="flex flex-col h-full min-w-64">
-          {/* Fixed Header */}
-          <div className="flex-shrink-0 p-4">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center">
-                <img src={pawIcon} alt="Paw" className="w-8 h-8 mr-2"
-                     style={{ filter: 'brightness(0) saturate(100%) invert(32%) sepia(18%) saturate(1234%) hue-rotate(237deg) brightness(96%) contrast(86%)' }} />
-                <h1 className="text-[#815FB3] text-[20px] font-black text-center"
-                    style={{ fontFamily: 'MuseoModerno', fontWeight: 900, lineHeight: 'normal' }}>
-                  PAWPAL
-                </h1>
-              </div>
-              <button
-                onClick={() => setSidebarVisible(!sidebarVisible)}
-                className="p-2 hover:bg-purple-200 rounded-lg transition-colors text-[#815FB3]"
-                title="Hide sidebar"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-            </div>
+    <div className="h-screen bg-[#F0F0F0] flex overflow-hidden">
+      {/* Left Sidebar */}
+      <Sidebar
+        sidebarVisible={sidebarVisible}
+        currentPage="chat"
+        onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
+        showSearch={false}
+        showPinnedChats={true}
+        showRecentChats={true}
+        conversations={conversations}
+        currentConversationId={currentConversationId}
+        loadingConversations={loadingConversations}
+        onLoadConversation={loadConversation}
+        onCreateNewConversation={createNewConversation}
+      />
 
-
-            {/* New Chat Button */}
-            <button
-              onClick={createNewConversation}
-              className="w-full bg-[#FFF07B] text-black py-3 px-4 rounded-lg mb-6 text-[16px] font-medium hover:bg-yellow-300 transition-colors"
-              style={{ fontFamily: 'Raleway' }}
-            >
-              + New Chat
-            </button>
-          </div>
-
-
-          {/* Scrollable Conversations List */}
-          <div className="flex-1 overflow-y-auto px-4 pb-4">
-            {loadingConversations ? (
-              <div className="text-center text-gray-600">Loading...</div>
-            ) : (
-              <>
-                {/* Pinned Conversations */}
-                {conversations.filter(conv => conv.is_pinned).length > 0 && (
-                  <div className="mb-6">
-                    <h3 className="text-[14px] font-medium text-gray-700 mb-3" style={{ fontFamily: 'Raleway' }}>
-                      Pinned Chats
-                    </h3>
-                    <div className="space-y-2">
-                      {conversations.filter(conv => conv.is_pinned).map(conversation => (
-                        <div
-                          key={conversation.id}
-                          onClick={() => loadConversation(conversation.id)}
-                          className={`p-2 rounded cursor-pointer text-[14px] transition-colors ${
-                            currentConversationId === conversation.id
-                              ? 'bg-[#FFF07B] text-black'
-                              : 'text-gray-700 hover:bg-purple-200'
-                          }`}
-                          style={{ fontFamily: 'Raleway' }}
-                        >
-                          <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-yellow-500 rounded-sm"></div>
-                            <span className="truncate">{conversation.title}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-
-                {/* Recent Conversations */}
-                <div>
-                  <h3 className="text-[14px] font-medium text-gray-700 mb-3" style={{ fontFamily: 'Raleway' }}>
-                    Recent Chats
-                  </h3>
-                  <div className="space-y-2">
-                    {conversations.filter(conv => !conv.is_pinned).map(conversation => (
-                      <div
-                        key={conversation.id}
-                        onClick={() => loadConversation(conversation.id)}
-                        className={`p-2 rounded cursor-pointer text-[14px] transition-colors ${
-                          currentConversationId === conversation.id
-                            ? 'bg-[#FFF07B] text-black'
-                            : 'text-gray-700 hover:bg-purple-200'
-                        }`}
-                        style={{ fontFamily: 'Raleway' }}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <div className="w-2 h-2 bg-gray-400 rounded-sm"></div>
-                          <span className="truncate">{conversation.title}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-
-      {/* Main Chat Area - Fixed Height */}
-      <div className="flex-1 flex flex-col bg-white h-full">
-        {/* Fixed Header */}
-        <div className="flex-shrink-0 bg-[#F0F0F0] p-4 flex items-center justify-between">
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col min-w-0 bg-[#F0F0F0]">
+        {/* Header */}
+        <div className="border-b p-4 flex items-center justify-between flex-shrink-0" style={{ backgroundColor: '#f0f1f1' }}>
           <div className="flex items-center space-x-4">
             {!sidebarVisible && (
               <button
@@ -462,64 +372,104 @@ const Chat = () => {
               {currentConversationTitle}
             </h2>
           </div>
-         
-          {/* User Dropdown */}
-          <div className="relative dropdown-container">
-            <button
-              onClick={() => setDropdownVisible(!dropdownVisible)}
-              className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none"
-            >
-              <div className="w-8 h-8 bg-[#815FB3] rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
-                  {user?.username?.charAt(0).toUpperCase() || 'U'}
-                </span>
-              </div>
-              <span className="text-sm font-medium" style={{ fontFamily: 'Raleway' }}>
-                {user?.username || 'User'}
-              </span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-
-            {dropdownVisible && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                <div className="py-2">
-                  <div className="px-4 py-2 text-sm text-gray-700 border-b">
-                    <div className="font-medium">{user?.username}</div>
-                    <div className="text-gray-500">{user?.email}</div>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              </div>
-            )}
+          
+          <div className="flex items-center space-x-4">
+            <ProfileButton />
           </div>
         </div>
 
 
         {/* Chat Messages Area - Conditional */}
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 bg-[#F0F0F0]">
           {showModeSelection ? (
             <ModeSelection />
           ) : (
             <>
+              {/* Messages Container */}
               <div
                 ref={chatContainerRef}
-                className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#F0F0F0] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400"
+                className="flex-1 overflow-y-auto p-6 space-y-4 w-full scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400"
                 style={{
                   scrollbarWidth: 'thin',
                   scrollbarColor: '#9CA3AF #F0F0F0'
                 }}
               >
                 <div className="max-w-4xl mx-auto w-full">
+                  {/* Welcome Message - Show only when no user messages */}
+                  {messages.length === 0 && (
+                    <div className="flex flex-col items-center justify-center h-full text-center px-6">
+                      <div className="mb-6">
+                        <h1 className="text-[40px] font-bold text-gray-900 mb-3" style={{ fontFamily: 'Raleway' }}>
+                          Hello, {user?.username || 'User'}!
+                        </h1>
+                        <p className="text-[16px] text-gray-600" style={{ fontFamily: 'Raleway' }}>
+                          How can I assist you and your furry friend today?
+                        </p>
+                      </div>
+                     
+                      {/* Main content area with illustration and cards side by side */}
+                      <div className="flex flex-col lg:flex-row items-start justify-center gap-8 max-w-6xl w-full">
+                        {/* Illustration */}
+                        <div className="flex-shrink-0">
+                          <img
+                            src="/amico.png"
+                            alt="AI Assistant Illustration"
+                            className="w-72 h-72 object-contain"
+                          />
+                        </div>
+                       
+                        {/* Quick action buttons - stacked vertically */}
+                        <div className="flex flex-col gap-4 w-full max-w-xl">
+                          <div
+                            onClick={() => selectMode('general')}
+                            className="rounded-2xl p-6 cursor-pointer w-full min-h-[130px]"
+                            style={{ backgroundColor: '#DCCEF1' }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#c9b8e8'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#DCCEF1'}
+                          >
+                            <div className="flex items-center space-x-3 mb-3">
+                              <div className="w-9 h-9 rounded-full flex items-center justify-center">
+                                <img
+                                  src="/Frame.png"
+                                  alt="Frame icon"
+                                  className="w-5 h-5"
+                                  style={{ filter: 'brightness(0) saturate(100%) invert(59%) sepia(23%) saturate(4832%) hue-rotate(278deg) brightness(96%) contrast(90%)' }}
+                                />
+                              </div>
+                              <span className="text-[16px] font-bold" style={{ fontFamily: 'Raleway', color: '#000000' }}>
+                                What&apos;s normal for my pet?
+                              </span>
+                            </div>
+                            <p className="text-[13px] leading-relaxed text-gray-700" style={{ fontFamily: 'Raleway' }}>
+                              Learn about typical behaviors, habits, diet, and health patterns specific to your pet&apos;s breed, age, and species. Perfect for new pet parents or anyone looking to better understand what&apos;s considered &ldquo;normal&rdquo; for their furry companion.
+                            </p>
+                          </div>
+                         
+                          <div 
+                            onClick={() => selectMode('symptom_checker')}
+                            className="bg-[#FFF4C9] rounded-2xl p-6 cursor-pointer hover:bg-[#fff0b3] transition-colors w-full min-h-[130px]"
+                          >
+                            <div className="flex items-center space-x-3 mb-3">
+                              <div className="w-9 h-9 bg-yellow-200 rounded-full flex items-center justify-center">
+                                <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                              </div>
+                              <span className="text-[16px] font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
+                                Symptom Checker
+                              </span>
+                            </div>
+                            <p className="text-[13px] text-gray-700 leading-relaxed" style={{ fontFamily: 'Raleway' }}>
+                              Not sure if your pet&apos;s symptoms are serious? Use our AI-powered Symptom Checker to get insights into possible causes based on current signs and behaviors. While not a replacement for a vet, it&apos;s a helpful first step.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Mode indicator */}
-                  {chatMode && (
+                  {chatMode && messages.length > 0 && (
                     <div className="flex justify-center mb-4">
                       <div className={`px-4 py-2 rounded-full text-sm font-medium ${
                         chatMode === 'general'
@@ -530,7 +480,6 @@ const Chat = () => {
                       </div>
                     </div>
                   )}
-
 
                   {messages.map((message) => (
                     <div
@@ -562,9 +511,8 @@ const Chat = () => {
                 </div>
               </div>
 
-
               {/* Fixed Input Area */}
-              <div className="flex-shrink-0 p-6 bg-[#F0F0F0]">
+              <div className="p-6 border-t bg-[#F0F0F0] flex-shrink-0">
                 <div className="max-w-4xl mx-auto">
                   <div className="flex items-center justify-between mb-3">
                     <button
@@ -635,6 +583,3 @@ const Chat = () => {
 
 
 export default Chat;
-
-
-

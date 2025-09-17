@@ -7,7 +7,12 @@ const Sidebar = ({
   showSearch = true,
   showPinnedChats = true,
   showRecentChats = true,
-  onToggleSidebar = null
+  onToggleSidebar = null,
+  conversations = [],
+  currentConversationId = null,
+  loadingConversations = false,
+  onLoadConversation = null,
+  onCreateNewConversation = null
 }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -95,7 +100,7 @@ const Sidebar = ({
 
         {/* New Chat Button */}
         <button 
-          onClick={() => navigate('/chat')}
+          onClick={currentPage === 'chat' && onCreateNewConversation ? onCreateNewConversation : () => navigate('/chat')}
           className="w-full bg-[#FFF4C9] text-black py-2 px-4 rounded-xl mb-5 text-[15px] font-extrabold shadow-md hover:shadow-lg transition-shadow duration-200" 
           style={{ fontFamily: 'Raleway' }}
         >
@@ -141,25 +146,65 @@ const Sidebar = ({
         )}
 
         {/* Pinned Chats */}
-        {showPinnedChats && (
+        {showPinnedChats && currentPage === 'chat' && (
           <div className="mb-5">
             <h3 className="text-[14px] font-medium text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>
               Pinned Chats
             </h3>
             <div className="space-y-1">
-              {/* Pinned chats will be populated dynamically */}
+              {loadingConversations ? (
+                <div className="text-center text-gray-600 text-sm">Loading...</div>
+              ) : (
+                conversations.filter(conv => conv.is_pinned).map(conversation => (
+                  <div
+                    key={conversation.id}
+                    onClick={() => onLoadConversation && onLoadConversation(conversation.id)}
+                    className={`p-2 rounded cursor-pointer text-[14px] transition-colors ${
+                      currentConversationId === conversation.id
+                        ? 'bg-[#FFF4C9] text-black'
+                        : 'text-gray-700 hover:bg-purple-100'
+                    }`}
+                    style={{ fontFamily: 'Raleway' }}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-sm"></div>
+                      <span className="truncate">{conversation.title}</span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         )}
 
         {/* Recent Chats */}
-        {showRecentChats && (
-          <div className="flex-1">
+        {showRecentChats && currentPage === 'chat' && (
+          <div className="flex-1 overflow-y-auto">
             <h3 className="text-[14px] font-medium text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>
               Recent Chats
             </h3>
             <div className="space-y-1">
-              {/* Recent chats will be populated dynamically */}
+              {loadingConversations ? (
+                <div className="text-center text-gray-600 text-sm">Loading...</div>
+              ) : (
+                conversations.filter(conv => !conv.is_pinned).map(conversation => (
+                  <div
+                    key={conversation.id}
+                    onClick={() => onLoadConversation && onLoadConversation(conversation.id)}
+                    className={`p-2 rounded cursor-pointer text-[14px] transition-colors ${
+                      currentConversationId === conversation.id
+                        ? 'bg-[#FFF4C9] text-black'
+                        : 'text-gray-700 hover:bg-purple-100'
+                    }`}
+                    style={{ fontFamily: 'Raleway' }}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-gray-400 rounded-sm"></div>
+                      <span className="truncate">{conversation.title}</span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         )}

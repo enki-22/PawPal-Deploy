@@ -438,7 +438,7 @@ const PetProfile = () => {
                       Download Medical Information
                     </h3>
                     <p className="text-gray-700 mb-6" style={{ fontFamily: 'Raleway' }}>
-                      Get a complete PDF report of {pet.name}'s medical information and files
+                      Get a complete PDF report of {pet.name}&apos;s medical information and files
                     </p>
                     <button className="bg-[#E6D45B] hover:bg-[#D4C34A] text-black font-bold py-4 px-12 rounded-full text-lg transition-colors shadow-md transform hover:scale-105" style={{ fontFamily: 'Raleway' }}>
                       Download
