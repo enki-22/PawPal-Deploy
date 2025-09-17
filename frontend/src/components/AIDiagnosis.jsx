@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
+import useConversations from '../hooks/useConversations';
 
 const AIDiagnosis = () => {
   const [diagnoses, setDiagnoses] = useState([]);
@@ -19,6 +20,15 @@ const AIDiagnosis = () => {
   });
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
+  
+  // Use conversations hook
+  const {
+    conversations,
+    loadingConversations,
+    handleLoadConversation,
+    handleCreateNewConversation,
+    handlePinConversation
+  } = useConversations();
 
   const severityColors = {
     low: 'bg-green-100 text-green-800',
@@ -81,6 +91,11 @@ const AIDiagnosis = () => {
         sidebarVisible={sidebarVisible}
         currentPage="ai-diagnosis" 
         onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
+        conversations={conversations}
+        loadingConversations={loadingConversations}
+        onLoadConversation={handleLoadConversation}
+        onCreateNewConversation={handleCreateNewConversation}
+        onPinConversation={handlePinConversation}
       />
 
       {/* Main Content Area */}

@@ -139,6 +139,26 @@ const Chat = () => {
     }
   };
 
+  const pinConversation = async (conversationId, shouldPin) => {
+    try {
+      console.log('Attempting to toggle pin for conversation:', conversationId);
+      const response = await axios.post(`${API_BASE_URL}/chatbot/conversations/${conversationId}/pin/`, {}, {
+        headers: {
+          'Authorization': token ? `Token ${token}` : '',
+        }
+      });
+
+      console.log('Pin toggle response:', response.data);
+      if (response.data) {
+        // Reload conversations to update sidebar
+        loadConversations();
+      }
+    } catch (error) {
+      console.error('Error pinning/unpinning conversation:', error);
+      console.error('Error details:', error.response?.data);
+    }
+  };
+
 
   // Mode Selection Component
   const ModeSelection = () => (
@@ -342,7 +362,7 @@ const Chat = () => {
         sidebarVisible={sidebarVisible}
         currentPage="chat"
         onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
-        showSearch={false}
+        showSearch={true}
         showPinnedChats={true}
         showRecentChats={true}
         conversations={conversations}
@@ -350,6 +370,7 @@ const Chat = () => {
         loadingConversations={loadingConversations}
         onLoadConversation={loadConversation}
         onCreateNewConversation={createNewConversation}
+        onPinConversation={pinConversation}
       />
 
       {/* Main Chat Area */}
@@ -357,17 +378,6 @@ const Chat = () => {
         {/* Header */}
         <div className="border-b p-4 flex items-center justify-between flex-shrink-0" style={{ backgroundColor: '#f0f1f1' }}>
           <div className="flex items-center space-x-4">
-            {!sidebarVisible && (
-              <button
-                onClick={() => setSidebarVisible(true)}
-                className="p-2 hover:bg-gray-200 rounded-lg transition-colors text-gray-600"
-                title="Show sidebar"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-            )}
             <h2 className="text-[24px] font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
               {currentConversationTitle}
             </h2>

@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import AddPetModal from './AddPetModal';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
+import useConversations from '../hooks/useConversations';
 
 const PetHealthRecords = () => {
   const [pets, setPets] = useState([]);
@@ -19,6 +20,14 @@ const PetHealthRecords = () => {
   const [showAddPetModal, setShowAddPetModal] = useState(false);
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
+  
+  // Use conversations hook
+  const {
+    conversations,
+    loadingConversations,
+    handleLoadConversation,
+    handleCreateNewConversation
+  } = useConversations();
 
   const fetchPets = async () => {
     try {
@@ -102,6 +111,10 @@ const PetHealthRecords = () => {
         sidebarVisible={sidebarVisible}
         currentPage="pet-health-records" 
         onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
+        conversations={conversations}
+        loadingConversations={loadingConversations}
+        onLoadConversation={handleLoadConversation}
+        onCreateNewConversation={handleCreateNewConversation}
       />
 
       {/* Main Content Area */}

@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
+import useConversations from '../hooks/useConversations';
 
 const PetProfile = () => {
   const [pet, setPet] = useState(null);
@@ -13,6 +14,15 @@ const PetProfile = () => {
   const { petId } = useParams();
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
+  
+  // Use conversations hook
+  const {
+    conversations,
+    loadingConversations,
+    handleLoadConversation,
+    handleCreateNewConversation,
+    handlePinConversation
+  } = useConversations();
 
   const fetchAllPets = async () => {
     try {
@@ -145,6 +155,11 @@ const PetProfile = () => {
         sidebarVisible={sidebarVisible}
         currentPage="pet-profile" 
         onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
+        conversations={conversations}
+        loadingConversations={loadingConversations}
+        onLoadConversation={handleLoadConversation}
+        onCreateNewConversation={handleCreateNewConversation}
+        onPinConversation={handlePinConversation}
       />
 
       {/* Main Content Area */}

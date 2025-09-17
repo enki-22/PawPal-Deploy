@@ -12,10 +12,14 @@ const Sidebar = ({
   currentConversationId = null,
   loadingConversations = false,
   onLoadConversation = null,
-  onCreateNewConversation = null
+  onCreateNewConversation = null,
+  onPinConversation = null
 }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+
+  // Ensure conversations is always an array
+  const safeConversations = Array.isArray(conversations) ? conversations : [];
 
   const handleLogout = () => {
     logout();
@@ -146,7 +150,7 @@ const Sidebar = ({
         )}
 
         {/* Pinned Chats */}
-        {showPinnedChats && currentPage === 'chat' && (
+        {showPinnedChats && (
           <div className="mb-5">
             <h3 className="text-[14px] font-medium text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>
               Pinned Chats
@@ -155,20 +159,48 @@ const Sidebar = ({
               {loadingConversations ? (
                 <div className="text-center text-gray-600 text-sm">Loading...</div>
               ) : (
-                conversations.filter(conv => conv.is_pinned).map(conversation => (
+                safeConversations.filter(conv => conv.is_pinned).map(conversation => (
                   <div
                     key={conversation.id}
-                    onClick={() => onLoadConversation && onLoadConversation(conversation.id)}
-                    className={`p-2 rounded cursor-pointer text-[14px] transition-colors ${
+                    className={`p-2 rounded cursor-pointer text-[14px] transition-colors group ${
                       currentConversationId === conversation.id
                         ? 'bg-[#FFF4C9] text-black'
                         : 'text-gray-700 hover:bg-purple-100'
                     }`}
                     style={{ fontFamily: 'Raleway' }}
                   >
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-sm"></div>
-                      <span className="truncate">{conversation.title}</span>
+                    <div className="flex items-center justify-between">
+                      <div 
+                        className="flex items-center space-x-2 flex-1 min-w-0"
+                        onClick={() => {
+                          if (onLoadConversation) {
+                            onLoadConversation(conversation.id);
+                          } else {
+                            navigate('/chat');
+                          }
+                        }}
+                      >
+                        <img 
+                          src="/lets-icons_chat-alt.png" 
+                          alt="Chat" 
+                          className="w-[14px] h-[14px] flex-shrink-0" 
+                        />
+                        <span className="truncate">{conversation.title}</span>
+                      </div>
+                      {onPinConversation && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onPinConversation(conversation.id);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-200 rounded"
+                          title="Unpin chat"
+                        >
+                          <svg className="w-3 h-3 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))
@@ -178,7 +210,7 @@ const Sidebar = ({
         )}
 
         {/* Recent Chats */}
-        {showRecentChats && currentPage === 'chat' && (
+        {showRecentChats && (
           <div className="flex-1 overflow-y-auto">
             <h3 className="text-[14px] font-medium text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>
               Recent Chats
@@ -187,20 +219,53 @@ const Sidebar = ({
               {loadingConversations ? (
                 <div className="text-center text-gray-600 text-sm">Loading...</div>
               ) : (
-                conversations.filter(conv => !conv.is_pinned).map(conversation => (
+                safeConversations.map(conversation => (
                   <div
                     key={conversation.id}
-                    onClick={() => onLoadConversation && onLoadConversation(conversation.id)}
-                    className={`p-2 rounded cursor-pointer text-[14px] transition-colors ${
+                    className={`p-2 rounded cursor-pointer text-[14px] transition-colors group ${
                       currentConversationId === conversation.id
                         ? 'bg-[#FFF4C9] text-black'
                         : 'text-gray-700 hover:bg-purple-100'
                     }`}
                     style={{ fontFamily: 'Raleway' }}
                   >
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-gray-400 rounded-sm"></div>
-                      <span className="truncate">{conversation.title}</span>
+                    <div className="flex items-center justify-between">
+                      <div 
+                        className="flex items-center space-x-2 flex-1 min-w-0"
+                        onClick={() => {
+                          if (onLoadConversation) {
+                            onLoadConversation(conversation.id);
+                          } else {
+                            navigate('/chat');
+                          }
+                        }}
+                      >
+                        <img 
+                          src="/lets-icons_chat-alt.png" 
+                          alt="Chat" 
+                          className="w-[14px] h-[14px] flex-shrink-0" 
+                        />
+                        <span className="truncate">{conversation.title}</span>
+                        {conversation.is_pinned && (
+                          <svg className="w-3 h-3 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                          </svg>
+                        )}
+                      </div>
+                      {onPinConversation && !conversation.is_pinned && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onPinConversation(conversation.id);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-yellow-200 rounded"
+                          title="Pin chat"
+                        >
+                          <svg className="w-3 h-3 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))

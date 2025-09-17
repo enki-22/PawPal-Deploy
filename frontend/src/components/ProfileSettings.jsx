@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
+import useConversations from '../hooks/useConversations';
 
 const ProfileSettings = () => {
   const [profileData, setProfileData] = useState({
@@ -29,6 +30,15 @@ const ProfileSettings = () => {
 
   const { user, token } = useAuth();
   const navigate = useNavigate();
+  
+  // Use conversations hook
+  const {
+    conversations,
+    loadingConversations,
+    handleLoadConversation,
+    handleCreateNewConversation,
+    handlePinConversation
+  } = useConversations();
 
   // API Base URL
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
@@ -164,8 +174,13 @@ const ProfileSettings = () => {
         currentPage="profile-settings"
         onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
         showSearch={false}
-        showPinnedChats={false}
-        showRecentChats={false}
+        showPinnedChats={true}
+        showRecentChats={true}
+        conversations={conversations}
+        loadingConversations={loadingConversations}
+        onLoadConversation={handleLoadConversation}
+        onCreateNewConversation={handleCreateNewConversation}
+        onPinConversation={handlePinConversation}
       />
 
       {/* Main Content Area */}
