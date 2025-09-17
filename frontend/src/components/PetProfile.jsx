@@ -21,7 +21,10 @@ const PetProfile = () => {
     loadingConversations,
     handleLoadConversation,
     handleCreateNewConversation,
-    handlePinConversation
+    handlePinConversation,
+    handleRenameConversation,
+    handleArchiveConversation,
+    handleDeleteConversation
   } = useConversations();
 
   const fetchAllPets = async () => {
@@ -161,6 +164,9 @@ const PetProfile = () => {
           onLoadConversation={handleLoadConversation}
           onCreateNewConversation={handleCreateNewConversation}
           onPinConversation={handlePinConversation}
+          onRenameConversation={handleRenameConversation}
+          onArchiveConversation={handleArchiveConversation}
+          onDeleteConversation={handleDeleteConversation}
         />
       </div>
 

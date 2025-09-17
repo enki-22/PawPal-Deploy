@@ -13,7 +13,9 @@ urlpatterns = [
     path('conversations/', views.get_conversations, name='get_conversations'),
     path('conversations/new/', views.create_new_conversation, name='create_conversation'),
     path('conversations/<int:conversation_id>/', views.get_conversation_messages, name='get_conversation'),
+    path('conversations/<int:conversation_id>/update/', views.update_conversation, name='update_conversation'),
     path('conversations/<int:conversation_id>/pin/', views.toggle_pin_conversation, name='toggle_pin'),
+    path('conversations/<int:conversation_id>/delete/', views.delete_conversation, name='delete_conversation'),
    
     # Diagnosis endpoints (for future Random Forest integration)
     path('diagnoses/', views.get_diagnoses, name='get_diagnoses'),

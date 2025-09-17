@@ -1,5 +1,7 @@
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ConversationMenu from './ConversationMenu';
 
 const Sidebar = ({ 
   sidebarVisible = true, 
@@ -13,10 +15,14 @@ const Sidebar = ({
   loadingConversations = false,
   onLoadConversation = null,
   onCreateNewConversation = null,
-  onPinConversation = null
+  onPinConversation = null,
+  onRenameConversation = null,
+  onArchiveConversation = null,
+  onDeleteConversation = null
 }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [renamingConversationId, setRenamingConversationId] = useState(null);
 
   // Ensure conversations is always an array
   const safeConversations = Array.isArray(conversations) ? conversations : [];
@@ -24,6 +30,14 @@ const Sidebar = ({
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleStartRename = (conversationId) => {
+    setRenamingConversationId(conversationId);
+  };
+
+  const handleCancelRename = () => {
+    setRenamingConversationId(null);
   };
 
   const menuItems = [
@@ -173,6 +187,7 @@ const Sidebar = ({
                       <div 
                         className="flex items-center space-x-2 flex-1 min-w-0"
                         onClick={() => {
+                          if (renamingConversationId === conversation.id) return; // Don't navigate when renaming
                           if (onLoadConversation) {
                             onLoadConversation(conversation.id);
                           } else {
@@ -185,21 +200,38 @@ const Sidebar = ({
                           alt="Chat" 
                           className="w-[14px] h-[14px] flex-shrink-0" 
                         />
-                        <span className="truncate">{conversation.title}</span>
+                        {renamingConversationId === conversation.id ? (
+                          <ConversationMenu
+                            conversation={conversation}
+                            onPin={onPinConversation}
+                            onRename={(id, title) => {
+                              console.log('Pinned chat rename callback called:', { id, title });
+                              if (onRenameConversation) {
+                                onRenameConversation(id, title);
+                              }
+                              setRenamingConversationId(null);
+                            }}
+                            onArchive={onArchiveConversation}
+                            onDelete={onDeleteConversation}
+                            isRenaming={true}
+                            onStartRename={handleStartRename}
+                            onCancelRename={handleCancelRename}
+                            className="flex-1"
+                          />
+                        ) : (
+                          <span className="truncate">{conversation.title}</span>
+                        )}
                       </div>
-                      {onPinConversation && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onPinConversation(conversation.id);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-200 rounded"
-                          title="Unpin chat"
-                        >
-                          <svg className="w-3 h-3 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                          </svg>
-                        </button>
+                      {renamingConversationId !== conversation.id && (
+                        <ConversationMenu
+                          conversation={conversation}
+                          onPin={onPinConversation}
+                          onRename={onRenameConversation}
+                          onArchive={onArchiveConversation}
+                          onDelete={onDeleteConversation}
+                          onStartRename={handleStartRename}
+                          onCancelRename={handleCancelRename}
+                        />
                       )}
                     </div>
                   </div>
@@ -233,6 +265,7 @@ const Sidebar = ({
                       <div 
                         className="flex items-center space-x-2 flex-1 min-w-0"
                         onClick={() => {
+                          if (renamingConversationId === conversation.id) return; // Don't navigate when renaming
                           if (onLoadConversation) {
                             onLoadConversation(conversation.id);
                           } else {
@@ -245,26 +278,45 @@ const Sidebar = ({
                           alt="Chat" 
                           className="w-[14px] h-[14px] flex-shrink-0" 
                         />
-                        <span className="truncate">{conversation.title}</span>
-                        {conversation.is_pinned && (
-                          <svg className="w-3 h-3 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                          </svg>
+                        {renamingConversationId === conversation.id ? (
+                          <ConversationMenu
+                            conversation={conversation}
+                            onPin={onPinConversation}
+                            onRename={(id, title) => {
+                              console.log('Recent chat rename callback called:', { id, title });
+                              if (onRenameConversation) {
+                                onRenameConversation(id, title);
+                              }
+                              setRenamingConversationId(null);
+                            }}
+                            onArchive={onArchiveConversation}
+                            onDelete={onDeleteConversation}
+                            isRenaming={true}
+                            onStartRename={handleStartRename}
+                            onCancelRename={handleCancelRename}
+                            className="flex-1"
+                          />
+                        ) : (
+                          <>
+                            <span className="truncate">{conversation.title}</span>
+                            {conversation.is_pinned && (
+                              <svg className="w-3 h-3 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                              </svg>
+                            )}
+                          </>
                         )}
                       </div>
-                      {onPinConversation && !conversation.is_pinned && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onPinConversation(conversation.id);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-yellow-200 rounded"
-                          title="Pin chat"
-                        >
-                          <svg className="w-3 h-3 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                          </svg>
-                        </button>
+                      {renamingConversationId !== conversation.id && (
+                        <ConversationMenu
+                          conversation={conversation}
+                          onPin={onPinConversation}
+                          onRename={onRenameConversation}
+                          onArchive={onArchiveConversation}
+                          onDelete={onDeleteConversation}
+                          onStartRename={handleStartRename}
+                          onCancelRename={handleCancelRename}
+                        />
                       )}
                     </div>
                   </div>

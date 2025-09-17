@@ -60,6 +60,79 @@ export const ConversationsProvider = ({ children }) => {
     }
   };
 
+  const handleRenameConversation = async (conversationId, newTitle) => {
+    try {
+      console.log('Attempting to rename conversation:', conversationId, 'to:', newTitle);
+      
+      const response = await axios.patch(`${API_BASE_URL}/chatbot/conversations/${conversationId}/update/`, {
+        title: newTitle
+      }, {
+        headers: {
+          'Authorization': token ? `Token ${token}` : '',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Rename response:', response.data);
+      if (response.status === 200) {
+        // Update the conversations list locally first for immediate UI feedback
+        setConversations(prevConversations => 
+          prevConversations.map(conv => 
+            conv.id === conversationId 
+              ? { ...conv, title: newTitle }
+              : conv
+          )
+        );
+        
+        // Then fetch fresh data to ensure consistency
+        await fetchConversations();
+      }
+    } catch (error) {
+      console.error('Error renaming conversation:', error);
+      console.error('Error details:', error.response?.data);
+    }
+  };
+
+  const handleArchiveConversation = async (conversationId) => {
+    try {
+      console.log('Attempting to archive conversation:', conversationId);
+      const response = await axios.post(`${API_BASE_URL}/chatbot/conversations/${conversationId}/archive/`, {}, {
+        headers: {
+          'Authorization': token ? `Token ${token}` : '',
+        }
+      });
+
+      console.log('Archive response:', response.data);
+      if (response.data) {
+        // Force reload conversations to update the list
+        fetchConversations(true);
+      }
+    } catch (error) {
+      console.error('Error archiving conversation:', error);
+      console.error('Error details:', error.response?.data);
+    }
+  };
+
+  const handleDeleteConversation = async (conversationId) => {
+    try {
+      console.log('Attempting to delete conversation:', conversationId);
+      const response = await axios.delete(`${API_BASE_URL}/chatbot/conversations/${conversationId}/delete/`, {
+        headers: {
+          'Authorization': token ? `Token ${token}` : '',
+        }
+      });
+
+      console.log('Delete response:', response.status);
+      if (response.status === 204 || response.status === 200) {
+        // Force reload conversations to update the list
+        fetchConversations(true);
+      }
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      console.error('Error details:', error.response?.data);
+    }
+  };
+
   // Reset conversations when token changes (login/logout)
   useEffect(() => {
     if (token) {
@@ -77,6 +150,9 @@ export const ConversationsProvider = ({ children }) => {
     conversationsLoaded,
     fetchConversations,
     handlePinConversation,
+    handleRenameConversation,
+    handleArchiveConversation,
+    handleDeleteConversation,
     refreshConversations: () => fetchConversations(true)
   };
 

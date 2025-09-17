@@ -27,7 +27,10 @@ const AIDiagnosis = () => {
     loadingConversations,
     handleLoadConversation,
     handleCreateNewConversation,
-    handlePinConversation
+    handlePinConversation,
+    handleRenameConversation,
+    handleArchiveConversation,
+    handleDeleteConversation
   } = useConversations();
 
   const severityColors = {
@@ -96,6 +99,9 @@ const AIDiagnosis = () => {
         onLoadConversation={handleLoadConversation}
         onCreateNewConversation={handleCreateNewConversation}
         onPinConversation={handlePinConversation}
+        onRenameConversation={handleRenameConversation}
+        onArchiveConversation={handleArchiveConversation}
+        onDeleteConversation={handleDeleteConversation}
       />
 
       {/* Main Content Area */}

@@ -2,18 +2,17 @@ import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useConversations } from '../context/ConversationsContext';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
 
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
-  const [conversations, setConversations] = useState([]);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [currentConversationTitle, setCurrentConversationTitle] = useState('New Chat');
   const [messageInput, setMessageInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loadingConversations, setLoadingConversations] = useState(true);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [imageMenuVisible, setImageMenuVisible] = useState(false);
@@ -24,6 +23,17 @@ const Chat = () => {
   const cameraInputRef = useRef(null);
   const navigate = useNavigate();
   const { user, token, logout } = useAuth();
+  
+  // Use global conversations context
+  const {
+    conversations,
+    loadingConversations,
+    fetchConversations,
+    handlePinConversation,
+    handleRenameConversation,
+    handleArchiveConversation,
+    handleDeleteConversation
+  } = useConversations();
 
 
   // API Base URL
@@ -32,7 +42,7 @@ const Chat = () => {
 
   // Load conversations on component mount
   useEffect(() => {
-    loadConversations();
+    fetchConversations();
   }, []);
 
 
@@ -49,35 +59,20 @@ const Chat = () => {
   };
 
 
-  const loadConversations = async () => {
-    try {
-      setLoadingConversations(true);
-      const response = await axios.get(`${API_BASE_URL}/chatbot/conversations/`, {
-        headers: {
-          'Authorization': token ? `Token ${token}` : '',
-        }
-      });
-
-
-      if (response.data && response.data.conversations) {
-        setConversations(response.data.conversations);
-       
-        // If no current conversation and conversations exist, load the most recent one
-        if (!currentConversationId && response.data.conversations.length > 0) {
-          const mostRecent = response.data.conversations[0];
-          loadConversation(mostRecent.id);
-        } else if (response.data.conversations.length === 0) {
-          // No conversations exist, show mode selection
-          setShowModeSelection(true);
-          setMessages([]);
-        }
+  // Handle conversation loading when conversations change
+  useEffect(() => {
+    if (conversations && conversations.length > 0) {
+      // If no current conversation and conversations exist, load the most recent one
+      if (!currentConversationId) {
+        const mostRecent = conversations[0];
+        loadConversation(mostRecent.id);
       }
-    } catch (error) {
-      console.error('Error loading conversations:', error);
-    } finally {
-      setLoadingConversations(false);
+    } else if (conversations && conversations.length === 0) {
+      // No conversations exist, show mode selection
+      setShowModeSelection(true);
+      setMessages([]);
     }
-  };
+  }, [conversations, currentConversationId]);
 
 
   const loadConversation = async (conversationId) => {
@@ -135,31 +130,39 @@ const Chat = () => {
         setMessages([]);
        
         // Reload conversations to update sidebar
-        loadConversations();
+        fetchConversations();
       }
     } catch (error) {
       console.error('Error creating new conversation:', error);
     }
   };
 
-  const pinConversation = async (conversationId, shouldPin) => {
-    try {
-      console.log('Attempting to toggle pin for conversation:', conversationId);
-      const response = await axios.post(`${API_BASE_URL}/chatbot/conversations/${conversationId}/pin/`, {}, {
-        headers: {
-          'Authorization': token ? `Token ${token}` : '',
-        }
-      });
+  const pinConversation = (conversationId, shouldPin) => {
+    handlePinConversation(conversationId, shouldPin);
+  };
 
-      console.log('Pin toggle response:', response.data);
-      if (response.data) {
-        // Reload conversations to update sidebar
-        loadConversations();
-      }
-    } catch (error) {
-      console.error('Error pinning/unpinning conversation:', error);
-      console.error('Error details:', error.response?.data);
+  const renameConversation = (conversationId, newTitle) => {
+    // Update current conversation title if it's the one being renamed
+    if (conversationId === currentConversationId) {
+      setCurrentConversationTitle(newTitle);
     }
+    handleRenameConversation(conversationId, newTitle);
+  };
+
+  const archiveConversation = (conversationId) => {
+    // If archiving the current conversation, create a new one
+    if (conversationId === currentConversationId) {
+      createNewConversation();
+    }
+    handleArchiveConversation(conversationId);
+  };
+
+  const deleteConversation = (conversationId) => {
+    // If deleting the current conversation, create a new one
+    if (conversationId === currentConversationId) {
+      createNewConversation();
+    }
+    handleDeleteConversation(conversationId);
   };
 
   // Image handling functions
@@ -359,7 +362,7 @@ const Chat = () => {
         }
        
         // Reload conversations to update sidebar
-        loadConversations();
+        fetchConversations();
       } else {
         throw new Error('Invalid response format');
       }
@@ -420,6 +423,9 @@ const Chat = () => {
         onLoadConversation={loadConversation}
         onCreateNewConversation={createNewConversation}
         onPinConversation={pinConversation}
+        onRenameConversation={renameConversation}
+        onArchiveConversation={archiveConversation}
+        onDeleteConversation={deleteConversation}
       />
 
       {/* Main Chat Area */}

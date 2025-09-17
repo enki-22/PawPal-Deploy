@@ -479,6 +479,47 @@ def create_diagnosis(request):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_conversation(request, conversation_id):
+    """Update conversation details (like title)"""
+    try:
+        conversation = Conversation.objects.get(id=conversation_id, user=request.user)
+        
+        if 'title' in request.data:
+            new_title = request.data['title'].strip()
+            if new_title:  # Only update if title is not empty
+                conversation.title = new_title
+                conversation.save()
+        
+        return Response({
+            'id': conversation.id,
+            'title': conversation.title,
+            'updated_at': conversation.updated_at.isoformat(),
+        })
+        
+    except Conversation.DoesNotExist:
+        return Response({'error': 'Conversation not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_conversation(request, conversation_id):
+    """Delete a conversation"""
+    try:
+        conversation = Conversation.objects.get(id=conversation_id, user=request.user)
+        conversation.delete()
+        
+        return Response({'message': 'Conversation deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        
+    except Conversation.DoesNotExist:
+        return Response({'error': 'Conversation not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def debug_gemini(request):
