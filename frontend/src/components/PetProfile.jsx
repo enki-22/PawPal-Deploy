@@ -2,9 +2,9 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import useConversations from '../hooks/useConversations';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
-import useConversations from '../hooks/useConversations';
 
 const PetProfile = () => {
   const [pet, setPet] = useState(null);
@@ -149,23 +149,28 @@ const PetProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F0F0F0] flex">
-      {/* Left Sidebar */}
-      <Sidebar 
-        sidebarVisible={sidebarVisible}
-        currentPage="pet-profile" 
-        onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
-        conversations={conversations}
-        loadingConversations={loadingConversations}
-        onLoadConversation={handleLoadConversation}
-        onCreateNewConversation={handleCreateNewConversation}
-        onPinConversation={handlePinConversation}
-      />
+    <div className="min-h-screen bg-[#F0F0F0] flex fixed inset-0">
+      {/* Left Sidebar - Fixed positioned */}
+      <div className="fixed top-0 left-0 h-full z-10">
+        <Sidebar 
+          sidebarVisible={sidebarVisible}
+          currentPage="pet-profile" 
+          onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
+          conversations={conversations}
+          loadingConversations={loadingConversations}
+          onLoadConversation={handleLoadConversation}
+          onCreateNewConversation={handleCreateNewConversation}
+          onPinConversation={handlePinConversation}
+        />
+      </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col bg-white">
+      {/* Main Content Area - With left margin to account for sidebar */}
+      <div 
+        className="flex-1 flex flex-col bg-white transition-all duration-300 h-screen overflow-hidden" 
+        style={{ marginLeft: sidebarVisible ? '320px' : '64px' }}
+      >
         {/* Header */}
-        <div className="bg-white border-b p-4 flex items-center justify-between">
+        <div className="bg-white border-b p-4 flex items-center justify-between flex-shrink-0">
           {/* Left side - Title */}
           <div className="flex items-center space-x-4">
             <button 
@@ -203,7 +208,7 @@ const PetProfile = () => {
           </div>
         </div>
 
-        {/* Main Content */}
+        {/* Main Content - Scrollable */}
         <div className="flex-1 p-6 overflow-y-auto bg-[#f0f1f1] flex">
           {/* Pet Details Section - Left Side */}
           <div className="w-2/3 pr-6">

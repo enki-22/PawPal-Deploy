@@ -156,7 +156,7 @@ const Sidebar = ({
               Pinned Chats
             </h3>
             <div className="space-y-1">
-              {loadingConversations ? (
+              {loadingConversations && conversations.length === 0 ? (
                 <div className="text-center text-gray-600 text-sm">Loading...</div>
               ) : (
                 safeConversations.filter(conv => conv.is_pinned).map(conversation => (
@@ -216,7 +216,7 @@ const Sidebar = ({
               Recent Chats
             </h3>
             <div className="space-y-1">
-              {loadingConversations ? (
+              {loadingConversations && conversations.length === 0 ? (
                 <div className="text-center text-gray-600 text-sm">Loading...</div>
               ) : (
                 safeConversations.map(conversation => (
