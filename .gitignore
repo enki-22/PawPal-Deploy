@@ -1,8 +1,3 @@
-# Virtual Environment
-venv/
-env/
-ENV/
-
 # Python
 __pycache__/
 *.py[cod]
@@ -24,6 +19,13 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
 
 # Django
 *.log
@@ -31,12 +33,20 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media/
+staticfiles/
+static/
 
 # Environment variables
 .env
-.venv
+.env.local
+.env.development
+.env.test
+.env.production
 
-# IDE
+# Database files
+*.db
+
+# IDEs
 .vscode/
 .idea/
 *.swp
@@ -52,10 +62,37 @@ media/
 ehthumbs.db
 Thumbs.db
 
-# Database
-*.db
-*.sqlite3
+# Node.js (for any Node files in root)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Static files (if collected)
-staticfiles/
-static/
+# Logs
+logs/
+*.log
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Backup files
+*.bak
+*.backup
+*.tmp
+
+# IMPORTANT: DO keep these migration files
+# !users/migrations/
+# !chatbot/migrations/
+# !pets/migrations/
