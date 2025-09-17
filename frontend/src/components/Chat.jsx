@@ -16,9 +16,12 @@ const Chat = () => {
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [imageMenuVisible, setImageMenuVisible] = useState(false);
   const [chatMode, setChatMode] = useState(null); // 'general' or 'symptom_checker'
   const [showModeSelection, setShowModeSelection] = useState(true);
   const chatContainerRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
   const navigate = useNavigate();
   const { user, token, logout } = useAuth();
 
@@ -157,6 +160,49 @@ const Chat = () => {
       console.error('Error pinning/unpinning conversation:', error);
       console.error('Error details:', error.response?.data);
     }
+  };
+
+  // Image handling functions
+  const handleImageMenuToggle = () => {
+    setImageMenuVisible(!imageMenuVisible);
+  };
+
+  const handleTakePhoto = () => {
+    setImageMenuVisible(false);
+    if (cameraInputRef.current) {
+      cameraInputRef.current.click();
+    }
+  };
+
+  const handleAttachFile = () => {
+    setImageMenuVisible(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleImageSelect = (event, isCamera = false) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Check if it's an image
+      if (file.type.startsWith('image/')) {
+        // TODO: Implement image upload and sending to chat
+        console.log('Selected image:', file);
+        // For now, just show a message that image functionality is coming
+        const imageMessage = {
+          id: Date.now() + Math.random(),
+          content: `📷 Image attached: ${file.name} (Image functionality coming soon!)`,
+          isUser: true,
+          sender: 'You',
+          timestamp: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, imageMessage]);
+      } else {
+        alert('Please select an image file.');
+      }
+    }
+    // Reset the input
+    event.target.value = '';
   };
 
 
@@ -339,6 +385,9 @@ const Chat = () => {
       if (dropdownVisible && !event.target.closest('.dropdown-container')) {
         setDropdownVisible(false);
       }
+      if (imageMenuVisible && !event.target.closest('.image-menu-container')) {
+        setImageMenuVisible(false);
+      }
     };
 
 
@@ -346,7 +395,7 @@ const Chat = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [dropdownVisible]);
+  }, [dropdownVisible, imageMenuVisible]);
 
 
   const handleLogout = () => {
@@ -554,16 +603,63 @@ const Chat = () => {
                       required
                     />
                     <div className="absolute right-5 top-1/2 transform -translate-y-1/2 flex items-center space-x-5">
-                      <button
-                        type="button"
-                        className="p-0 bg-transparent hover:opacity-70 transition-opacity"
-                      >
-                        <img
-                          src="/material-symbols_image.png"
-                          alt="Attach image"
-                          className="w-8 h-8"
+                      <div className="relative image-menu-container">
+                        <button
+                          type="button"
+                          onClick={handleImageMenuToggle}
+                          className="p-0 bg-transparent hover:opacity-70 transition-opacity"
+                        >
+                          <img
+                            src="/material-symbols_image.png"
+                            alt="Attach image"
+                            className="w-8 h-8"
+                          />
+                        </button>
+                        
+                        {/* Image Menu Dropdown */}
+                        {imageMenuVisible && (
+                          <div className="absolute bottom-full right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[150px]">
+                            <button
+                              onClick={handleTakePhoto}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                              style={{ fontFamily: 'Raleway' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89L8.34 4.66A2 2 0 0110.07 4h3.86a2 2 0 011.664.89L16.34 6.11A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                              <span>Take Photo</span>
+                            </button>
+                            <button
+                              onClick={handleAttachFile}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                              style={{ fontFamily: 'Raleway' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                              </svg>
+                              <span>Attach File</span>
+                            </button>
+                          </div>
+                        )}
+                        
+                        {/* Hidden file inputs */}
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageSelect(e, false)}
+                          className="hidden"
                         />
-                      </button>
+                        <input
+                          ref={cameraInputRef}
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={(e) => handleImageSelect(e, true)}
+                          className="hidden"
+                        />
+                      </div>
                       <button
                         type="submit"
                         disabled={loading || !messageInput.trim()}
