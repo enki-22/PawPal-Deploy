@@ -10,6 +10,7 @@ import Chat from './components/Chat';
 import AIDiagnosis from './components/AIDiagnosis';
 import PetHealthRecords from './components/PetHealthRecords';
 import PetProfile from './components/PetProfile';
+import ProfileSettings from './components/ProfileSettings';
 
 function App() {
   return (
@@ -55,6 +56,15 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Chat />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/profile-settings" 
+                element={
+                  <ProtectedRoute>
+                    <ProfileSettings />
                   </ProtectedRoute>
                 } 
               />
