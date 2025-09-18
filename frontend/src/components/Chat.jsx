@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useConversations } from '../context/ConversationsContext';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
+import LogoutModal from './LogoutModal';
 
 
 const Chat = () => {
@@ -18,6 +19,7 @@ const Chat = () => {
   const [imageMenuVisible, setImageMenuVisible] = useState(false);
   const [chatMode, setChatMode] = useState(null); // 'general' or 'symptom_checker'
   const [showModeSelection, setShowModeSelection] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const chatContainerRef = useRef(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -401,6 +403,28 @@ const Chat = () => {
   }, [dropdownVisible, imageMenuVisible]);
 
 
+  // Logout modal handlers
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleLogoutConfirm = async () => {
+    try {
+      setLoading(true);
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setLoading(false);
+      setShowLogoutModal(false);
+    }
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -439,7 +463,7 @@ const Chat = () => {
           </div>
           
           <div className="flex items-center space-x-4">
-            <ProfileButton />
+            <ProfileButton onLogoutClick={handleLogoutClick} />
           </div>
         </div>
 
@@ -689,6 +713,14 @@ const Chat = () => {
           )}
         </div>
       </div>
+
+      {/* Logout Modal */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+        loading={loading}
+      />
     </div>
   );
 };

@@ -5,12 +5,14 @@ import { useAuth } from '../context/AuthContext';
 import useConversations from '../hooks/useConversations';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
+import LogoutModal from './LogoutModal';
 
 const PetProfile = () => {
   const [pet, setPet] = useState(null);
   const [allPets, setAllPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { petId } = useParams();
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
@@ -78,6 +80,28 @@ const PetProfile = () => {
     fetchAllPets();
     fetchPetDetails();
   }, [petId]);
+
+  // Logout modal handlers
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleLogoutConfirm = async () => {
+    try {
+      setLoading(true);
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setLoading(false);
+      setShowLogoutModal(false);
+    }
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
+  };
 
   const handleLogout = () => {
     logout();
@@ -210,7 +234,7 @@ const PetProfile = () => {
 
           {/* Right side - User Profile */}
           <div className="flex items-center space-x-4">
-            <ProfileButton />
+            <ProfileButton onLogoutClick={handleLogoutClick} />
           </div>
         </div>
 
@@ -489,6 +513,14 @@ const PetProfile = () => {
           </div>
         </div>
       </div>
+
+      {/* Logout Modal */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+        loading={loading}
+      />
     </div>
   );
 };

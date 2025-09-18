@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import useConversations from '../hooks/useConversations';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
+import LogoutModal from './LogoutModal';
 
 const AIDiagnosis = () => {
   const [diagnoses, setDiagnoses] = useState([]);
@@ -18,6 +19,7 @@ const AIDiagnosis = () => {
     species: '',
     dateRange: ''
   });
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
   
@@ -87,6 +89,28 @@ const AIDiagnosis = () => {
     fetchDiagnoses(page);
   };
 
+  // Logout modal handlers
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleLogoutConfirm = async () => {
+    try {
+      setLoading(true);
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setLoading(false);
+      setShowLogoutModal(false);
+    }
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
+  };
+
   return (
     <div className="min-h-screen bg-[#f0f1f1] flex">
       {/* Left Sidebar */}
@@ -134,7 +158,7 @@ const AIDiagnosis = () => {
 
           {/* Profile Section */}
           <div className="flex items-center space-x-4">
-            <ProfileButton />
+            <ProfileButton onLogoutClick={handleLogoutClick} />
           </div>
         </div>
 
@@ -299,6 +323,14 @@ const AIDiagnosis = () => {
           )}
         </div>
       </div>
+
+      {/* Logout Modal */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+        loading={loading}
+      />
     </div>
   );
 };

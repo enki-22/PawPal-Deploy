@@ -6,6 +6,7 @@ import useConversations from '../hooks/useConversations';
 import AddPetModal from './AddPetModal';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
+import LogoutModal from './LogoutModal';
 
 const PetHealthRecords = () => {
   const [pets, setPets] = useState([]);
@@ -18,6 +19,7 @@ const PetHealthRecords = () => {
     age: ''
   });
   const [showAddPetModal, setShowAddPetModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
   
@@ -96,6 +98,28 @@ const PetHealthRecords = () => {
     fetchPets(); // Refresh the pets list
   };
 
+  // Logout modal handlers
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleLogoutConfirm = async () => {
+    try {
+      setLoading(true);
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setLoading(false);
+      setShowLogoutModal(false);
+    }
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
+  };
+
   const getAnimalEmoji = (animalType) => {
     const emojis = {
       'cat': '🐱',
@@ -155,7 +179,7 @@ const PetHealthRecords = () => {
 
           {/* Profile Section */}
           <div className="flex items-center space-x-4">
-            <ProfileButton />
+            <ProfileButton onLogoutClick={handleLogoutClick} />
           </div>
         </div>
 
@@ -230,23 +254,45 @@ const PetHealthRecords = () => {
               pets.map((pet) => (
                 <div 
                   key={pet.id} 
-                  className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                  className="cursor-pointer hover:transform hover:scale-105 transition-all duration-300"
                   onClick={() => navigate(`/pet-profile/${pet.id}`)}
+                  style={{
+                    position: 'relative',
+                    width: '233px',
+                    height: '245px',
+                    background: '#FFFFF2',
+                    borderRadius: '10px'
+                  }}
                 >
-                  {/* Pet Image - Top Section without gradient */}
-                  <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative overflow-hidden">
+                  {/* Pet Image Section */}
+                  <div 
+                    className="relative overflow-hidden"
+                    style={{
+                      position: 'absolute',
+                      width: '233px',
+                      height: '185px',
+                      left: '0px',
+                      top: '0px',
+                      background: '#FFFFFF',
+                      borderRadius: '8px 8px 0px 0px'
+                    }}
+                  >
                     {pet.image ? (
                       <img 
                         src={pet.image} 
                         alt={pet.name}
-                        className="w-full h-full object-cover"
+                        className="object-cover"
+                        style={{
+                          position: 'absolute',
+                          width: '251px',
+                          height: '185px',
+                          left: 'calc(50% - 251px/2)',
+                          top: 'calc(50% - 185px/2)',
+                          borderRadius: '8px 8px 0px 0px'
+                        }}
                         onLoad={() => console.log(`✅ Image loaded successfully for ${pet.name}:`, pet.image)}
                         onError={(e) => {
                           console.error(`❌ Image failed to load for ${pet.name}:`);
-                          console.error('  - Pet animal_type:', pet.animal_type);
-                          console.error('  - Image URL:', pet.image);
-                          console.error('  - Error src:', e.target.src);
-                          console.error('  - Error event:', e);
                           e.target.style.display = 'none';
                           e.target.parentNode.querySelector('.emoji-fallback').style.display = 'flex';
                         }}
@@ -254,41 +300,165 @@ const PetHealthRecords = () => {
                     ) : (
                       console.log(`⚠️ No image URL for ${pet.name} (${pet.animal_type})`)
                     )}
+                    
+                    {/* Emoji fallback */}
                     <span 
-                      className="text-6xl emoji-fallback" 
-                      style={{ display: pet.image ? 'none' : 'flex' }}
+                      className="text-6xl emoji-fallback flex items-center justify-center absolute inset-0" 
+                      style={{ 
+                        display: pet.image ? 'none' : 'flex',
+                        background: '#f8f9fa'
+                      }}
                     >
                       {getAnimalEmoji(pet.animal_type)}
                     </span>
+
+                    {/* Gradient Overlay */}
+                    <div 
+                      style={{
+                        position: 'absolute',
+                        width: '233px',
+                        height: '122px',
+                        left: '0px',
+                        top: '63px',
+                        background: 'linear-gradient(180deg, rgba(153, 144, 74, 0) -10.06%, rgba(204, 192, 98, 0.2) 39.94%, #F5E9B8 89.94%)'
+                      }}
+                    ></div>
                   </div>
                   
-                  {/* Pet Details - Bottom Section with custom background color */}
-                  <div className="p-4" style={{ backgroundColor: '#fefef2' }}>
-                    {/* Pet Name and Age */}
-                    <h3 className="text-xl font-bold text-black mb-3" style={{ fontFamily: 'Raleway' }}>
-                      {pet.name}, {pet.age}
-                    </h3>
-                    
-                    {/* Pet Details - Compact layout */}
-                    <div className="space-y-1">
-                      {/* Row 1: Animal and Sex - side by side but not stretched */}
-                      <div className="flex items-center gap-6">
-                        <span className="text-gray-600 text-sm" style={{ fontFamily: 'Raleway' }}>
-                          Animal: <span className="text-gray-900">{pet.animal_type}</span>
-                        </span>
-                        <span className="text-gray-600 text-sm" style={{ fontFamily: 'Raleway' }}>
-                          Sex: <span className="font-bold text-gray-900">{pet.sex}</span>
-                        </span>
-                      </div>
-                      
-                      {/* Row 2: Breed */}
-                      <div>
-                        <span className="text-gray-600 text-sm" style={{ fontFamily: 'Raleway' }}>
-                          Breed: <span className="font-bold text-gray-900">{pet.breed || 'Mixed'}</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                  {/* Pet Name */}
+                  <h3 
+                    style={{
+                      position: 'absolute',
+                      width: '92px',
+                      height: '23px',
+                      left: '13px',
+                      top: '154px',
+                      fontFamily: 'Raleway',
+                      fontStyle: 'normal',
+                      fontWeight: '800',
+                      fontSize: '20px',
+                      lineHeight: '23px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: '#000000'
+                    }}
+                  >
+                    {pet.name}, {pet.age}
+                  </h3>
+                  
+                  {/* Animal Label */}
+                  <span 
+                    style={{
+                      position: 'absolute',
+                      width: '42px',
+                      height: '15px',
+                      left: '26px',
+                      top: '195px',
+                      fontFamily: 'Inter',
+                      fontStyle: 'normal',
+                      fontWeight: '400',
+                      fontSize: '12px',
+                      lineHeight: '15px',
+                      color: 'rgba(0, 0, 0, 0.7)'
+                    }}
+                  >
+                    Animal:
+                  </span>
+                  
+                  {/* Animal Value */}
+                  <span 
+                    style={{
+                      position: 'absolute',
+                      width: '20px',
+                      height: '15px',
+                      left: '71px',
+                      top: '195px',
+                      fontFamily: 'Inter',
+                      fontStyle: 'normal',
+                      fontWeight: '400',
+                      fontSize: '12px',
+                      lineHeight: '15px',
+                      color: '#000000'
+                    }}
+                  >
+                    {pet.animal_type}
+                  </span>
+                  
+                  {/* Sex Label */}
+                  <span 
+                    style={{
+                      position: 'absolute',
+                      width: '25px',
+                      height: '15px',
+                      left: '129px',
+                      top: '195px',
+                      fontFamily: 'Inter',
+                      fontStyle: 'normal',
+                      fontWeight: '400',
+                      fontSize: '12px',
+                      lineHeight: '15px',
+                      color: 'rgba(0, 0, 0, 0.7)'
+                    }}
+                  >
+                    Sex:
+                  </span>
+                  
+                  {/* Sex Value */}
+                  <span 
+                    style={{
+                      position: 'absolute',
+                      width: '28px',
+                      height: '15px',
+                      left: '159px',
+                      top: '195px',
+                      fontFamily: 'Inter',
+                      fontStyle: 'normal',
+                      fontWeight: '400',
+                      fontSize: '12px',
+                      lineHeight: '15px',
+                      color: '#000000'
+                    }}
+                  >
+                    {pet.sex}
+                  </span>
+                  
+                  {/* Breed Label */}
+                  <span 
+                    style={{
+                      position: 'absolute',
+                      width: '37px',
+                      height: '15px',
+                      left: '26px',
+                      top: '215px',
+                      fontFamily: 'Inter',
+                      fontStyle: 'normal',
+                      fontWeight: '400',
+                      fontSize: '12px',
+                      lineHeight: '15px',
+                      color: 'rgba(0, 0, 0, 0.7)'
+                    }}
+                  >
+                    Breed:
+                  </span>
+                  
+                  {/* Breed Value */}
+                  <span 
+                    style={{
+                      position: 'absolute',
+                      width: '110px',
+                      height: '15px',
+                      left: '68px',
+                      top: '215px',
+                      fontFamily: 'Inter',
+                      fontStyle: 'normal',
+                      fontWeight: '400',
+                      fontSize: '12px',
+                      lineHeight: '15px',
+                      color: '#000000'
+                    }}
+                  >
+                    {pet.breed || 'Mixed'}
+                  </span>
                 </div>
               ))
             )}
@@ -318,6 +488,14 @@ const PetHealthRecords = () => {
         onClose={handleCloseModal}
         onPetAdded={handlePetAdded}
         token={token}
+      />
+
+      {/* Logout Modal */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+        loading={loading}
       />
     </div>
   );

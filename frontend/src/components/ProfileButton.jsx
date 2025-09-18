@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-const ProfileButton = () => {
+const ProfileButton = ({ onLogoutClick }) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,8 +21,10 @@ const ProfileButton = () => {
   }, [dropdownVisible]);
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
+    if (onLogoutClick) {
+      onLogoutClick();
+    }
+    setDropdownVisible(false);
   };
 
   const handleSettingsClick = () => {

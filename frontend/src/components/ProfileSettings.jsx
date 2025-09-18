@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
+import LogoutModal from './LogoutModal';
 import useConversations from '../hooks/useConversations';
 
 const ProfileSettings = () => {
@@ -27,8 +28,9 @@ const ProfileSettings = () => {
   const [editingContact, setEditingContact] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const { user, token } = useAuth();
+  const { user, token, logout } = useAuth();
   const navigate = useNavigate();
   
   // Use conversations hook
@@ -169,6 +171,28 @@ const ProfileSettings = () => {
     }));
   };
 
+  // Logout modal handlers
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleLogoutConfirm = async () => {
+    try {
+      setLoading(true);
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setLoading(false);
+      setShowLogoutModal(false);
+    }
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
+  };
+
   return (
     <div className="h-screen bg-[#F0F0F0] flex overflow-hidden">
       {/* Left Sidebar */}
@@ -211,7 +235,7 @@ const ProfileSettings = () => {
           </div>
           
           <div className="flex items-center space-x-4">
-            <ProfileButton />
+            <ProfileButton onLogoutClick={handleLogoutClick} />
           </div>
         </div>
 
@@ -465,6 +489,14 @@ const ProfileSettings = () => {
           )}
         </div>
       </div>
+
+      {/* Logout Modal */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+        loading={loading}
+      />
     </div>
   );
 };
