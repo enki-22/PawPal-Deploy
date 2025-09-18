@@ -9,6 +9,7 @@ class Conversation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_pinned = models.BooleanField(default=False)
+    is_archived = models.BooleanField(default=False)  # Make sure this has default=False
    
     class Meta:
         ordering = ['-updated_at']
