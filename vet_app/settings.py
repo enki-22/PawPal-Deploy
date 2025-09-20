@@ -21,6 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 GEMINI_API_KEY = config('GEMINI_API_KEY')
 OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
+KAGGLE_USERNAME = config('KAGGLE_USERNAME', default='')
+KAGGLE_KEY = config('KAGGLE_KEY', default='')
+ML_DATA_DIR = config('ML_DATA_DIR', default=str(BASE_DIR / 'ml' / 'data'))
+ML_MODELS_DIR = config('ML_MODELS_DIR', default=str(BASE_DIR / 'ml' / 'models'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)

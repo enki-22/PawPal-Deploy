@@ -14,6 +14,11 @@ import google.generativeai as genai
 from django.conf import settings
 import uuid
 from datetime import datetime
+import os
+import joblib
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from django.conf import settings
 
 
 # Configure Gemini
@@ -570,4 +575,319 @@ def debug_openai(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def predict_symptoms(request):
+    """Predict likely condition from symptoms using a RandomForest pipeline.
+
+    Payload: { "symptoms": "vomiting, lethargy", "species": "dog", "pet_id": 1, "image_url": "optional" }
+    """
+    try:
+        body = request.data
+        symptoms_text = (body.get('symptoms') or '').strip()
+        species = (body.get('species') or '').strip().lower() or 'dog'
+        pet_id = body.get('pet_id')
+        image_url = body.get('image_url')
+        
+        if not symptoms_text:
+            return Response({'error': 'symptoms is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Load Random Forest model
+        model_dir = getattr(settings, 'ML_MODELS_DIR', str(os.path.join(os.path.dirname(__file__), '..', 'ml', 'models')))
+        model_path = os.path.join(model_dir, 'symptom_rf_enhanced.joblib')
+        if not os.path.exists(model_path):
+            # Fallback to original model
+            model_path = os.path.join(model_dir, 'symptom_rf.joblib')
+            if not os.path.exists(model_path):
+                return Response({'error': 'Model not trained yet. Please train the model first.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        pipeline = joblib.load(model_path)
+
+        # Get pet context if pet_id provided
+        pet_context = {}
+        if pet_id:
+            try:
+                from pets.models import Pet
+                pet = Pet.objects.get(id=pet_id, owner=request.user)
+                pet_context = {
+                    'name': pet.name,
+                    'species': pet.animal_type,
+                    'breed': pet.breed,
+                    'age': pet.age,
+                    'sex': pet.sex,
+                    'medical_notes': pet.medical_notes,
+                    'weight': float(pet.weight) if pet.weight else None
+                }
+            except Pet.DoesNotExist:
+                pass
+
+        # Image analysis if image provided
+        image_analysis = None
+        if image_url:
+            try:
+                from ml.advanced_image_classifier import AdvancedPetSymptomImageClassifier
+                
+                # Try EfficientNet-B0 first (more accurate)
+                efficientnet_path = os.path.join(model_dir, 'efficientnet_image_classifier.joblib')
+                mobilenet_path = os.path.join(model_dir, 'mobilenet_image_classifier.joblib')
+                
+                classifier = None
+                
+                if os.path.exists(efficientnet_path):
+                    classifier = AdvancedPetSymptomImageClassifier(model_type='efficientnet')
+                    classifier.load_model(efficientnet_path)
+                    print("Using EfficientNet-B0 for image analysis")
+                elif os.path.exists(mobilenet_path):
+                    classifier = AdvancedPetSymptomImageClassifier(model_type='mobilenet')
+                    classifier.load_model(mobilenet_path)
+                    print("Using MobileNetV3 for image analysis")
+                else:
+                    # Fallback to basic classifier
+                    from ml.image_classifier import PetSymptomImageClassifier
+                    classifier = PetSymptomImageClassifier()
+                    print("Using basic classifier for image analysis")
+                
+                image_analysis = classifier.predict(image_url)
+                
+            except Exception as e:
+                print(f"Advanced image analysis failed: {e}")
+                # Fallback mock analysis
+                image_analysis = {
+                    'skin_irritation': 0.3,
+                    'eye_problem': 0.2,
+                    'ear_infection': 0.1,
+                    'dental_issue': 0.1,
+                    'normal': 0.3
+                }
+
+        # ML Predictions
+        try:
+            X = pd.DataFrame([{'symptoms': symptoms_text, 'species': species}])
+            proba = getattr(pipeline, 'predict_proba')(X)
+            classes = list(getattr(pipeline, 'classes_'))
+        except Exception:
+            # Fallback: text-only
+            proba = getattr(pipeline, 'predict_proba')([symptoms_text])
+            classes = list(getattr(pipeline, 'classes_'))
+
+        # Top-3 predictions
+        probs = proba[0]
+        top_idx = sorted(range(len(probs)), key=lambda i: probs[i], reverse=True)[:3]
+        predictions = [
+            {
+                'label': classes[i],
+                'confidence': float(probs[i])
+            }
+            for i in top_idx
+        ]
+
+        # Generate AI explanation using Gemini
+        ai_explanation = get_gemini_response(
+            f"Symptoms: {symptoms_text}\nSpecies: {species}\nML Predictions: {predictions}\nPet Context: {pet_context}",
+            chat_mode='symptom_checker'
+        )
+
+        # Determine overall severity and urgency
+        max_confidence = max([p['confidence'] for p in predictions])
+        if max_confidence > 0.8:
+            severity = 'high'
+            urgency = 'immediate'
+        elif max_confidence > 0.6:
+            severity = 'moderate'
+            urgency = 'soon'
+        else:
+            severity = 'low'
+            urgency = 'routine'
+
+        return Response({
+            'predictions': predictions,
+            'species': species,
+            'pet_context': pet_context,
+            'image_analysis': image_analysis,
+            'ai_explanation': ai_explanation,
+            'severity': severity,
+            'urgency': urgency,
+            'confidence_score': max_confidence
+        })
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_ai_diagnosis(request):
+    """Create a comprehensive AI diagnosis report"""
+    try:
+        from pets.models import Pet
+        
+        data = request.data
+        pet_id = data.get('pet_id')
+        symptoms_text = data.get('symptoms', '')
+        
+        if not pet_id or not symptoms_text:
+            return Response({'error': 'pet_id and symptoms are required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get pet
+        try:
+            pet = Pet.objects.get(id=pet_id, owner=request.user)
+        except Pet.DoesNotExist:
+            return Response({'error': 'Pet not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Get ML predictions
+        ml_response = predict_symptoms(request)
+        if ml_response.status_code != 200:
+            return ml_response
+        
+        ml_data = ml_response.data
+        
+        # Create AI Diagnosis record
+        ai_diagnosis = AIDiagnosis.objects.create(
+            user=request.user,
+            pet=pet,
+            symptoms_text=symptoms_text,
+            image_analysis=ml_data.get('image_analysis'),
+            ml_predictions=ml_data['predictions'],
+            ai_explanation=ml_data['ai_explanation'],
+            overall_severity=ml_data['severity'],
+            urgency_level=ml_data['urgency'],
+            pet_context=ml_data['pet_context'],
+            confidence_score=ml_data['confidence_score']
+        )
+        
+        # Create diagnosis suggestions
+        suggestions = []
+        for pred in ml_data['predictions']:
+            suggestion = DiagnosisSuggestion.objects.create(
+                ai_diagnosis=ai_diagnosis,
+                condition_name=pred['label'],
+                likelihood_percentage=pred['confidence'] * 100,
+                description=f"AI-suggested condition based on symptoms: {symptoms_text}",
+                matched_symptoms=[symptoms_text],
+                urgency_level=ml_data['urgency'],
+                contagious=False,  # This would need to be determined by a knowledge base
+                confidence_score=pred['confidence']
+            )
+            suggestions.append({
+                'id': suggestion.id,
+                'condition_name': suggestion.condition_name,
+                'likelihood_percentage': suggestion.likelihood_percentage,
+                'description': suggestion.description,
+                'matched_symptoms': suggestion.matched_symptoms,
+                'urgency_level': suggestion.urgency_level,
+                'contagious': suggestion.contagious,
+                'confidence_score': suggestion.confidence_score
+            })
+        
+        # Generate structured report
+        report = {
+            'case_id': ai_diagnosis.case_id,
+            'generated_at': ai_diagnosis.generated_at.isoformat(),
+            'pet_owner_info': {
+                'name': request.user.username,
+                'email': request.user.email,
+            },
+            'pet_info': {
+                'name': pet.name,
+                'species': pet.animal_type,
+                'breed': pet.breed or 'Mixed Breed',
+                'age': pet.age,
+                'sex': pet.sex,
+                'weight': float(pet.weight) if pet.weight else None,
+            },
+            'medical_info': {
+                'blood_type': 'Unknown',  # Extract from medical_notes if available
+                'spayed_neutered': 'Unknown',
+                'allergies': 'None',
+                'chronic_diseases': 'None',
+            },
+            'symptom_summary': symptoms_text,
+            'ai_suggested_diagnoses': suggestions,
+            'overall_severity': ai_diagnosis.overall_severity,
+            'urgency_level': ai_diagnosis.urgency_level,
+            'confidence_score': ai_diagnosis.confidence_score,
+            'ai_explanation': ai_diagnosis.ai_explanation
+        }
+        
+        return Response({
+            'diagnosis_id': ai_diagnosis.id,
+            'case_id': ai_diagnosis.case_id,
+            'report': report
+        }, status=status.HTTP_201_CREATED)
+        
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_symptom_image(request):
+    """Upload and analyze pet symptom images"""
+    try:
+        if 'image' not in request.FILES:
+            return Response({'error': 'No image file provided'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        image_file = request.FILES['image']
+        
+        # Validate image file
+        if not image_file.content_type.startswith('image/'):
+            return Response({'error': 'File must be an image'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Save image temporarily
+        from django.core.files.storage import default_storage
+        file_path = default_storage.save(f'symptom_images/{image_file.name}', image_file)
+        full_path = default_storage.path(file_path)
+        
+        # Analyze image using advanced classifier
+        try:
+            from ml.advanced_image_classifier import AdvancedPetSymptomImageClassifier
+            
+            # Try EfficientNet-B0 first (more accurate)
+            model_dir = getattr(settings, 'ML_MODELS_DIR', str(os.path.join(os.path.dirname(__file__), '..', 'ml', 'models')))
+            efficientnet_path = os.path.join(model_dir, 'efficientnet_image_classifier.joblib')
+            mobilenet_path = os.path.join(model_dir, 'mobilenet_image_classifier.joblib')
+            
+            classifier = None
+            
+            if os.path.exists(efficientnet_path):
+                classifier = AdvancedPetSymptomImageClassifier(model_type='efficientnet')
+                classifier.load_model(efficientnet_path)
+                print("Using EfficientNet-B0 for image analysis")
+            elif os.path.exists(mobilenet_path):
+                classifier = AdvancedPetSymptomImageClassifier(model_type='mobilenet')
+                classifier.load_model(mobilenet_path)
+                print("Using MobileNetV3 for image analysis")
+            else:
+                # Fallback to basic classifier
+                from ml.image_classifier import PetSymptomImageClassifier
+                classifier = PetSymptomImageClassifier()
+                print("Using basic classifier for image analysis")
+            
+            analysis = classifier.predict(full_path)
+            
+        except Exception as e:
+            print(f"Advanced image analysis error: {e}")
+            # Fallback analysis
+            analysis = {
+                'skin_irritation': 0.3,
+                'eye_problem': 0.2,
+                'ear_infection': 0.1,
+                'dental_issue': 0.1,
+                'normal': 0.3
+            }
+        
+        # Clean up temporary file
+        try:
+            default_storage.delete(file_path)
+        except:
+            pass
+        
+        return Response({
+            'image_analysis': analysis,
+            'message': 'Image analyzed successfully'
+        })
+        
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

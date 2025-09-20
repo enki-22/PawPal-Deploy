@@ -125,7 +125,38 @@ DEBUG=True
 SECRET_KEY=your-secret-key
 DATABASE_URL=postgresql://username:password@localhost:5432/pawpaldb
 GEMINI_API_KEY=your-gemini-api-key
+OPENAI_API_KEY=
+# Kaggle (optional if using Kaggle datasets via API)
+KAGGLE_USERNAME=your-kaggle-username
+KAGGLE_KEY=your-kaggle-api-key
+ML_DATA_DIR=ml/data
+ML_MODELS_DIR=ml/models
 ```
+
+## ML: Symptom Checker (Random Forest)
+
+1. Place Kaggle API credentials:
+   - Preferred: Put `kaggle.json` in `%USERPROFILE%/.kaggle/kaggle.json` (Windows) or `~/.kaggle/kaggle.json`.
+   - Alternative: set `KAGGLE_USERNAME` and `KAGGLE_KEY` in `.env`.
+
+2. Download dataset(s):
+   ```bash
+   venv\Scripts\activate
+   python -m ml.download --dataset <owner/dataset-slug> --dest %ML_DATA_DIR%
+   ```
+
+3. Train model:
+   ```bash
+   python -m ml.train --species dog,cat --input %ML_DATA_DIR% --output %ML_MODELS_DIR% --model symptom_rf.joblib
+   ```
+
+4. Run server and use the endpoint:
+   - POST `/chatbot/predict/` with `{ "symptoms": "vomiting, lethargy", "species": "dog" }`.
+   - Requires auth token as with other `/chatbot/*` APIs.
+
+Notes:
+- Start with one curated dataset; you can merge multiple later.
+- Custom list support lets you augment/override labels specific to your product.
 
 ⚠️ **Database Setup:**
 - Make sure PostgreSQL is installed and running

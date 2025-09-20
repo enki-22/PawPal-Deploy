@@ -20,6 +20,9 @@ urlpatterns = [
     # Diagnosis endpoints (for future Random Forest integration)
     path('diagnoses/', views.get_diagnoses, name='get_diagnoses'),
     path('diagnoses/create/', views.create_diagnosis, name='create_diagnosis'),
+    path('predict/', views.predict_symptoms, name='predict_symptoms'),
+    path('ai-diagnosis/create/', views.create_ai_diagnosis, name='create_ai_diagnosis'),
+    path('upload-image/', views.upload_symptom_image, name='upload_symptom_image'),
    
     # Debug endpoints
     path('debug/', views.debug_gemini, name='debug_gemini'),
