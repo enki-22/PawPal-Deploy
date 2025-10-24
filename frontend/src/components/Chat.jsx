@@ -3,10 +3,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useConversations } from '../context/ConversationsContext';
-import Sidebar from './Sidebar';
-import ProfileButton from './ProfileButton';
 import LogoutModal from './LogoutModal';
-
+import PetSelectionModal from './PetSelectionModal'; // NEW IMPORT
+import ProfileButton from './ProfileButton';
+import Sidebar from './Sidebar';
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -20,12 +20,18 @@ const Chat = () => {
   const [chatMode, setChatMode] = useState(null); // 'general' or 'symptom_checker'
   const [showModeSelection, setShowModeSelection] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  
+  // Pet Selection State Variables
+  const [showPetSelection, setShowPetSelection] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [currentPetContext, setCurrentPetContext] = useState(null);
+  
   const chatContainerRef = useRef(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
   const navigate = useNavigate();
   const { user, token, logout } = useAuth();
-  
+
   // Use global conversations context
   const {
     conversations,
@@ -37,29 +43,24 @@ const Chat = () => {
     handleDeleteConversation
   } = useConversations();
 
-
   // API Base URL
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
-
 
   // Load conversations on component mount
   useEffect(() => {
     fetchConversations();
   }, []);
 
-
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   };
-
 
   // Handle conversation loading when conversations change
   useEffect(() => {
@@ -76,7 +77,6 @@ const Chat = () => {
     }
   }, [conversations, currentConversationId]);
 
-
   const loadConversation = async (conversationId) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/chatbot/conversations/${conversationId}/`, {
@@ -84,7 +84,6 @@ const Chat = () => {
           'Authorization': token ? `Token ${token}` : '',
         }
       });
-
 
       if (response.data) {
         setCurrentConversationId(conversationId);
@@ -114,7 +113,6 @@ const Chat = () => {
     }
   };
 
-
   const createNewConversation = async () => {
     try {
       const response = await axios.post(`${API_BASE_URL}/chatbot/conversations/new/`, {}, {
@@ -123,13 +121,14 @@ const Chat = () => {
         }
       });
 
-
       if (response.data && response.data.conversation) {
         setCurrentConversationId(response.data.conversation.id);
         setCurrentConversationTitle(response.data.conversation.title);
         setShowModeSelection(true);
         setChatMode(null);
         setMessages([]);
+        setCurrentPetContext(null); // Clear pet context
+        setSelectedFile(null); // Clear selected file
        
         // Reload conversations to update sidebar
         fetchConversations();
@@ -189,14 +188,14 @@ const Chat = () => {
   const handleImageSelect = (event, isCamera = false) => {
     const file = event.target.files[0];
     if (file) {
-      // Check if it's an image
       if (file.type.startsWith('image/')) {
-        // TODO: Implement image upload and sending to chat
+        setSelectedFile(file); // Store the file for sending
         console.log('Selected image:', file);
-        // For now, just show a message that image functionality is coming
+        
+        // Show a preview message
         const imageMessage = {
           id: Date.now() + Math.random(),
-          content: `📷 Image attached: ${file.name} (Image functionality coming soon!)`,
+          content: `📷 Image selected: ${file.name} (will be sent with next message)`,
           isUser: true,
           sender: 'You',
           timestamp: new Date().toISOString(),
@@ -206,10 +205,28 @@ const Chat = () => {
         alert('Please select an image file.');
       }
     }
-    // Reset the input
     event.target.value = '';
   };
 
+  // NEW: Pet Selection Handler
+  const handlePetSelected = (conversationData) => {
+    setCurrentConversationId(conversationData.conversation_id);
+    setCurrentPetContext(conversationData.pet_context);
+    setCurrentConversationTitle(conversationData.conversation_title || 'New Chat');
+    
+    // Add the initial AI message
+    const initialMessage = {
+      id: Date.now(),
+      content: conversationData.initial_message,
+      isUser: false,
+      sender: 'PawPal',
+      timestamp: new Date().toISOString(),
+    };
+    setMessages([initialMessage]);
+    
+    // Reload conversations to update sidebar
+    fetchConversations();
+  };
 
   // Mode Selection Component
   const ModeSelection = () => (
@@ -223,7 +240,6 @@ const Chat = () => {
             How can I assist you and your furry friend today?
           </p>
         </div>
-
 
         {/* Main content area with illustration and cards side by side */}
         <div className="flex flex-col lg:flex-row items-start justify-center gap-8 w-full">
@@ -287,65 +303,89 @@ const Chat = () => {
     </div>
   );
 
-
+  // UPDATED: Select Mode Function - Now shows pet selection
   const selectMode = (mode) => {
     setChatMode(mode);
     setShowModeSelection(false);
-   
-    // Set initial message based on mode
-    const initialMessage = mode === 'general'
-      ? "Hi! I'm here to help you understand what's normal and healthy for your pet. Feel free to ask about typical behaviors, diet, exercise needs, or general care tips for your furry friend!"
-      : "Hello! I'm your AI symptom checker. Please describe any symptoms or unusual behaviors you've noticed in your pet, and I'll help you understand what they might indicate. Remember, this doesn't replace professional veterinary care.";
-    setMessages([{
-      id: Date.now(),
-      content: initialMessage,
-      isUser: false,
-      sender: 'PawPal',
-      timestamp: new Date().toISOString(),
-    }]);
-   
-    setCurrentConversationTitle(mode === 'general' ? 'Pet Health Guide' : 'Symptom Checker');
+    setShowPetSelection(true); // Show pet selection instead of starting chat immediately
   };
 
+  // UPDATED: Handle Submit Function with Image Support
+// Replace your handleSubmit function with this:
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-   
-    const message = messageInput.trim();
-    if (!message || loading) return;
-   
-    // Add user message to UI immediately
-    const userMessage = {
-      id: Date.now() + Math.random(),
-      content: message,
-      isUser: true,
-      sender: 'You',
-      timestamp: new Date().toISOString(),
-    };
-    setMessages(prev => [...prev, userMessage]);
-    setMessageInput('');
-    setLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  const message = messageInput.trim();
+  if (!message || loading) return;
+  
+  // Add user message to UI immediately
+  const userMessage = {
+    id: Date.now() + Math.random(),
+    content: message,
+    isUser: true,
+    sender: 'You',
+    timestamp: new Date().toISOString(),
+  };
+  setMessages(prev => [...prev, userMessage]);
+  setMessageInput('');
+  setLoading(true);
 
+  try {
+    // Check if this is symptom checker with image
+    if (chatMode === 'symptom_checker' && selectedFile) {
+      // Use FormData for image upload to the symptom checker endpoint
+      const formData = new FormData();
+      formData.append('conversation_id', currentConversationId);
+      formData.append('pet_id', currentPetContext?.id || '');
+      formData.append('symptoms', message);
+      formData.append('image', selectedFile);
 
-    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/chatbot/analyze-symptom-with-image/`, // Different endpoint for images
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': token ? `Token ${token}` : '',
+          },
+          timeout: 60000, // 1 minute timeout for image processing
+        }
+      );
+
+      if (response.data && response.data.ai_response) {
+        const aiMessage = {
+          id: Date.now() + Math.random(),
+          content: response.data.ai_response,
+          isUser: false,
+          sender: 'PawPal',
+          timestamp: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, aiMessage]);
+        
+        // Clear selected file
+        setSelectedFile(null);
+      }
+    } else {
+      // Regular chat without image
       const response = await axios.post(
         `${API_BASE_URL}/chatbot/chat/`,
         {
           message: message,
           conversation_id: currentConversationId,
-          chat_mode: chatMode // Add chat mode
+          chat_mode: chatMode,
+          pet_context: currentPetContext
         },
         {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': token ? `Token ${token}` : '',
-          }
+          },
+          timeout: 30000, // 30 second timeout
         }
       );
 
-
       if (response.data && response.data.response) {
-        // Add AI response to UI
         const aiMessage = {
           id: Date.now() + Math.random(),
           content: response.data.response,
@@ -354,7 +394,7 @@ const Chat = () => {
           timestamp: new Date().toISOString(),
         };
         setMessages(prev => [...prev, aiMessage]);
-       
+        
         // Update conversation info
         if (response.data.conversation_id) {
           setCurrentConversationId(response.data.conversation_id);
@@ -362,27 +402,25 @@ const Chat = () => {
         if (response.data.conversation_title) {
           setCurrentConversationTitle(response.data.conversation_title);
         }
-       
-        // Reload conversations to update sidebar
-        fetchConversations();
-      } else {
-        throw new Error('Invalid response format');
       }
-    } catch (error) {
-      console.error('Error:', error);
-      const errorMessage = {
-        id: Date.now() + Math.random(),
-        content: 'Sorry, there was an error processing your message. Please try again.',
-        isUser: false,
-        sender: 'PawPal',
-        timestamp: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setLoading(false);
     }
-  };
-
+    
+    // Reload conversations to update sidebar
+    fetchConversations();
+  } catch (error) {
+    console.error('Error:', error);
+    const errorMessage = {
+      id: Date.now() + Math.random(),
+      content: 'Sorry, there was an error processing your message. Please try again.',
+      isUser: false,
+      sender: 'PawPal',
+      timestamp: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, errorMessage]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Handle logout and dropdown functionality
   useEffect(() => {
@@ -395,13 +433,11 @@ const Chat = () => {
       }
     };
 
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [dropdownVisible, imageMenuVisible]);
-
 
   // Logout modal handlers
   const handleLogoutClick = () => {
@@ -429,7 +465,6 @@ const Chat = () => {
     logout();
     navigate('/login');
   };
-
 
   return (
     <div className="h-screen bg-[#F0F0F0] flex overflow-hidden">
@@ -466,7 +501,6 @@ const Chat = () => {
             <ProfileButton onLogoutClick={handleLogoutClick} />
           </div>
         </div>
-
 
         {/* Chat Messages Area - Conditional */}
         <div className="flex-1 flex flex-col min-h-0 bg-[#F0F0F0]">
@@ -603,6 +637,7 @@ const Chat = () => {
               {/* Fixed Input Area */}
               <div className="p-6 border-t bg-[#F0F0F0] flex-shrink-0">
                 <div className="max-w-4xl mx-auto">
+                  {/* UPDATED: Enhanced input area with pet context and file indicators */}
                   <div className="flex items-center justify-between mb-3">
                     <button
                       onClick={() => {
@@ -610,6 +645,8 @@ const Chat = () => {
                         setChatMode(null);
                         setMessages([]);
                         setCurrentConversationTitle('New Chat');
+                        setCurrentPetContext(null); // Clear pet context
+                        setSelectedFile(null); // Clear selected file
                       }}
                       className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
                       style={{ fontFamily: 'Raleway' }}
@@ -619,6 +656,29 @@ const Chat = () => {
                       </svg>
                       Change Mode
                     </button>
+                    
+                    {/* Show selected file */}
+                    {selectedFile && (
+                      <div className="flex items-center space-x-2 text-sm text-green-600">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                        </svg>
+                        <span>{selectedFile.name}</span>
+                        <button
+                          onClick={() => setSelectedFile(null)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
+                    
+                    {/* Show current pet context */}
+                    {currentPetContext && (
+                      <div className="text-sm text-blue-600">
+                        🐾 {currentPetContext.name} ({currentPetContext.species})
+                      </div>
+                    )}
                   </div>
                  
                   <form onSubmit={handleSubmit} className="relative">
@@ -714,6 +774,14 @@ const Chat = () => {
         </div>
       </div>
 
+      {/* NEW: Pet Selection Modal */}
+      <PetSelectionModal
+        isOpen={showPetSelection}
+        onClose={() => setShowPetSelection(false)}
+        onSelectPet={handlePetSelected}
+        conversationType={chatMode}
+      />
+
       {/* Logout Modal */}
       <LogoutModal
         isOpen={showLogoutModal}
@@ -724,6 +792,5 @@ const Chat = () => {
     </div>
   );
 };
-
 
 export default Chat;

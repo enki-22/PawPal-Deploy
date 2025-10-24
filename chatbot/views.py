@@ -19,13 +19,88 @@ import joblib
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from django.conf import settings
+from django.shortcuts import render, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from pets.models import Pet
+from .models import Conversation, Message, AIDiagnosis
+from ml.imageClassifier import image_classifier
+from .models import Conversation, Message, AIDiagnosis, DiagnosisSuggestion
+import logging
+logger = logging.getLogger(__name__)
+
 
 
 # Configure Gemini
 def get_gemini_client():
     """Configure and return Gemini model"""
-    genai.configure(api_key=settings.GEMINI_API_KEY)
-    return genai.GenerativeModel('gemini-1.5-flash')  # Using working model name
+    try:
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        
+        print("=== CHECKING GEMINI API CONNECTION ===")
+        try:
+            available_models = list(genai.list_models())
+            print(f"Found {len(available_models)} available models:")
+            
+            # Use the first available model that supports generateContent
+            for model in available_models:
+                if 'generateContent' in model.supported_generation_methods:
+                    model_name = model.name  # This already includes 'models/' prefix
+                    print(f"✅ Using model: {model_name}")
+                    
+                    # Create the model using the exact name from the API
+                    test_model = genai.GenerativeModel(model_name)
+                    
+                    # Test with a very simple prompt to avoid quota issues
+                    try:
+                        test_response = test_model.generate_content("Hi")
+                        if test_response and hasattr(test_response, 'text') and test_response.text:
+                            print(f"✅ Model {model_name} working successfully!")
+                            return test_model
+                    except Exception as quota_error:
+                        if "quota" in str(quota_error).lower():
+                            print(f"⚠️ Quota exceeded for {model_name}, trying next model...")
+                            continue
+                        else:
+                            raise quota_error
+                        
+        except Exception as list_error:
+            print(f"❌ Could not use models: {list_error}")
+        
+        # If quota exceeded, try the free tier models specifically
+        print("\n=== TRYING FREE TIER MODELS ===")
+        free_tier_models = [
+            'models/gemini-1.5-flash',  # Most likely to work on free tier
+            'models/gemini-1.5-pro',
+            'models/gemini-pro',
+            'gemini-1.5-flash',  # Try without 'models/' prefix
+            'gemini-pro'
+        ]
+        
+        for model_name in free_tier_models:
+            try:
+                print(f"Trying free tier model: {model_name}")
+                model = genai.GenerativeModel(model_name)
+                
+                # Test with minimal prompt
+                test_response = model.generate_content("Hi")
+                if test_response and hasattr(test_response, 'text') and test_response.text:
+                    print(f"✅ Free tier model {model_name} works!")
+                    return model
+                    
+            except Exception as e:
+                if "quota" in str(e).lower():
+                    print(f"⚠️ Quota exceeded for {model_name}")
+                    continue
+                else:
+                    print(f"❌ Free tier {model_name} failed: {e}")
+                    continue
+        
+        raise Exception("All models quota exceeded. Please upgrade your Gemini API plan or wait for quota reset.")
+        
+    except Exception as e:
+        print(f"❌ Gemini configuration error: {e}")
+        raise e
 
 
 def get_gemini_response(user_message, conversation_history=None, chat_mode='general'):
@@ -100,7 +175,101 @@ def get_gemini_response(user_message, conversation_history=None, chat_mode='gene
         print(f"Gemini Error: {type(e).__name__}: {e}")
         return "I'm experiencing technical difficulties. Please try again or consult with a veterinarian for immediate concerns."
 
+def get_gemini_response_with_pet_context(user_message, conversation_history=None, chat_mode='general', pet_context=None):
+    """Generate AI response using Google Gemini with pet context"""
+    try:
+        model = get_gemini_client()
+       
+        # Different system prompts based on mode
+        if chat_mode == 'symptom_checker':
+            system_prompt = """You are PawPal's Symptom Checker, an AI veterinary diagnostic assistant.
+            You help pet owners understand possible causes of their pet's symptoms and guide them on urgency levels.
+            
+            You can analyze both text descriptions and image analysis results from our computer vision system.
+        
+            Guidelines:
+            - Focus on symptom analysis and potential conditions
+            - When image analysis is provided, incorporate those findings into your assessment
+            - Always recommend veterinary care for serious symptoms
+            - Provide urgency levels (immediate, soon, routine check-up)
+            - Ask specific follow-up questions about symptoms
+            - Be thorough but not alarming
+            - Keep responses under 500 words
+            - Mention that this is preliminary guidance, not a diagnosis
+            - If image analysis detected specific conditions, reference them in your response
+        
+            Format responses with:
+            1. Symptom assessment (including image findings if available)
+            2. Possible causes (if appropriate)
+            3. Recommended action level
+            4. When to see a vet
+            """
+        else:  # general mode
+            system_prompt = """You are PawPal, a friendly AI veterinary assistant focused on general pet health education.
+            You help pet owners understand normal pet behaviors, proper care, and maintenance.
+           
+            Guidelines:
+            - Focus on general pet health, normal behaviors, and preventive care
+            - Provide educational information about what's typical for different pets
+            - Cover topics like diet, exercise, grooming, behavior, and routine care
+            - Be encouraging and supportive for pet parents
+            - Always recommend professional care when appropriate
+            - Keep responses informative but friendly
+            """
+       
+        # Build conversation context
+        conversation_text = system_prompt + "\n\n"
+       
+        # Add pet context if available
+        if pet_context:
+            conversation_text += f"""Pet Information:
+Name: {pet_context['name']}
+Species: {pet_context['species']}
+Breed: {pet_context['breed']}
+Age: {pet_context['age']} years old
+Sex: {pet_context['sex']}
+Weight: {pet_context['weight']}
+Medical Notes: {pet_context['medical_notes']}
+Known Allergies: {pet_context['allergies']}
+Chronic Conditions: {pet_context['chronic_diseases']}
 
+You already know about {pet_context['name']}, so don't ask for basic information again. Provide advice specific to this {pet_context['species']}.
+
+"""
+       
+        # Add mode context
+        if chat_mode == 'symptom_checker':
+            conversation_text += "Mode: Symptom Analysis\n"
+        else:
+            conversation_text += "Mode: General Pet Health Education\n"
+       
+        # Add conversation history if provided
+        if conversation_history and conversation_history.exists():
+            conversation_text += "Previous conversation:\n"
+            recent_messages = list(conversation_history)[-6:]
+           
+            for msg in recent_messages:
+                role = "User" if msg.is_user else "PawPal"
+                conversation_text += f"{role}: {msg.content}\n"
+       
+        # Add current user message
+        conversation_text += f"\nUser: {user_message}\nPawPal:"
+       
+        print(f"Using chat mode: {chat_mode}")
+        if pet_context:
+            print(f"Pet context: {pet_context['name']} ({pet_context['species']})")
+       
+        # Generate response
+        response = model.generate_content(conversation_text)
+       
+        if response and hasattr(response, 'text') and response.text:
+            return response.text.strip()
+        else:
+            return "I'm having trouble responding right now. Could you please try again?"
+       
+    except Exception as e:
+        print(f"Gemini Error: {type(e).__name__}: {e}")
+        return "I'm experiencing technical difficulties. Please try again or consult with a veterinarian for immediate concerns."
 def generate_conversation_title(first_message, ai_response=None):
     """Generate a conversation title using Gemini"""
     try:
@@ -198,7 +367,7 @@ def chat(request):
     try:
         user_message = request.data.get('message')
         conversation_id = request.data.get('conversation_id')
-        chat_mode = request.data.get('chat_mode', 'general')  # Add this line
+        chat_mode = request.data.get('chat_mode', 'general')
        
         if not user_message:
             return Response({'error': 'Message is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -224,8 +393,29 @@ def chat(request):
         # Get conversation history for context
         conversation_history = conversation.messages.all().order_by('created_at')
        
-        # Generate AI response using Gemini with mode
-        ai_response = get_openai_response(user_message, conversation_history, chat_mode)  # Add chat_mode
+        # Get pet context if this conversation is linked to a pet
+        pet_context = None
+        if hasattr(conversation, 'pet') and conversation.pet:
+            pet = conversation.pet
+            pet_context = {
+                'name': pet.name,
+                'species': getattr(pet, 'animal_type', 'Unknown'),
+                'breed': getattr(pet, 'breed', 'Unknown'),
+                'age': getattr(pet, 'age', 'Unknown'),
+                'sex': getattr(pet, 'sex', 'Unknown'),
+                'weight': getattr(pet, 'weight', 'Unknown'),
+                'medical_notes': getattr(pet, 'medical_notes', ''),
+                'allergies': getattr(pet, 'allergies', ''),
+                'chronic_diseases': getattr(pet, 'chronic_diseases', ''),
+            }
+       
+        # Generate AI response using Gemini with pet context
+        ai_response = get_gemini_response_with_pet_context(
+            user_message, 
+            conversation_history, 
+            chat_mode, 
+            pet_context
+        )
         print(f"AI response: {ai_response}")
        
         # Save AI response
@@ -238,7 +428,10 @@ def chat(request):
         # Generate title if this is the first exchange
         if conversation.messages.count() == 2:
             mode_prefix = "Symptom Check: " if chat_mode == 'symptom_checker' else "Pet Care: "
-            title = generate_conversation_title(user_message, ai_response)
+            if pet_context:
+                title = f"{pet_context['name']} - {chat_mode.replace('_', ' ').title()}"
+            else:
+                title = generate_conversation_title(user_message, ai_response)
             conversation.title = mode_prefix + title
             conversation.save()
        
@@ -251,7 +444,8 @@ def chat(request):
             'conversation_id': conversation.id,
             'conversation_title': conversation.title,
             'message_id': ai_msg.id,
-            'chat_mode': chat_mode
+            'chat_mode': chat_mode,
+            'pet_context': pet_context
         }, status=status.HTTP_200_OK)
        
     except Exception as e:
@@ -891,3 +1085,342 @@ def upload_symptom_image(request):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_pets(request):
+    """Get all pets for the current user"""
+    try:
+        logger.info(f"get_user_pets called by user: {request.user}")
+        
+        # Check if Pet model is imported
+        logger.info("Fetching pets from database...")
+        pets = Pet.objects.filter(owner=request.user)
+        logger.info(f"Found {pets.count()} pets")
+        
+        pets_data = []
+        
+        for pet in pets:
+            logger.info(f"Processing pet: {pet.name}")
+            pet_data = {
+                'id': pet.id,
+                'name': pet.name,
+                'species': getattr(pet, 'species', 'Unknown'),
+                'breed': getattr(pet, 'breed', 'Unknown'),
+                'age': getattr(pet, 'age', 0),
+                'photo': pet.photo.url if hasattr(pet, 'photo') and pet.photo else None,
+            }
+            
+            # Add medical info carefully
+            try:
+                pet_data['medical_info'] = {
+                    'allergies': getattr(pet, 'allergies', ''),
+                    'chronic_diseases': getattr(pet, 'chronic_diseases', ''),
+                    'blood_type': getattr(pet, 'blood_type', ''),
+                    'spayed_neutered': getattr(pet, 'spayed_neutered', False),
+                }
+            except Exception as e:
+                logger.error(f"Error getting medical info for pet {pet.name}: {e}")
+                pet_data['medical_info'] = {}
+            
+            pets_data.append(pet_data)
+        
+        logger.info(f"Successfully processed {len(pets_data)} pets")
+        
+        return Response({
+            'success': True,
+            'pets': pets_data,
+            'count': len(pets_data)
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in get_user_pets: {str(e)}", exc_info=True)
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def start_conversation_with_pet(request):
+    """Start a new conversation with a selected pet"""
+    try:
+        pet_id = request.data.get('pet_id')
+        
+        if not pet_id:
+            return Response({
+                'success': False,
+                'error': 'Pet ID is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if pet exists and belongs to user
+        try:
+            pet = Pet.objects.get(id=pet_id, owner=request.user)
+        except Pet.DoesNotExist:
+            return Response({
+                'success': False,
+                'error': 'Pet not found or not owned by user'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Create a new conversation (using your actual model fields)
+        conversation = Conversation.objects.create(
+            user=request.user,
+            pet=pet,
+            title=f"Chat with {pet.name}"
+        )
+        
+        # Create welcome message using your Message model
+        welcome_message = f"Hello! I'm here to help you with {pet.name}. What would you like to know about your {getattr(pet, 'species', 'pet')}?"
+        
+        Message.objects.create(
+            conversation=conversation,
+            content=welcome_message,
+            is_user=False  # This is an AI message
+        )
+        
+        return Response({
+            'success': True,
+            'conversation_id': conversation.id,
+            'message': 'Conversation started successfully',
+            'welcome_message': welcome_message,
+            'pet_name': pet.name
+        })
+        
+    except Exception as e:
+        print(f"Error in start_conversation_with_pet: {str(e)}")  # Debug print
+        return Response({
+            'success': False,
+            'error': f'Failed to start conversation: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def analyze_symptom_with_image(request):
+    """Analyze symptoms with optional image upload"""
+    try:
+        conversation_id = request.data.get('conversation_id')
+        pet_id = request.data.get('pet_id')
+        symptoms_text = request.data.get('symptoms')
+        uploaded_image = request.FILES.get('image')
+        
+        if not conversation_id:
+            return Response({
+                'success': False,
+                'error': 'Conversation ID is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+        pet = get_object_or_404(Pet, id=pet_id, owner=request.user) if pet_id else None
+        
+        # Save user message
+        Message.objects.create(
+            conversation=conversation,
+            content=symptoms_text,
+            is_user=True
+        )
+        
+        # Analyze image if provided
+        image_analysis = {}
+        if uploaded_image:
+            try:
+                # Use your trained image classifier
+                from ml.imageClassifier import analyze_pet_image
+                
+                # Save uploaded image temporarily
+                import tempfile
+                import os
+                
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
+                    for chunk in uploaded_image.chunks():
+                        temp_file.write(chunk)
+                    temp_file_path = temp_file.name
+                
+                # Analyze the image with your trained models
+                pet_species = getattr(pet, 'animal_type', 'dog') if pet else 'dog'
+                classification_result = analyze_pet_image(temp_file_path, pet_species)
+                
+                # Clean up temp file
+                os.unlink(temp_file_path)
+                
+                # Use the analysis results
+                if classification_result and classification_result.get('analysis_successful'):
+                    image_analysis = {
+                        'analysis_successful': True,
+                        'model_used': classification_result.get('model_used'),
+                        'detected_condition': classification_result.get('detected_condition'),
+                        'confidence_score': classification_result.get('confidence_score'),
+                        'top_predictions': classification_result.get('top_predictions'),
+                        'urgency_level': classification_result.get('urgency_level'),
+                        'recommendations': classification_result.get('recommendations')
+                    }
+                else:
+                    image_analysis = {
+                        'analysis_successful': False,
+                        'error': 'Could not analyze image with trained models'
+                    }
+                
+            except Exception as e:
+                print(f"Image analysis error: {e}")
+                image_analysis = {
+                    'analysis_successful': False,
+                    'error': f'Image analysis failed: {str(e)}'
+                }
+        
+        # Build comprehensive prompt for Gemini with detailed image analysis
+        prompt_parts = [
+            f"Pet Information: {pet.name} ({getattr(pet, 'animal_type', 'pet')})" if pet else "Pet information not available",
+            f"Symptoms described by owner: {symptoms_text}",
+        ]
+        
+        if image_analysis.get('analysis_successful'):
+            prompt_parts.append("🔬 COMPUTER VISION ANALYSIS RESULTS:")
+            prompt_parts.append(f"Model used: {image_analysis.get('model_used')}")
+            prompt_parts.append(f"Primary condition detected: {image_analysis.get('detected_condition')}")
+            prompt_parts.append(f"Confidence score: {image_analysis.get('confidence_score'):.1%}")
+            prompt_parts.append(f"Urgency level: {image_analysis.get('urgency_level')}")
+            
+            if image_analysis.get('top_predictions'):
+                prompt_parts.append("Top predictions:")
+                for pred in image_analysis['top_predictions']:
+                    prompt_parts.append(f"  • {pred['condition']}: {pred['percentage']}%")
+            
+            if image_analysis.get('recommendations'):
+                prompt_parts.append("AI recommendations:")
+                for rec in image_analysis['recommendations']:
+                    prompt_parts.append(f"  • {rec}")
+            
+        elif uploaded_image:
+            prompt_parts.append("📷 Image was uploaded but computer vision analysis failed.")
+            prompt_parts.append("Please provide detailed description of what you observe in the image.")
+        
+        full_prompt = "\n".join(prompt_parts)
+        
+        # Get pet context
+        pet_context = None
+        if pet:
+            pet_context = {
+                'name': pet.name,
+                'species': getattr(pet, 'animal_type', 'Unknown'),
+                'breed': getattr(pet, 'breed', 'Unknown'),
+                'age': getattr(pet, 'age', 'Unknown'),
+                'sex': getattr(pet, 'sex', 'Unknown'),
+                'weight': getattr(pet, 'weight', 'Unknown'),
+                'medical_notes': getattr(pet, 'medical_notes', ''),
+                'allergies': getattr(pet, 'allergies', ''),
+                'chronic_diseases': getattr(pet, 'chronic_diseases', ''),
+            }
+        
+        # Get AI response using symptom checker mode with image analysis
+        ai_response = get_gemini_response_with_pet_context(
+            full_prompt,
+            conversation.messages.all().order_by('created_at'),
+            'symptom_checker',
+            pet_context
+        )
+        
+        # Save AI response
+        Message.objects.create(
+            conversation=conversation,
+            content=ai_response,
+            is_user=False
+        )
+        
+        # Update conversation timestamp
+        conversation.updated_at = timezone.now()
+        conversation.save()
+        
+        return Response({
+            'success': True,
+            'ai_response': ai_response,
+            'image_analysis': image_analysis,
+            'conversation_id': conversation.id
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        print(f"Error in analyze_symptom_with_image: {e}")
+        return Response({
+            'success': False,
+            'error': f'Failed to analyze symptoms: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def generate_ai_response_with_context(symptoms, pet, image_analysis, ml_predictions):
+    """Generate AI response with full context"""
+    # This would integrate with your existing OpenAI/Gemini AI
+    context_parts = []
+    
+    if pet:
+        context_parts.append(f"Pet: {pet.name}, {pet.species}, {pet.breed}, {pet.age} years old")
+        if pet.allergies:
+            context_parts.append(f"Known allergies: {pet.allergies}")
+        if pet.chronic_diseases:
+            context_parts.append(f"Chronic conditions: {pet.chronic_diseases}")
+    
+    if image_analysis.get('analysis_successful'):
+        context_parts.append(f"Image analysis detected: {image_analysis.get('detected_category')}")
+    
+    context_parts.append(f"ML predictions: {ml_predictions}")
+    
+    full_context = "Context: " + "; ".join(context_parts)
+    
+    # Your existing AI integration code here
+    # Return the AI response
+    return f"Based on the symptoms and context provided... [AI response here]"
+
+def get_pet_context_dict(pet):
+    """Convert pet object to context dictionary"""
+    return {
+        'name': pet.name,
+        'species': pet.species,
+        'breed': pet.breed,
+        'age': pet.age,
+        'medical_history': list(pet.medical_records.values()),
+        'allergies': pet.allergies,
+        'chronic_diseases': pet.chronic_diseases
+    }
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def test_gemini_api_key(request):
+    """Test if Gemini API key is working"""
+    try:
+        api_key = getattr(settings, 'GEMINI_API_KEY', None)
+        
+        if not api_key:
+            return Response({
+                'error': 'GEMINI_API_KEY not found in settings',
+                'solution': 'Add GEMINI_API_KEY to your settings.py'
+            })
+        
+        # Test API key
+        genai.configure(api_key=api_key)
+        
+        try:
+            # Try to list models
+            models = list(genai.list_models())
+            model_names = [m.name for m in models]
+            
+            return Response({
+                'success': True,
+                'api_key_valid': True,
+                'available_models': model_names,
+                'total_models': len(models),
+                'api_key_preview': f"{api_key[:8]}...{api_key[-4:]}"
+            })
+            
+        except Exception as api_error:
+            return Response({
+                'success': False,
+                'api_key_valid': False,
+                'error': str(api_error),
+                'api_key_preview': f"{api_key[:8]}...{api_key[-4:]}",
+                'solutions': [
+                    'Get a new API key from https://aistudio.google.com/app/apikey',
+                    'Check if Gemini is available in your region',
+                    'Verify billing is enabled'
+                ]
+            })
+            
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=500)

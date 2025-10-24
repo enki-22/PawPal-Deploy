@@ -6,9 +6,11 @@ import uuid
 
 class Conversation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='conversations')
+    pet = models.ForeignKey('pets.Pet', on_delete=models.CASCADE, null=True, blank=True, related_name='conversations')
     title = models.CharField(max_length=200, default='New Conversation')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
     is_pinned = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     
@@ -95,6 +97,11 @@ class AIDiagnosis(models.Model):
     # Additional Context
     pet_context = models.JSONField(help_text="Pet profile context used")
     confidence_score = models.FloatField(default=0.0)
+
+    # Input Data
+    symptoms_text = models.TextField(help_text="User's symptom description")
+    image_analysis = models.JSONField(blank=True, null=True, help_text="Image classification results")
+    uploaded_image = models.ImageField(upload_to='symptom_images/', blank=True, null=True)
     
     class Meta:
         ordering = ['-generated_at']

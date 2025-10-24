@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext();
 
@@ -20,6 +20,12 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  // Debugging logs
+  console.log('=== AUTH CONTEXT DEBUG ===');
+  console.log('Current token state:', token);
+  console.log('Current user state:', user);
+  console.log('localStorage token:', localStorage.getItem('token'));
+  console.log('Is authenticated:', !!token);
 
   useEffect(() => {
     if (token) {

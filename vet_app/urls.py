@@ -10,6 +10,8 @@ urlpatterns = [
     path('api/pets/', include('pets.urls')),  # Add this line if missing
     path('chat/', include('chatbot.urls')),
     path('', include('users.urls')),
+    path('api/admin/', include('admin_panel.urls')), 
+    
 ]
 
 if settings.DEBUG:

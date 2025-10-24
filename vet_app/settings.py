@@ -50,7 +50,9 @@ INSTALLED_APPS = [
     'users',
     'pets',
     'chatbot',
+    'admin_panel',
 ]
+ADMIN_TOKEN_EXPIRY_HOURS = 24
 
 # Django REST Framework settings
 REST_FRAMEWORK = {
