@@ -2,8 +2,6 @@ import React from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import AIDiagnosis from './components/AIDiagnosis';
 import Chat from './components/Chat';
-import CreateNewPassword from './components/CreateNewPassword';
-import ForgotPassword from './components/ForgotPassword';
 import Login from './components/Login';
 import PetHealthRecords from './components/PetHealthRecords';
 import PetProfile from './components/PetProfile';
@@ -11,8 +9,6 @@ import ProfileSettings from './components/ProfileSettings';
 import ProtectedRoute from './components/ProtectedRoute';
 import RegisterStep1 from './components/RegisterStep1';
 import RegisterStep2 from './components/RegisterStep2';
-import VerifyEmail from './components/VerifyEmail';
-import VerifyResetCode from './components/VerifyResetCode';
 import { AuthProvider } from './context/AuthContext';
 import { ConversationsProvider } from './context/ConversationsContext';
 import { RegistrationProvider } from './context/RegistrationContext';
@@ -29,10 +25,6 @@ function App() {
                 <Route path="/register/step1" element={<RegisterStep1 />} />
                 <Route path="/register/step2" element={<RegisterStep2 />} />
                 <Route path="/register" element={<Navigate to="/register/step1" replace />} />
-                <Route path="/verify-email" element={<VerifyEmail />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                 <Route path="/verify-reset-code" element={<VerifyResetCode />} />
-                <Route path="/create-new-password" element={<CreateNewPassword />} />
                 
                 <Route 
                   path="/ai-diagnosis" 

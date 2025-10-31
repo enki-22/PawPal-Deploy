@@ -59,27 +59,9 @@ const RegisterStep1 = () => {
     
     if (validateForm()) {
       updateStep1(formData);
-      try {
-        await authService.registerWithOtp({
-          username: formData.username,
-          email: formData.email,
-          password: formData.password1,
-          password_confirm: formData.password2,
-          first_name: '',
-          last_name: '',
-        });
-        navigate('/verify-email', { state: { email: formData.email } });
-      } catch (err) {
-        const apiErrors = err?.response?.data?.error || err?.response?.data;
-        const newErrors = {};
-        if (apiErrors) {
-          if (apiErrors.username) newErrors.username = apiErrors.username?.[0] || 'Invalid username';
-          if (apiErrors.email) newErrors.email = apiErrors.email?.[0] || 'Invalid email';
-          if (apiErrors.password) newErrors.password1 = apiErrors.password?.[0] || 'Invalid password';
-        }
-        if (!Object.keys(newErrors).length) newErrors.password1 = 'Registration failed. Please try again.';
-        setErrors(newErrors);
-      }
+      // Navigate to step 2 without calling the API
+      // The API will be called in RegisterStep2 after collecting all information
+      navigate('/register/step2');
     }
   };
 

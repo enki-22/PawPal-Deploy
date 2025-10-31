@@ -35,34 +35,26 @@ def _rate_limit_ok(email: str, purpose: str) -> bool:
 @permission_classes([AllowAny])
 @authentication_classes([])
 def register(request):
-    """Create user (inactive flow) then send OTP for verification."""
+    """Create user (active, no OTP verification required)."""
     serializer = UserRegistrationSerializer(data=request.data)
     if not serializer.is_valid():
         return Response({'success': False, 'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-    email = serializer.validated_data.get('email')
-    if not _rate_limit_ok(email, OTP.PURPOSE_ACCOUNT):
-        return Response({'success': False, 'error': 'Too many OTP requests. Try again later.'}, status=429)
-
+    # Create active user directly (no OTP, no inactive status)
     with transaction.atomic():
         user = serializer.save()
-        # Mark inactive until verified
-        user.is_active = False
-        user.save()
-
-        otp = OTP.create_new(email=email, purpose=OTP.PURPOSE_ACCOUNT, user=user)
-        otp.code = _generate_otp_code()
-        otp.save()
-
-    send_mail(
-        subject='Verify Your PawPal Account',
-        message=f"Your verification code is {otp.code}. It will expire in 10 minutes.",
-        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
-        recipient_list=[email],
-        fail_silently=True,
-    )
-
-    return Response({'success': True, 'message': 'OTP sent to email for verification.'}, status=201)
+        # User is created as active by default via create_user
+        # No need to mark inactive or send OTP
+        
+    return Response({
+        'success': True, 
+        'message': 'Registration successful. You can now log in.',
+        'user': {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email
+        }
+    }, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
