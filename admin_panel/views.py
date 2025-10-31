@@ -6,6 +6,7 @@ from django.db.models import Count, Q, Avg
 from django.utils import timezone
 from datetime import datetime, timedelta
 from .models import AdminUser, AdminSession, AdminSettings, Announcement, DashboardStats  # REMOVED SOAPReport
+from chatbot.models import SOAPReport
 from .serializers import *
 from chatbot.models import User  # Keep User import
 # from chatbot.models import AIDiagnosis  # TEMPORARILY COMMENTED OUT
@@ -277,6 +278,36 @@ def dashboard_analytics(request):
             'message': 'Failed to fetch analytics',
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def flagged_cases(request):
+    """Return flagged SOAP reports for dashboard widget."""
+    try:
+        filter_level = request.GET.get('filter', 'all').lower()
+        qs = SOAPReport.objects.all().order_by('-date_flagged')
+        if filter_level in ['emergency', 'urgent', 'moderate']:
+            qs = qs.filter(flag_level__iexact=filter_level.capitalize())
+        data = []
+        for r in qs[:50]:
+            data.append({
+                'petName': r.pet.name,
+                'species': getattr(r.pet, 'animal_type', ''),
+                'condition': (r.assessment[0]['condition'] if r.assessment else None),
+                'likelihood': (r.assessment[0]['likelihood'] if r.assessment else None),
+                'urgency': (r.assessment[0]['urgency'] if r.assessment else None),
+                'owner': r.pet.owner.username,
+                'dateFlagged': r.date_flagged.isoformat(),
+                'flagLevel': r.flag_level,
+                'caseId': r.case_id,
+            })
+        # Sort by severity
+        order = {'Emergency': 0, 'Urgent': 1, 'Moderate': 2}
+        data.sort(key=lambda x: order.get(x['flagLevel'], 3))
+        return Response({'success': True, 'data': data})
+    except Exception as e:
+        return Response({'success': False, 'error': str(e)}, status=500)
 
 # ============= CLIENT/USER MANAGEMENT =============
 

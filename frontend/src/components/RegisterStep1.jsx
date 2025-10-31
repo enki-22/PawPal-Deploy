@@ -4,6 +4,7 @@ import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
 import { useRegistration } from '../context/RegistrationContext';
 import Alert from './Alert';
+import { authService } from '../services/api';
 
 const RegisterStep1 = () => {
   const { registrationData, updateStep1 } = useRegistration();
@@ -53,12 +54,32 @@ const RegisterStep1 = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (validateForm()) {
       updateStep1(formData);
-      navigate('/register/step2');
+      try {
+        await authService.registerWithOtp({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password1,
+          password_confirm: formData.password2,
+          first_name: '',
+          last_name: '',
+        });
+        navigate('/verify-email', { state: { email: formData.email } });
+      } catch (err) {
+        const apiErrors = err?.response?.data?.error || err?.response?.data;
+        const newErrors = {};
+        if (apiErrors) {
+          if (apiErrors.username) newErrors.username = apiErrors.username?.[0] || 'Invalid username';
+          if (apiErrors.email) newErrors.email = apiErrors.email?.[0] || 'Invalid email';
+          if (apiErrors.password) newErrors.password1 = apiErrors.password?.[0] || 'Invalid password';
+        }
+        if (!Object.keys(newErrors).length) newErrors.password1 = 'Registration failed. Please try again.';
+        setErrors(newErrors);
+      }
     }
   };
 

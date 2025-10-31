@@ -23,7 +23,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from pets.models import Pet
-from .models import Conversation, Message, AIDiagnosis
+from .models import Conversation, Message, AIDiagnosis, SOAPReport
 from ml.imageClassifier import image_classifier
 from .models import Conversation, Message, AIDiagnosis, DiagnosisSuggestion
 import logging
@@ -1424,3 +1424,168 @@ def test_gemini_api_key(request):
         return Response({
             'error': str(e)
         }, status=500)
+
+
+# ===== SOAP generation and retrieval (spec) =====
+def _calculate_flag_level(assessment: list, matched_symptoms_all: list | None = None, symptom_duration_days: int | None = None) -> str:
+    if not assessment:
+        return 'Moderate'
+    top = max(assessment, key=lambda x: x.get('likelihood', 0))
+    likelihood = top.get('likelihood', 0)
+    urgency = str(top.get('urgency', '')).lower()
+    matched = (matched_symptoms_all or []) + list(top.get('matched_symptoms', []))
+    matched_lc = [str(s).lower() for s in matched]
+    if likelihood >= 0.90 and urgency == 'severe':
+        return 'Emergency'
+    if 'seizure' in matched_lc or 'difficulty breathing' in matched_lc:
+        return 'Emergency'
+    if likelihood >= 0.75 and urgency in ['moderate', 'severe']:
+        return 'Urgent'
+    if symptom_duration_days and symptom_duration_days > 3 and likelihood >= 0.60:
+        return 'Urgent'
+    if likelihood >= 0.60:
+        return 'Moderate'
+    return 'Moderate'
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generate_soap_report(request):
+    try:
+        pet_id = request.data.get('pet_id')
+        conversation_id = request.data.get('conversation_id')
+        symptoms = request.data.get('symptoms', [])
+        duration = request.data.get('duration', '')
+        subjective_text = request.data.get('subjective', '')
+
+        if not pet_id or not isinstance(symptoms, list) or len(symptoms) < 1:
+            return Response({'success': False, 'error': 'pet_id and symptoms array are required'}, status=400)
+
+        pet = Pet.objects.get(id=pet_id, owner=request.user)
+        convo = None
+        if conversation_id:
+            try:
+                convo = Conversation.objects.get(id=conversation_id, user=request.user)
+            except Conversation.DoesNotExist:
+                convo = None
+
+        # Call ML predict (assume existing predict endpoint logic)
+        ml_resp = predict_symptoms(request)
+        if ml_resp.status_code != 200:
+            return ml_resp
+        ml = ml_resp.data
+
+        # Build assessment entries
+        assessment = []
+        for pred in ml.get('predictions', [])[:3]:
+            assessment.append({
+                'condition': pred.get('label'),
+                'likelihood': float(pred.get('confidence', 0.0)),
+                'description': 'AI-predicted condition based on reported symptoms.',
+                'matched_symptoms': symptoms,
+                'urgency': ml.get('urgency', 'routine').title() if ml.get('urgency') else 'Mild',
+                'contagious': False,
+            })
+
+        # Determine plan severity
+        severity_map = {
+            'routine': 'Moderate',
+            'soon': 'Urgent',
+            'immediate': 'Emergency',
+            'emergency': 'Emergency',
+        }
+        severity_level = severity_map.get(str(ml.get('urgency', 'routine')).lower(), 'Moderate')
+
+        # Flag level
+        flag_level = _calculate_flag_level(assessment, matched_symptoms_all=symptoms)
+
+        case_id = f"#PDX-{timezone.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:3].upper()}"
+        report = SOAPReport.objects.create(
+            case_id=case_id,
+            pet=pet,
+            chat_conversation=convo,
+            subjective=subjective_text,
+            objective={'symptoms': symptoms, 'duration': duration},
+            assessment=assessment,
+            plan={
+                'severityLevel': severity_level,
+                'careAdvice': [
+                    'Monitor your pet closely and provide comfort.',
+                    'Ensure access to fresh water and rest.',
+                    'Seek veterinary care based on severity.',
+                ],
+            },
+            flag_level=flag_level,
+        )
+
+        return Response({'success': True, 'case_id': report.case_id}, status=201)
+    except Pet.DoesNotExist:
+        return Response({'success': False, 'error': 'Pet not found'}, status=404)
+    except Exception as e:
+        return Response({'success': False, 'error': str(e)}, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_soap_report(request, case_id: str):
+    try:
+        report = SOAPReport.objects.get(case_id=case_id)
+        # permissions: owner can view own pet reports
+        if report.pet.owner != request.user:
+            return Response({'success': False, 'error': 'Forbidden'}, status=403)
+        data = {
+            'caseId': report.case_id,
+            'petId': str(report.pet.id),
+            'ownerId': str(report.pet.owner.id),
+            'petName': report.pet.name,
+            'ownerName': report.pet.owner.username,
+            'dateGenerated': report.date_generated.isoformat(),
+            'objective': report.objective,
+            'subjective': report.subjective,
+            'assessment': report.assessment,
+            'plan': report.plan,
+            'flagLevel': report.flag_level,
+        }
+        return Response({'success': True, 'data': data})
+    except SOAPReport.DoesNotExist:
+        return Response({'success': False, 'error': 'Not found'}, status=404)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_pet_diagnoses(request, pet_id: int):
+    try:
+        pet = Pet.objects.get(id=pet_id, owner=request.user)
+        reports = pet.soap_reports.all().order_by('-date_generated')
+        results = [
+            {
+                'caseId': r.case_id,
+                'dateGenerated': r.date_generated.isoformat(),
+                'flagLevel': r.flag_level,
+                'topCondition': (r.assessment[0]['condition'] if r.assessment else None),
+                'likelihood': (r.assessment[0]['likelihood'] if r.assessment else None),
+            }
+            for r in reports
+        ]
+        return Response({'success': True, 'data': results})
+    except Pet.DoesNotExist:
+        return Response({'success': False, 'error': 'Pet not found'}, status=404)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_flagged_cases_for_pet(request, pet_id: int):
+    try:
+        pet = Pet.objects.get(id=pet_id, owner=request.user)
+        reports = pet.soap_reports.filter(flag_level__in=['Urgent', 'Emergency']).order_by('-date_flagged')
+        results = [
+            {
+                'caseId': r.case_id,
+                'dateFlagged': r.date_flagged.isoformat(),
+                'flagLevel': r.flag_level,
+            }
+            for r in reports
+        ]
+        return Response({'success': True, 'data': results})
+    except Pet.DoesNotExist:
+        return Response({'success': False, 'error': 'Pet not found'}, status=404)

@@ -140,3 +140,22 @@ class DiagnosisSuggestion(models.Model):
     
     def __str__(self):
         return f"{self.condition_name} ({self.likelihood_percentage}%)"
+
+
+class SOAPReport(models.Model):
+    case_id = models.CharField(max_length=30, unique=True)
+    pet = models.ForeignKey('pets.Pet', on_delete=models.CASCADE, related_name='soap_reports')
+    chat_conversation = models.ForeignKey(Conversation, on_delete=models.SET_NULL, null=True, blank=True, related_name='soap_reports')
+    subjective = models.TextField()
+    objective = models.JSONField()  # {symptoms: [], duration: ""}
+    assessment = models.JSONField()  # [{condition, likelihood, urgency, description, matched_symptoms, contagious}]
+    plan = models.JSONField()  # {severityLevel, careAdvice: []}
+    flag_level = models.CharField(max_length=20)
+    date_generated = models.DateTimeField(auto_now_add=True)
+    date_flagged = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date_generated']
+
+    def __str__(self):
+        return f"SOAP {self.case_id} - {self.pet.name}"

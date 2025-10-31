@@ -1,0 +1,11 @@
+                   precision    recall  f1-score   support
+
+ Digestive Issues       0.77      0.80      0.79        80
+   Ear Infections       0.78      0.82      0.80        80
+Mobility Problems       0.71      0.84      0.77        80
+        Parasites       0.85      0.59      0.70        80
+ Skin Irritations       0.66      0.68      0.67        80
+
+         accuracy                           0.74       400
+        macro avg       0.75      0.74      0.74       400
+     weighted avg       0.75      0.74      0.74       400

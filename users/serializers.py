@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import UserProfile
+from .models import UserProfile, OTP
+from django.utils import timezone
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -67,3 +68,30 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         profile.save()
         
         return user
+
+
+class OTPRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    purpose = serializers.ChoiceField(choices=[OTP.PURPOSE_ACCOUNT, OTP.PURPOSE_PASSWORD])
+
+
+class OTPVerifySerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    purpose = serializers.ChoiceField(choices=[OTP.PURPOSE_ACCOUNT, OTP.PURPOSE_PASSWORD])
+    code = serializers.RegexField(regex=r'^\d{6}$')
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.RegexField(regex=r'^\d{6}$')
+    new_password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError('Passwords do not match')
+        return data

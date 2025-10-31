@@ -8,6 +8,10 @@ urlpatterns = [
     path('auth/login/', views.admin_login, name='admin_login'),
     path('auth/logout/', views.admin_logout, name='admin_logout'),
     path('auth/profile/', views.admin_profile, name='admin_profile'),
+    # Spec-compatible aliases
+    path('login', views.admin_login, name='admin_login_alias'),
+    path('logout', views.admin_logout, name='admin_logout_alias'),
+    path('profile', views.admin_profile, name='admin_profile_alias'),
     
     # ============= ADMIN SETTINGS =============
     path('settings/', views.admin_settings, name='admin_settings'),
@@ -15,6 +19,7 @@ urlpatterns = [
     
     # ============= DASHBOARD ANALYTICS =============
     path('dashboard/analytics/', views.dashboard_analytics, name='dashboard_analytics'),
+    path('dashboard/flagged-cases', views.flagged_cases, name='flagged_cases'),
     
     # ============= CLIENT/USER MANAGEMENT =============
     path('clients/', views.manage_clients, name='manage_clients'),
