@@ -39,12 +39,14 @@ urlpatterns = [
     #path('test-models/', views.test_gemini_models, name='test_gemini_models'),
 ]
 
-# Diagnosis SOAP endpoints (spec)
+# Diagnosis SOAP endpoints (Chunk 2 - High Priority)
+from . import views_diagnosis
+
 urlpatterns += [
-    path('diagnosis/generate', views.generate_soap_report, name='diagnosis_generate'),
-    path('diagnosis/soap/<str:case_id>', views.get_soap_report, name='diagnosis_get_soap'),
-    path('diagnosis/<int:pet_id>', views.get_pet_diagnoses, name='diagnosis_by_pet'),
-    path('diagnosis/flagged/<int:pet_id>', views.get_flagged_cases_for_pet, name='diagnosis_flagged_by_pet'),
+    path('diagnosis/generate', views_diagnosis.generate_diagnosis, name='diagnosis_generate'),
+    path('diagnosis/soap/<str:case_id>', views_diagnosis.get_soap_report_by_case_id, name='diagnosis_get_soap'),
+    path('diagnosis/<int:pet_id>', views_diagnosis.get_pet_diagnoses, name='diagnosis_by_pet'),
+    path('diagnosis/flagged/<int:pet_id>', views_diagnosis.get_flagged_cases_for_pet, name='diagnosis_flagged_by_pet'),
 ]
 
 

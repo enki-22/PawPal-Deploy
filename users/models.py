@@ -8,11 +8,12 @@ from datetime import timedelta
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     phone_number = models.CharField(max_length=15, blank=True, null=True)
-    province = models.CharField(max_length=100, blank=True, null=True)  # Add this
-    city = models.CharField(max_length=100, blank=True, null=True)      # Add this
+    province = models.CharField(max_length=100, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-    date_of_birth = models.DateField(blank=True, null=True)             # Add this if needed
+    date_of_birth = models.DateField(blank=True, null=True)
     is_vet_admin = models.BooleanField(default=False, help_text="Check if this user is a veterinarian/admin")
+    is_verified = models.BooleanField(default=False, help_text="Email verification status")
     
     class Meta:
         verbose_name = "Pet Owner Profile"

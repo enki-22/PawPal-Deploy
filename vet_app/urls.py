@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from admin_panel.views_announcements import get_active_announcements
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -13,6 +14,8 @@ urlpatterns = [
     path('', include('users.urls')),
     path('api/admin/', include('admin_panel.urls')), 
     
+    # ============= PUBLIC ANNOUNCEMENTS ENDPOINT (CHUNK 9) =============
+    path('api/announcements/active', get_active_announcements, name='public_active_announcements'),
 ]
 
 if settings.DEBUG:
