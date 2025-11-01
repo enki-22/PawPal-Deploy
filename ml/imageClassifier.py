@@ -24,29 +24,69 @@ class PetSymptomImageClassifier:
     
     def load_models(self):
         """Load trained models"""
-        try:
-            models_dir = os.path.join(os.path.dirname(__file__), 'models')
-            
-            # Try to load EfficientNet model
-            efficientnet_path = os.path.join(models_dir, 'efficientnet_classifier.joblib')
-            if os.path.exists(efficientnet_path):
-                efficientnet_data = joblib.load(efficientnet_path)
-                self.efficientnet_model = efficientnet_data['model']
-                self.classes = efficientnet_data['classes']
-                logger.info("✅ EfficientNet model loaded successfully")
-            
-            # Try to load MobileNet model
-            mobilenet_path = os.path.join(models_dir, 'mobilenet_classifier.joblib')
-            if os.path.exists(mobilenet_path):
-                mobilenet_data = joblib.load(mobilenet_path)
-                self.mobilenet_model = mobilenet_data['model']
-                logger.info("✅ MobileNet model loaded successfully")
-            
-            if not self.efficientnet_model and not self.mobilenet_model:
-                logger.warning("⚠️ No trained models found. Run training script first.")
+        models_dir = os.path.join(os.path.dirname(__file__), 'models')
+        
+        # Try to load EfficientNet model
+        efficientnet_path = os.path.join(models_dir, 'efficientnet_classifier.joblib')
+        if os.path.exists(efficientnet_path):
+            try:
+                metadata = joblib.load(efficientnet_path)
                 
-        except Exception as e:
-            logger.error(f"❌ Error loading models: {str(e)}")
+                # Load TensorFlow model from path (Keras 3.x format)
+                tf_model_path = metadata.get('tf_model_path')
+                if tf_model_path:
+                    # Handle both .keras extension and directory format
+                    if not os.path.exists(tf_model_path) and not os.path.isdir(tf_model_path):
+                        # Try .keras extension if path doesn't exist
+                        if os.path.exists(tf_model_path + '.keras'):
+                            tf_model_path = tf_model_path + '.keras'
+                        else:
+                            logger.warning(f"⚠️ TensorFlow model file not found at: {tf_model_path}")
+                            tf_model_path = None
+                    
+                    if tf_model_path and (os.path.exists(tf_model_path) or os.path.isdir(tf_model_path)):
+                        self.efficientnet_model = tf.keras.models.load_model(tf_model_path)
+                        self.classes = metadata.get('classes', self.classes)
+                        logger.info("✅ EfficientNet model loaded successfully")
+                    elif tf_model_path:
+                        logger.warning(f"⚠️ TensorFlow model file not found at: {tf_model_path}")
+                else:
+                    logger.warning("⚠️ EfficientNet metadata missing 'tf_model_path' key")
+                    
+            except Exception as e:
+                logger.error(f"❌ Error loading EfficientNet model: {str(e)}")
+        
+        # Try to load MobileNet model
+        mobilenet_path = os.path.join(models_dir, 'mobilenet_classifier.joblib')
+        if os.path.exists(mobilenet_path):
+            try:
+                metadata = joblib.load(mobilenet_path)
+                
+                # Load TensorFlow model from path (Keras 3.x format)
+                tf_model_path = metadata.get('tf_model_path')
+                if tf_model_path:
+                    # Handle both .keras extension and directory format
+                    if not os.path.exists(tf_model_path) and not os.path.isdir(tf_model_path):
+                        # Try .keras extension if path doesn't exist
+                        if os.path.exists(tf_model_path + '.keras'):
+                            tf_model_path = tf_model_path + '.keras'
+                        else:
+                            logger.warning(f"⚠️ TensorFlow model file not found at: {tf_model_path}")
+                            tf_model_path = None
+                    
+                    if tf_model_path and (os.path.exists(tf_model_path) or os.path.isdir(tf_model_path)):
+                        self.mobilenet_model = tf.keras.models.load_model(tf_model_path)
+                        logger.info("✅ MobileNet model loaded successfully")
+                    elif tf_model_path:
+                        logger.warning(f"⚠️ TensorFlow model file not found at: {tf_model_path}")
+                else:
+                    logger.warning("⚠️ MobileNet metadata missing 'tf_model_path' key")
+                    
+            except Exception as e:
+                logger.error(f"❌ Error loading MobileNet model: {str(e)}")
+        
+        if not self.efficientnet_model and not self.mobilenet_model:
+            logger.warning("⚠️ No trained models found. Run training script to create new models.")
     
     def preprocess_image(self, image_path, target_size=(224, 224)):
         """Preprocess image for model input"""
