@@ -40,18 +40,41 @@ class PetSymptomImageClassifier:
                         # Try .keras extension if path doesn't exist
                         if os.path.exists(tf_model_path + '.keras'):
                             tf_model_path = tf_model_path + '.keras'
+                        # Try .h5 extension as fallback (for models saved in older format)
+                        elif os.path.exists(tf_model_path + '.h5'):
+                            tf_model_path = tf_model_path + '.h5'
                         else:
                             logger.warning(f"⚠️ TensorFlow model file not found at: {tf_model_path}")
                             tf_model_path = None
                     
                     if tf_model_path and (os.path.exists(tf_model_path) or os.path.isdir(tf_model_path)):
-                        self.efficientnet_model = tf.keras.models.load_model(tf_model_path)
-                        self.classes = metadata.get('classes', self.classes)
-                        logger.info("✅ EfficientNet model loaded successfully")
+                        try:
+                            self.efficientnet_model = tf.keras.models.load_model(tf_model_path)
+                            self.classes = metadata.get('classes', self.classes)
+                            logger.info("✅ EfficientNet model loaded successfully")
+                        except Exception as e:
+                            logger.warning(f"⚠️ Could not load EfficientNet model from {tf_model_path}: {e}")
+                            self.efficientnet_model = None
                     elif tf_model_path:
                         logger.warning(f"⚠️ TensorFlow model file not found at: {tf_model_path}")
-                else:
-                    logger.warning("⚠️ EfficientNet metadata missing 'tf_model_path' key")
+                
+                # Fallback: try to load from common .h5 filenames directly if model not loaded yet
+                if not self.efficientnet_model:
+                    h5_paths = [
+                        os.path.join(models_dir, 'efficientnet_best.h5'),
+                        os.path.join(models_dir, 'efficientnet_model.h5')
+                    ]
+                    for h5_path in h5_paths:
+                        if os.path.exists(h5_path):
+                            try:
+                                self.efficientnet_model = tf.keras.models.load_model(h5_path)
+                                self.classes = metadata.get('classes', self.classes)
+                                logger.info(f"✅ EfficientNet model loaded from {h5_path}")
+                                break
+                            except Exception as e:
+                                logger.warning(f"⚠️ Could not load {h5_path}: {e}")
+                    if not self.efficientnet_model:
+                        logger.warning("⚠️ EfficientNet model could not be loaded from any source")
                     
             except Exception as e:
                 logger.error(f"❌ Error loading EfficientNet model: {str(e)}")
@@ -70,17 +93,39 @@ class PetSymptomImageClassifier:
                         # Try .keras extension if path doesn't exist
                         if os.path.exists(tf_model_path + '.keras'):
                             tf_model_path = tf_model_path + '.keras'
+                        # Try .h5 extension as fallback (for models saved in older format)
+                        elif os.path.exists(tf_model_path + '.h5'):
+                            tf_model_path = tf_model_path + '.h5'
                         else:
                             logger.warning(f"⚠️ TensorFlow model file not found at: {tf_model_path}")
                             tf_model_path = None
                     
                     if tf_model_path and (os.path.exists(tf_model_path) or os.path.isdir(tf_model_path)):
-                        self.mobilenet_model = tf.keras.models.load_model(tf_model_path)
-                        logger.info("✅ MobileNet model loaded successfully")
+                        try:
+                            self.mobilenet_model = tf.keras.models.load_model(tf_model_path)
+                            logger.info("✅ MobileNet model loaded successfully")
+                        except Exception as e:
+                            logger.warning(f"⚠️ Could not load MobileNet model from {tf_model_path}: {e}")
+                            self.mobilenet_model = None
                     elif tf_model_path:
                         logger.warning(f"⚠️ TensorFlow model file not found at: {tf_model_path}")
-                else:
-                    logger.warning("⚠️ MobileNet metadata missing 'tf_model_path' key")
+                
+                # Fallback: try to load from common .h5 filenames directly if model not loaded yet
+                if not self.mobilenet_model:
+                    h5_paths = [
+                        os.path.join(models_dir, 'mobilenet_best.h5'),
+                        os.path.join(models_dir, 'mobilenet_model.h5')
+                    ]
+                    for h5_path in h5_paths:
+                        if os.path.exists(h5_path):
+                            try:
+                                self.mobilenet_model = tf.keras.models.load_model(h5_path)
+                                logger.info(f"✅ MobileNet model loaded from {h5_path}")
+                                break
+                            except Exception as e:
+                                logger.warning(f"⚠️ Could not load {h5_path}: {e}")
+                    if not self.mobilenet_model:
+                        logger.warning("⚠️ MobileNet model could not be loaded from any source")
                     
             except Exception as e:
                 logger.error(f"❌ Error loading MobileNet model: {str(e)}")

@@ -285,8 +285,9 @@ class AdvancedPetSymptomImageClassifier:
         # Create directory if it doesn't exist
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
         
-        # Save TensorFlow model
-        tf_model_path = model_path.replace('.joblib', '_tf')
+        # Save TensorFlow model in Keras 3.x format (.keras extension)
+        # Remove .joblib extension and add _tf.keras
+        tf_model_path = model_path.replace('.joblib', '_tf.keras')
         self.model.save(tf_model_path)
         
         # Save metadata
@@ -300,7 +301,7 @@ class AdvancedPetSymptomImageClassifier:
         
         joblib.dump(metadata, model_path)
         print(f"Model saved to {model_path}")
-        print(f"TensorFlow model saved to {tf_model_path}")
+        print(f"TensorFlow model saved to {tf_model_path} (Keras 3.x format)")
     
     def load_model(self, model_path):
         """Load a trained model"""
