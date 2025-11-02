@@ -69,10 +69,10 @@ const Sidebar = ({
 
   return (
     <>
-      {/* Sidebar Container - Changes width and background based on state */}
+      {/* Sidebar Container - Always present, changes transparency and width */}
       <div className={`${
-        sidebarVisible ? 'w-80 bg-[#DCCEF1]' : 'w-16 bg-transparent'
-      } transition-all duration-300 ease-in-out flex flex-col h-screen relative overflow-hidden`}>
+        sidebarVisible ? 'w-80 bg-[#DCCEF1]' : 'w-auto bg-transparent'
+      } transition-all duration-300 ease-in-out flex flex-col h-screen relative`}>
         
         {/* Minimized Header - Always visible */}
         <div className={`flex items-center p-4 ${sidebarVisible ? 'justify-between' : 'justify-start'}`}>
@@ -100,7 +100,7 @@ const Sidebar = ({
 
         {/* Expandable Content - Only visible when sidebar is expanded */}
         {sidebarVisible && (
-          <div className="px-4 flex-1 flex flex-col overflow-hidden">
+          <div className="px-4 flex-1 flex flex-col">
             {/* New Chat Button */}
             <button 
               onClick={currentPage === 'chat' && onCreateNewConversation ? onCreateNewConversation : () => navigate('/chat')}
@@ -148,171 +148,168 @@ const Sidebar = ({
               </div>
             )}
 
-            {/* Scrollable Content Area for Chats */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Pinned Chats */}
-              {showPinnedChats && (
-                <div className="mb-5">
-                  <h3 className="text-[14px] font-medium text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>
-                    Pinned Chats
-                  </h3>
-                  <div className="space-y-1 max-h-32 overflow-y-auto">
-                    {loadingConversations && conversations.length === 0 ? (
-                      <div className="text-center text-gray-600 text-sm">Loading...</div>
-                    ) : (
-                      safeConversations.filter(conv => conv.is_pinned).map(conversation => (
-                        <div
-                          key={conversation.id}
-                          className={`p-2 rounded cursor-pointer text-[14px] transition-colors group ${
-                            currentConversationId === conversation.id
-                              ? 'bg-[#FFF4C9] text-black'
-                              : 'text-gray-700 hover:bg-purple-100'
-                          }`}
-                          style={{ fontFamily: 'Raleway' }}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div 
-                              className="flex items-center space-x-2 flex-1 min-w-0"
-                              onClick={() => {
-                                if (renamingConversationId === conversation.id) return;
-                                if (onLoadConversation) {
-                                  onLoadConversation(conversation.id);
-                                } else {
-                                  navigate('/chat');
-                                }
-                              }}
-                            >
-                              <img 
-                                src="/lets-icons_chat-alt.png" 
-                                alt="Chat" 
-                                className="w-[14px] h-[14px] flex-shrink-0" 
-                              />
-                              {renamingConversationId === conversation.id ? (
-                                <ConversationMenu
-                                  conversation={conversation}
-                                  onPin={onPinConversation}
-                                  onRename={(id, title) => {
-                                    console.log('Pinned chat rename callback called:', { id, title });
-                                    if (onRenameConversation) {
-                                      onRenameConversation(id, title);
-                                    }
-                                    setRenamingConversationId(null);
-                                  }}
-                                  onArchive={onArchiveConversation}
-                                  onDelete={onDeleteConversation}
-                                  isRenaming={true}
-                                  onStartRename={handleStartRename}
-                                  onCancelRename={handleCancelRename}
-                                  className="flex-1"
-                                />
-                              ) : (
-                                <span className="truncate">{conversation.title}</span>
-                              )}
-                            </div>
-                            {renamingConversationId !== conversation.id && (
+            {/* Pinned Chats */}
+            {showPinnedChats && (
+              <div className="mb-5">
+                <h3 className="text-[14px] font-medium text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>
+                  Pinned Chats
+                </h3>
+                <div className="space-y-1">
+                  {loadingConversations && conversations.length === 0 ? (
+                    <div className="text-center text-gray-600 text-sm">Loading...</div>
+                  ) : (
+                    safeConversations.filter(conv => conv.is_pinned).map(conversation => (
+                      <div
+                        key={conversation.id}
+                        className={`p-2 rounded cursor-pointer text-[14px] transition-colors group ${
+                          currentConversationId === conversation.id
+                            ? 'bg-[#FFF4C9] text-black'
+                            : 'text-gray-700 hover:bg-purple-100'
+                        }`}
+                        style={{ fontFamily: 'Raleway' }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div 
+                            className="flex items-center space-x-2 flex-1 min-w-0"
+                            onClick={() => {
+                              if (renamingConversationId === conversation.id) return;
+                              if (onLoadConversation) {
+                                onLoadConversation(conversation.id);
+                              } else {
+                                navigate('/chat');
+                              }
+                            }}
+                          >
+                            <img 
+                              src="/lets-icons_chat-alt.png" 
+                              alt="Chat" 
+                              className="w-[14px] h-[14px] flex-shrink-0" 
+                            />
+                            {renamingConversationId === conversation.id ? (
                               <ConversationMenu
                                 conversation={conversation}
                                 onPin={onPinConversation}
-                                onRename={onRenameConversation}
+                                onRename={(id, title) => {
+                                  console.log('Pinned chat rename callback called:', { id, title });
+                                  if (onRenameConversation) {
+                                    onRenameConversation(id, title);
+                                  }
+                                  setRenamingConversationId(null);
+                                }}
                                 onArchive={onArchiveConversation}
                                 onDelete={onDeleteConversation}
+                                isRenaming={true}
                                 onStartRename={handleStartRename}
                                 onCancelRename={handleCancelRename}
+                                className="flex-1"
                               />
+                            ) : (
+                              <span className="truncate">{conversation.title}</span>
                             )}
                           </div>
+                          {renamingConversationId !== conversation.id && (
+                            <ConversationMenu
+                              conversation={conversation}
+                              onPin={onPinConversation}
+                              onRename={onRenameConversation}
+                              onArchive={onArchiveConversation}
+                              onDelete={onDeleteConversation}
+                              onStartRename={handleStartRename}
+                              onCancelRename={handleCancelRename}
+                            />
+                          )}
                         </div>
-                      ))
-                    )}
-                  </div>
+                      </div>
+                    ))
+                  )}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Recent Chats */}
-              {showRecentChats && (
-                <div className="flex-1 overflow-hidden">
-                  <h3 className="text-[14px] font-medium text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>
-                    Recent Chats
-                  </h3>
-                  <div className="space-y-1 h-full overflow-y-auto">
-                    {loadingConversations && conversations.length === 0 ? (
-                      <div className="text-center text-gray-600 text-sm">Loading...</div>
-                    ) : (
-                      safeConversations.map(conversation => (
-                        <div
-                          key={conversation.id}
-                          className={`p-2 rounded cursor-pointer text-[14px] transition-colors group ${
-                            currentConversationId === conversation.id
-                              ? 'bg-[#FFF4C9] text-black'
-                              : 'text-gray-700 hover:bg-purple-100'
-                          }`}
-                          style={{ fontFamily: 'Raleway' }}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div 
-                              className="flex items-center space-x-2 flex-1 min-w-0"
-                              onClick={() => {
-                                if (renamingConversationId === conversation.id) return;
-                                if (onLoadConversation) {
-                                  onLoadConversation(conversation.id);
-                                } else {
-                                  navigate('/chat');
-                                }
-                              }}
-                            >
-                              <img 
-                                src="/lets-icons_chat-alt.png" 
-                                alt="Chat" 
-                                className="w-[14px] h-[14px] flex-shrink-0" 
-                              />
-                              {renamingConversationId === conversation.id ? (
-                                <ConversationMenu
-                                  conversation={conversation}
-                                  onPin={onPinConversation}
-                                  onRename={(id, title) => {
-                                    console.log('Recent chat rename callback called:', { id, title });
-                                    if (onRenameConversation) {
-                                      onRenameConversation(id, title);
-                                    }
-                                    setRenamingConversationId(null);
-                                  }}
-                                  onArchive={onArchiveConversation}
-                                  onDelete={onDeleteConversation}
-                                  isRenaming={true}
-                                  onStartRename={handleStartRename}
-                                  onCancelRename={handleCancelRename}
-                                  className="flex-1"
-                                />
-                              ) : (
-                                <>
-                                  <span className="truncate">{conversation.title}</span>
-                                  {conversation.is_pinned && (
-                                    <svg className="w-3 h-3 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                                    </svg>
-                                  )}
-                                </>
-                              )}
-                            </div>
-                            {renamingConversationId !== conversation.id && (
+            {/* Recent Chats */}
+            {showRecentChats && (
+              <div className="flex-1 overflow-y-auto">
+                <h3 className="text-[14px] font-medium text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>
+                  Recent Chats
+                </h3>
+                <div className="space-y-1">
+                  {loadingConversations && conversations.length === 0 ? (
+                    <div className="text-center text-gray-600 text-sm">Loading...</div>
+                  ) : (
+                    safeConversations.map(conversation => (
+                      <div
+                        key={conversation.id}
+                        className={`p-2 rounded cursor-pointer text-[14px] transition-colors group ${
+                          currentConversationId === conversation.id
+                            ? 'bg-[#FFF4C9] text-black'
+                            : 'text-gray-700 hover:bg-purple-100'
+                        }`}
+                        style={{ fontFamily: 'Raleway' }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div 
+                            className="flex items-center space-x-2 flex-1 min-w-0"
+                            onClick={() => {
+                              if (renamingConversationId === conversation.id) return;
+                              if (onLoadConversation) {
+                                onLoadConversation(conversation.id);
+                              } else {
+                                navigate('/chat');
+                              }
+                            }}
+                          >
+                            <img 
+                              src="/lets-icons_chat-alt.png" 
+                              alt="Chat" 
+                              className="w-[14px] h-[14px] flex-shrink-0" 
+                            />
+                            {renamingConversationId === conversation.id ? (
                               <ConversationMenu
                                 conversation={conversation}
                                 onPin={onPinConversation}
-                                onRename={onRenameConversation}
+                                onRename={(id, title) => {
+                                  console.log('Recent chat rename callback called:', { id, title });
+                                  if (onRenameConversation) {
+                                    onRenameConversation(id, title);
+                                  }
+                                  setRenamingConversationId(null);
+                                }}
                                 onArchive={onArchiveConversation}
                                 onDelete={onDeleteConversation}
+                                isRenaming={true}
                                 onStartRename={handleStartRename}
                                 onCancelRename={handleCancelRename}
+                                className="flex-1"
                               />
+                            ) : (
+                              <>
+                                <span className="truncate">{conversation.title}</span>
+                                {conversation.is_pinned && (
+                                  <svg className="w-3 h-3 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                  </svg>
+                                )}
+                              </>
                             )}
                           </div>
+                          {renamingConversationId !== conversation.id && (
+                            <ConversationMenu
+                              conversation={conversation}
+                              onPin={onPinConversation}
+                              onRename={onRenameConversation}
+                              onArchive={onArchiveConversation}
+                              onDelete={onDeleteConversation}
+                              onStartRename={handleStartRename}
+                              onCancelRename={handleCancelRename}
+                            />
+                          )}
                         </div>
-                      ))
-                    )}
-                  </div>
+                      </div>
+                    ))
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
       </div>
