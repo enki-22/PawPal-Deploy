@@ -16,6 +16,40 @@ const PetProfile = () => {
   const { token, logout } = useAuth();
   const navigate = useNavigate();
 
+  // Mock conversations for demonstration - in a real app, these would come from an API
+  const mockConversations = [
+    {
+      id: 1,
+      title: "New Conversation",
+      is_pinned: false,
+      created_at: "2025-11-02T10:00:00Z"
+    },
+    {
+      id: 2,
+      title: "Pet Care: Pet Health & Wellness C...",
+      is_pinned: true,
+      created_at: "2025-11-01T15:30:00Z"
+    },
+    {
+      id: 3,
+      title: "New Conversation",
+      is_pinned: false,
+      created_at: "2025-11-01T14:20:00Z"
+    },
+    {
+      id: 4,
+      title: "Pet Care: Itchy Dog: Vet Visit Need...",
+      is_pinned: false,
+      created_at: "2025-10-31T16:45:00Z"
+    },
+    {
+      id: 5,
+      title: "Pet Care: Dog Itching: Causes & Tr...",
+      is_pinned: false,
+      created_at: "2025-10-31T11:15:00Z"
+    }
+  ];
+
   // Fetch all pets
   const fetchAllPets = React.useCallback(async () => {
     try {
@@ -93,49 +127,49 @@ const PetProfile = () => {
   }
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#F0F0F0', position: 'relative' }}>
-      {/* Logout modal renders its own overlay; remove duplicate overlay here to avoid stacking issues */}
-
-      {/* Fixed Sidebar - matches other pages */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          height: '100vh',
-          zIndex: 50,
-          width: sidebarVisible ? 320 : 64,
-        }}
-      >
+    <div className="min-h-screen flex" style={{ background: '#F0F0F0' }}>
+      {/* Fixed Sidebar */}
+      <div className="fixed top-0 left-0 h-screen z-50">
         <Sidebar
           sidebarVisible={sidebarVisible}
-          currentPage="pet-profile"
+          currentPage="pet-health-records"
+          showSearch={true}
+          showPinnedChats={true}
+          showRecentChats={true}
           onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
+          conversations={mockConversations}
+          currentConversationId={null}
+          loadingConversations={false}
+          onLoadConversation={(conversationId) => {
+            console.log('Loading conversation:', conversationId);
+            navigate('/chat');
+          }}
+          onCreateNewConversation={() => navigate('/chat')}
+          onPinConversation={(conversationId) => {
+            console.log('Pin conversation:', conversationId);
+          }}
+          onRenameConversation={(conversationId, newTitle) => {
+            console.log('Rename conversation:', conversationId, newTitle);
+          }}
+          onArchiveConversation={(conversationId) => {
+            console.log('Archive conversation:', conversationId);
+          }}
+          onDeleteConversation={(conversationId) => {
+            console.log('Delete conversation:', conversationId);
+          }}
         />
       </div>
 
-      {/* Main Content - flex-1, marginLeft matches sidebar width when visible */}
-      <div
-        className="flex-1 flex flex-col bg-[#F0F0F0]"
+      {/* Main Content with left margin to account for sidebar */}
+      <div 
+        className="flex-1 flex flex-col bg-[#F0F0F0] min-h-screen"
         style={{
-          marginLeft: sidebarVisible ? 320 : 64,
-          minHeight: '100vh',
-          transition: 'margin-left 0.3s cubic-bezier(.4,0,.2,1)',
+          marginLeft: sidebarVisible ? '320px' : '64px',
+          transition: 'margin-left 0.3s ease-in-out'
         }}
       >
-        {/* Header (fixed/stationary) */}
-        <div
-          className="border-b p-4 flex items-center justify-between"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: sidebarVisible ? 320 : 64,
-            right: 0,
-            zIndex: 60,
-            background: '#F0F0F0',
-            paddingLeft: 0,
-          }}
-        >
+        {/* Header */}
+        <div className="border-b p-4 flex items-center justify-between bg-[#F0F0F0]">
           <div className="flex items-center space-x-4">
             <button 
               onClick={() => navigate('/pet-health-records')}
@@ -170,16 +204,16 @@ const PetProfile = () => {
           />
         )}
 
-  {/* Main Content Container - use most of available width and add top padding for fixed header */}
-  <div style={{ width: '100%', paddingTop: 96, paddingLeft: 48, paddingRight: 48 }}>
+        {/* Main Content Container */}
+        <div style={{ width: '100%', padding: '32px 48px 24px 48px' }}>
           {/* Top Pet Selector Circles */}
           <div
             style={{
               background: '#F0F0F0',
-              padding: '32px 0 16px 0',
+              padding: '0 0 16px 0',
               display: 'flex',
               alignItems: 'center',
-              gap: '14px', // Reduced gap to make components closer
+              gap: '14px',
               position: 'relative',
               zIndex: 2,
             }}
