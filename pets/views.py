@@ -295,36 +295,42 @@ def pet_detail(request, pet_id):
             else:
                 return Response(pet_data, status=status.HTTP_200_OK)
 
-    elif request.method == 'PUT':
-        # Update pet
-        # Additional permission check for pet owners (already checked above, but ensure)
-        if request.user_type != 'admin' and pet.owner != request.user:
-            return Response({
-                'success': False,
-                'error': 'You do not have permission to update this pet'
-            }, status=status.HTTP_403_FORBIDDEN)
-        
-        serializer = PetSerializer(pet, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        elif request.method == 'PUT':
+            # Update pet
+            # Additional permission check for pet owners (already checked above, but ensure)
+            if request.user_type != 'admin' and pet.owner != request.user:
+                return Response({
+                    'success': False,
+                    'error': 'You do not have permission to update this pet'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            serializer = PetSerializer(pet, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'DELETE':
-        # Delete pet (pet owners only - admins should use a different mechanism if needed)
-        if request.user_type != 'admin' and pet.owner != request.user:
+        elif request.method == 'DELETE':
+            # Delete pet (pet owners only - admins should use a different mechanism if needed)
+            if request.user_type != 'admin' and pet.owner != request.user:
+                return Response({
+                    'success': False,
+                    'error': 'You do not have permission to delete this pet'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            # Admins typically shouldn't delete pets via this endpoint
+            # But we'll allow it if they have access
+            pet.delete()
             return Response({
-                'success': False,
-                'error': 'You do not have permission to delete this pet'
-            }, status=status.HTTP_403_FORBIDDEN)
-        
-        # Admins typically shouldn't delete pets via this endpoint
-        # But we'll allow it if they have access
-        pet.delete()
+                'success': True,
+                'message': 'Pet deleted successfully'
+            }, status=status.HTTP_200_OK)
+
+    except Exception as e:
         return Response({
-            'success': True,
-            'message': 'Pet deleted successfully'
-        }, status=status.HTTP_200_OK)
+            'success': False,
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

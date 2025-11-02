@@ -1,4 +1,5 @@
-import tensorflow as tf
+# Lazy imports - TensorFlow/Keras only loaded when needed
+# This prevents import errors during Django startup
 import numpy as np
 from PIL import Image
 import logging
@@ -7,6 +8,24 @@ import os
 import joblib
 
 logger = logging.getLogger(__name__)
+
+# Global flag to track if TensorFlow has been imported
+_tf_imported = False
+_tf = None
+
+def _lazy_import_tf():
+    """Lazy import TensorFlow - only loads when actually needed"""
+    global _tf_imported, _tf
+    if not _tf_imported:
+        try:
+            import tensorflow as tf
+            _tf = tf
+            _tf_imported = True
+            logger.info("✅ TensorFlow imported successfully")
+        except ImportError as e:
+            logger.error(f"❌ Failed to import TensorFlow: {e}")
+            raise
+    return _tf
 
 class PetSymptomImageClassifier:
     def __init__(self):
@@ -49,6 +68,7 @@ class PetSymptomImageClassifier:
                     
                     if tf_model_path and (os.path.exists(tf_model_path) or os.path.isdir(tf_model_path)):
                         try:
+                            tf = _lazy_import_tf()
                             self.efficientnet_model = tf.keras.models.load_model(tf_model_path)
                             self.classes = metadata.get('classes', self.classes)
                             logger.info("✅ EfficientNet model loaded successfully")
@@ -67,6 +87,7 @@ class PetSymptomImageClassifier:
                     for h5_path in h5_paths:
                         if os.path.exists(h5_path):
                             try:
+                                tf = _lazy_import_tf()
                                 self.efficientnet_model = tf.keras.models.load_model(h5_path)
                                 self.classes = metadata.get('classes', self.classes)
                                 logger.info(f"✅ EfficientNet model loaded from {h5_path}")
@@ -102,6 +123,7 @@ class PetSymptomImageClassifier:
                     
                     if tf_model_path and (os.path.exists(tf_model_path) or os.path.isdir(tf_model_path)):
                         try:
+                            tf = _lazy_import_tf()
                             self.mobilenet_model = tf.keras.models.load_model(tf_model_path)
                             logger.info("✅ MobileNet model loaded successfully")
                         except Exception as e:
@@ -119,6 +141,7 @@ class PetSymptomImageClassifier:
                     for h5_path in h5_paths:
                         if os.path.exists(h5_path):
                             try:
+                                tf = _lazy_import_tf()
                                 self.mobilenet_model = tf.keras.models.load_model(h5_path)
                                 logger.info(f"✅ MobileNet model loaded from {h5_path}")
                                 break
@@ -347,10 +370,22 @@ class PetSymptomImageClassifier:
             'urgency_level': 'unknown'
         }
 
-# Create global instance
-image_classifier = PetSymptomImageClassifier()
+# Lazy-loading global instance (only created when needed)
+_image_classifier_instance = None
+
+def get_image_classifier():
+    """
+    Lazy-load the image classifier instance.
+    Only imports TensorFlow and creates the classifier when actually needed.
+    This prevents import errors during Django startup.
+    """
+    global _image_classifier_instance
+    if _image_classifier_instance is None:
+        _image_classifier_instance = PetSymptomImageClassifier()
+    return _image_classifier_instance
 
 # Function for backward compatibility
 def analyze_pet_image(image_path, pet_species='dog'):
     """Analyze pet image - main function called by Django views"""
-    return image_classifier.analyze_symptom_image(image_path, pet_species)
+    classifier = get_image_classifier()
+    return classifier.analyze_symptom_image(image_path, pet_species)

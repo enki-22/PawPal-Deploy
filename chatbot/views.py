@@ -23,9 +23,8 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from pets.models import Pet
-from .models import Conversation, Message, AIDiagnosis, SOAPReport
-from ml.imageClassifier import image_classifier
-from .models import Conversation, Message, AIDiagnosis, DiagnosisSuggestion
+from .models import Conversation, Message, AIDiagnosis, SOAPReport, DiagnosisSuggestion
+# Note: image_classifier is now lazily loaded via analyze_pet_image when needed
 import logging
 logger = logging.getLogger(__name__)
 
