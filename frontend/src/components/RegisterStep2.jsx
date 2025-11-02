@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
-import { useAuth } from '../context/AuthContext';
 import { useRegistration } from '../context/RegistrationContext';
+import { authService } from '../services/api';
 import Alert from './Alert';
 
 const RegisterStep2 = () => {
@@ -13,7 +13,6 @@ const RegisterStep2 = () => {
   const [loading, setLoading] = useState(false);
   const [showClinicInfo, setShowClinicInfo] = useState(false);
   
-  const { register } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if step 1 is not completed
@@ -56,16 +55,28 @@ const RegisterStep2 = () => {
     
     console.log('Complete registration data being sent:', completeData);
     
-    const result = await register(completeData);
-    
-    if (result.success) {
+    try {
+      // Use the registration endpoint which creates active user directly (no OTP)
+      await authService.registerWithOtp(completeData);
+      
       clearData();
+      // Navigate to login after successful registration
       navigate('/login', { 
         state: { message: 'Registration successful! Please log in.' },
         replace: true
       });
-    } else {
-      setError(result.error);
+    } catch (err) {
+      const apiErrors = err?.response?.data?.error || err?.response?.data;
+      if (apiErrors) {
+        if (typeof apiErrors === 'object') {
+          const errorMessages = Object.values(apiErrors).flat();
+          setError(errorMessages.join(', ') || 'Registration failed. Please try again.');
+        } else {
+          setError(apiErrors || 'Registration failed. Please try again.');
+        }
+      } else {
+        setError(err?.message || 'Registration failed. Please try again.');
+      }
     }
     
     setLoading(false);

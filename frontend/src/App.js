@@ -1,17 +1,17 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { RegistrationProvider } from './context/RegistrationContext';
-import { ConversationsProvider } from './context/ConversationsContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import Login from './components/Login';
-import RegisterStep1 from './components/RegisterStep1';
-import RegisterStep2 from './components/RegisterStep2';
-import Chat from './components/Chat';
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import AIDiagnosis from './components/AIDiagnosis';
+import Chat from './components/Chat';
+import Login from './components/Login';
 import PetHealthRecords from './components/PetHealthRecords';
 import PetProfile from './components/PetProfile';
 import ProfileSettings from './components/ProfileSettings';
+import ProtectedRoute from './components/ProtectedRoute';
+import RegisterStep1 from './components/RegisterStep1';
+import RegisterStep2 from './components/RegisterStep2';
+import { AuthProvider } from './context/AuthContext';
+import { ConversationsProvider } from './context/ConversationsContext';
+import { RegistrationProvider } from './context/RegistrationContext';
 
 function App() {
   return (

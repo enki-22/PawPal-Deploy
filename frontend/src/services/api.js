@@ -20,18 +20,32 @@ api.interceptors.request.use((config) => {
 
 // Auth services
 export const authService = {
-  login: (credentials) => api.post('/users/login/', credentials),
-  register: (userData) => api.post('/users/register/', userData),
+  login: (credentials) => api.post('/api/users/login/', credentials),
+  register: (userData) => api.post('/api/users/register/', userData),
   logout: () => {
     localStorage.removeItem('token');
-    return api.post('/users/logout/');
+    return api.post('/api/users/logout/');
   },
-  getProfile: () => api.get('/users/profile/'),
+  getProfile: () => api.get('/api/users/profile/'),
+  // New OTP-based auth endpoints (spec)
+  registerWithOtp: (userData) => api.post('/api/auth/register', userData),
+  sendOtp: (payload) => api.post('/api/auth/send-otp', payload),
+  verifyOtp: (payload) => api.post('/api/auth/verify-otp', payload),
+  requestPasswordReset: (payload) => api.post('/api/auth/request-password-reset', payload),
+  resetPassword: (payload) => api.post('/api/auth/reset-password', payload),
 };
 
 // Chat services
 export const chatService = {
-  sendMessage: (message) => api.post('/chatbot/chat/', { message }),
+  sendMessage: (message) => api.post('/api/chatbot/chat/', { message }),
+};
+
+// Diagnosis SOAP endpoints
+export const diagnosisService = {
+  generate: (payload) => api.post('/api/chatbot/diagnosis/generate', payload),
+  getReport: (caseId) => api.get(`/api/chatbot/diagnosis/soap/${caseId}`),
+  getByPet: (petId) => api.get(`/api/chatbot/diagnosis/${petId}`),
+  getFlaggedByPet: (petId) => api.get(`/api/chatbot/diagnosis/flagged/${petId}`),
 };
 
 export default api;

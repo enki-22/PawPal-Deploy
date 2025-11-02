@@ -50,7 +50,9 @@ INSTALLED_APPS = [
     'users',
     'pets',
     'chatbot',
+    'admin_panel',
 ]
+ADMIN_TOKEN_EXPIRY_HOURS = 24
 
 # Django REST Framework settings
 REST_FRAMEWORK = {
@@ -60,6 +62,18 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
+    ],
+    # Custom exception handler for standardized error responses
+    'EXCEPTION_HANDLER': 'utils.exception_handler.custom_exception_handler',
+    # Response rendering
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    # Request parsing
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser',
     ],
 }
 
@@ -72,6 +86,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'middleware.rate_limit.RateLimitMiddleware',  # Rate limiting for OTP/password reset endpoints
 ]
 
 ROOT_URLCONF = 'vet_app.urls'
@@ -170,3 +185,37 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email backend (allow override via env even in DEBUG)
+EMAIL_BACKEND = config('EMAIL_BACKEND', default=(
+    'django.core.mail.backends.console.EmailBackend' if DEBUG else 'django.core.mail.backends.smtp.EmailBackend'
+))
+if EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend':
+    EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+    EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+    DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER or 'no-reply@pawpal.local')
+
+# Cache configuration for rate limiting and other features
+CACHES = {
+    'default': {
+        'BACKEND': config(
+            'CACHE_BACKEND',
+            default='django.core.cache.backends.locmem.LocMemCache'
+        ),
+        'LOCATION': config('CACHE_LOCATION', default='unique-snowflake'),
+        'OPTIONS': {
+            'MAX_ENTRIES': config('CACHE_MAX_ENTRIES', default=1000, cast=int),
+        }
+    }
+}
+
+# For production, use Redis or Memcached:
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+#         'LOCATION': config('REDIS_URL', default='redis://127.0.0.1:6379/1'),
+#     }
+# }

@@ -4,6 +4,7 @@ import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
 import { useRegistration } from '../context/RegistrationContext';
 import Alert from './Alert';
+import { authService } from '../services/api';
 
 const RegisterStep1 = () => {
   const { registrationData, updateStep1 } = useRegistration();
@@ -53,11 +54,13 @@ const RegisterStep1 = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (validateForm()) {
       updateStep1(formData);
+      // Navigate to step 2 without calling the API
+      // The API will be called in RegisterStep2 after collecting all information
       navigate('/register/step2');
     }
   };
