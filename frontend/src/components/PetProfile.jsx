@@ -11,8 +11,10 @@ const PetProfile = () => {
   const [pet, setPet] = useState(null);
   const [allPets, setAllPets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [petSwitchLoading, setPetSwitchLoading] = useState(false); // Separate loading for pet switching
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [currentPetId, setCurrentPetId] = useState(null); // Add state for current pet ID
   const { petId } = useParams();
   const { token, logout } = useAuth();
   const navigate = useNavigate();
@@ -28,6 +30,47 @@ const PetProfile = () => {
     handleArchiveConversation,
     handleDeleteConversation,
   } = useConversations();
+
+  // Mock data for demonstration - replace with actual API calls
+  const mockMedicalRecords = [
+    // Temporarily empty to show empty state - uncomment below for data
+    // {
+    //   id: 1,
+    //   serviceType: 'Check-up',
+    //   serviceProvider: 'Hazel Liwanag',
+    //   dateProvided: 'September 10, 2025'
+    // },
+    // {
+    //   id: 2,
+    //   serviceType: 'Vaccination',
+    //   serviceProvider: 'Hazel Liwanag',
+    //   dateProvided: 'September 10, 2025'
+    // },
+    // {
+    //   id: 3,
+    //   serviceType: 'Laboratory',
+    //   serviceProvider: 'Hazel Liwanag',
+    //   dateProvided: 'September 10, 2025'
+    // }
+  ];
+
+  const mockVaccinationRecords = [
+    // Temporarily empty to show empty state - uncomment below for data
+    // {
+    //   id: 1,
+    //   vaccine: 'Rabies',
+    //   administeredBy: 'Hazel Liwanag',
+    //   dateAdministered: 'September 10, 2025',
+    //   nextDue: 'December 10, 2025'
+    // }
+  ];
+
+  const mockFiles = [
+    // Temporarily empty to show empty state - uncomment below for data
+    // { id: 1, name: 'Blood Test - 060225.pdf', size: '225 kb' },
+    // { id: 2, name: 'Surgery - 082624.pdf', size: '225 kb' },
+    // { id: 3, name: 'Surgery - 082624.pdf', size: '225 kb' }
+  ];
 
   // Fetch all pets
   const fetchAllPets = React.useCallback(async () => {
@@ -63,42 +106,77 @@ const PetProfile = () => {
   useEffect(() => {
     fetchPetDetails();
     fetchAllPets();
+    // Set initial current pet ID from URL parameter
+    setCurrentPetId(parseInt(petId));
   }, [petId, token, fetchAllPets, fetchPetDetails]);
 
   const getSpeciesEmoji = (species) => {
-    switch ((species || '').toLowerCase()) {
+    switch (species?.toLowerCase()) {
+      case 'dog': return '🐕';
       case 'cat': return '🐱';
-      case 'dog': return '🐶';
-      case 'bird': return '🐦';
-      case 'rabbit': return '🐰';
       default: return '🐾';
     }
   };
 
   const handlePetSelect = (selectedPetId) => {
-    if (selectedPetId !== petId) {
-      navigate(`/pet-profile/${selectedPetId}`);
+    if (selectedPetId !== currentPetId) {
+      // Update URL without page reload
+      window.history.pushState(null, '', `/pet-profile/${selectedPetId}`);
+      
+      // Update current pet ID state immediately for instant UI feedback
+      setCurrentPetId(selectedPetId);
+      
+      // Find the selected pet data from allPets and set it immediately
+      const selectedPet = allPets.find(p => p.id === selectedPetId);
+      if (selectedPet) {
+        setPet(selectedPet);
+      }
+      
+      // Fetch detailed pet data in background without showing loading state
+      fetchPetDetailsByIdDirectly(selectedPetId);
+    }
+  };
+
+  // Helper function to fetch pet details silently in background
+  const fetchPetDetailsByIdDirectly = async (petIdToFetch) => {
+    try {
+      setPetSwitchLoading(true);
+      const response = await axios.get(`http://localhost:8000/api/pets/${petIdToFetch}/`, {
+        headers: {
+          'Authorization': token ? `Token ${token}` : '',
+        },
+      });
+      // Only update pet data if this is still the selected pet
+      if (petIdToFetch === currentPetId) {
+        setPet(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching detailed pet data:', error);
+      // Don't show error to user, keep the basic pet data from allPets
+    } finally {
+      setPetSwitchLoading(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F0F0F0] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3]"></div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Loading...</div>
       </div>
     );
   }
 
   if (!pet) {
     return (
-      <div className="min-h-screen bg-[#F0F0F0] flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Pet not found</h2>
-          <button 
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Pet Not Found</h2>
+          <p className="text-gray-600 mb-4">The pet you&apos;re looking for doesn&apos;t exist.</p>
+          <button
             onClick={() => navigate('/pet-health-records')}
-            className="bg-[#815FB3] text-white px-6 py-2 rounded-lg hover:bg-[#6d4a96] transition-colors"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
-            Back to Pet Records
+            Back to Pet Health Records
           </button>
         </div>
       </div>
@@ -106,10 +184,8 @@ const PetProfile = () => {
   }
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#F0F0F0', position: 'relative' }}>
-      {/* Logout modal renders its own overlay; remove duplicate overlay here to avoid stacking issues */}
-
-      {/* Fixed Sidebar - matches other pages */}
+    <div className="min-h-screen flex bg-[#F0F0F0]">
+      {/* Sidebar Container */}
       <div
         style={{
           position: 'fixed',
@@ -117,7 +193,7 @@ const PetProfile = () => {
           left: 0,
           height: '100vh',
           zIndex: 50,
-          width: sidebarVisible ? 320 : 200, // Increased to 200px to provide space for PawPal branding
+          width: sidebarVisible ? 320 : 200,
         }}
       >
         <Sidebar
@@ -135,26 +211,25 @@ const PetProfile = () => {
         />
       </div>
 
-      {/* Main Content - flex-1, marginLeft matches sidebar width when visible */}
+      {/* Main Content */}
       <div
-        className="flex-1 flex flex-col bg-[#F0F0F0]"
+        className="flex-1 flex flex-col"
         style={{
-          marginLeft: sidebarVisible ? 320 : 200, // Increased to 200px to match header positioning
+          marginLeft: sidebarVisible ? 320 : 200,
           minHeight: '100vh',
           transition: 'margin-left 0.3s cubic-bezier(.4,0,.2,1)',
         }}
       >
-        {/* Header (fixed/stationary) */}
+        {/* Header */}
         <div
-          className="border-b p-4 flex items-center justify-between"
+          className="border-b p-4 flex items-center justify-between bg-[#F0F0F0]"
           style={{
             position: 'fixed',
             top: 0,
-            left: sidebarVisible ? 320 : 200, // Increased to 200px to give more space for PawPal branding
+            left: sidebarVisible ? 320 : 200,
             right: 0,
             zIndex: 60,
-            background: '#F0F0F0',
-            paddingLeft: sidebarVisible ? 0 : 16, // Add padding when minimized
+            paddingLeft: sidebarVisible ? 16 : 16,
           }}
         >
           <div className="flex items-center space-x-4">
@@ -176,525 +251,951 @@ const PetProfile = () => {
           </div>
         </div>
 
-        {/* Logout Confirmation Modal */}
-        {showLogoutModal && (
-          <Modal
-            isOpen={showLogoutModal}
-            onClose={() => setShowLogoutModal(false)}
-            onConfirm={async () => {
-              await logout();
-              setShowLogoutModal(false);
-              navigate('/login');
-            }}
-            title="Confirm Logout"
-            message="Are you sure you want to log out?"
-          />
-        )}
-
-  {/* Main Content Container - use most of available width and add top padding for fixed header */}
-  <div style={{ width: '100%', paddingTop: 96, paddingLeft: 48, paddingRight: 48 }}>
-          {/* Top Pet Selector Circles */}
-          <div
-            style={{
-              background: '#F0F0F0',
-              padding: '32px 0 16px 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '14px', // Reduced gap to make components closer
-              position: 'relative',
-              zIndex: 2,
-            }}
-          >
-            {/* Add Pet Button */}
-            <div
+        {/* Pet Navigation - UPDATED with larger icons */}
+        <div className="pt-20 px-6 pb-6">
+          <div className="flex items-center space-x-6">
+            {/* Add Pet Button - LARGER */}
+            <button 
               onClick={() => navigate('/add-pet')}
+              className="flex-shrink-0 transition-all duration-300 ease-in-out hover:transform hover:scale-105"
               style={{
-                width: 60, // Reduced size by 20%
-                height: 60, // Reduced size by 20%
-                background: '#F5E9B8',
-                borderRadius: '100px',
+                width: '80px',  // Increased from ~48px
+                height: '80px', // Increased from ~48px
+                background: '#FFF4C9',
+                borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                cursor: 'pointer',
-                marginLeft: '8px',
-                boxShadow: '0 0 0 2px #F0F0F0',
+                border: 'none',
+                cursor: 'pointer'
               }}
             >
-              <span
-                style={{
-                  color: '#642A77',
-                  fontSize: 38, // Reduced size by 20%
-                  fontWeight: 700,
-                  fontFamily: 'Raleway',
-                  lineHeight: '58px',
+              <span 
+                className="font-bold text-gray-600"
+                style={{ 
+                  fontSize: '32px',  // Increased from ~20px
+                  fontWeight: '900'  // Bolder stroke
                 }}
               >
                 +
               </span>
-            </div>
-
-            {/* Vertical Separator Line */}
-            <div
-              style={{
-                width: '1px',
-                height: '60px', // Reduced size by 20%
-                background: '#666666',
-                margin: '0 16px',
-              }}
-            ></div>
-
-            {/* Pet Circles */}
-            {allPets.map((petItem) => {
-              const isSelected = petItem.id.toString() === petId;
-              return (
-                <div
-                  key={petItem.id}
-                  onClick={() => handlePetSelect(petItem.id.toString())}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease-in-out',
-                  }}
-                >
+            </button>
+            
+            {/* Vertical Separator Line - TALLER */}
+            <div className="w-px h-20 bg-gray-400"></div>
+            
+            {/* Pet Selection - LARGER icons */}
+            <div className="flex items-center space-x-4">
+              {allPets.map((petItem) => {
+                const isSelected = petItem.id === currentPetId; // Use currentPetId instead of petId
+                return (
                   <div
+                    key={petItem.id}
+                    onClick={() => handlePetSelect(petItem.id)}
+                    className="cursor-pointer transition-all duration-300 ease-in-out hover:transform hover:scale-105"
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      background: isSelected ? '#F5E9B8' : '#FFFFFF',
-                      padding: isSelected ? '10px 20px' : '0',
-                      borderRadius: isSelected ? '28px' : '100px', // Reduced size by 20%
-                      boxShadow: '0 0 0 2px #F0F0F0',
-                      fontFamily: 'Raleway',
-                      fontSize: 19, // Reduced size by 20%
-                      color: '#34113F',
-                      fontWeight: 700,
-                      whiteSpace: 'nowrap',
-                      width: isSelected ? 190 : 60, // Reduced size by 20%
-                      height: 60, // Reduced size by 20%
-                      transition: 'all 0.3s ease-in-out',
+                      background: isSelected ? '#FFF4C9' : 'transparent',
+                      borderRadius: isSelected ? '40px' : '50%',  // Increased border radius
+                      padding: isSelected ? '12px 24px 12px 12px' : '0',  // Increased padding
+                      minWidth: isSelected ? '200px' : '80px',  // Increased from 140px/48px
+                      height: '80px',  // Increased from 48px
+                      overflow: 'hidden',
                     }}
                   >
-                    <div
+                    {/* Pet Image Circle - LARGER */}
+                    <div 
+                      className="bg-gray-300 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
                       style={{
-                        width: 60, // Reduced size by 20%
-                        height: 60, // Reduced size by 20%
-                        borderRadius: '100px',
-                        overflow: 'hidden',
-                        background: '#FFFFFF',
-                        boxShadow: '0 0 0 2px #F0F0F0',
-                        marginLeft: '-10px', // Adjusted for closer alignment
+                        width: '56px',  // Increased from 32px
+                        height: '56px'  // Increased from 32px
                       }}
                     >
-                      {petItem.image ? (
-                        <img
-                          src={petItem.image}
-                          alt={petItem.name}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            borderRadius: '100px',
-                          }}
+                      {petItem.image_url || petItem.image ? (
+                        <img 
+                          src={petItem.image_url || petItem.image} 
+                          alt={petItem.name} 
+                          className="w-full h-full object-cover" 
                         />
                       ) : (
-                        <div style={{
-                          width: '100%',
-                          height: '100%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}>
-                          <span
-                            style={{
-                              fontSize: 34, // Reduced size by 20%
-                              color: '#815FB3',
-                              fontWeight: 400,
-                              fontFamily: 'Raleway',
-                            }}
-                          >
-                            {getSpeciesEmoji(petItem.animal_type)}
-                          </span>
-                        </div>
+                        <span style={{ fontSize: '28px' }}>  {/* Increased from 14px */}
+                          {getSpeciesEmoji(petItem.species)}
+                        </span>
                       )}
                     </div>
-                    {isSelected && (
-                      <span
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          fontFamily: 'Raleway',
-                          fontSize: 19, // Reduced size by 20%
-                          color: '#34113F',
-                          fontWeight: 700,
-                          whiteSpace: 'nowrap',
-                          marginLeft: '10%', // Moved name to the right by 10%
-                        }}
-                      >
-                        {petItem.name}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Two-column responsive layout: left column for profile/files/download; right column for tables */}
-          <div style={{ display: 'flex', gap: 32, padding: '0 8px 24px 8px', alignItems: 'flex-start', width: '100%' }}>
-            {/* Left Column - takes remaining space and includes the pet card, files, download */}
-            <div style={{ flex: 2, minWidth: 420 }}>
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                {/* Unified Pet Basic Information Section */}
-                <div
-                  className="w-full p-8"
-                  style={{
-                    maxWidth: '100%',
-                    margin: '0',
-                    background: '#FFFFF2',
-                    borderRadius: '10px',
-                    boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
-                  }}
-                >
-                  {/* Pet Image */}
-                  <div
-                    className="w-full h-80 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative"
-                    style={{ borderRadius: '8px 8px 0px 0px' }}
-                  >
-                    {pet.image ? (
-                      <img
-                        src={pet.image}
-                        alt={pet.name}
-                        className="w-full h-full object-cover"
-                        style={{ borderRadius: '8px 8px 0px 0px' }}
-                      />
-                    ) : (
-                      <div className="text-center">
-                        <div className="text-8xl mb-4">{getSpeciesEmoji(pet.animal_type)}</div>
-                        <p className="text-gray-500 text-lg" style={{ fontFamily: 'Raleway' }}>
-                          No photo available
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Pet Name and Breed */}
-                  <div
-                    style={{
-                      padding: '16px',
-                      textAlign: 'center',
-                      borderBottom: '1px solid #ddd',
-                    }}
-                  >
-                    <h1
+                    
+                    {/* Pet Name - Only visible when selected */}
+                    <span 
+                      className={`ml-4 font-bold text-gray-900 whitespace-nowrap transition-all duration-300 ease-in-out ${
+                        isSelected ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform translate-x-4'
+                      }`}
                       style={{
                         fontFamily: 'Raleway',
-                        fontStyle: 'normal',
-                        fontWeight: 800,
-                        fontSize: '20px',
-                        lineHeight: '23px',
-                        color: '#000000',
+                        fontSize: '18px',  // Increased from 14px
+                        display: isSelected ? 'block' : 'none',
                       }}
                     >
-                      {pet.name}
-                    </h1>
-                    <p
-                      style={{
+                      {petItem.name}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="flex-1 px-6 pb-6">
+          {/* Add subtle loading indicator only for the content area during pet switching */}
+          <div className={`transition-opacity duration-200 ${petSwitchLoading ? 'opacity-50' : 'opacity-100'}`}>
+            <div className="grid grid-cols-2 gap-6">
+              {/* Left Column - Pet Info */}
+              <div className="space-y-6">
+              {/* Pet Profile Card - Redesigned to match Pasted Image 1 */}
+              <div 
+                className="rounded-lg overflow-hidden"
+                style={{ 
+                  backgroundColor: '#FFFFF2',
+                  boxShadow: '0 2px 16px rgba(0,0,0,0.04)'
+                }}
+              >
+                {/* Pet Image with Gradient Overlay and Text */}
+                <div className="relative" style={{ height: '320px' }}>
+                  {pet.image_url || pet.image ? (
+                    <img 
+                      src={pet.image_url || pet.image} 
+                      alt={pet.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div 
+                      className="w-full h-full flex items-center justify-center text-6xl"
+                      style={{ backgroundColor: '#E5E7EB' }}
+                    >
+                      {getSpeciesEmoji(pet.species)}
+                    </div>
+                  )}
+                  
+                  {/* Dark Gradient Overlay */}
+                  <div 
+                    className="absolute inset-0"
+                    style={{
+                      background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)'
+                    }}
+                  ></div>
+                  
+                  {/* Pet Name and Breed Text Overlay */}
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <h1 
+                        className="text-white font-bold"
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          fontSize: '28px',
+                          lineHeight: '32px',
+                          textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+                        }}
+                      >
+                        {pet.name}
+                      </h1>
+                      <button className="text-white hover:text-gray-200 transition-colors">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                    </div>
+                    <p 
+                      className="text-white"
+                      style={{ 
                         fontFamily: 'Raleway',
-                        fontStyle: 'normal',
-                        fontWeight: 400,
-                        fontSize: '14px',
-                        lineHeight: '14px',
-                        color: '#000000',
-                        marginTop: '5px',
+                        fontSize: '16px',
+                        lineHeight: '19px',
+                        textShadow: '0 1px 2px rgba(0,0,0,0.5)'
                       }}
                     >
                       {pet.breed || 'Domestic Shorthair'}
                     </p>
                   </div>
+                </div>
 
-                  {/* Quick Info Row */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-around',
-                      padding: '16px',
-                    }}
-                  >
+                {/* Pet Basic Info Section - 3 Column Grid */}
+                <div className="p-6">
+                  <div className="grid grid-cols-3 gap-6 mb-8">
                     {/* Species */}
-                    <div style={{ textAlign: 'center' }}>
-                      <img
-                        src="mdi_paw.png"
-                        alt="Species Icon"
-                        style={{ width: '35px', height: '35px', marginBottom: '8px' }}
-                      />
-                      <p
-                        style={{
+                    <div className="text-center">
+                      <div className="flex justify-center mb-3">
+                        <img 
+                          src="/mdi_paw.png" 
+                          alt="Species" 
+                          className="w-8 h-8"
+                          style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.8)' }}
+                        />
+                      </div>
+                      <p 
+                        className="text-gray-600 mb-1"
+                        style={{ 
                           fontFamily: 'Raleway',
-                          fontWeight: 500,
                           fontSize: '12px',
-                          color: '#000000',
+                          fontWeight: 500
                         }}
                       >
                         Species
                       </p>
-                      <p
-                        style={{
+                      <p 
+                        className="text-gray-900 font-bold"
+                        style={{ 
                           fontFamily: 'Raleway',
-                          fontWeight: 700,
-                          fontSize: '15px',
-                          color: '#000000',
+                          fontSize: '14px'
                         }}
                       >
-                        {pet.animal_type}
+                        {pet.species || 'Cat'}
                       </p>
                     </div>
 
                     {/* Sex */}
-                    <div style={{ textAlign: 'center' }}>
-                      <img
-                        src="solar_health-bold.png"
-                        alt="Sex Icon"
-                        style={{ width: '35px', height: '35px', marginBottom: '8px' }}
-                      />
-                      <p
-                        style={{
+                    <div className="text-center">
+                      <div className="flex justify-center mb-3">
+                        <img 
+                          src="/solar_health-bold.png" 
+                          alt="Sex" 
+                          className="w-8 h-8"
+                          style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.8)' }}
+                        />
+                      </div>
+                      <p 
+                        className="text-gray-600 mb-1"
+                        style={{ 
                           fontFamily: 'Raleway',
-                          fontWeight: 500,
                           fontSize: '12px',
-                          color: '#000000',
+                          fontWeight: 500
                         }}
                       >
                         Sex
                       </p>
-                      <p
-                        style={{
+                      <p 
+                        className="text-gray-900 font-bold"
+                        style={{ 
                           fontFamily: 'Raleway',
-                          fontWeight: 700,
-                          fontSize: '15px',
-                          color: '#000000',
+                          fontSize: '14px'
                         }}
                       >
-                        {pet.sex}
+                        {pet.sex || 'Male'}
                       </p>
                     </div>
 
                     {/* Age */}
-                    <div style={{ textAlign: 'center' }}>
-                      <img
-                        src="mage_calendar-fill.png"
-                        alt="Age Icon"
-                        style={{ width: '35px', height: '35px', marginBottom: '8px' }}
-                      />
-                      <p
-                        style={{
+                    <div className="text-center">
+                      <div className="flex justify-center mb-3">
+                        <img 
+                          src="/mage_calendar-fill.png" 
+                          alt="Age" 
+                          className="w-8 h-8"
+                          style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.8)' }}
+                        />
+                      </div>
+                      <p 
+                        className="text-gray-600 mb-1"
+                        style={{ 
                           fontFamily: 'Raleway',
-                          fontWeight: 500,
                           fontSize: '12px',
-                          color: '#000000',
+                          fontWeight: 500
                         }}
                       >
                         Age
                       </p>
-                      <p
-                        style={{
+                      <p 
+                        className="text-gray-900 font-bold"
+                        style={{ 
                           fontFamily: 'Raleway',
-                          fontWeight: 700,
-                          fontSize: '15px',
-                          color: '#000000',
+                          fontSize: '14px'
                         }}
                       >
-                        {pet.age} {pet.age === 1 ? 'year' : 'years'} old
+                        {pet.age ? `${pet.age} years old` : '2 years old'}
                       </p>
                     </div>
                   </div>
-                </div>
 
-                {/* Files Section */}
-                <div
-                  style={{
-                    position: 'relative',
-                    width: '100%',
-                    minHeight: 165,
-                    background: '#FFFFF2',
-                    borderRadius: 10,
-                    marginTop: 32,
-                    boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
-                    zIndex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    padding: '24px 0 24px 0',
-                  }}
-                >
-                  <div
-                    style={{
-                      marginLeft: 16,
-                      marginBottom: 16,
-                      fontFamily: 'Raleway',
-                      fontWeight: 600,
-                      fontSize: 20,
-                      lineHeight: '23px',
-                      color: '#000',
-                    }}
-                  >
-                    Files
-                  </div>
-                  {/* Placeholder for no files */}
-                  <div
-                    style={{
-                      marginLeft: 16,
-                      width: 362,
-                      height: 37,
-                      display: 'flex',
-                      alignItems: 'center',
-                      fontFamily: 'Raleway',
-                      fontWeight: 400,
-                      fontSize: 16,
-                      color: '#000',
-                      background: 'none',
-                    }}
-                  >
-                    <svg
-                      style={{ width: 24, height: 24, marginRight: 12, color: '#34113F' }}
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
+                  {/* Medical Information Section - Two Column Layout */}
+                  <div>
+                    <h3 
+                      className="text-gray-900 mb-6"
+                      style={{ 
+                        fontFamily: 'Raleway',
+                        fontSize: '20px',
+                        fontWeight: 600,
+                        lineHeight: '23px'
+                      }}
                     >
-                      <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.828A2 2 0 0 0 19.414 7.414l-5.828-5.828A2 2 0 0 0 12.172 1H6zm0 2h6v5a2 2 0 0 0 2 2h5v10H6V4zm8 0v5h5l-5-5z" />
-                    </svg>
-                    There are no files yet
+                      Medical Information
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      {/* Blood Type */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <img 
+                            src="/healthicons_blood-drop-24px.png" 
+                            alt="Blood Type" 
+                            className="w-6 h-6"
+                            style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.6)' }}
+                          />
+                          <span 
+                            className="text-gray-700"
+                            style={{ 
+                              fontFamily: 'Raleway',
+                              fontSize: '14px',
+                              fontWeight: 500
+                            }}
+                          >
+                            Blood Type
+                          </span>
+                        </div>
+                        <span 
+                          className="text-gray-900 font-semibold"
+                          style={{ 
+                            fontFamily: 'Raleway',
+                            fontSize: '14px'
+                          }}
+                        >
+                          Type A
+                        </span>
+                      </div>
+                      
+                      {/* Spayed/Neutered */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <img 
+                            src="/mynaui_heart-x-solid.png" 
+                            alt="Spayed/Neutered" 
+                            className="w-6 h-6"
+                            style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.6)' }}
+                          />
+                          <span 
+                            className="text-gray-700"
+                            style={{ 
+                              fontFamily: 'Raleway',
+                              fontSize: '14px',
+                              fontWeight: 500
+                            }}
+                          >
+                            Spayed/Neutered
+                          </span>
+                        </div>
+                        <span 
+                          className="text-gray-900 font-semibold"
+                          style={{ 
+                            fontFamily: 'Raleway',
+                            fontSize: '14px'
+                          }}
+                        >
+                          No
+                        </span>
+                      </div>
+                      
+                      {/* Allergies */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <img 
+                            src="/material-symbols-light_pet-supplies.png" 
+                            alt="Allergies" 
+                            className="w-6 h-6"
+                            style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.6)' }}
+                          />
+                          <span 
+                            className="text-gray-700"
+                            style={{ 
+                              fontFamily: 'Raleway',
+                              fontSize: '14px',
+                              fontWeight: 500
+                            }}
+                          >
+                            Allergies
+                          </span>
+                        </div>
+                        <span 
+                          className="text-gray-900 font-semibold"
+                          style={{ 
+                            fontFamily: 'Raleway',
+                            fontSize: '14px'
+                          }}
+                        >
+                          Flea Allergy Dermatitis
+                        </span>
+                      </div>
+                      
+                      {/* Chronic Disease */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <img 
+                            src="/fa6-solid_disease.png" 
+                            alt="Chronic Disease" 
+                            className="w-6 h-6"
+                            style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.6)' }}
+                          />
+                          <span 
+                            className="text-gray-700"
+                            style={{ 
+                              fontFamily: 'Raleway',
+                              fontSize: '14px',
+                              fontWeight: 500
+                            }}
+                          >
+                            Chronic Disease
+                          </span>
+                        </div>
+                        <span 
+                          className="text-gray-900 font-semibold"
+                          style={{ 
+                            fontFamily: 'Raleway',
+                            fontSize: '14px'
+                          }}
+                        >
+                          N/A
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Download Medical Information Section */}
-                <div
-                  style={{
-                    position: 'relative',
-                    width: '100%',
-                    minHeight: 131,
-                    background: '#FFFFF2',
-                    borderRadius: 10,
-                    marginTop: 24,
-                    boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
-                    zIndex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '24px 0',
+              {/* Files Card - First Separate Card */}
+              <div 
+                className="rounded-lg p-6"
+                style={{ 
+                  background: '#FFFFF2',
+                  borderRadius: '10px'
+                }}
+              >
+                <h3 
+                  className="mb-4"
+                  style={{ 
+                    fontFamily: 'Raleway',
+                    fontSize: '20px',
+                    fontWeight: 600,
+                    color: '#333333'
                   }}
                 >
-                  <div
-                    style={{
-                      width: 315,
-                      height: 23,
+                  Files
+                </h3>
+                
+                {mockFiles.length > 0 ? (
+                  <div className="space-y-3">
+                    {mockFiles.map((file) => (
+                      <div key={file.id} className="flex items-center justify-between py-3">
+                        <div className="flex items-center space-x-3">
+                          {/* Dark Purple File Icon */}
+                          <div className="w-6 h-6 flex items-center justify-center">
+                            <svg 
+                              className="w-6 h-6" 
+                              fill="#4A0E4E" 
+                              viewBox="0 0 24 24"
+                            >
+                              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-7-7z"/>
+                              <polyline points="13,2 13,9 20,9"/>
+                            </svg>
+                          </div>
+                          <span 
+                            style={{ 
+                              fontFamily: 'Raleway',
+                              fontSize: '14px',
+                              fontWeight: 500,
+                              color: '#333333'
+                            }}
+                          >
+                            {file.name}
+                          </span>
+                        </div>
+                        <span 
+                          style={{ 
+                            fontFamily: 'Raleway',
+                            fontSize: '14px',
+                            fontWeight: 400,
+                            color: '#666666'
+                          }}
+                        >
+                          {file.size}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="flex justify-center mb-4">
+                      <svg 
+                        className="w-12 h-12" 
+                        fill="#CCCCCC" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-7-7z"/>
+                        <polyline points="13,2 13,9 20,9"/>
+                      </svg>
+                    </div>
+                    <p 
+                      style={{ 
+                        fontFamily: 'Raleway',
+                        fontSize: '14px',
+                        fontWeight: 400,
+                        color: '#999999'
+                      }}
+                    >
+                      There are no files yet.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Download Medical Information Card - Second Separate Card */}
+              <div 
+                className="rounded-lg p-6"
+                style={{ 
+                  background: '#FFFFF2',
+                  borderRadius: '10px'
+                }}
+              >
+                <div className="text-center">
+                  <h4 
+                    className="mb-4"
+                    style={{ 
                       fontFamily: 'Raleway',
+                      fontSize: '20px',
                       fontWeight: 600,
-                      fontSize: 20,
-                      lineHeight: '23px',
-                      color: '#000',
-                      textAlign: 'center',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginBottom: 24,
+                      color: '#333333'
                     }}
                   >
                     Download Medical Information
-                  </div>
-                  <button
-                    style={{
-                      width: 238,
-                      height: 39,
+                  </h4>
+                  <button 
+                    className="px-8 py-3 rounded-lg font-medium transition-colors hover:opacity-90"
+                    style={{ 
                       background: '#F5E9B8',
-                      boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
-                      borderRadius: 10,
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      color: '#4A0E4E',
+                      fontFamily: 'Raleway',
+                      fontSize: '16px',
+                      fontWeight: 600,
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                      border: 'none'
                     }}
-                    onClick={() => alert('Download not implemented yet')}
                   >
-                    <span
-                      style={{
-                        fontFamily: 'Raleway',
-                        fontWeight: 800,
-                        fontSize: 16,
-                        lineHeight: '19px',
-                        color: '#34113F',
-                        textAlign: 'center',
-                        letterSpacing: '0.05em',
-                        width: '100%',
-                      }}
-                    >
-                      Download
-                    </span>
+                    Download
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Right Column - fixed width so it stays to the right and responds to sidebar */}
-            <div style={{ width: 520, maxWidth: '45%', flexShrink: 0 }}>
-              {/* Medical Records Panel */}
-              <div style={{
-                background: '#FFFFF2',
-                borderRadius: 10,
-                padding: 18,
-                boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
-                marginBottom: 18,
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <div style={{ fontWeight: 700, color: '#815FB3' }}>MEDICAL RECORDS</div>
-                  <button style={{ background: '#F5E9B8', borderRadius: 8, border: 'none', padding: '6px 12px', cursor: 'pointer', fontWeight: 700 }}>Add</button>
+            {/* Right Column - Records */}
+            <div className="space-y-6">
+              {/* Medical Records Section */}
+              <div>
+                {/* Title, Add Button, and Search Bar - Title and Button closer, Search separate */}
+                <div className="flex items-center mb-4">
+                  {/* Left side - Title and Add Button closer together */}
+                  <div className="flex items-center space-x-2">
+                    <h3 
+                      className="font-bold flex items-center"
+                      style={{ 
+                        fontFamily: 'Raleway',
+                        fontStyle: 'normal',
+                        fontWeight: 700,
+                        fontSize: '20px',
+                        lineHeight: '23px',
+                        color: '#815FB3',
+                        width: '186px',
+                        height: '23px'
+                      }}
+                    >
+                      MEDICAL RECORDS
+                    </h3>
+                    
+                    {/* Add Button - Closer to title with shadow */}
+                    <button 
+                      className="rounded text-center transition-colors hover:opacity-90"
+                      style={{ 
+                        width: '50px',
+                        height: '27px',
+                        background: '#F5E9B8',
+                        boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
+                        borderRadius: '10px',
+                        border: 'none',
+                        fontFamily: 'Raleway',
+                        fontStyle: 'normal',
+                        fontWeight: 800,
+                        fontSize: '12px',
+                        lineHeight: '14px',
+                        textAlign: 'center',
+                        letterSpacing: '0.05em',
+                        color: '#34113F'
+                      }}
+                    >
+                      Add
+                    </button>
+                  </div>
+                  
+                  {/* Right side - Search Bar separated */}
+                  <div className="ml-auto">
+                    {/* Search Bar - Shorter width to align with table */}
+                    <input
+                      type="text"
+                      placeholder="Search"
+                      className="px-3 py-1 rounded text-sm"
+                      style={{ 
+                        border: '1px solid #666666', // Added thicker border
+                        borderRadius: '5px',
+                        fontFamily: 'Raleway',
+                        fontStyle: 'normal',
+                        fontWeight: 500,
+                        fontSize: '12px',
+                        lineHeight: '14px',
+                        color: '#666666',
+                        backgroundColor: '#FFFFFF',
+                        width: '250px', // Reduced from 357px to fit page properly
+                        height: '25px',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
-                  <input placeholder="Search" style={{ width: 180, padding: '6px 10px', borderRadius: 6, border: '1px solid #ddd' }} />
+
+                {/* Main Card - Only contains table */}
+                <div 
+                  className="rounded-lg"
+                  style={{ 
+                    background: '#FFFFF2',
+                    borderRadius: '10px'
+                  }}
+                >
+                  {/* Table Header Row - First thing inside the card */}
+                  <div 
+                    className="flex items-center py-3 px-4"
+                    style={{ 
+                      borderBottom: '1px solid #E5E7EB'
+                    }}
+                  >
+                    {/* Header Checkbox */}
+                    <div className="flex items-center mr-4">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-gray-300"
+                        style={{ width: '16px', height: '16px' }}
+                      />
+                    </div>
+                    
+                    {/* Service Type Column Header */}
+                    <div className="flex-1 flex items-center">
+                      <span 
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          color: '#888888'
+                        }}
+                      >
+                        Service Type
+                      </span>
+                      <svg 
+                        className="ml-2 w-3 h-3" 
+                        fill="#888888" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
+                      </svg>
+                    </div>
+                    
+                    {/* Service Provider Column Header */}
+                    <div className="flex-1 flex items-center">
+                      <span 
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          color: '#888888'
+                        }}
+                      >
+                        Service Provider
+                      </span>
+                      <svg 
+                        className="ml-2 w-3 h-3" 
+                        fill="#888888" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
+                      </svg>
+                    </div>
+                    
+                    {/* Date Provided Column Header */}
+                    <div className="flex-1 flex items-center">
+                      <span 
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          color: '#888888'
+                        }}
+                      >
+                        Date Provided
+                      </span>
+                      <svg 
+                        className="ml-2 w-3 h-3" 
+                        fill="#888888" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Empty State Content - Inside the card, below header */}
+                  <div className="text-center py-12 px-4">
+                    <div className="flex justify-center mb-4">
+                      <svg 
+                        className="w-12 h-12" 
+                        fill="#CCCCCC" 
+                        viewBox="0 0 20 20"
+                      >
+                        <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM4 15a1 1 0 100 2h6a1 1 0 100-2H4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <p 
+                      style={{ 
+                        fontFamily: 'Raleway',
+                        fontSize: '14px',
+                        fontWeight: 400,
+                        color: '#999999'
+                      }}
+                    >
+                      No medical records yet.
+                    </p>
+                  </div>
                 </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left', color: '#34113F', fontWeight: 600 }}>
-                      <th style={{ padding: 8 }}>Service</th>
-                      <th style={{ padding: 8 }}>Provider</th>
-                      <th style={{ padding: 8 }}>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr><td colSpan={3} style={{ padding: 8, color: '#6b7280' }}>No medical records</td></tr>
-                  </tbody>
-                </table>
               </div>
 
-              {/* Vaccination Records Panel */}
-              <div style={{ background: '#FFFFF2', borderRadius: 10, padding: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.04)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <div style={{ fontWeight: 700, color: '#815FB3' }}>VACCINATION RECORDS</div>
-                  <button style={{ background: '#F5E9B8', borderRadius: 8, border: 'none', padding: '6px 12px', cursor: 'pointer', fontWeight: 700 }}>Add</button>
+              {/* Vaccination Records Section */}
+              <div>
+                {/* Title, Add Button, and Search Bar - Same layout as Medical Records */}
+                <div className="flex items-center mb-4">
+                  {/* Left side - Title and Add Button closer together */}
+                  <div className="flex items-center space-x-2">
+                    <h3 
+                      className="font-bold flex items-center"
+                      style={{ 
+                        fontFamily: 'Raleway',
+                        fontStyle: 'normal',
+                        fontWeight: 700,
+                        fontSize: '20px',
+                        lineHeight: '23px',
+                        color: '#815FB3',
+                        width: '240px', // Slightly wider for "VACCINATION RECORDS"
+                        height: '23px'
+                      }}
+                    >
+                      VACCINATION RECORDS
+                    </h3>
+                    
+                    {/* Add Button - Same style as Medical Records */}
+                    <button 
+                      className="rounded text-center transition-colors hover:opacity-90"
+                      style={{ 
+                        width: '50px',
+                        height: '27px',
+                        background: '#F5E9B8',
+                        boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
+                        borderRadius: '10px',
+                        border: 'none',
+                        fontFamily: 'Raleway',
+                        fontStyle: 'normal',
+                        fontWeight: 800,
+                        fontSize: '12px',
+                        lineHeight: '14px',
+                        textAlign: 'center',
+                        letterSpacing: '0.05em',
+                        color: '#34113F'
+                      }}
+                    >
+                      Add
+                    </button>
+                  </div>
+                  
+                  {/* Right side - Search Bar separated */}
+                  <div className="ml-auto">
+                    {/* Search Bar - Same style as Medical Records */}
+                    <input
+                      type="text"
+                      placeholder="Search"
+                      className="px-3 py-1 rounded text-sm"
+                      style={{ 
+                        border: '1px solid #666666',
+                        borderRadius: '5px',
+                        fontFamily: 'Raleway',
+                        fontStyle: 'normal',
+                        fontWeight: 500,
+                        fontSize: '12px',
+                        lineHeight: '14px',
+                        color: '#666666',
+                        backgroundColor: '#FFFFFF',
+                        width: '250px',
+                        height: '25px',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
-                  <input placeholder="Search" style={{ width: 180, padding: '6px 10px', borderRadius: 6, border: '1px solid #ddd' }} />
+
+                {/* Main Card - Only contains table */}
+                <div 
+                  className="rounded-lg"
+                  style={{ 
+                    background: '#FFFFF2',
+                    borderRadius: '10px'
+                  }}
+                >
+                  {/* Table Header Row - First thing inside the card */}
+                  <div 
+                    className="flex items-center py-3 px-4"
+                    style={{ 
+                      borderBottom: '1px solid #E5E7EB'
+                    }}
+                  >
+                    {/* Header Checkbox */}
+                    <div className="flex items-center" style={{ width: '40px' }}>
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-gray-300"
+                        style={{ width: '16px', height: '16px' }}
+                      />
+                    </div>
+                    
+                    {/* Vaccine Column Header */}
+                    <div className="flex items-center" style={{ width: '120px' }}>
+                      <span 
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          color: '#888888'
+                        }}
+                      >
+                        Vaccine
+                      </span>
+                      <svg 
+                        className="ml-2 w-3 h-3" 
+                        fill="#888888" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
+                      </svg>
+                    </div>
+                    
+                    {/* Administered By Column Header */}
+                    <div className="flex items-center" style={{ width: '160px' }}>
+                      <span 
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          color: '#888888'
+                        }}
+                      >
+                        Administered By
+                      </span>
+                      <svg 
+                        className="ml-2 w-3 h-3" 
+                        fill="#888888" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
+                      </svg>
+                    </div>
+                    
+                    {/* Date Administered Column Header */}
+                    <div className="flex items-center" style={{ width: '170px' }}>
+                      <span 
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          color: '#888888'
+                        }}
+                      >
+                        Date Administered
+                      </span>
+                      <svg 
+                        className="ml-2 w-3 h-3" 
+                        fill="#888888" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
+                      </svg>
+                    </div>
+                    
+                    {/* Next Due Column Header */}
+                    <div className="flex items-center" style={{ width: '120px' }}>
+                      <span 
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          color: '#888888'
+                        }}
+                      >
+                        Next Due
+                      </span>
+                      <svg 
+                        className="ml-2 w-3 h-3" 
+                        fill="#888888" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Empty State Content - Inside the card, below header */}
+                  <div className="text-center py-12 px-4">
+                    <div className="flex justify-center mb-4">
+                      <svg 
+                        className="w-12 h-12" 
+                        fill="#CCCCCC" 
+                        viewBox="0 0 20 20"
+                      >
+                        <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <p 
+                      style={{ 
+                        fontFamily: 'Raleway',
+                        fontSize: '14px',
+                        fontWeight: 400,
+                        color: '#999999'
+                      }}
+                    >
+                      No vaccination records yet.
+                    </p>
+                  </div>
                 </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left', color: '#34113F', fontWeight: 600 }}>
-                      <th style={{ padding: 8 }}>Vaccine</th>
-                      <th style={{ padding: 8 }}>By</th>
-                      <th style={{ padding: 8 }}>Date</th>
-                      <th style={{ padding: 8 }}>Next Due</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr><td colSpan={4} style={{ padding: 8, color: '#6b7280' }}>No vaccination records</td></tr>
-                  </tbody>
-                </table>
               </div>
             </div>
           </div>
         </div>
       </div>
+      </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <Modal
+          isOpen={showLogoutModal}
+          onClose={() => setShowLogoutModal(false)}
+          onConfirm={() => {
+            logout();
+            navigate('/login');
+          }}
+          title="Confirm Logout"
+          message="Are you sure you want to logout?"
+          confirmText="Logout"
+          confirmButtonColor="bg-red-500 hover:bg-red-600"
+        />
+      )}
     </div>
   );
 };
