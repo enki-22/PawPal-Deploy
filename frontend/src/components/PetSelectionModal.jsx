@@ -149,8 +149,8 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
         
         <p className="text-gray-600 mb-6" style={{ fontFamily: 'Raleway' }}>
           {conversationType === 'general' 
-            ? "Want to check what's normal for your pet? Let's start with: Do you want to check for an existing pet or add a new one?"
-            : "Let's analyze your pet's symptoms. Do you want to check an existing pet or add a new one?"
+            ? "Want to check what&apos;s normal for your pet? Let&apos;s start with: Do you want to check for an existing pet or add a new one?"
+            : "Let&apos;s analyze your pet&apos;s symptoms. Do you want to check an existing pet or add a new one?"
           }
         </p>
 
@@ -245,7 +245,7 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
           <div className="space-y-4">
             <div className="text-center">
               <p className="text-gray-600 mb-4" style={{ fontFamily: 'Raleway' }}>
-                Let's add your new pet's information first so I can provide better assistance.
+                Let&apos;s add your new pet&apos;s information first so I can provide better assistance.
               </p>
               
               {/* Option 1: Redirect to Pet Health Records */}
@@ -257,7 +257,7 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
                 >
                   📋 Add Pet Details First
                   <div className="text-sm mt-1 opacity-90">
-                    Go to Pet Health Records to add your pet's information
+                    Go to Pet Health Records to add your pet&apos;s information
                   </div>
                 </button>
                 
