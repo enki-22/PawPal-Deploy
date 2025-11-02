@@ -194,7 +194,7 @@ class AdminSettings(models.Model):
         ('boolean', 'Boolean'),
         ('json', 'JSON'),
     ], default='string')
-    description = models.TextField(blank=True)
+    description = models.TextField(default="No description provided")
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
