@@ -1,0 +1,54 @@
+/* Figma-exported styles (trimmed and converted to usable CSS classes)
+   This file stores the layer CSS you pasted as reference and exposes a few helper classes
+   for the PetProfile component to achieve the Figma look.
+*/
+
+:root{
+  --bg: #F0F0F0;
+  --panel-bg: #FFFFF2;
+  --accent: #815FB3;
+  --accent-dark: #34113F;
+  --muted: #666666;
+  --soft: #F5E9B8;
+}
+
+.pp-page{
+  background: var(--bg);
+  position: relative;
+}
+
+.pp-header-fixed{
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 60;
+  background: var(--bg);
+  box-shadow: none;
+}
+
+.pp-main{
+  width: 100%;
+  padding-top: 96px; /* header height space */
+  padding-left: 48px;
+  padding-right: 48px;
+}
+
+.pp-top-selector{ display:flex; align-items:center; gap:14px; padding:32px 0 16px 0; }
+.pp-add-circle{ width:60px; height:60px; background:var(--soft); border-radius:999px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+.pp-columns{ display:flex; gap:32px; align-items:flex-start; width:100%; }
+.pp-left{ flex:2; min-width:420px; }
+.pp-right{ width:520px; max-width:45%; flex-shrink:0; }
+
+.pp-panel{ background:var(--panel-bg); border-radius:10px; padding:18px; box-shadow:0 2px 16px rgba(0,0,0,0.04); }
+.pp-panel.large{ padding:24px; }
+
+.pp-files-list .file-row{ width:362px; height:37px; display:flex; align-items:center; font-family:Raleway, sans-serif; font-size:16px; }
+
+.pp-download-btn{ width:238px; height:39px; background:var(--soft); box-shadow:0 4px 4px rgba(0,0,0,0.25); border-radius:10px; border:none; cursor:pointer; }
+
+/* Responsive tweaks */
+@media (max-width: 1100px){
+  .pp-right{ display:none; }
+  .pp-left{ min-width:300px; }
+}

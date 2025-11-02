@@ -71,7 +71,7 @@ function App() {
                   } 
                 />
                 
-                <Route path="/" element={<Navigate to="/chat" replace />} />
+                <Route path="/" element={<Navigate to="/login" replace />} />
               </Routes>
             </div>
           </ConversationsProvider>

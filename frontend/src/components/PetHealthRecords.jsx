@@ -184,9 +184,9 @@ const PetHealthRecords = () => {
         </div>
 
         {/* Main Content - Pet Cards */}
-        <div className="flex-1 p-4 overflow-y-auto bg-[#f0f1f1]">
+        <div className="flex-1 overflow-y-auto bg-[#f0f1f1]" style={{ padding: '30px 60px' }}>
           {/* Filters */}
-          <div className="bg-[#f0f1f1] rounded-lg p-3 mb-3">
+          <div className="bg-[#f0f1f1] rounded-lg p-3 mb-6">
             <div className="flex flex-wrap gap-4 items-center justify-center">
               {/* Pet Name Filter */}
               <select
@@ -245,7 +245,8 @@ const PetHealthRecords = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 justify-items-center"
+               style={{ padding: '30px 0', minHeight: '300px' }}>
             {loading ? (
               <div className="col-span-full flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3]"></div>
@@ -258,10 +259,10 @@ const PetHealthRecords = () => {
                   onClick={() => navigate(`/pet-profile/${pet.id}`)}
                   style={{
                     position: 'relative',
-                    width: '233px',
-                    height: '245px',
+                    width: '256px',
+                    height: '270px',
                     background: '#FFFFF2',
-                    borderRadius: '10px'
+                    borderRadius: '11px'
                   }}
                 >
                   {/* Pet Image Section */}
@@ -269,12 +270,12 @@ const PetHealthRecords = () => {
                     className="relative overflow-hidden"
                     style={{
                       position: 'absolute',
-                      width: '233px',
-                      height: '185px',
+                      width: '256px',
+                      height: '204px',
                       left: '0px',
                       top: '0px',
                       background: '#FFFFFF',
-                      borderRadius: '8px 8px 0px 0px'
+                      borderRadius: '9px 9px 0px 0px'
                     }}
                   >
                     {pet.image ? (
@@ -284,11 +285,11 @@ const PetHealthRecords = () => {
                         className="object-cover"
                         style={{
                           position: 'absolute',
-                          width: '251px',
-                          height: '185px',
-                          left: 'calc(50% - 251px/2)',
-                          top: 'calc(50% - 185px/2)',
-                          borderRadius: '8px 8px 0px 0px'
+                          width: '276px',
+                          height: '204px',
+                          left: 'calc(50% - 276px/2)',
+                          top: 'calc(50% - 204px/2)',
+                          borderRadius: '9px 9px 0px 0px'
                         }}
                         onLoad={() => console.log(`✅ Image loaded successfully for ${pet.name}:`, pet.image)}
                         onError={(e) => {
@@ -316,10 +317,10 @@ const PetHealthRecords = () => {
                     <div 
                       style={{
                         position: 'absolute',
-                        width: '233px',
-                        height: '122px',
+                        width: '256px',
+                        height: '134px',
                         left: '0px',
-                        top: '63px',
+                        top: '70px',
                         background: 'linear-gradient(180deg, rgba(153, 144, 74, 0) -10.06%, rgba(204, 192, 98, 0.2) 39.94%, #F5E9B8 89.94%)'
                       }}
                     ></div>
@@ -331,13 +332,13 @@ const PetHealthRecords = () => {
                       position: 'absolute',
                       width: '92px',
                       height: '23px',
-                      left: '13px',
-                      top: '154px',
+                      left: '14px',
+                      top: '170px',
                       fontFamily: 'Raleway',
                       fontStyle: 'normal',
                       fontWeight: '800',
-                      fontSize: '20px',
-                      lineHeight: '23px',
+                      fontSize: '22px',
+                      lineHeight: '25px',
                       display: 'flex',
                       alignItems: 'center',
                       color: '#000000'
@@ -350,15 +351,15 @@ const PetHealthRecords = () => {
                   <span 
                     style={{
                       position: 'absolute',
-                      width: '42px',
-                      height: '15px',
-                      left: '26px',
-                      top: '195px',
-                      fontFamily: 'Inter',
+                      width: '46px',
+                      height: '17px',
+                      left: '29px',
+                      top: '215px',
+                      fontFamily: 'Raleway',
                       fontStyle: 'normal',
                       fontWeight: '400',
-                      fontSize: '12px',
-                      lineHeight: '15px',
+                      fontSize: '13px',
+                      lineHeight: '17px',
                       color: 'rgba(0, 0, 0, 0.7)'
                     }}
                   >
@@ -369,15 +370,15 @@ const PetHealthRecords = () => {
                   <span 
                     style={{
                       position: 'absolute',
-                      width: '20px',
-                      height: '15px',
-                      left: '71px',
-                      top: '195px',
-                      fontFamily: 'Inter',
+                      width: '22px',
+                      height: '17px',
+                      left: '78px',
+                      top: '215px',
+                      fontFamily: 'Raleway',
                       fontStyle: 'normal',
                       fontWeight: '400',
-                      fontSize: '12px',
-                      lineHeight: '15px',
+                      fontSize: '13px',
+                      lineHeight: '17px',
                       color: '#000000'
                     }}
                   >
@@ -388,15 +389,15 @@ const PetHealthRecords = () => {
                   <span 
                     style={{
                       position: 'absolute',
-                      width: '25px',
-                      height: '15px',
-                      left: '129px',
-                      top: '195px',
-                      fontFamily: 'Inter',
+                      width: '28px',
+                      height: '17px',
+                      left: '142px',
+                      top: '215px',
+                      fontFamily: 'Raleway',
                       fontStyle: 'normal',
                       fontWeight: '400',
-                      fontSize: '12px',
-                      lineHeight: '15px',
+                      fontSize: '13px',
+                      lineHeight: '17px',
                       color: 'rgba(0, 0, 0, 0.7)'
                     }}
                   >
@@ -407,15 +408,15 @@ const PetHealthRecords = () => {
                   <span 
                     style={{
                       position: 'absolute',
-                      width: '28px',
-                      height: '15px',
-                      left: '159px',
-                      top: '195px',
-                      fontFamily: 'Inter',
+                      width: '31px',
+                      height: '17px',
+                      left: '175px',
+                      top: '215px',
+                      fontFamily: 'Raleway',
                       fontStyle: 'normal',
                       fontWeight: '400',
-                      fontSize: '12px',
-                      lineHeight: '15px',
+                      fontSize: '13px',
+                      lineHeight: '17px',
                       color: '#000000'
                     }}
                   >
@@ -426,15 +427,15 @@ const PetHealthRecords = () => {
                   <span 
                     style={{
                       position: 'absolute',
-                      width: '37px',
-                      height: '15px',
-                      left: '26px',
-                      top: '215px',
-                      fontFamily: 'Inter',
+                      width: '41px',
+                      height: '17px',
+                      left: '29px',
+                      top: '237px',
+                      fontFamily: 'Raleway',
                       fontStyle: 'normal',
                       fontWeight: '400',
-                      fontSize: '12px',
-                      lineHeight: '15px',
+                      fontSize: '13px',
+                      lineHeight: '17px',
                       color: 'rgba(0, 0, 0, 0.7)'
                     }}
                   >
@@ -445,15 +446,15 @@ const PetHealthRecords = () => {
                   <span 
                     style={{
                       position: 'absolute',
-                      width: '110px',
-                      height: '15px',
-                      left: '68px',
-                      top: '215px',
-                      fontFamily: 'Inter',
+                      width: '121px',
+                      height: '17px',
+                      left: '75px',
+                      top: '237px',
+                      fontFamily: 'Raleway',
                       fontStyle: 'normal',
                       fontWeight: '400',
-                      fontSize: '12px',
-                      lineHeight: '15px',
+                      fontSize: '13px',
+                      lineHeight: '17px',
                       color: '#000000'
                     }}
                   >
@@ -466,16 +467,29 @@ const PetHealthRecords = () => {
             {/* Add Pet Card */}
             <div 
               onClick={handleAddPet}
-              className="bg-white rounded-lg shadow-sm border-2 border-dashed border-gray-300 hover:border-[#815FB3] transition-colors cursor-pointer group min-h-[280px]"
+              className="cursor-pointer hover:transform hover:scale-105 transition-all duration-300"
+              style={{
+                position: 'relative',
+                width: '256px',
+                height: '270px',
+                border: '2px solid #815FB3',
+                borderRadius: '11px',
+                background: 'transparent',
+                boxSizing: 'border-box'
+              }}
             >
-              <div className="h-full flex flex-col items-center justify-center p-6 text-center">
-                <div className="w-16 h-16 bg-[#815FB3] rounded-full flex items-center justify-center mb-4 group-hover:bg-[#6d4a96] transition-colors">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-1" style={{ fontFamily: 'Raleway' }}>Add New Pet</h3>
-                <p className="text-sm text-gray-500" style={{ fontFamily: 'Raleway' }}>Create a health record for your pet</p>
+              <div className="relative w-full h-full">
+                <img 
+                  src="/basil_add-solid.png" 
+                  alt="Add Pet" 
+                  className="absolute"
+                  style={{
+                    width: '96px',
+                    height: '96px',
+                    left: '80px',
+                    top: '87px'
+                  }}
+                />
               </div>
             </div>
           </div>

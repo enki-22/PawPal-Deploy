@@ -1,11 +1,10 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import useConversations from '../hooks/useConversations';
+import axios from 'axios';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
-import LogoutModal from './LogoutModal';
+import Modal from './LogoutModal';
+import { useAuth } from '../context/AuthContext';
 
 const PetProfile = () => {
   const [pet, setPet] = useState(null);
@@ -14,146 +13,64 @@ const PetProfile = () => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { petId } = useParams();
-  const { user, token, logout } = useAuth();
+  const { token, logout } = useAuth();
   const navigate = useNavigate();
-  
-  // Use conversations hook
-  const {
-    conversations,
-    loadingConversations,
-    handleLoadConversation,
-    handleCreateNewConversation,
-    handlePinConversation,
-    handleRenameConversation,
-    handleArchiveConversation,
-    handleDeleteConversation
-  } = useConversations();
 
-  const fetchAllPets = async () => {
+  // Fetch all pets
+  const fetchAllPets = React.useCallback(async () => {
     try {
-      console.log('Fetching all pets...');
-      const response = await axios.get(
-        'http://localhost:8000/api/pets/',
-        {
-          headers: {
-            'Authorization': token ? `Token ${token}` : '',
-          }
-        }
-      );
-      console.log('All pets response:', response.data);
+      const response = await axios.get('http://localhost:8000/api/pets/', {
+        headers: {
+          'Authorization': token ? `Token ${token}` : '',
+        },
+      });
       setAllPets(response.data || []);
     } catch (error) {
-      console.error('Error fetching all pets:', error);
+      setAllPets([]);
     }
-  };
+  }, [token]);
 
-  const fetchPetDetails = async () => {
+  // Fetch pet details by petId
+  const fetchPetDetails = React.useCallback(async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      console.log('Fetching pet details for petId:', petId);
-      const response = await axios.get(
-        `http://localhost:8000/api/pets/${petId}/`,
-        {
-          headers: {
-            'Authorization': token ? `Token ${token}` : '',
-          }
-        }
-      );
-      console.log('Pet details response:', response.data);
+      const response = await axios.get(`http://localhost:8000/api/pets/${petId}/`, {
+        headers: {
+          'Authorization': token ? `Token ${token}` : '',
+        },
+      });
       setPet(response.data);
     } catch (error) {
-      console.error('Error fetching pet details:', error);
-      console.error('Error response:', error.response);
-      console.error('Error status:', error.response?.status);
-      console.error('Error data:', error.response?.data);
-      if (error.response?.status === 401) {
-        logout();
-        navigate('/login');
-      }
-      // Don't set pet to null here, let it remain null to show "Pet not found"
+      setPet(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, [petId, token]);
 
   useEffect(() => {
-    fetchAllPets();
     fetchPetDetails();
-  }, [petId]);
-
-  // Logout modal handlers
-  const handleLogoutClick = () => {
-    setShowLogoutModal(true);
-  };
-
-  const handleLogoutConfirm = async () => {
-    try {
-      setLoading(true);
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setLoading(false);
-      setShowLogoutModal(false);
-    }
-  };
-
-  const handleLogoutCancel = () => {
-    setShowLogoutModal(false);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+    fetchAllPets();
+  }, [petId, token, fetchAllPets, fetchPetDetails]);
 
   const getSpeciesEmoji = (species) => {
-    const emojis = {
-      cat: '🐱',
-      dog: '🐶',
-      hamster: '🐹',
-      rabbit: '🐰',
-      bird: '🐦',
-      fish: '🐠',
-      other: '🐾'
-    };
-    return emojis[species] || '🐾';
+    switch ((species || '').toLowerCase()) {
+      case 'cat': return '🐱';
+      case 'dog': return '🐶';
+      case 'bird': return '🐦';
+      case 'rabbit': return '🐰';
+      default: return '🐾';
+    }
   };
 
   const handlePetSelect = (selectedPetId) => {
-    console.log('Handle pet select called with:', selectedPetId);
-    console.log('Current petId from URL:', petId);
     if (selectedPetId !== petId) {
-      console.log('Navigating to pet profile:', selectedPetId);
       navigate(`/pet-profile/${selectedPetId}`);
     }
   };
 
-  const parseMedicalNotes = (notes) => {
-    if (!notes) return {};
-    
-    const lines = notes.split('\n');
-    const parsed = {};
-    
-    lines.forEach(line => {
-      if (line.includes('Blood Type:')) {
-        parsed.bloodType = line.split('Blood Type:')[1]?.trim() || 'Unknown';
-      } else if (line.includes('Allergies:')) {
-        parsed.allergies = line.split('Allergies:')[1]?.trim() || 'None';
-      } else if (line.includes('Chronic Disease:')) {
-        parsed.chronicDisease = line.split('Chronic Disease:')[1]?.trim() || 'None';
-      } else if (line.includes('Spayed/Neutered:')) {
-        parsed.spayedNeutered = line.split('Spayed/Neutered:')[1]?.trim() || 'No';
-      }
-    });
-    
-    return parsed;
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#D8CAED] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F0F0F0] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3]"></div>
       </div>
     );
@@ -161,7 +78,7 @@ const PetProfile = () => {
 
   if (!pet) {
     return (
-      <div className="min-h-screen bg-[#D8CAED] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F0F0F0] flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Pet not found</h2>
           <button 
@@ -176,32 +93,49 @@ const PetProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F0F0F0] flex fixed inset-0">
-      {/* Left Sidebar - Fixed positioned */}
-      <div className="fixed top-0 left-0 h-full z-10">
-        <Sidebar 
+    <div className="min-h-screen flex" style={{ background: '#F0F0F0', position: 'relative' }}>
+      {/* Logout modal renders its own overlay; remove duplicate overlay here to avoid stacking issues */}
+
+      {/* Fixed Sidebar - matches other pages */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          height: '100vh',
+          zIndex: 50,
+          width: sidebarVisible ? 320 : 64,
+        }}
+      >
+        <Sidebar
           sidebarVisible={sidebarVisible}
-          currentPage="pet-profile" 
+          currentPage="pet-profile"
           onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
-          conversations={conversations}
-          loadingConversations={loadingConversations}
-          onLoadConversation={handleLoadConversation}
-          onCreateNewConversation={handleCreateNewConversation}
-          onPinConversation={handlePinConversation}
-          onRenameConversation={handleRenameConversation}
-          onArchiveConversation={handleArchiveConversation}
-          onDeleteConversation={handleDeleteConversation}
         />
       </div>
 
-      {/* Main Content Area - With left margin to account for sidebar */}
-      <div 
-        className="flex-1 flex flex-col bg-white transition-all duration-300 h-screen overflow-hidden" 
-        style={{ marginLeft: sidebarVisible ? '320px' : '64px' }}
+      {/* Main Content - flex-1, marginLeft matches sidebar width when visible */}
+      <div
+        className="flex-1 flex flex-col bg-[#F0F0F0]"
+        style={{
+          marginLeft: sidebarVisible ? 320 : 64,
+          minHeight: '100vh',
+          transition: 'margin-left 0.3s cubic-bezier(.4,0,.2,1)',
+        }}
       >
-        {/* Header */}
-        <div className="bg-white border-b p-4 flex items-center justify-between flex-shrink-0">
-          {/* Left side - Title */}
+        {/* Header (fixed/stationary) */}
+        <div
+          className="border-b p-4 flex items-center justify-between"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: sidebarVisible ? 320 : 64,
+            right: 0,
+            zIndex: 60,
+            background: '#F0F0F0',
+            paddingLeft: 0,
+          }}
+        >
           <div className="flex items-center space-x-4">
             <button 
               onClick={() => navigate('/pet-health-records')}
@@ -216,92 +150,204 @@ const PetProfile = () => {
               Pet Health Records
             </h2>
           </div>
-
-          {/* Center - Search Bar */}
-          <div className="flex-1 max-w-md mx-8">
-            <div className="relative">
-              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search pets..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3]"
-                style={{ fontFamily: 'Raleway' }}
-              />
-            </div>
-          </div>
-
-          {/* Right side - User Profile */}
           <div className="flex items-center space-x-4">
-            <ProfileButton onLogoutClick={handleLogoutClick} />
+            <ProfileButton onLogoutClick={() => setShowLogoutModal(true)} />
           </div>
         </div>
 
-        {/* Main Content - Scrollable */}
-        <div className="flex-1 p-6 overflow-y-auto bg-[#f0f1f1] flex">
-          {/* Pet Details Section - Left Side */}
-          <div className="w-2/3 pr-6">
-            {pet && (
-              <>
-                {/* Horizontal Pet Selector */}
-                <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
-                      Select Pet
-                    </h3>
-                  </div>
-                
-                <div className="flex space-x-4 overflow-x-auto pb-2">
-                  {allPets.map((petItem) => (
+        {/* Logout Confirmation Modal */}
+        {showLogoutModal && (
+          <Modal
+            isOpen={showLogoutModal}
+            onClose={() => setShowLogoutModal(false)}
+            onConfirm={async () => {
+              await logout();
+              setShowLogoutModal(false);
+              navigate('/login');
+            }}
+            title="Confirm Logout"
+            message="Are you sure you want to log out?"
+          />
+        )}
+
+  {/* Main Content Container - use most of available width and add top padding for fixed header */}
+  <div style={{ width: '100%', paddingTop: 96, paddingLeft: 48, paddingRight: 48 }}>
+          {/* Top Pet Selector Circles */}
+          <div
+            style={{
+              background: '#F0F0F0',
+              padding: '32px 0 16px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '14px', // Reduced gap to make components closer
+              position: 'relative',
+              zIndex: 2,
+            }}
+          >
+            {/* Add Pet Button */}
+            <div
+              onClick={() => navigate('/add-pet')}
+              style={{
+                width: 60, // Reduced size by 20%
+                height: 60, // Reduced size by 20%
+                background: '#F5E9B8',
+                borderRadius: '100px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                marginLeft: '8px',
+                boxShadow: '0 0 0 2px #F0F0F0',
+              }}
+            >
+              <span
+                style={{
+                  color: '#642A77',
+                  fontSize: 38, // Reduced size by 20%
+                  fontWeight: 700,
+                  fontFamily: 'Raleway',
+                  lineHeight: '58px',
+                }}
+              >
+                +
+              </span>
+            </div>
+
+            {/* Vertical Separator Line */}
+            <div
+              style={{
+                width: '1px',
+                height: '60px', // Reduced size by 20%
+                background: '#666666',
+                margin: '0 16px',
+              }}
+            ></div>
+
+            {/* Pet Circles */}
+            {allPets.map((petItem) => {
+              const isSelected = petItem.id.toString() === petId;
+              return (
+                <div
+                  key={petItem.id}
+                  onClick={() => handlePetSelect(petItem.id.toString())}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease-in-out',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      background: isSelected ? '#F5E9B8' : '#FFFFFF',
+                      padding: isSelected ? '10px 20px' : '0',
+                      borderRadius: isSelected ? '28px' : '100px', // Reduced size by 20%
+                      boxShadow: '0 0 0 2px #F0F0F0',
+                      fontFamily: 'Raleway',
+                      fontSize: 19, // Reduced size by 20%
+                      color: '#34113F',
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                      width: isSelected ? 190 : 60, // Reduced size by 20%
+                      height: 60, // Reduced size by 20%
+                      transition: 'all 0.3s ease-in-out',
+                    }}
+                  >
                     <div
-                      key={petItem.id}
-                      onClick={() => handlePetSelect(petItem.id.toString())}
-                      className={`flex-shrink-0 w-24 cursor-pointer transition-all ${
-                        petItem.id.toString() === petId 
-                          ? 'opacity-100 transform scale-105' 
-                          : 'opacity-70 hover:opacity-90'
-                      }`}
+                      style={{
+                        width: 60, // Reduced size by 20%
+                        height: 60, // Reduced size by 20%
+                        borderRadius: '100px',
+                        overflow: 'hidden',
+                        background: '#FFFFFF',
+                        boxShadow: '0 0 0 2px #F0F0F0',
+                        marginLeft: '-10px', // Adjusted for closer alignment
+                      }}
                     >
-                      <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-2 mx-auto ${
-                        petItem.id.toString() === petId 
-                          ? 'bg-[#815FB3] ring-4 ring-[#815FB3] ring-opacity-30' 
-                          : 'bg-gray-200 hover:bg-gray-300'
-                      }`}>
-                        {petItem.image ? (
-                          <img 
-                            src={petItem.image} 
-                            alt={petItem.name}
-                            className="w-full h-full object-cover rounded-full"
-                          />
-                        ) : (
-                          <span className={`text-2xl ${
-                            petItem.id.toString() === petId ? 'text-white' : 'text-gray-600'
-                          }`}>
+                      {petItem.image ? (
+                        <img
+                          src={petItem.image}
+                          alt={petItem.name}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            borderRadius: '100px',
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}>
+                          <span
+                            style={{
+                              fontSize: 34, // Reduced size by 20%
+                              color: '#815FB3',
+                              fontWeight: 400,
+                              fontFamily: 'Raleway',
+                            }}
+                          >
                             {getSpeciesEmoji(petItem.animal_type)}
                           </span>
-                        )}
-                      </div>
-                      <p className={`text-xs text-center font-medium truncate ${
-                        petItem.id.toString() === petId ? 'text-[#815FB3]' : 'text-gray-600'
-                      }`} style={{ fontFamily: 'Raleway' }}>
-                        {petItem.name}
-                      </p>
+                        </div>
+                      )}
                     </div>
-                  ))}
+                    {isSelected && (
+                      <span
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          fontFamily: 'Raleway',
+                          fontSize: 19, // Reduced size by 20%
+                          color: '#34113F',
+                          fontWeight: 700,
+                          whiteSpace: 'nowrap',
+                          marginLeft: '10%', // Moved name to the right by 10%
+                        }}
+                      >
+                        {petItem.name}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
+              );
+            })}
+          </div>
 
-              {/* Main Pet Profile Card */}
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                {/* Large Pet Photo Header with rounded corners */}
-                <div className="relative">
-                  <div className="w-full h-80 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+          {/* Two-column responsive layout: left column for profile/files/download; right column for tables */}
+          <div style={{ display: 'flex', gap: 32, padding: '0 8px 24px 8px', alignItems: 'flex-start', width: '100%' }}>
+            {/* Left Column - takes remaining space and includes the pet card, files, download */}
+            <div style={{ flex: 2, minWidth: 420 }}>
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                {/* Unified Pet Basic Information Section */}
+                <div
+                  className="w-full p-8"
+                  style={{
+                    maxWidth: '100%',
+                    margin: '0',
+                    background: '#FFFFF2',
+                    borderRadius: '10px',
+                    boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
+                  }}
+                >
+                  {/* Pet Image */}
+                  <div
+                    className="w-full h-80 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative"
+                    style={{ borderRadius: '8px 8px 0px 0px' }}
+                  >
                     {pet.image ? (
-                      <img 
-                        src={pet.image} 
+                      <img
+                        src={pet.image}
                         alt={pet.name}
                         className="w-full h-full object-cover"
+                        style={{ borderRadius: '8px 8px 0px 0px' }}
                       />
                     ) : (
                       <div className="text-center">
@@ -312,215 +358,322 @@ const PetProfile = () => {
                       </div>
                     )}
                   </div>
-                  
-                  {/* Pet Name and Edit button overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h1 className="text-4xl font-bold text-white mb-1" style={{ fontFamily: 'Raleway' }}>
-                          {pet.name}
-                        </h1>
-                        <p className="text-xl text-white/90" style={{ fontFamily: 'Raleway' }}>
-                          {pet.breed || 'Mixed Breed'}
-                        </p>
-                      </div>
-                      <button className="p-3 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full transition-colors group">
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Pet Information Section */}
-                <div className="p-8">
+                  {/* Pet Name and Breed */}
+                  <div
+                    style={{
+                      padding: '16px',
+                      textAlign: 'center',
+                      borderBottom: '1px solid #ddd',
+                    }}
+                  >
+                    <h1
+                      style={{
+                        fontFamily: 'Raleway',
+                        fontStyle: 'normal',
+                        fontWeight: 800,
+                        fontSize: '20px',
+                        lineHeight: '23px',
+                        color: '#000000',
+                      }}
+                    >
+                      {pet.name}
+                    </h1>
+                    <p
+                      style={{
+                        fontFamily: 'Raleway',
+                        fontStyle: 'normal',
+                        fontWeight: 400,
+                        fontSize: '14px',
+                        lineHeight: '14px',
+                        color: '#000000',
+                        marginTop: '5px',
+                      }}
+                    >
+                      {pet.breed || 'Domestic Shorthair'}
+                    </p>
+                  </div>
+
                   {/* Quick Info Row */}
-                  <div className="flex items-center space-x-12 mb-8 pb-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-[#815FB3] rounded-full flex items-center justify-center">
-                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500 mb-1" style={{ fontFamily: 'Raleway' }}>Species</p>
-                        <p className="text-lg font-bold capitalize" style={{ fontFamily: 'Raleway' }}>
-                          {pet.animal_type}
-                        </p>
-                      </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-around',
+                      padding: '16px',
+                    }}
+                  >
+                    {/* Species */}
+                    <div style={{ textAlign: 'center' }}>
+                      <img
+                        src="mdi_paw.png"
+                        alt="Species Icon"
+                        style={{ width: '35px', height: '35px', marginBottom: '8px' }}
+                      />
+                      <p
+                        style={{
+                          fontFamily: 'Raleway',
+                          fontWeight: 500,
+                          fontSize: '12px',
+                          color: '#000000',
+                        }}
+                      >
+                        Species
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: 'Raleway',
+                          fontWeight: 700,
+                          fontSize: '15px',
+                          color: '#000000',
+                        }}
+                      >
+                        {pet.animal_type}
+                      </p>
                     </div>
-                    
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-[#815FB3] rounded-full flex items-center justify-center">
-                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500 mb-1" style={{ fontFamily: 'Raleway' }}>Sex</p>
-                        <p className="text-lg font-bold capitalize" style={{ fontFamily: 'Raleway' }}>
-                          {pet.sex}
-                        </p>
-                      </div>
+
+                    {/* Sex */}
+                    <div style={{ textAlign: 'center' }}>
+                      <img
+                        src="solar_health-bold.png"
+                        alt="Sex Icon"
+                        style={{ width: '35px', height: '35px', marginBottom: '8px' }}
+                      />
+                      <p
+                        style={{
+                          fontFamily: 'Raleway',
+                          fontWeight: 500,
+                          fontSize: '12px',
+                          color: '#000000',
+                        }}
+                      >
+                        Sex
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: 'Raleway',
+                          fontWeight: 700,
+                          fontSize: '15px',
+                          color: '#000000',
+                        }}
+                      >
+                        {pet.sex}
+                      </p>
                     </div>
-                    
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-[#815FB3] rounded-full flex items-center justify-center">
-                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.89-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.11-.9-2-2-2zm0 16H5V9h14v11z"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500 mb-1" style={{ fontFamily: 'Raleway' }}>Age</p>
-                        <p className="text-lg font-bold" style={{ fontFamily: 'Raleway' }}>
-                          {pet.age} {pet.age === 1 ? 'year' : 'years'} old
-                        </p>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Medical Information Section */}
-                  <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6" style={{ fontFamily: 'Raleway' }}>
-                      Medical Information
-                    </h2>
-                    
-                    {(() => {
-                      const medicalData = parseMedicalNotes(pet.medical_notes);
-                      return (
-                        <div className="space-y-4">
-                          <div className="flex items-center space-x-4 py-3">
-                            <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                              </svg>
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-lg font-medium text-black" style={{ fontFamily: 'Raleway' }}>
-                                Blood Type
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-lg font-bold text-black" style={{ fontFamily: 'Raleway' }}>
-                                {medicalData.bloodType || 'Type A'}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-4 py-3">
-                            <div className="w-10 h-10 bg-[#815FB3] rounded-full flex items-center justify-center flex-shrink-0">
-                              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                              </svg>
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-lg font-medium text-black" style={{ fontFamily: 'Raleway' }}>
-                                Spayed/Neutered
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-lg font-bold text-black" style={{ fontFamily: 'Raleway' }}>
-                                {medicalData.spayedNeutered || 'No'}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-4 py-3">
-                            <div className="w-10 h-10 bg-[#815FB3] rounded-full flex items-center justify-center flex-shrink-0">
-                              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                              </svg>
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-lg font-medium text-black" style={{ fontFamily: 'Raleway' }}>
-                                Allergies
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-lg font-bold text-black" style={{ fontFamily: 'Raleway' }}>
-                                {medicalData.allergies || 'Flea Allergy Dermatitis'}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-4 py-3">
-                            <div className="w-10 h-10 bg-[#815FB3] rounded-full flex items-center justify-center flex-shrink-0">
-                              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                              </svg>
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-lg font-medium text-black" style={{ fontFamily: 'Raleway' }}>
-                                Chronic Disease
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-lg font-bold text-black" style={{ fontFamily: 'Raleway' }}>
-                                {medicalData.chronicDisease || 'N/A'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-
-                  {/* Files Section */}
-                  <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6" style={{ fontFamily: 'Raleway' }}>
-                      Files
-                    </h2>
-                    
-                    <div className="bg-gray-50 rounded-lg p-8 text-center">
-                      <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <p className="text-gray-500 text-lg" style={{ fontFamily: 'Raleway' }}>
-                        There are no files yet
+                    {/* Age */}
+                    <div style={{ textAlign: 'center' }}>
+                      <img
+                        src="mage_calendar-fill.png"
+                        alt="Age Icon"
+                        style={{ width: '35px', height: '35px', marginBottom: '8px' }}
+                      />
+                      <p
+                        style={{
+                          fontFamily: 'Raleway',
+                          fontWeight: 500,
+                          fontSize: '12px',
+                          color: '#000000',
+                        }}
+                      >
+                        Age
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: 'Raleway',
+                          fontWeight: 700,
+                          fontSize: '15px',
+                          color: '#000000',
+                        }}
+                      >
+                        {pet.age} {pet.age === 1 ? 'year' : 'years'} old
                       </p>
                     </div>
                   </div>
+                </div>
 
-                  {/* Download Medical Information Section */}
-                  <div className="bg-[#FFF07B] rounded-lg p-8 text-center">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4" style={{ fontFamily: 'Raleway' }}>
-                      Download Medical Information
-                    </h3>
-                    <p className="text-gray-700 mb-6" style={{ fontFamily: 'Raleway' }}>
-                      Get a complete PDF report of {pet.name}&apos;s medical information and files
-                    </p>
-                    <button className="bg-[#E6D45B] hover:bg-[#D4C34A] text-black font-bold py-4 px-12 rounded-full text-lg transition-colors shadow-md transform hover:scale-105" style={{ fontFamily: 'Raleway' }}>
-                      Download
-                    </button>
+                {/* Files Section */}
+                <div
+                  style={{
+                    position: 'relative',
+                    width: '100%',
+                    minHeight: 165,
+                    background: '#FFFFF2',
+                    borderRadius: 10,
+                    marginTop: 32,
+                    boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
+                    zIndex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '24px 0 24px 0',
+                  }}
+                >
+                  <div
+                    style={{
+                      marginLeft: 16,
+                      marginBottom: 16,
+                      fontFamily: 'Raleway',
+                      fontWeight: 600,
+                      fontSize: 20,
+                      lineHeight: '23px',
+                      color: '#000',
+                    }}
+                  >
+                    Files
+                  </div>
+                  {/* Placeholder for no files */}
+                  <div
+                    style={{
+                      marginLeft: 16,
+                      width: 362,
+                      height: 37,
+                      display: 'flex',
+                      alignItems: 'center',
+                      fontFamily: 'Raleway',
+                      fontWeight: 400,
+                      fontSize: 16,
+                      color: '#000',
+                      background: 'none',
+                    }}
+                  >
+                    <svg
+                      style={{ width: 24, height: 24, marginRight: 12, color: '#34113F' }}
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.828A2 2 0 0 0 19.414 7.414l-5.828-5.828A2 2 0 0 0 12.172 1H6zm0 2h6v5a2 2 0 0 0 2 2h5v10H6V4zm8 0v5h5l-5-5z" />
+                    </svg>
+                    There are no files yet
                   </div>
                 </div>
-              </div>
-              </>
-            )}
-          </div>
 
-          {/* Extended Pet Profile Section - Right Side (Placeholder) */}
-          <div className="w-1/3 pl-6">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4" style={{ fontFamily: 'Raleway' }}>
-                Extended Profile
-              </h3>
-              <p className="text-gray-500" style={{ fontFamily: 'Raleway' }}>
-                Extended pet information will go here
-              </p>
+                {/* Download Medical Information Section */}
+                <div
+                  style={{
+                    position: 'relative',
+                    width: '100%',
+                    minHeight: 131,
+                    background: '#FFFFF2',
+                    borderRadius: 10,
+                    marginTop: 24,
+                    boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
+                    zIndex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '24px 0',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 315,
+                      height: 23,
+                      fontFamily: 'Raleway',
+                      fontWeight: 600,
+                      fontSize: 20,
+                      lineHeight: '23px',
+                      color: '#000',
+                      textAlign: 'center',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: 24,
+                    }}
+                  >
+                    Download Medical Information
+                  </div>
+                  <button
+                    style={{
+                      width: 238,
+                      height: 39,
+                      background: '#F5E9B8',
+                      boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
+                      borderRadius: 10,
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                    onClick={() => alert('Download not implemented yet')}
+                  >
+                    <span
+                      style={{
+                        fontFamily: 'Raleway',
+                        fontWeight: 800,
+                        fontSize: 16,
+                        lineHeight: '19px',
+                        color: '#34113F',
+                        textAlign: 'center',
+                        letterSpacing: '0.05em',
+                        width: '100%',
+                      }}
+                    >
+                      Download
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - fixed width so it stays to the right and responds to sidebar */}
+            <div style={{ width: 520, maxWidth: '45%', flexShrink: 0 }}>
+              {/* Medical Records Panel */}
+              <div style={{
+                background: '#FFFFF2',
+                borderRadius: 10,
+                padding: 18,
+                boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
+                marginBottom: 18,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div style={{ fontWeight: 700, color: '#815FB3' }}>MEDICAL RECORDS</div>
+                  <button style={{ background: '#F5E9B8', borderRadius: 8, border: 'none', padding: '6px 12px', cursor: 'pointer', fontWeight: 700 }}>Add</button>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+                  <input placeholder="Search" style={{ width: 180, padding: '6px 10px', borderRadius: 6, border: '1px solid #ddd' }} />
+                </div>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left', color: '#34113F', fontWeight: 600 }}>
+                      <th style={{ padding: 8 }}>Service</th>
+                      <th style={{ padding: 8 }}>Provider</th>
+                      <th style={{ padding: 8 }}>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colSpan={3} style={{ padding: 8, color: '#6b7280' }}>No medical records</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Vaccination Records Panel */}
+              <div style={{ background: '#FFFFF2', borderRadius: 10, padding: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.04)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div style={{ fontWeight: 700, color: '#815FB3' }}>VACCINATION RECORDS</div>
+                  <button style={{ background: '#F5E9B8', borderRadius: 8, border: 'none', padding: '6px 12px', cursor: 'pointer', fontWeight: 700 }}>Add</button>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+                  <input placeholder="Search" style={{ width: 180, padding: '6px 10px', borderRadius: 6, border: '1px solid #ddd' }} />
+                </div>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left', color: '#34113F', fontWeight: 600 }}>
+                      <th style={{ padding: 8 }}>Vaccine</th>
+                      <th style={{ padding: 8 }}>By</th>
+                      <th style={{ padding: 8 }}>Date</th>
+                      <th style={{ padding: 8 }}>Next Due</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colSpan={4} style={{ padding: 8, color: '#6b7280' }}>No vaccination records</td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Logout Modal */}
-      <LogoutModal
-        isOpen={showLogoutModal}
-        onClose={handleLogoutCancel}
-        onConfirm={handleLogoutConfirm}
-        loading={loading}
-      />
     </div>
   );
 };

@@ -4,7 +4,7 @@ const LogoutModal = ({ isOpen, onClose, onConfirm, loading = false }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center animate-fade-in" style={{ zIndex: 70 }}>
       {/* Modal Container - 544px width, 176px height */}
       <div className="relative w-[544px] h-[176px] bg-white rounded-2xl animate-scale-in" 
            style={{ 
@@ -29,7 +29,7 @@ const LogoutModal = ({ isOpen, onClose, onConfirm, loading = false }) => {
             {/* Main Title - Text lg / Semibold */}
             <h3 className="w-full h-7 text-lg font-semibold text-[#181D27] leading-7 flex-none self-stretch" 
                 style={{ 
-                  fontFamily: 'Inter',
+                  fontFamily: 'Raleway',
                   fontStyle: 'normal',
                   fontWeight: 600,
                   fontSize: '18px',
@@ -41,7 +41,7 @@ const LogoutModal = ({ isOpen, onClose, onConfirm, loading = false }) => {
             
             {/* Supporting text */}
             <p className="text-sm font-normal text-[#535862] leading-5" 
-               style={{ fontFamily: 'Inter' }}>
+               style={{ fontFamily: 'Raleway' }}>
               Are you sure you want to logout?
             </p>
           </div>
@@ -67,7 +67,7 @@ const LogoutModal = ({ isOpen, onClose, onConfirm, loading = false }) => {
                 }}
               >
                 <span className="text-base font-semibold text-[#414651] leading-6" 
-                      style={{ fontFamily: 'Inter' }}>
+                      style={{ fontFamily: 'Raleway' }}>
                   Cancel
                 </span>
               </button>
@@ -87,13 +87,13 @@ const LogoutModal = ({ isOpen, onClose, onConfirm, loading = false }) => {
                 {loading ? (
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-sm font-semibold text-white" style={{ fontFamily: 'Inter' }}>
+                    <span className="text-sm font-semibold text-white" style={{ fontFamily: 'Raleway' }}>
                       Loading...
                     </span>
                   </div>
                 ) : (
                   <span className="text-base font-semibold text-white leading-6" 
-                        style={{ fontFamily: 'Inter' }}>
+                        style={{ fontFamily: 'Raleway' }}>
                     Logout
                   </span>
                 )}
