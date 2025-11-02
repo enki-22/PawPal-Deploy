@@ -34,9 +34,15 @@ urlpatterns = [
     path('dashboard/announcements', views_dashboard.dashboard_announcements, name='dashboard_announcements'),
     
     # ============= REPORTS ENDPOINTS (CHUNK 5) =============
-    path('reports/flagged', views_reports.get_flagged_reports, name='reports_flagged'),  # Must come before <case_id>
-    path('reports/<str:case_id>', views_reports.get_report_by_case_id, name='report_detail'),
-    path('reports', views_reports.get_reports, name='reports_list'),
+    # ⚠️ DEPRECATED: These endpoints are being consolidated into unified endpoints
+    # Use instead:
+    #   - /api/diagnosis/soap/:caseId (instead of /api/admin/reports/:caseId)
+    #   - /api/diagnosis/reports (instead of /api/admin/reports)
+    #   - /api/diagnosis/flagged (instead of /api/admin/reports/flagged)
+    # TODO: Remove these after frontend migration
+    path('reports/flagged', views_reports.get_flagged_reports, name='reports_flagged'),  # DEPRECATED
+    path('reports/<str:case_id>', views_reports.get_report_by_case_id, name='report_detail'),  # DEPRECATED
+    path('reports', views_reports.get_reports, name='reports_list'),  # DEPRECATED
     
     # ============= CLIENT MANAGEMENT ENDPOINTS (CHUNK 6) =============
     path('clients/<int:user_id>/verify', views_clients.verify_client, name='client_verify'),
@@ -50,13 +56,16 @@ urlpatterns = [
     path('pets/<int:pet_id>/files/download-all', views_pets.download_all_pet_files, name='pet_files_download_all'),
     path('pets/<int:pet_id>/files/<str:file_id>/download', views_pets.download_pet_file, name='pet_file_download'),
     path('pets/<int:pet_id>/files', views_pets.get_pet_files, name='pet_files'),
-    path('pets/<int:pet_id>/chat/<int:chat_id>', views_pets.get_pet_chat_detail, name='pet_chat_detail'),
-    path('pets/<int:pet_id>/chat-history', views_pets.get_pet_chat_history, name='pet_chat_history'),
-    path('pets/<int:pet_id>/diagnoses', views_pets.get_pet_diagnoses, name='pet_diagnoses'),
+    # ⚠️ DEPRECATED: Use /api/chatbot/conversations/ with ?pet_id=:petId instead
+    path('pets/<int:pet_id>/chat/<int:chat_id>', views_pets.get_pet_chat_detail, name='pet_chat_detail'),  # DEPRECATED
+    path('pets/<int:pet_id>/chat-history', views_pets.get_pet_chat_history, name='pet_chat_history'),  # DEPRECATED
+    # ⚠️ DEPRECATED: Use /api/diagnosis/:petId instead
+    path('pets/<int:pet_id>/diagnoses', views_pets.get_pet_diagnoses, name='pet_diagnoses'),  # DEPRECATED
     path('pets/<int:pet_id>/vaccinations', views_pets.get_pet_vaccinations, name='pet_vaccinations'),
     path('pets/<int:pet_id>/medical-records', views_pets.get_pet_medical_records, name='pet_medical_records'),
-    path('pets/<int:pet_id>', views_pets.get_pet_detail, name='pet_detail'),
-    path('pets', views_pets.get_pets, name='pets_list'),
+    # ⚠️ DEPRECATED: Use /api/pets/:petId/ instead
+    path('pets/<int:pet_id>', views_pets.get_pet_detail, name='pet_detail'),  # DEPRECATED
+    path('pets', views_pets.get_pets, name='pets_list'),  # DEPRECATED
     
     # ============= ADMIN ROLE MANAGEMENT ENDPOINTS (CHUNK 8) =============
     # Note: Multiple HTTP methods on same path handled by api_view decorator

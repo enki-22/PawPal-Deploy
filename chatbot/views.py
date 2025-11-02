@@ -456,31 +456,124 @@ def chat(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_conversations(request):
-    """Get user's conversation list"""
+    """
+    GET /api/chatbot/conversations/
+    (CONSOLIDATED: Enhanced to replace /api/admin/pets/:petId/chat-history)
+    
+    Get conversation list with optional pet filter
+    Supports both Pet Owners and Admins with role-based access
+    
+    Query Parameters:
+        - pet_id (int, optional): Filter conversations by pet
+          Pet Owners: Must be their own pet
+          Admins: Can filter by any pet, or omit for all
+    
+    Permissions:
+        - Admins: Can view conversations for any pet or all conversations
+        - Pet Owners: Can view only their own conversations (optionally filtered by their pet)
+    """
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    request.user_type = user_type
+    if user_type == 'admin':
+        request.admin = user_obj
+    else:
+        request.user = user_obj
+    
     try:
-        conversations = Conversation.objects.filter(user=request.user)
-       
-        conversation_data = []
-        for conv in conversations:
-            last_message = conv.messages.last()
-            conversation_data.append({
-                'id': conv.id,
-                'title': conv.title,
-                'created_at': conv.created_at.isoformat(),
-                'updated_at': conv.updated_at.isoformat(),
-                'is_pinned': conv.is_pinned,
-                'message_count': conv.messages.count(),
-                'last_message': last_message.content[:50] + "..." if last_message else "",
-                'last_message_time': last_message.created_at.isoformat() if last_message else conv.created_at.isoformat()
-            })
-       
-        return Response({
-            'conversations': conversation_data,
-            'total': len(conversation_data)
-        })
+        pet_id = request.query_params.get('pet_id')
+        
+        # Build base queryset
+        if request.user_type == 'admin':
+            if pet_id:
+                # Admin filtering by specific pet
+                from pets.models import Pet
+                try:
+                    pet = Pet.objects.get(id=pet_id)
+                    conversations = Conversation.objects.filter(pet=pet).prefetch_related('messages', 'soap_reports')
+                except Pet.DoesNotExist:
+                    return Response({
+                        'success': False,
+                        'error': 'Pet not found',
+                        'pet_id': pet_id
+                    }, status=status.HTTP_404_NOT_FOUND)
+            else:
+                # Admin viewing all conversations
+                conversations = Conversation.objects.all().prefetch_related('messages', 'soap_reports', 'pet', 'user')
+        else:  # pet_owner
+            # Pet owners see only their conversations
+            conversations = Conversation.objects.filter(user=request.user)
+            
+            if pet_id:
+                # Filter by pet (must be their own)
+                from pets.models import Pet
+                try:
+                    pet = Pet.objects.get(id=pet_id, owner=request.user)
+                    conversations = conversations.filter(pet=pet)
+                except Pet.DoesNotExist:
+                    return Response({
+                        'success': False,
+                        'error': 'Pet not found or does not belong to you'
+                    }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Format based on user type
+        if request.user_type == 'admin' and pet_id:
+            # Admin format for specific pet (similar to admin endpoint)
+            chats = []
+            for conv in conversations.order_by('-created_at'):
+                preview = ""
+                first_message = conv.messages.filter(is_user=True).first()
+                if first_message:
+                    preview = first_message.content[:100]
+                
+                has_diagnosis = conv.soap_reports.exists()
+                
+                chats.append({
+                    'chat_id': str(conv.id),
+                    'title': conv.title,
+                    'date': conv.created_at.isoformat(),
+                    'preview': preview,
+                    'has_diagnosis': has_diagnosis
+                })
+            
+            return Response({
+                'success': True,
+                'chats': chats,
+                'total_count': len(chats)
+            }, status=status.HTTP_200_OK)
+        else:
+            # Pet owner format or admin without pet filter
+            conversation_data = []
+            for conv in conversations.order_by('-updated_at', '-created_at'):
+                last_message = conv.messages.last()
+                conversation_data.append({
+                    'id': conv.id,
+                    'title': conv.title,
+                    'created_at': conv.created_at.isoformat(),
+                    'updated_at': conv.updated_at.isoformat(),
+                    'is_pinned': conv.is_pinned,
+                    'message_count': conv.messages.count(),
+                    'last_message': last_message.content[:50] + "..." if last_message else "",
+                    'last_message_time': last_message.created_at.isoformat() if last_message else conv.created_at.isoformat(),
+                    'pet_id': conv.pet.id if conv.pet else None,
+                    'pet_name': conv.pet.name if conv.pet else None
+                })
+           
+            return Response({
+                'conversations': conversation_data,
+                'total': len(conversation_data)
+            }, status=status.HTTP_200_OK)
        
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -503,34 +596,112 @@ def toggle_pin_conversation(request, conversation_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_conversation_messages(request, conversation_id):
-    """Get messages for a specific conversation"""
+    """
+    GET /api/chatbot/conversations/:conversationId/
+    (CONSOLIDATED: Enhanced to replace /api/admin/pets/:petId/chat/:chatId)
+    
+    Get messages for a specific conversation
+    Supports both Pet Owners and Admins with role-based access
+    
+    Query Parameters (Admin only):
+        - pet_id (int, optional): Verify conversation belongs to this pet
+    
+    Permissions:
+        - Admins: Can view any conversation
+        - Pet Owners: Can only view their own conversations
+    """
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    request.user_type = user_type
+    if user_type == 'admin':
+        request.admin = user_obj
+    else:
+        request.user = user_obj
+    
     try:
-        conversation = Conversation.objects.get(id=conversation_id, user=request.user)
-        messages = conversation.messages.all()
-       
-        message_data = []
-        for msg in messages:
-            message_data.append({
+        # Get conversation
+        try:
+            conversation = Conversation.objects.prefetch_related('messages', 'soap_reports', 'pet', 'user').get(id=conversation_id)
+        except Conversation.DoesNotExist:
+            return Response({
+                'success': False,
+                'error': 'Conversation not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check permissions
+        if request.user_type == 'admin':
+            # Admins can view any conversation
+            # Optional: verify pet_id matches if provided
+            pet_id = request.query_params.get('pet_id')
+            if pet_id and conversation.pet and str(conversation.pet.id) != str(pet_id):
+                return Response({
+                    'success': False,
+                    'error': 'Conversation does not belong to the specified pet'
+                }, status=status.HTTP_400_BAD_REQUEST)
+        else:  # pet_owner
+            # Pet owners can only view their own conversations
+            if conversation.user != request.user:
+                return Response({
+                    'success': False,
+                    'error': 'You do not have permission to view this conversation'
+                }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Format messages
+        messages = []
+        for msg in conversation.messages.all():
+            messages.append({
                 'id': msg.id,
                 'content': msg.content,
                 'isUser': msg.is_user,
-                'sender': 'You' if msg.is_user else 'PawPal',
+                'sender': 'user' if msg.is_user else 'bot',
+                'message': msg.content,
                 'timestamp': msg.created_at.isoformat()
             })
+        
+        # Format response based on user type
+        if request.user_type == 'admin':
+            # Admin format (similar to admin endpoint)
+            diagnosis_case_id = None
+            soap_report = conversation.soap_reports.first()
+            if soap_report:
+                diagnosis_case_id = soap_report.case_id
+            
+            owner_name = ""
+            if conversation.pet:
+                owner_name = f"{conversation.pet.owner.first_name} {conversation.pet.owner.last_name}".strip() or conversation.pet.owner.username
+            
+            return Response({
+                'success': True,
+                'chat': {
+                    'chat_id': str(conversation.id),
+                    'pet_id': f"RP-{str(conversation.pet.id).zfill(6)}" if conversation.pet else None,
+                    'owner_name': owner_name,
+                    'date': conversation.created_at.isoformat(),
+                    'messages': messages,
+                    'diagnosis_case_id': diagnosis_case_id
+                }
+            }, status=status.HTTP_200_OK)
+        else:
+            # Pet owner format (existing format)
+            return Response({
+                'conversation': {
+                    'id': conversation.id,
+                    'title': conversation.title,
+                    'created_at': conversation.created_at.isoformat(),
+                },
+                'messages': messages
+            }, status=status.HTTP_200_OK)
        
-        return Response({
-            'conversation': {
-                'id': conversation.id,
-                'title': conversation.title,
-                'created_at': conversation.created_at.isoformat(),
-            },
-            'messages': message_data
-        })
-       
-    except Conversation.DoesNotExist:
-        return Response({'error': 'Conversation not found'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])

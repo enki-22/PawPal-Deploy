@@ -5,6 +5,14 @@ from rest_framework.response import Response
 from django.db.models import Q
 from .models import Pet
 from .serializers import PetSerializer
+from utils.unified_permissions import require_user_or_admin
+
+# Import admin filter utilities if available
+try:
+    from admin_panel.pet_filters import filter_pets, validate_pet_filter_params
+    PET_FILTER_UTILS_AVAILABLE = True
+except ImportError:
+    PET_FILTER_UTILS_AVAILABLE = False
 
 class PetListCreateView(generics.ListCreateAPIView):
     serializer_class = PetSerializer
@@ -43,38 +51,203 @@ class PetDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Pet.objects.filter(owner=self.request.user)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@require_user_or_admin
 def pet_list(request):
-    """Get user's pets with filtering"""
+    """
+    GET /api/pets/
+    (CONSOLIDATED: Replaces both /api/pets/ and /api/admin/pets)
+    
+    Get list of pets with filtering
+    Supports both Pet Owners and Admins with role-based access
+    
+    Query Parameters (Pet Owner):
+        - search: Search in pet name, breed
+        - animal_type: Filter by animal type
+        - sex: Filter by sex
+    
+    Query Parameters (Admin - uses admin filter format):
+        - search: Search in pet name, owner name, pet ID
+        - species: all | dogs | cats | birds | rabbits | others
+        - status: all | active | inactive | deceased
+        - page: Page number (default: 1)
+        - limit: Items per page (default: 10, max: 100)
+    
+    Returns:
+        Pet Owner: Array of pet objects
+        Admin: Paginated results with pagination info
+    
+    Permissions:
+        - Admins: Can view all pets with advanced filtering
+        - Pet Owners: Can only view their own pets
+    """
     try:
-        pets = Pet.objects.filter(owner=request.user)
+        # Check if this is an admin request (check for admin-specific params)
+        is_admin_format = request.query_params.get('species') is not None or \
+                         request.query_params.get('page') is not None
         
-        # Apply filters
-        search = request.GET.get('search', '')
-        animal_type = request.GET.get('animal_type', '')
-        sex = request.GET.get('sex', '')
-        
-        if search:
-            pets = pets.filter(
-                Q(name__icontains=search) |
-                Q(breed__icontains=search)
-            )
-        
-        if animal_type:
-            pets = pets.filter(animal_type=animal_type)
+        if request.user_type == 'admin' and PET_FILTER_UTILS_AVAILABLE and is_admin_format:
+            # Admin format with advanced filtering
+            params = {
+                'search': request.query_params.get('search', ''),
+                'species': request.query_params.get('species', 'all'),
+                'status': request.query_params.get('status', 'all'),
+                'page': request.query_params.get('page', 1),
+                'limit': request.query_params.get('limit', 10)
+            }
             
-        if sex:
-            pets = pets.filter(sex=sex)
+            # Validate parameters
+            is_valid, error_message = validate_pet_filter_params(params)
+            if not is_valid:
+                return Response({
+                    'success': False,
+                    'error': 'Invalid filter parameters',
+                    'details': error_message
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Get base queryset (all pets for admin)
+            queryset = Pet.objects.select_related('owner').all()
+            
+            # Apply filters and pagination
+            filtered_queryset, pagination_info, applied_filters = filter_pets(
+                queryset,
+                params
+            )
+            
+            # Format results for admin
+            results = []
+            for pet in filtered_queryset:
+                owner_name = f"{pet.owner.first_name} {pet.owner.last_name}".strip() or pet.owner.username
+                
+                results.append({
+                    'pet_id': f"RP-{str(pet.id).zfill(6)}",
+                    'name': pet.name,
+                    'species': pet.get_animal_type_display(),
+                    'breed': pet.breed or 'Unknown',
+                    'owner_name': owner_name,
+                    'status': 'Active',  # Placeholder
+                    'photo': request.build_absolute_uri(pet.image.url) if pet.image else None,
+                    'registered_date': pet.created_at.isoformat()
+                })
+            
+            return Response({
+                'success': True,
+                'results': results,
+                'pagination': pagination_info,
+                'filters': applied_filters
+            }, status=status.HTTP_200_OK)
         
-        # Serialize data
-        pets_data = []
-        for pet in pets:
-            # Build absolute URL for image
+        else:
+            # Pet owner format (simple filtering) or admin without admin params
+            # Apply ownership filter for pet owners
+            if request.user_type == 'admin':
+                pets = Pet.objects.select_related('owner').all()
+            else:  # pet_owner
+                pets = Pet.objects.filter(owner=request.user)
+            
+            # Apply simple filters
+            search = request.GET.get('search', '')
+            animal_type = request.GET.get('animal_type', '')
+            sex = request.GET.get('sex', '')
+            
+            if search:
+                pets = pets.filter(
+                    Q(name__icontains=search) |
+                    Q(breed__icontains=search) |
+                    (Q(owner__first_name__icontains=search) if request.user_type == 'admin' else Q())
+                )
+            
+            if animal_type:
+                pets = pets.filter(animal_type=animal_type)
+                
+            if sex:
+                pets = pets.filter(sex=sex)
+            
+            # Serialize data
+            pets_data = []
+            for pet in pets:
+                # Build absolute URL for image
+                image_url = None
+                if pet.image:
+                    image_url = request.build_absolute_uri(pet.image.url)
+                
+                pet_data = {
+                    'id': pet.id,
+                    'name': pet.name,
+                    'animal_type': pet.animal_type,
+                    'breed': pet.breed or 'Mixed Breed',
+                    'age': pet.age,
+                    'sex': pet.sex,
+                    'weight': str(pet.weight) if pet.weight else None,
+                    'image': image_url,
+                    'medical_notes': pet.medical_notes,
+                    'created_at': pet.created_at.strftime('%B %d, %Y'),
+                }
+                
+                # Add owner info for admin requests
+                if request.user_type == 'admin':
+                    owner_name = f"{pet.owner.first_name} {pet.owner.last_name}".strip() or pet.owner.username
+                    pet_data['owner_name'] = owner_name
+                    pet_data['owner_id'] = pet.owner.id
+                
+                pets_data.append(pet_data)
+            
+            return Response(pets_data, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@require_user_or_admin
+def pet_detail(request, pet_id):
+    """
+    GET /api/pets/:petId/
+    (CONSOLIDATED: Replaces both /api/pets/:petId/ and /api/admin/pets/:petId)
+    
+    Get, update, or delete a specific pet
+    Supports both Pet Owners and Admins with role-based access
+    
+    Permissions:
+        - Admins: Can view/update any pet (full detail with owner info)
+        - Pet Owners: Can only view/update their own pets
+    
+    Methods:
+        - GET: Retrieve pet details
+        - PUT: Update pet information
+        - DELETE: Delete pet (pet owners only)
+    """
+    try:
+        # Get pet (no ownership filter yet - we'll check after)
+        try:
+            pet = Pet.objects.select_related('owner').get(id=pet_id)
+        except Pet.DoesNotExist:
+            return Response({
+                'success': False,
+                'error': 'Pet not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check permissions
+        if request.user_type == 'admin':
+            # Admins can access any pet
+            pass
+        else:  # pet_owner
+            # Pet owners can only access their own pets
+            if pet.owner != request.user:
+                return Response({
+                    'success': False,
+                    'error': 'You do not have permission to access this pet'
+                }, status=status.HTTP_403_FORBIDDEN)
+
+        if request.method == 'GET':
+            # Return pet details
             image_url = None
             if pet.image:
                 image_url = request.build_absolute_uri(pet.image.url)
             
-            pets_data.append({
+            # Base pet data (same for both)
+            pet_data = {
                 'id': pet.id,
                 'name': pet.name,
                 'animal_type': pet.animal_type,
@@ -85,45 +258,52 @@ def pet_list(request):
                 'image': image_url,
                 'medical_notes': pet.medical_notes,
                 'created_at': pet.created_at.strftime('%B %d, %Y'),
-            })
-        
-        return Response(pets_data)
-        
-    except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-@api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
-def pet_detail(request, pet_id):
-    """Get, update, or delete a specific pet"""
-    try:
-        pet = Pet.objects.get(id=pet_id, owner=request.user)
-    except Pet.DoesNotExist:
-        return Response({'error': 'Pet not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        # Return pet details
-        image_url = None
-        if pet.image:
-            image_url = request.build_absolute_uri(pet.image.url)
+                'updated_at': pet.updated_at.strftime('%B %d, %Y'),
+            }
             
-        pet_data = {
-            'id': pet.id,
-            'name': pet.name,
-            'animal_type': pet.animal_type,
-            'breed': pet.breed or 'Mixed Breed',
-            'age': pet.age,
-            'sex': pet.sex,
-            'weight': str(pet.weight) if pet.weight else None,
-            'image': image_url,
-            'medical_notes': pet.medical_notes,
-            'created_at': pet.created_at.strftime('%B %d, %Y'),
-            'updated_at': pet.updated_at.strftime('%B %d, %Y'),
-        }
-        return Response(pet_data)
+            # Add admin-specific info if admin
+            if request.user_type == 'admin':
+                owner_name = f"{pet.owner.first_name} {pet.owner.last_name}".strip() or pet.owner.username
+                owner_profile = getattr(pet.owner, 'profile', None)
+                owner_contact = owner_profile.phone_number if owner_profile and hasattr(owner_profile, 'phone_number') else 'N/A'
+                
+                pet_data = {
+                    'pet_id': f"RP-{str(pet.id).zfill(6)}",
+                    'name': pet.name,
+                    'species': pet.get_animal_type_display(),
+                    'breed': pet.breed or 'Unknown',
+                    'sex': pet.get_sex_display(),
+                    'age': f"{pet.age} years old",
+                    'blood_type': None,  # Placeholder
+                    'spayed_neutered': None,  # Placeholder
+                    'allergies': None,  # Placeholder
+                    'chronic_disease': None,  # Placeholder
+                    'photo': image_url,
+                    'owner': {
+                        'name': owner_name,
+                        'contact': owner_contact,
+                        'id': pet.owner.id
+                    },
+                    'registered_date': pet.created_at.isoformat(),
+                    'medical_notes': pet.medical_notes
+                }
+                
+                return Response({
+                    'success': True,
+                    'pet': pet_data
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response(pet_data, status=status.HTTP_200_OK)
 
     elif request.method == 'PUT':
         # Update pet
+        # Additional permission check for pet owners (already checked above, but ensure)
+        if request.user_type != 'admin' and pet.owner != request.user:
+            return Response({
+                'success': False,
+                'error': 'You do not have permission to update this pet'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
         serializer = PetSerializer(pet, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -131,9 +311,20 @@ def pet_detail(request, pet_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        # Delete pet
+        # Delete pet (pet owners only - admins should use a different mechanism if needed)
+        if request.user_type != 'admin' and pet.owner != request.user:
+            return Response({
+                'success': False,
+                'error': 'You do not have permission to delete this pet'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Admins typically shouldn't delete pets via this endpoint
+        # But we'll allow it if they have access
         pet.delete()
-        return Response({'message': 'Pet deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({
+            'success': True,
+            'message': 'Pet deleted successfully'
+        }, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

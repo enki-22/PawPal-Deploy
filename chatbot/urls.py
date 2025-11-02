@@ -40,13 +40,18 @@ urlpatterns = [
 ]
 
 # Diagnosis SOAP endpoints (Chunk 2 - High Priority)
+# CONSOLIDATED: These endpoints now support both Pet Owners and Admins
 from . import views_diagnosis
 
 urlpatterns += [
     path('diagnosis/generate', views_diagnosis.generate_diagnosis, name='diagnosis_generate'),
     path('diagnosis/soap/<str:case_id>', views_diagnosis.get_soap_report_by_case_id, name='diagnosis_get_soap'),
     path('diagnosis/<int:pet_id>', views_diagnosis.get_pet_diagnoses, name='diagnosis_by_pet'),
-    path('diagnosis/flagged/<int:pet_id>', views_diagnosis.get_flagged_cases_for_pet, name='diagnosis_flagged_by_pet'),
+    # Flagged cases: pet_id required for pet owners, optional for admins
+    path('diagnosis/flagged/<int:pet_id>', views_diagnosis.get_flagged_cases, name='diagnosis_flagged_by_pet'),
+    path('diagnosis/flagged', views_diagnosis.get_flagged_cases, name='diagnosis_flagged_all'),
+    # Reports list: unified endpoint for both user types
+    path('diagnosis/reports', views_diagnosis.get_all_reports, name='diagnosis_reports_list'),
 ]
 
 

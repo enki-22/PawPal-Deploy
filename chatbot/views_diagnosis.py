@@ -1,6 +1,7 @@
 """
 Diagnosis and SOAP Report API Views
 Implements Chunk 2: SOAP Report & Diagnosis Endpoints
+Supports both Pet Owners and Admins via unified permission system
 """
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -8,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 
 from .models import SOAPReport, Conversation
@@ -25,6 +27,14 @@ from .utils import (
     format_soap_report_response
 )
 from pets.models import Pet
+from utils.unified_permissions import require_user_or_admin, filter_by_ownership
+
+# Import filter utilities from admin_panel for report filtering
+try:
+    from admin_panel.filters import filter_reports, validate_filter_params
+    FILTER_UTILS_AVAILABLE = True
+except ImportError:
+    FILTER_UTILS_AVAILABLE = False
 
 import logging
 logger = logging.getLogger(__name__)
@@ -222,13 +232,14 @@ def generate_diagnosis(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@require_user_or_admin
 def get_soap_report_by_case_id(request, case_id):
     """
     GET /api/diagnosis/soap/:caseId
+    (CONSOLIDATED: Replaces both /api/diagnosis/soap/:caseId and /api/admin/reports/:caseId)
     
     Retrieve complete SOAP report by case ID
-    Includes pet info, owner info, and all SOAP sections
+    Supports both Pet Owners and Admins with role-based access
     
     Args:
         case_id (str): Case ID in format #PDX-YYYY-MMDD-XXX
@@ -238,28 +249,80 @@ def get_soap_report_by_case_id(request, case_id):
     
     Status Codes:
         - 200: Success
-        - 403: Forbidden (not owner)
+        - 403: Forbidden (pet owner trying to access another's report)
         - 404: Not found
+    
+    Permissions:
+        - Admins: Can view any SOAP report
+        - Pet Owners: Can only view reports for their own pets
     """
     try:
+        # Clean case_id (remove # prefix if missing)
+        case_id_clean = case_id.strip()
+        if not case_id_clean.startswith('#'):
+            case_id_clean = f'#{case_id_clean}'
+        
         # Get SOAP report
-        soap_report = get_object_or_404(SOAPReport, case_id=case_id)
+        soap_report = get_object_or_404(SOAPReport, case_id=case_id_clean)
         
-        # Check ownership
-        if soap_report.pet.owner != request.user:
-            return Response({
-                'success': False,
-                'error': 'You do not have permission to view this report',
-                'code': 'FORBIDDEN'
-            }, status=status.HTTP_403_FORBIDDEN)
+        # Role-based access check
+        if request.user_type == 'admin':
+            # Admins can view any report
+            pass
+        else:  # pet_owner
+            # Pet owners can only view their own reports
+            if soap_report.pet.owner != request.user:
+                return Response({
+                    'success': False,
+                    'error': 'You do not have permission to view this report',
+                    'code': 'FORBIDDEN'
+                }, status=status.HTTP_403_FORBIDDEN)
         
-        # Serialize and return
+        # Serialize and return (format matches admin expectations if admin)
         serializer = SOAPReportSerializer(soap_report)
         
-        return Response({
-            'success': True,
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
+        # For admin requests, format response similar to admin endpoint
+        if request.user_type == 'admin':
+            pet = soap_report.pet
+            owner = pet.owner
+            owner_name = f"{owner.first_name} {owner.last_name}".strip() or owner.username
+            
+            return Response({
+                'success': True,
+                'report': {
+                    'case_id': soap_report.case_id,
+                    'pet_info': {
+                        'id': pet.id,
+                        'name': pet.name,
+                        'species': pet.get_animal_type_display(),
+                        'breed': pet.breed or 'Unknown',
+                        'age': pet.age,
+                        'sex': pet.get_sex_display(),
+                        'weight': float(pet.weight) if pet.weight else None,
+                        'image': request.build_absolute_uri(pet.image.url) if pet.image else None,
+                        'medical_notes': pet.medical_notes
+                    },
+                    'owner_info': {
+                        'id': owner.id,
+                        'name': owner_name,
+                        'email': owner.email,
+                        'username': owner.username
+                    },
+                    'subjective': soap_report.subjective,
+                    'objective': soap_report.objective,
+                    'assessment': soap_report.assessment,
+                    'plan': soap_report.plan,
+                    'flag_level': soap_report.flag_level,
+                    'date_generated': soap_report.date_generated.isoformat(),
+                    'date_flagged': soap_report.date_flagged.isoformat() if soap_report.date_flagged else None
+                }
+            }, status=status.HTTP_200_OK)
+        else:
+            # Pet owner format (existing format)
+            return Response({
+                'success': True,
+                'data': serializer.data
+            }, status=status.HTTP_200_OK)
         
     except SOAPReport.DoesNotExist:
         return Response({
@@ -278,13 +341,14 @@ def get_soap_report_by_case_id(request, case_id):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@require_user_or_admin
 def get_pet_diagnoses(request, pet_id):
     """
     GET /api/diagnosis/:petId
+    (CONSOLIDATED: Replaces both /api/diagnosis/:petId and /api/admin/pets/:petId/diagnoses)
     
     Get all diagnoses (SOAP reports) for a specific pet
-    Ordered by date_generated DESC (most recent first)
+    Supports both Pet Owners and Admins with role-based access
     
     Args:
         pet_id (int): Pet ID
@@ -298,19 +362,29 @@ def get_pet_diagnoses(request, pet_id):
     
     Status Codes:
         - 200: Success
-        - 403: Forbidden (not owner)
+        - 403: Forbidden (pet owner trying to access another's pet)
         - 404: Pet not found
+    
+    Permissions:
+        - Admins: Can view diagnoses for any pet
+        - Pet Owners: Can only view diagnoses for their own pets
     """
     try:
-        # Get pet and verify ownership
+        # Get pet
         pet = get_object_or_404(Pet, id=pet_id)
         
-        if pet.owner != request.user:
-            return Response({
-                'success': False,
-                'error': 'You do not have permission to view this pet\'s diagnoses',
-                'code': 'FORBIDDEN'
-            }, status=status.HTTP_403_FORBIDDEN)
+        # Role-based access check
+        if request.user_type == 'admin':
+            # Admins can view any pet's diagnoses
+            pass
+        else:  # pet_owner
+            # Pet owners can only view their own pet's diagnoses
+            if pet.owner != request.user:
+                return Response({
+                    'success': False,
+                    'error': 'You do not have permission to view this pet\'s diagnoses',
+                    'code': 'FORBIDDEN'
+                }, status=status.HTTP_403_FORBIDDEN)
         
         # Get query parameters for pagination
         try:
@@ -332,25 +406,54 @@ def get_pet_diagnoses(request, pet_id):
         # Apply pagination
         soap_reports = soap_reports[offset:offset + limit]
         
-        # Serialize
-        serializer = SOAPReportListSerializer(soap_reports, many=True)
-        
-        return Response({
-            'success': True,
-            'data': serializer.data,
-            'pagination': {
-                'total': total_count,
-                'limit': limit,
-                'offset': offset,
-                'count': len(serializer.data)
-            },
-            'pet': {
-                'id': pet.id,
-                'name': pet.name,
-                'animal_type': pet.animal_type,
-                'breed': pet.breed or 'Mixed Breed'
-            }
-        }, status=status.HTTP_200_OK)
+        # Format based on user type
+        if request.user_type == 'admin':
+            # Admin format: summary version similar to admin endpoint
+            diagnoses = []
+            for report in soap_reports:
+                main_condition = None
+                likelihood = None
+                urgency = None
+                
+                if report.assessment and isinstance(report.assessment, list) and len(report.assessment) > 0:
+                    main_condition = report.assessment[0].get('condition')
+                    likelihood = report.assessment[0].get('likelihood')
+                    urgency = report.assessment[0].get('urgency')
+                
+                diagnoses.append({
+                    'case_id': report.case_id,
+                    'date_generated': report.date_generated.isoformat(),
+                    'flag_level': report.flag_level,
+                    'main_condition': main_condition,
+                    'likelihood': likelihood,
+                    'urgency': urgency,
+                    'subjective_snippet': (report.subjective[:100] + '...') if len(report.subjective) > 100 else report.subjective
+                })
+            
+            return Response({
+                'success': True,
+                'diagnoses': diagnoses,
+                'total_count': total_count
+            }, status=status.HTTP_200_OK)
+        else:
+            # Pet owner format (existing format)
+            serializer = SOAPReportListSerializer(soap_reports, many=True)
+            return Response({
+                'success': True,
+                'data': serializer.data,
+                'pagination': {
+                    'total': total_count,
+                    'limit': limit,
+                    'offset': offset,
+                    'count': len(serializer.data)
+                },
+                'pet': {
+                    'id': pet.id,
+                    'name': pet.name,
+                    'animal_type': pet.animal_type,
+                    'breed': pet.breed or 'Mixed Breed'
+                }
+            }, status=status.HTTP_200_OK)
         
     except Pet.DoesNotExist:
         return Response({
@@ -369,71 +472,176 @@ def get_pet_diagnoses(request, pet_id):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_flagged_cases_for_pet(request, pet_id):
+@require_user_or_admin
+def get_flagged_cases(request, pet_id=None):
     """
-    GET /api/diagnosis/flagged/:petId
+    GET /api/diagnosis/flagged/:petId? (pet_id optional for admins)
+    (CONSOLIDATED: Replaces /api/diagnosis/flagged/:petId and /api/admin/reports/flagged)
     
-    Get only flagged cases for a specific pet
-    Filters by flag_level (Emergency, Urgent, Moderate)
+    Get flagged SOAP reports
+    Supports both Pet Owners and Admins with role-based access
     
     Args:
-        pet_id (int): Pet ID
+        pet_id (int, optional): Pet ID. Required for pet owners, optional for admins.
+                                If omitted by admin, returns all flagged cases.
     
     Query Parameters:
         - flag_level (str, optional): Filter by specific flag level
           Options: 'Emergency', 'Urgent', 'Moderate'
-          Default: Returns all flagged (Emergency and Urgent)
+          For pet owners: Default returns Emergency and Urgent
+          For admins: Default returns all flagged levels
+        - filter (str, optional): Admin-only alias for flag_level
+          Options: 'all', 'emergency', 'urgent', 'moderate'
     
     Returns:
         Array of flagged SOAP reports
     
     Status Codes:
         - 200: Success
-        - 403: Forbidden (not owner)
+        - 403: Forbidden (pet owner trying to access another's pet)
         - 404: Pet not found
+    
+    Permissions:
+        - Admins: Can view flagged cases for any pet, or all flagged cases if pet_id omitted
+        - Pet Owners: Must provide pet_id for their own pet, sees only their flagged cases
     """
     try:
-        # Get pet and verify ownership
-        pet = get_object_or_404(Pet, id=pet_id)
+        # Get flag level filter (support both 'flag_level' and 'filter' for admin compatibility)
+        flag_level_filter = request.query_params.get('flag_level', '').strip() or \
+                           request.query_params.get('filter', '').strip()
         
-        if pet.owner != request.user:
+        # Normalize filter value for admin format
+        if flag_level_filter.lower() == 'all':
+            flag_level_filter = ''
+        
+        if request.user_type == 'admin':
+            # Admin: can view all flagged cases or filter by pet
+            if pet_id:
+                # Admin viewing specific pet's flagged cases
+                pet = get_object_or_404(Pet, id=pet_id)
+                if flag_level_filter and flag_level_filter.lower() in ['emergency', 'urgent', 'moderate']:
+                    flag_level_filter = flag_level_filter.capitalize()
+                    soap_reports = SOAPReport.objects.filter(
+                        pet=pet,
+                        flag_level=flag_level_filter
+                    ).select_related('pet', 'pet__owner').order_by('-date_flagged', '-date_generated')
+                else:
+                    # All flagged for this pet
+                    soap_reports = SOAPReport.objects.filter(
+                        pet=pet,
+                        flag_level__in=['Emergency', 'Urgent', 'Moderate']
+                    ).select_related('pet', 'pet__owner').order_by('-date_flagged', '-date_generated')
+            else:
+                # Admin viewing all flagged cases across all pets
+                if flag_level_filter and flag_level_filter.lower() in ['emergency', 'urgent', 'moderate']:
+                    flag_level_filter = flag_level_filter.capitalize()
+                    soap_reports = SOAPReport.objects.filter(
+                        flag_level=flag_level_filter
+                    ).select_related('pet', 'pet__owner')
+                else:
+                    # All flagged
+                    soap_reports = SOAPReport.objects.filter(
+                        flag_level__in=['Emergency', 'Urgent', 'Moderate']
+                    ).select_related('pet', 'pet__owner')
+                
+                # Order by severity and date
+                from django.db.models import Case, When, IntegerField
+                soap_reports = soap_reports.annotate(
+                    severity_order=Case(
+                        When(flag_level='Emergency', then=1),
+                        When(flag_level='Urgent', then=2),
+                        When(flag_level='Moderate', then=3),
+                        default=4,
+                        output_field=IntegerField()
+                    )
+                ).order_by('severity_order', '-date_flagged')
+            
+            # Format for admin (similar to admin endpoint)
+            reports = []
+            for report in soap_reports:
+                top_diagnosis = None
+                if report.assessment and isinstance(report.assessment, list) and len(report.assessment) > 0:
+                    top = report.assessment[0]
+                    top_diagnosis = {
+                        'condition': top.get('condition'),
+                        'likelihood': top.get('likelihood'),
+                        'urgency': top.get('urgency'),
+                        'description': top.get('description')
+                    }
+                
+                owner_name = f"{report.pet.owner.first_name} {report.pet.owner.last_name}".strip() or report.pet.owner.username
+                
+                reports.append({
+                    'case_id': report.case_id,
+                    'pet_info': {
+                        'name': report.pet.name,
+                        'species': report.pet.get_animal_type_display(),
+                        'breed': report.pet.breed or 'Unknown',
+                        'age': report.pet.age
+                    },
+                    'owner_info': {
+                        'name': owner_name,
+                        'email': report.pet.owner.email
+                    },
+                    'top_diagnosis': top_diagnosis,
+                    'flag_level': report.flag_level,
+                    'date_flagged': report.date_flagged.isoformat() if report.date_flagged else report.date_generated.isoformat(),
+                    'subjective': report.subjective[:200] + '...' if len(report.subjective) > 200 else report.subjective
+                })
+            
+            applied_filter = flag_level_filter.lower() if flag_level_filter else 'all'
             return Response({
-                'success': False,
-                'error': 'You do not have permission to view this pet\'s diagnoses',
-                'code': 'FORBIDDEN'
-            }, status=status.HTTP_403_FORBIDDEN)
-        
-        # Get flag level filter
-        flag_level_filter = request.query_params.get('flag_level', '').strip()
-        
-        # Base query - get flagged cases
-        if flag_level_filter and flag_level_filter in ['Emergency', 'Urgent', 'Moderate']:
-            # Filter by specific flag level
-            soap_reports = pet.soap_reports.filter(
-                flag_level=flag_level_filter
-            ).order_by('-date_flagged', '-date_generated')
-        else:
-            # Default: Get Emergency and Urgent cases
-            soap_reports = pet.soap_reports.filter(
-                flag_level__in=['Emergency', 'Urgent']
-            ).order_by('-date_flagged', '-date_generated')
-        
-        # Serialize
-        serializer = SOAPReportListSerializer(soap_reports, many=True)
-        
-        return Response({
-            'success': True,
-            'data': serializer.data,
-            'count': soap_reports.count(),
-            'filter_applied': flag_level_filter if flag_level_filter else 'Emergency, Urgent',
-            'pet': {
-                'id': pet.id,
-                'name': pet.name,
-                'animal_type': pet.animal_type,
-                'breed': pet.breed or 'Mixed Breed'
-            }
-        }, status=status.HTTP_200_OK)
+                'success': True,
+                'filter': applied_filter,
+                'count': len(reports),
+                'reports': reports
+            }, status=status.HTTP_200_OK)
+            
+        else:  # pet_owner
+            # Pet owner: must provide pet_id
+            if not pet_id:
+                return Response({
+                    'success': False,
+                    'error': 'Pet ID is required',
+                    'code': 'PET_ID_REQUIRED'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Get pet and verify ownership
+            pet = get_object_or_404(Pet, id=pet_id)
+            
+            if pet.owner != request.user:
+                return Response({
+                    'success': False,
+                    'error': 'You do not have permission to view this pet\'s diagnoses',
+                    'code': 'FORBIDDEN'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            # Base query - get flagged cases for this pet
+            if flag_level_filter and flag_level_filter in ['Emergency', 'Urgent', 'Moderate']:
+                soap_reports = pet.soap_reports.filter(
+                    flag_level=flag_level_filter
+                ).order_by('-date_flagged', '-date_generated')
+            else:
+                # Default: Get Emergency and Urgent cases
+                soap_reports = pet.soap_reports.filter(
+                    flag_level__in=['Emergency', 'Urgent']
+                ).order_by('-date_flagged', '-date_generated')
+            
+            # Serialize for pet owner
+            serializer = SOAPReportListSerializer(soap_reports, many=True)
+            
+            return Response({
+                'success': True,
+                'data': serializer.data,
+                'count': soap_reports.count(),
+                'filter_applied': flag_level_filter if flag_level_filter else 'Emergency, Urgent',
+                'pet': {
+                    'id': pet.id,
+                    'name': pet.name,
+                    'animal_type': pet.animal_type,
+                    'breed': pet.breed or 'Mixed Breed'
+                }
+            }, status=status.HTTP_200_OK)
         
     except Pet.DoesNotExist:
         return Response({
@@ -448,5 +656,119 @@ def get_flagged_cases_for_pet(request, pet_id):
             'success': False,
             'error': 'An error occurred while retrieving flagged cases',
             'code': 'INTERNAL_ERROR'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@require_user_or_admin
+def get_all_reports(request):
+    """
+    GET /api/diagnosis/reports
+    (CONSOLIDATED: Replaces /api/admin/reports - now supports both Pet Owners and Admins)
+    
+    Get paginated list of SOAP reports with advanced filtering and search
+    Supports both Pet Owners and Admins with role-based access
+    
+    Query Parameters:
+        - search: Search in pet name, owner name, case ID
+        - dateRange: today | last_7_days | last_30_days | custom | all_time (default: all_time)
+        - custom_start: Start date for custom range (YYYY-MM-DD)
+        - custom_end: End date for custom range (YYYY-MM-DD)
+        - species: all | dogs | cats | birds | rabbits | others (default: all)
+        - flagLevel: all | emergency | urgent | moderate (default: all)
+        - page: Page number (default: 1)
+        - limit: Items per page (default: 10, max: 100)
+    
+    Returns:
+        success: True/False
+        results: Array of report summaries
+        pagination: Pagination information
+        filters: Applied filters for reference
+    
+    Permissions:
+        - Admins: Can view all SOAP reports with full filtering
+        - Pet Owners: Can only view their own reports (automatically filtered)
+    """
+    try:
+        if not FILTER_UTILS_AVAILABLE:
+            return Response({
+                'success': False,
+                'error': 'Filter utilities not available',
+                'code': 'FEATURE_UNAVAILABLE'
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        
+        # Get query parameters
+        params = {
+            'search': request.query_params.get('search', ''),
+            'dateRange': request.query_params.get('dateRange', 'all_time'),
+            'custom_start': request.query_params.get('custom_start'),
+            'custom_end': request.query_params.get('custom_end'),
+            'species': request.query_params.get('species', 'all'),
+            'flagLevel': request.query_params.get('flagLevel', 'all'),
+            'page': request.query_params.get('page', 1),
+            'limit': request.query_params.get('limit', 10)
+        }
+        
+        # Validate parameters
+        is_valid, error_message = validate_filter_params(params)
+        if not is_valid:
+            return Response({
+                'success': False,
+                'error': 'Invalid filter parameters',
+                'details': error_message
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get base queryset with related data for optimization
+        # Apply ownership filter for pet owners
+        if request.user_type == 'admin':
+            queryset = SOAPReport.objects.select_related(
+                'pet',
+                'pet__owner'
+            ).all()
+        else:  # pet_owner
+            # Pet owners only see their own reports
+            queryset = SOAPReport.objects.select_related(
+                'pet',
+                'pet__owner'
+            ).filter(pet__owner=request.user)
+        
+        # Apply filters and pagination
+        filtered_queryset, pagination_info, applied_filters = filter_reports(
+            queryset,
+            params
+        )
+        
+        # Format results
+        results = []
+        for report in filtered_queryset:
+            results.append({
+                'case_id': report.case_id,
+                'pet_name': report.pet.name,
+                'species': report.pet.get_animal_type_display(),
+                'breed': report.pet.breed or 'Unknown',
+                'owner_name': f"{report.pet.owner.first_name} {report.pet.owner.last_name}".strip() or report.pet.owner.username,
+                'date_generated': report.date_generated.isoformat(),
+                'flag_level': report.flag_level
+            })
+        
+        user_identifier = f"{request.admin.email}" if request.user_type == 'admin' else f"{request.user.email}"
+        logger.info(
+            f"{'Admin' if request.user_type == 'admin' else 'User'} {user_identifier} queried reports "
+            f"(page {pagination_info['page']}, filters: {applied_filters})"
+        )
+        
+        return Response({
+            'success': True,
+            'results': results,
+            'pagination': pagination_info,
+            'filters': applied_filters
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        logger.error(f"Get reports error: {str(e)}", exc_info=True)
+        return Response({
+            'success': False,
+            'error': 'Failed to fetch reports',
+            'details': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
