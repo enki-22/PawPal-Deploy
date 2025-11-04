@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
@@ -6,12 +6,635 @@ import { useRegistration } from '../context/RegistrationContext';
 import { authService } from '../services/api';
 import Alert from './Alert';
 
-const RegisterStep2 = () => {
-  const { registrationData, updateStep2, clearData } = useRegistration();
+// Reusable Carousel Component (same as Login)
+const PurpleCarousel = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [fadeClass, setFadeClass] = useState('opacity-100');
+
+  // Handle smooth slide transitions
+  const handleSlideChange = useCallback((newSlide) => {
+    if (newSlide !== currentSlide) {
+      setFadeClass('opacity-0');
+      setTimeout(() => {
+        setCurrentSlide(newSlide);
+        setFadeClass('opacity-100');
+      }, 300);
+    }
+  }, [currentSlide]);
+
+  // Autoplay functionality - switch slides every 5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      handleSlideChange((currentSlide + 1) % 2);
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [currentSlide, handleSlideChange]);
+
+  return (
+    <div className="bg-[#815FB3] text-white w-full" 
+         style={{ 
+           borderRadius: '20px', 
+           position: 'relative', 
+           padding: '10%',
+           height: '600px',
+           display: 'flex',
+           flexDirection: 'column',
+           justifyContent: 'flex-start',
+           alignItems: 'center',
+           overflow: 'visible'
+         }}>
+      
+      {/* FIXED SHARED LOGO - Always visible at top */}
+      <div className="mb-8" style={{ flexShrink: 0 }}>
+        <div className="inline-flex items-center justify-center w-full">
+          {pawIcon ? (
+            <img src={pawIcon} alt="Paw" className="w-20 h-20" />
+          ) : (
+            <span className="text-5xl mr-3">🐾</span>
+          )}
+          <h1 className="text-[#FFF07B] font-museo font-black text-[49px] leading-[100%] tracking-[0%]">
+            PAWPAL
+          </h1>
+        </div>
+      </div>
+
+      {/* CAROUSEL CONTENT AREA - Only content below logo changes */}
+      <div className="flex-1 w-full" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div className={`transition-opacity duration-300 ${fadeClass}`}>
+          {currentSlide === 0 ? (
+            // Slide 1: Health companion content (without logo)
+            <>
+              <h2 className="text-[24px] font-bold leading-[100%] tracking-[0%] mb-6"
+                  style={{ 
+                    fontFamily: 'Raleway', 
+                    color: '#FFFFF2',
+                    whiteSpace: 'nowrap',
+                    textAlign: 'center'
+                  }}>
+                Your pet&apos;s health companion
+              </h2>
+             
+              <div className="text-[17px] font-medium leading-[140%] tracking-[0%] mb-8"
+                   style={{ 
+                     fontFamily: 'Raleway', 
+                     color: '#FFFFF2', 
+                     whiteSpace: 'nowrap',
+                     display: 'flex',
+                     flexDirection: 'column',
+                     alignItems: 'center',
+                     width: '100%'
+                   }}>
+                <div style={{ textAlign: 'left', display: 'inline-block' }}>
+                  <div>Get instant answers to your pet</div>
+                  <div>health questions, track vaccinations,</div>
+                  <div>and receive personalized care</div>
+                  <div>recommendations.</div>
+                </div>
+              </div>
+             
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', width: '280px' }}>
+                  {pawBullet ? (
+                    <img src={pawBullet} alt="Paw" className="w-6 h-6 transform rotate-45" style={{ marginRight: '12px', flexShrink: 0 }} />
+                  ) : (
+                    <span className="text-yellow-400 text-lg" style={{ marginRight: '12px', flexShrink: 0 }}>🐾</span>
+                  )}
+                  <span className="text-[20px] font-medium leading-[100%] tracking-[0%]"
+                        style={{ 
+                          fontFamily: 'Raleway', 
+                          color: '#FFFFF2',
+                          whiteSpace: 'nowrap'
+                        }}>
+                    24/7 Pet Health Support
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', width: '280px' }}>
+                  {pawBullet ? (
+                    <img src={pawBullet} alt="Paw" className="w-6 h-6 transform rotate-45" style={{ marginRight: '12px', flexShrink: 0 }} />
+                  ) : (
+                    <span className="text-yellow-400 text-lg" style={{ marginRight: '12px', flexShrink: 0 }}>🐾</span>
+                  )}
+                  <span className="text-[20px] font-medium leading-[100%] tracking-[0%]"
+                        style={{ 
+                          fontFamily: 'Raleway', 
+                          color: '#FFFFF2',
+                          whiteSpace: 'nowrap'
+                        }}>
+                    Personalized Care
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', width: '280px' }}>
+                  {pawBullet ? (
+                    <img src={pawBullet} alt="Paw" className="w-6 h-6 transform rotate-45" style={{ marginRight: '12px', flexShrink: 0 }} />
+                  ) : (
+                    <span className="text-yellow-400 text-lg" style={{ marginRight: '12px', flexShrink: 0 }}>🐾</span>
+                  )}
+                  <span className="text-[20px] font-medium leading-[100%] tracking-[0%]"
+                        style={{ 
+                          fontFamily: 'Raleway', 
+                          color: '#FFFFF2'
+                        }}>
+                    Track Vaccinations<br />and Medications
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : (
+            // Slide 2: Banner image only (without logo) - Much larger now
+            <>
+              <div className="w-full h-full flex items-center justify-center" style={{ overflow: 'visible' }}>
+                <img 
+                  src="/194911935_109537641352555_8380857820585025274_n 1.png" 
+                  alt="SOUTHVALLEY VETERINARY CLINIC Banner" 
+                  className="rounded-lg"
+                  style={{ 
+                    width: '135%',
+                    maxWidth: '135%',
+                    height: 'auto',
+                    objectFit: 'contain'
+                  }}
+                />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      
+      {/* Page Indicator Dots - Fixed Position */}
+      <div 
+        className="flex justify-center space-x-2"
+        style={{
+          position: 'absolute',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)'
+        }}
+      >
+        <button
+          onClick={() => handleSlideChange(0)}
+          className={`transition-all duration-300 ${
+            currentSlide === 0 
+              ? 'w-6 h-2 bg-[#642A77] rounded-full' 
+              : 'w-2 h-2 bg-[#642A77] rounded-full hover:bg-[#7A3A87]'
+          }`}
+        />
+        <button
+          onClick={() => handleSlideChange(1)}
+          className={`transition-all duration-300 ${
+            currentSlide === 1 
+              ? 'w-6 h-2 bg-[#642A77] rounded-full' 
+              : 'w-2 h-2 bg-[#642A77] rounded-full hover:bg-[#7A3A87]'
+          }`}
+        />
+      </div>
+    </div>
+  );
+};
+
+// Register Step 2 Form Component
+const RegisterStep2Form = ({ onSubmit, loading }) => {
+  const { registrationData, updateStep2 } = useRegistration();
   const [formData, setFormData] = useState(registrationData.step2);
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+    // Clear specific error when user starts typing
+    if (errors[e.target.name]) {
+      setErrors({ ...errors, [e.target.name]: '' });
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.phone_number.trim()) {
+      newErrors.phone_number = 'Phone number is required';
+    }
+    if (!formData.province) {
+      newErrors.province = 'Province is required';
+    }
+    if (!formData.city) {
+      newErrors.city = 'City is required';
+    }
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+    
+    updateStep2(formData);
+    
+    try {
+      await onSubmit(formData);
+    } catch (err) {
+      setErrors({ general: err.message || 'Registration failed. Please try again.' });
+    }
+  };
+
+  const provinces = [
+    'Alberta', 'British Columbia', 'Manitoba', 'New Brunswick',
+    'Newfoundland and Labrador', 'Northwest Territories', 'Nova Scotia',
+    'Nunavut', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan', 'Yukon'
+  ];
+
+  const cities = [
+    'Toronto', 'Vancouver', 'Montreal', 'Calgary', 'Edmonton', 'Ottawa', 
+    'Winnipeg', 'Quebec City', 'Hamilton', 'Other'
+  ];
+
+  return (
+    <>
+      <style>
+        {`
+          @keyframes errorPop {
+            0% {
+              opacity: 0;
+              transform: translateY(-10px) scale(0.8);
+            }
+            50% {
+              transform: translateY(2px) scale(1.05);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+          }
+        `}
+      </style>
+      <div 
+        style={{ 
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+          padding: '1rem',
+          background: '#FFFFF2',  // This is the correct beige background
+          transform: 'translateX(0%)'
+        }}
+      >
+        {/* This wrapper ensures the form has a max width and holds all content */}
+        <div style={{ width: '100%', maxWidth: '420px', margin: '0 auto' }}>
+          
+          {/* Header Section - All text is centered */}
+          <div style={{ textAlign: 'center', marginBottom: '1.276rem' }}>
+            {/* Back Button */}
+            <div style={{ textAlign: 'left', marginBottom: '1.05rem' }}>
+              <Link 
+                to="/register"
+                style={{
+                  fontFamily: 'Raleway',
+                  fontWeight: 700,
+                  fontSize: '19.2px',
+                  color: '#34113F',
+                  textDecoration: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                ← Back
+              </Link>
+            </div>
+
+            <h3 style={{
+              fontFamily: 'Raleway',
+              fontWeight: 700,
+              fontSize: '21.6px',
+              color: '#34113F',
+              marginBottom: '0'
+            }}>
+              2 ) Contact Information
+            </h3>
+          </div>
+
+          {errors.general && (
+            <div style={{ marginBottom: '1.276rem' }}>
+              <Alert type="error" message={errors.general} onClose={() => setErrors({ ...errors, general: '' })} />
+            </div>
+          )}
+
+          {/* Form Fields - All left-aligned */}
+          <form onSubmit={handleSubmit} style={{ marginBottom: '0.851rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.638rem' }}>
+              
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontFamily: 'Raleway',
+                  fontWeight: 300,
+                  fontSize: '19.2px',
+                  color: '#666666',
+                  marginBottom: '0.425rem'
+                }}>
+                  Phone Number
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="tel"
+                    name="phone_number"
+                    value={formData.phone_number}
+                    onChange={handleChange}
+                    style={{
+                      width: '100%',
+                      minWidth: '384px',
+                      border: 'none',
+                      background: 'transparent',
+                      borderBottom: '2px solid #34113F',
+                      outline: 'none',
+                      fontFamily: 'Raleway',
+                      fontSize: '19.2px',
+                      color: '#000000',
+                      padding: '0.425rem 0',
+                      boxSizing: 'border-box'
+                    }}
+                    placeholder="(123) 456-7890"
+                    required
+                  />
+                  {errors.phone_number && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '100%',
+                      right: '0',
+                      background: '#ef4444',
+                      color: 'white',
+                      padding: '8px 12px',
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      fontFamily: 'Raleway',
+                      fontWeight: '500',
+                      whiteSpace: 'nowrap',
+                      boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                      zIndex: 1000,
+                      marginTop: '4px',
+                      transform: 'translateX(0)',
+                      animation: 'errorPop 0.3s ease-out'
+                    }}>
+                      {errors.phone_number}
+                      <div style={{
+                        position: 'absolute',
+                        top: '-4px',
+                        right: '16px',
+                        width: '0',
+                        height: '0',
+                        borderLeft: '4px solid transparent',
+                        borderRight: '4px solid transparent',
+                        borderBottom: '4px solid #ef4444'
+                      }}></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.638rem' }}>
+                <div>
+                  <label style={{
+                    display: 'block',
+                    fontFamily: 'Raleway',
+                    fontWeight: 300,
+                    fontSize: '19.2px',
+                    color: '#666666',
+                    marginBottom: '0.425rem'
+                  }}>
+                    Province
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <select
+                      name="province"
+                      value={formData.province}
+                      onChange={handleChange}
+                      style={{
+                        width: '100%',
+                        minWidth: '186px',
+                        padding: '0.425rem 0.5rem',
+                        background: '#815FB3',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '5px',
+                        outline: 'none',
+                        fontFamily: 'Raleway',
+                        fontSize: '19.2px',
+                        boxSizing: 'border-box'
+                      }}
+                      required
+                    >
+                      <option value="">Province</option>
+                      {provinces.map(province => (
+                        <option key={province} value={province}>{province}</option>
+                      ))}
+                    </select>
+                    {errors.province && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '100%',
+                        right: '0',
+                        background: '#ef4444',
+                        color: 'white',
+                        padding: '8px 12px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontFamily: 'Raleway',
+                        fontWeight: '500',
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                        zIndex: 1000,
+                        marginTop: '4px',
+                        transform: 'translateX(0)',
+                        animation: 'errorPop 0.3s ease-out'
+                      }}>
+                        {errors.province}
+                        <div style={{
+                          position: 'absolute',
+                          top: '-4px',
+                          right: '16px',
+                          width: '0',
+                          height: '0',
+                          borderLeft: '4px solid transparent',
+                          borderRight: '4px solid transparent',
+                          borderBottom: '4px solid #ef4444'
+                        }}></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{
+                    display: 'block',
+                    fontFamily: 'Raleway',
+                    fontWeight: 300,
+                    fontSize: '19.2px',
+                    color: '#666666',
+                    marginBottom: '0.425rem'
+                  }}>
+                    City
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <select
+                      name="city"
+                      value={formData.city}
+                      onChange={handleChange}
+                      style={{
+                        width: '100%',
+                        minWidth: '186px',
+                        padding: '0.425rem 0.5rem',
+                        background: '#815FB3',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '5px',
+                        outline: 'none',
+                        fontFamily: 'Raleway',
+                        fontSize: '19.2px',
+                        boxSizing: 'border-box'
+                      }}
+                      required
+                    >
+                      <option value="">City</option>
+                      {cities.map(city => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                    </select>
+                    {errors.city && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '100%',
+                        right: '0',
+                        background: '#ef4444',
+                        color: 'white',
+                        padding: '8px 12px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontFamily: 'Raleway',
+                        fontWeight: '500',
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                        zIndex: 1000,
+                        marginTop: '4px',
+                        transform: 'translateX(0)',
+                        animation: 'errorPop 0.3s ease-out'
+                      }}>
+                        {errors.city}
+                        <div style={{
+                          position: 'absolute',
+                          top: '-4px',
+                          right: '16px',
+                          width: '0',
+                          height: '0',
+                          borderLeft: '4px solid transparent',
+                          borderRight: '4px solid transparent',
+                          borderBottom: '4px solid #ef4444'
+                        }}></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Checkboxes */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.638rem', marginTop: '0.638rem' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.638rem' }}>
+                  <input
+                    type="checkbox"
+                    id="clinic_agreement"
+                    style={{
+                      width: '21.6px',
+                      height: '21.6px',
+                      border: '1px solid #34113F',
+                      borderRadius: '5px',
+                      margin: 0,
+                      marginTop: '2px',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'none',
+                      flexShrink: 0
+                    }}
+                    required
+                  />
+                  <label htmlFor="clinic_agreement" style={{
+                    fontFamily: 'Raleway',
+                    fontSize: '16.8px',
+                    color: '#000000',
+                    lineHeight: '1.3'
+                  }}>
+                    I confirm that I am a client of Southvalley Veterinary Clinic.
+                  </label>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.638rem' }}>
+                  <input
+                    type="checkbox"
+                    id="terms_agreement"
+                    style={{
+                      width: '21.6px',
+                      height: '21.6px',
+                      border: '1px solid #34113F',
+                      borderRadius: '5px',
+                      margin: 0,
+                      marginTop: '2px',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'none',
+                      flexShrink: 0
+                    }}
+                    required
+                  />
+                  <label htmlFor="terms_agreement" style={{
+                    fontFamily: 'Raleway',
+                    fontSize: '16.8px',
+                    color: '#000000',
+                    lineHeight: '1.3'
+                  }}>
+                    I confirm that I have read and agree to the Terms and Conditions and Privacy Policy of this website.
+                  </label>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button 
+              type="submit"
+              onClick={handleSubmit}
+              disabled={loading}
+              style={{
+                width: '241.2px',
+                height: '48px',
+                background: '#815FB3',
+                boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
+                borderRadius: '10px',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.7 : 1,
+                fontFamily: 'Raleway',
+                fontWeight: 800,
+                fontSize: '19.2px',
+                textAlign: 'center',
+                color: '#FFFFFF'
+              }}
+            >
+              {loading ? 'Creating Account...' : 'Sign up'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const RegisterStep2 = () => {
+  const { registrationData, clearData } = useRegistration();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showClinicInfo, setShowClinicInfo] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
   
   const navigate = useNavigate();
 
@@ -22,19 +645,14 @@ const RegisterStep2 = () => {
     }
   }, [registrationData.step1.username, navigate]);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  // Fade in effect on component mount
+  useEffect(() => {
+    setFadeOut(false);
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (formData) => {
     setError('');
     setLoading(true);
-    
-    updateStep2(formData);
     
     // Send all data in one request to match Django backend expectations
     const completeData = {
@@ -59,12 +677,16 @@ const RegisterStep2 = () => {
       // Use the registration endpoint which creates active user directly (no OTP)
       await authService.registerWithOtp(completeData);
       
-      clearData();
-      // Navigate to login after successful registration
-      navigate('/login', { 
-        state: { message: 'Registration successful! Please log in.' },
-        replace: true
-      });
+      // Fade out before navigation
+      setFadeOut(true);
+      setTimeout(() => {
+        clearData();
+        // Navigate to login after successful registration
+        navigate('/login', { 
+          state: { message: 'Registration successful! Please log in.' },
+          replace: true
+        });
+      }, 500); // 500ms fade out duration
     } catch (err) {
       const apiErrors = err?.response?.data?.error || err?.response?.data;
       if (apiErrors) {
@@ -82,250 +704,56 @@ const RegisterStep2 = () => {
     setLoading(false);
   };
 
-  const provinces = [
-    'Alberta', 'British Columbia', 'Manitoba', 'New Brunswick',
-    'Newfoundland and Labrador', 'Northwest Territories', 'Nova Scotia',
-    'Nunavut', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan', 'Yukon'
-  ];
-
   return (
-    <div className="min-h-screen bg-[#D8CAED] flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full bg-white rounded-lg shadow-xl overflow-hidden">
-        <div className="p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Side - PawPal Promotional Panel */}
-            <div className="bg-[#815FB3] text-white p-8 rounded-lg flex flex-col justify-center">
-              <div className="text-center">
-                {!showClinicInfo ? (
-                  <>
-                    <div className="mb-4">
-                      <div className="inline-flex items-center">
-                        <img src={pawIcon} alt="Paw" className="w-16 h-16 mr-2" />
-                        <h1 className="text-[#FFF07B] font-museo font-black text-[47px] leading-[100%] tracking-[0%]">
-                          PAWPAL
-                        </h1>
-                      </div>
-                    </div>
-                    
-                    <h2 className="text-[20px] font-bold leading-[100%] tracking-[0%] text-center mb-4" 
-                        style={{ fontFamily: 'Raleway' }}>
-                      Your pet&apos;s health companion
-                    </h2>                    <p className="text-[16px] font-medium leading-[100%] tracking-[0%] mb-8" 
-                       style={{ fontFamily: 'Raleway' }}>
-                      Get instant answers to your pet health questions, track vaccinations, and receive personalized care recommendations.
-                    </p>
-                    
-                    <div className="space-y-3 text-left">
-                      <div className="flex items-center">
-                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
-                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
-                              style={{ fontFamily: 'Raleway' }}>
-                          24/7 Pet Health Support
-                        </span>
-                      </div>
-                      <div className="flex items-center">
-                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
-                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
-                              style={{ fontFamily: 'Raleway' }}>
-                          Personalized Care
-                        </span>
-                      </div>
-                      <div className="flex items-center">
-                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
-                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
-                              style={{ fontFamily: 'Raleway' }}>
-                          Track Vaccinations and Medications
-                        </span>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="mb-4">
-                      <div className="inline-flex items-center">
-                        <img src={pawIcon} alt="Paw" className="w-16 h-16 mr-2" />
-                        <h1 className="text-[#FFF07B] font-museo font-black text-[47px] leading-[100%] tracking-[0%]">
-                          PAWPAL
-                        </h1>
-                      </div>
-                    </div>
-                    
-                    <div className="w-full bg-white rounded-lg p-6 mx-auto flex items-center justify-center mb-4">
-                      <div className="text-[#815FB3] text-center">
-                        <div className="flex items-center justify-center mb-2">
-                          <div className="text-2xl mr-2">🐱</div>
-                          <div className="border-2 border-[#815FB3] rounded-full w-16 h-16 flex items-center justify-center relative">
-                            <div className="text-2xl font-bold">24</div>
-                            <div className="absolute -top-1 -left-1 w-2 h-2 bg-[#815FB3] rounded-full"></div>
-                            <div className="absolute -top-1 -right-1 w-2 h-2 bg-[#815FB3] rounded-full"></div>
-                            <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-[#815FB3] rounded-full"></div>
-                            <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-[#815FB3] rounded-full"></div>
-                          </div>
-                          <div className="text-2xl ml-2">🐱</div>
-                        </div>
-                        <h3 className="text-[#815FB3] font-bold text-xl mb-1" style={{ fontFamily: 'Raleway' }}>SOUTHVALLEY</h3>
-                        <h4 className="text-[#815FB3] font-semibold text-lg mb-1" style={{ fontFamily: 'Raleway' }}>VETERINARY CLINIC</h4>
-                        <p className="text-[#815FB3] text-sm" style={{ fontFamily: 'Raleway' }}>24 HOUR CARE FOR YOUR PET</p>
-                      </div>
-                    </div>
-                  </>
-                )}
-                
-                <div className="mt-8 flex justify-center space-x-2">
-                  <button
-                    onClick={() => setShowClinicInfo(false)}
-                    className={`w-8 h-2 rounded-full transition-colors duration-200 ${!showClinicInfo ? 'bg-purple-800' : 'bg-purple-400 hover:bg-purple-300 cursor-pointer'}`}
-                  />
-                  <button
-                    onClick={() => setShowClinicInfo(true)}
-                    className={`w-2 h-2 rounded-full transition-colors duration-200 ${showClinicInfo ? 'bg-[#FFF07B]' : 'bg-purple-400 hover:bg-[#FFF07B] cursor-pointer'}`}
-                  />
-                </div>
-              </div>
+    <div 
+      className={`min-h-screen bg-[#D8CAED] flex items-center justify-center p-4 transition-opacity duration-500 ${
+        fadeOut ? 'opacity-0' : 'opacity-100'
+      }`}
+    >
+      <div className="max-w-6xl w-full bg-[#FFFFF2] shadow-xl overflow-hidden" 
+           style={{ borderRadius: '30px' }}>
+        <div className="p-6">
+          <div className="flex flex-row min-h-[600px] relative">
+            
+            {/* Left Slot - Purple Carousel */}
+            <div 
+              className="absolute flex items-center justify-center transition-all duration-700 ease-in-out"
+              style={{
+                width: '40%',
+                height: '100%',
+                left: '0%', // Always on the left for step 2
+                zIndex: 10
+              }}
+            >
+              <PurpleCarousel />
             </div>
 
-            {/* Right Side - Registration Form Step 2 */}
-            <div className="flex flex-col justify-center">
-              <div className="max-w-sm mx-auto w-full">
-              {/* Back Button */}
-              <div className="mb-6">
-                <Link 
-                  to="/register"
-                  className="inline-flex items-center text-[16px] font-bold leading-[100%] tracking-[0%] text-gray-600 hover:text-gray-800" 
-                  style={{ fontFamily: 'Raleway' }}
-                >
-                  ← Back
-                </Link>
+            {/* Right Slot - Register Step 2 Form */}
+            <div style={{ width: '60%', marginLeft: '40%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div 
+                className="w-full h-full flex items-center justify-center"
+                style={{ 
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0
+                }}
+              >
+                {error && (
+                  <div style={{ position: 'absolute', top: '20px', left: '20px', right: '20px', zIndex: 1001 }}>
+                    <Alert type="error" message={error} onClose={() => setError('')} />
+                  </div>
+                )}
+                <RegisterStep2Form 
+                  onSubmit={handleSubmit}
+                  loading={loading}
+                />
               </div>
-
-              <div className="text-center mb-8">
-                <div className="text-[18px] font-medium leading-[100%] tracking-[0%] text-center mb-4" 
-                     style={{ fontFamily: 'Raleway' }}>
-                  2 ) Contact Information
-                </div>
-              </div>
-
-              {error && (
-                <Alert type="error" onClose={() => setError('')}>
-                  <pre className="whitespace-pre-wrap text-sm">{error}</pre>
-                </Alert>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="phone_number" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
-                         style={{ fontFamily: 'Raleway' }}>
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone_number"
-                    name="phone_number"
-                    value={formData.phone_number}
-                    onChange={handleChange}
-                    className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%]"
-                    style={{ fontFamily: 'Raleway' }}
-                    placeholder="(123) 456-7890"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="province" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
-                           style={{ fontFamily: 'Raleway' }}>
-                      Province
-                    </label>
-                    <select
-                      id="province"
-                      name="province"
-                      value={formData.province}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 bg-[#815FB3] text-white rounded text-[16px] font-light leading-[100%] tracking-[0%] focus:outline-none"
-                      style={{ fontFamily: 'Raleway' }}
-                      required
-                    >
-                      <option value="">Province</option>
-                      {provinces.map(province => (
-                        <option key={province} value={province}>{province}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="city" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
-                           style={{ fontFamily: 'Raleway' }}>
-                      City
-                    </label>
-                    <select
-                      id="city"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 bg-[#815FB3] text-white rounded text-[16px] font-light leading-[100%] tracking-[0%] focus:outline-none"
-                      style={{ fontFamily: 'Raleway' }}
-                      required
-                    >
-                      <option value="">City</option>
-                      <option value="Toronto">Toronto</option>
-                      <option value="Vancouver">Vancouver</option>
-                      <option value="Montreal">Montreal</option>
-                      <option value="Calgary">Calgary</option>
-                      <option value="Edmonton">Edmonton</option>
-                      <option value="Ottawa">Ottawa</option>
-                      <option value="Winnipeg">Winnipeg</option>
-                      <option value="Quebec City">Quebec City</option>
-                      <option value="Hamilton">Hamilton</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Checkboxes */}
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <input
-                      type="checkbox"
-                      id="clinic_agreement"
-                      className="mt-1"
-                      required
-                    />
-                    <label htmlFor="clinic_agreement" className="text-[16px] font-light leading-[100%] tracking-[0%]" 
-                           style={{ fontFamily: 'Raleway' }}>
-                      I confirm that I am a client of Southvalley Veterinary Clinic.
-                    </label>
-                  </div>
-
-                  <div className="flex items-start space-x-3">
-                    <input
-                      type="checkbox"
-                      id="terms_agreement"
-                      className="mt-1"
-                      required
-                    />
-                    <label htmlFor="terms_agreement" className="text-[16px] font-light leading-[100%] tracking-[0%]" 
-                           style={{ fontFamily: 'Raleway' }}>
-                      I confirm that I have read and agree to the Terms and Conditions and Privacy Policy of this website.
-                    </label>
-                  </div>
-                </div>
-
-                <div className="flex justify-center">
-                  <button 
-                    type="submit" 
-                    className="bg-[#815FB3] hover:bg-[#6d4a96] text-white font-medium py-3 px-16 rounded-lg shadow-lg hover:shadow-xl transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#815FB3] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ fontFamily: 'Raleway' }}
-                    disabled={loading}
-                  >
-                    {loading ? 'Creating Account...' : 'Sign up'}
-                  </button>
-                </div>
-              </form>
             </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };

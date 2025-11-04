@@ -390,28 +390,47 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
 
   // This is the main container. 
   return (
-    <div 
-      style={{ 
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100%',
-        padding: '1.5rem',
-        background: '#FFFFF2'  // This is the correct beige background
-      }}
-    >
+    <>
+      <style>
+        {`
+          @keyframes errorPop {
+            0% {
+              opacity: 0;
+              transform: translateY(-10px) scale(0.8);
+            }
+            50% {
+              transform: translateY(2px) scale(1.05);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+          }
+        `}
+      </style>
+      <div 
+        style={{ 
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+          padding: '1rem',
+          background: '#FFFFF2',  // This is the correct beige background
+          transform: 'translateX(-30%)'
+        }}
+      >
       {/* This wrapper ensures the form has a max width and holds all content */}
-      <div style={{ width: '100%', maxWidth: '450px', margin: '0 auto' }}>
+      <div style={{ width: '100%', maxWidth: '350px', margin: '0 auto' }}>
         
         {/* Header Section - All text is centered */}
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.215rem' }}>
           <h2 style={{
             fontFamily: 'Raleway',
             fontWeight: 700,
             fontSize: '30px',
             color: '#34113F',
-            marginBottom: '1rem'
+            marginBottom: '0.81rem'
           }}>
             Get Started
           </h2>
@@ -420,7 +439,7 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
             fontFamily: 'Raleway',
             fontSize: '18px',
             color: '#666666',
-            marginBottom: '1.5rem'
+            marginBottom: '1.215rem'
           }}>
             Already have an account?{' '}
             <span 
@@ -449,14 +468,14 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
         </div>
 
         {errors.general && (
-          <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ marginBottom: '1.215rem' }}>
             <Alert type="error" message={errors.general} onClose={() => setErrors({ ...errors, general: '' })} />
           </div>
         )}
 
         {/* Form Fields - All left-aligned */}
-        <form onSubmit={handleSubmit} style={{ marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <form onSubmit={handleSubmit} style={{ marginBottom: '0.81rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6075rem' }}>
             
             <div>
               <label style={{
@@ -465,31 +484,64 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
                 fontWeight: 300,
                 fontSize: '16px',
                 color: '#666666',
-                marginBottom: '0.5rem'
+                marginBottom: '0.405rem'
               }}>
                 Name
               </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                style={{
-                  width: '100%',
-                  minWidth: '320px',
-                  border: 'none',
-                  background: 'transparent',
-                  borderBottom: '2px solid #34113F',
-                  outline: 'none',
-                  fontFamily: 'Raleway',
-                  fontSize: '16px',
-                  color: '#000000',
-                  padding: '0.5rem 0',
-                  boxSizing: 'border-box'
-                }}
-                required
-              />
-              {errors.name && <span style={{ color: '#ef4444', fontSize: '14px', marginTop: '0.25rem', display: 'block' }}>{errors.name}</span>}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  style={{
+                    width: '100%',
+                    minWidth: '320px',
+                    border: 'none',
+                    background: 'transparent',
+                    borderBottom: '2px solid #34113F',
+                    outline: 'none',
+                    fontFamily: 'Raleway',
+                    fontSize: '16px',
+                    color: '#000000',
+                    padding: '0.405rem 0',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+                {errors.name && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: '0',
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '8px 12px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontFamily: 'Raleway',
+                    fontWeight: '500',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                    zIndex: 1000,
+                    marginTop: '4px',
+                    transform: 'translateX(0)',
+                    animation: 'errorPop 0.3s ease-out'
+                  }}>
+                    {errors.name}
+                    <div style={{
+                      position: 'absolute',
+                      top: '-4px',
+                      right: '16px',
+                      width: '0',
+                      height: '0',
+                      borderLeft: '4px solid transparent',
+                      borderRight: '4px solid transparent',
+                      borderBottom: '4px solid #ef4444'
+                    }}></div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>
@@ -499,31 +551,64 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
                 fontWeight: 300,
                 fontSize: '16px',
                 color: '#666666',
-                marginBottom: '0.5rem'
+                marginBottom: '0.405rem'
               }}>
                 Email
               </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                style={{
-                  width: '100%',
-                  minWidth: '320px',
-                  border: 'none',
-                  background: 'transparent',
-                  borderBottom: '2px solid #34113F',
-                  outline: 'none',
-                  fontFamily: 'Raleway',
-                  fontSize: '16px',
-                  color: '#000000',
-                  padding: '0.5rem 0',
-                  boxSizing: 'border-box'
-                }}
-                required
-              />
-              {errors.email && <span style={{ color: '#ef4444', fontSize: '14px', marginTop: '0.25rem', display: 'block' }}>{errors.email}</span>}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  style={{
+                    width: '100%',
+                    minWidth: '320px',
+                    border: 'none',
+                    background: 'transparent',
+                    borderBottom: '2px solid #34113F',
+                    outline: 'none',
+                    fontFamily: 'Raleway',
+                    fontSize: '16px',
+                    color: '#000000',
+                    padding: '0.405rem 0',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+                {errors.email && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: '0',
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '8px 12px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontFamily: 'Raleway',
+                    fontWeight: '500',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                    zIndex: 1000,
+                    marginTop: '4px',
+                    transform: 'translateX(0)',
+                    animation: 'errorPop 0.3s ease-out'
+                  }}>
+                    {errors.email}
+                    <div style={{
+                      position: 'absolute',
+                      top: '-4px',
+                      right: '16px',
+                      width: '0',
+                      height: '0',
+                      borderLeft: '4px solid transparent',
+                      borderRight: '4px solid transparent',
+                      borderBottom: '4px solid #ef4444'
+                    }}></div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>
@@ -533,31 +618,64 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
                 fontWeight: 300,
                 fontSize: '16px',
                 color: '#666666',
-                marginBottom: '0.5rem'
+                marginBottom: '0.405rem'
               }}>
                 Password
               </label>
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                style={{
-                  width: '100%',
-                  minWidth: '320px',
-                  border: 'none',
-                  background: 'transparent',
-                  borderBottom: '2px solid #34113F',
-                  outline: 'none',
-                  fontFamily: 'Raleway',
-                  fontSize: '16px',
-                  color: '#000000',
-                  padding: '0.5rem 0',
-                  boxSizing: 'border-box'
-                }}
-                required
-              />
-              {errors.password && <span style={{ color: '#ef4444', fontSize: '14px', marginTop: '0.25rem', display: 'block' }}>{errors.password}</span>}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  style={{
+                    width: '100%',
+                    minWidth: '320px',
+                    border: 'none',
+                    background: 'transparent',
+                    borderBottom: '2px solid #34113F',
+                    outline: 'none',
+                    fontFamily: 'Raleway',
+                    fontSize: '16px',
+                    color: '#000000',
+                    padding: '0.405rem 0',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+                {errors.password && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: '0',
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '8px 12px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontFamily: 'Raleway',
+                    fontWeight: '500',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                    zIndex: 1000,
+                    marginTop: '4px',
+                    transform: 'translateX(0)',
+                    animation: 'errorPop 0.3s ease-out'
+                  }}>
+                    {errors.password}
+                    <div style={{
+                      position: 'absolute',
+                      top: '-4px',
+                      right: '16px',
+                      width: '0',
+                      height: '0',
+                      borderLeft: '4px solid transparent',
+                      borderRight: '4px solid transparent',
+                      borderBottom: '4px solid #ef4444'
+                    }}></div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>
@@ -567,34 +685,67 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
                 fontWeight: 300,
                 fontSize: '16px',
                 color: '#666666',
-                marginBottom: '0.5rem'
+                marginBottom: '0.405rem'
               }}>
                 Confirm Password
               </label>
-              <input
-                type={showPassword ? "text" : "password"}
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                style={{
-                  width: '100%',
-                  minWidth: '320px',
-                  border: 'none',
-                  background: 'transparent',
-                  borderBottom: '2px solid #34113F',
-                  outline: 'none',
-                  fontFamily: 'Raleway',
-                  fontSize: '16px',
-                  color: '#000000',
-                  padding: '0.5rem 0',
-                  boxSizing: 'border-box'
-                }}
-                required
-              />
-              {errors.confirmPassword && <span style={{ color: '#ef4444', fontSize: '14px', marginTop: '0.25rem', display: 'block' }}>{errors.confirmPassword}</span>}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  style={{
+                    width: '100%',
+                    minWidth: '320px',
+                    border: 'none',
+                    background: 'transparent',
+                    borderBottom: '2px solid #34113F',
+                    outline: 'none',
+                    fontFamily: 'Raleway',
+                    fontSize: '16px',
+                    color: '#000000',
+                    padding: '0.405rem 0',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+                {errors.confirmPassword && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: '0',
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '8px 12px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontFamily: 'Raleway',
+                    fontWeight: '500',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                    zIndex: 1000,
+                    marginTop: '4px',
+                    transform: 'translateX(0)',
+                    animation: 'errorPop 0.3s ease-out'
+                  }}>
+                    {errors.confirmPassword}
+                    <div style={{
+                      position: 'absolute',
+                      top: '-4px',
+                      right: '16px',
+                      width: '0',
+                      height: '0',
+                      borderLeft: '4px solid transparent',
+                      borderRight: '4px solid transparent',
+                      borderBottom: '4px solid #ef4444'
+                    }}></div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6075rem', marginTop: '0.2025rem' }}>
               <input
                 type="checkbox"
                 checked={showPassword}
@@ -644,6 +795,7 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
@@ -812,11 +964,16 @@ const UnifiedAuth = () => {
             <div style={{ width: '40%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {/* Register Form - Always in right slot, fades in/out based on state */}
               <div 
-                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-in-out ${
+                className={`w-full h-full flex items-center justify-center transition-opacity duration-700 ease-in-out ${
                   currentView === 'register' ? 'opacity-100' : 'opacity-0'
                 }`}
                 style={{ 
-                  pointerEvents: currentView === 'register' ? 'auto' : 'none'
+                  pointerEvents: currentView === 'register' ? 'auto' : 'none',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0
                 }}
               >
                 <RegisterForm 
