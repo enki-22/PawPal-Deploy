@@ -18,7 +18,7 @@ const RegisterStep2 = () => {
   // Redirect if step 1 is not completed
   useEffect(() => {
     if (!registrationData.step1.username) {
-      navigate('/register/step1', { replace: true });
+      navigate('/register', { replace: true });
     }
   }, [registrationData.step1.username, navigate]);
 
@@ -190,7 +190,7 @@ const RegisterStep2 = () => {
               {/* Back Button */}
               <div className="mb-6">
                 <Link 
-                  to="/register/step1"
+                  to="/register"
                   className="inline-flex items-center text-[16px] font-bold leading-[100%] tracking-[0%] text-gray-600 hover:text-gray-800" 
                   style={{ fontFamily: 'Raleway' }}
                 >

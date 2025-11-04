@@ -4,7 +4,6 @@ import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
 import { useRegistration } from '../context/RegistrationContext';
 import Alert from './Alert';
-import { authService } from '../services/api';
 
 const RegisterStep1 = () => {
   const { registrationData, updateStep1 } = useRegistration();
@@ -67,7 +66,7 @@ const RegisterStep1 = () => {
 
   return (
     <div className="min-h-screen bg-[#D8CAED] flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full bg-white rounded-lg shadow-xl overflow-hidden">
+      <div className="max-w-4xl w-full bg-[#FFFFF2] rounded-lg shadow-xl overflow-hidden">
         <div className="p-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Side - PawPal Promotional Panel */}
@@ -164,135 +163,191 @@ const RegisterStep1 = () => {
             </div>
 
             {/* Right Side - Registration Form */}
-            <div className="flex flex-col justify-center">
-              <div className="max-w-sm mx-auto w-full">
-              <div className="text-center mb-8">
-                <h2 className="text-[30px] font-bold leading-[100%] tracking-[5%] text-center mb-2" 
-                    style={{ fontFamily: 'Raleway' }}>
-                  Get Started
-                </h2>
-                <p className="text-[18px] font-light leading-[100%] tracking-[0%] text-center mb-4" 
-                   style={{ fontFamily: 'Raleway' }}>
-                  Already have an account?{' '}
-                  <Link 
-                    to="/login" 
-                    className="text-gray-900 font-semibold hover:underline"
-                  >
-                    Sign In
-                  </Link>
-                </p>
-                <div className="text-[18px] font-medium leading-[100%] tracking-[0%] text-center mb-4" 
+            <div 
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                height: '100%' 
+              }}
+            >
+              <div className="max-w-sm mx-auto w-full" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                
+                {/* Section 1: Header (flex-grow: 0) */}
+                <div className="text-center" style={{ flexGrow: 0 }}>
+                  <h2 className="text-[30px] font-bold leading-[100%] tracking-[5%] text-center mb-3" 
+                      style={{ fontFamily: 'Raleway' }}>
+                    Get Started
+                  </h2>
+                  <p className="text-[18px] font-light leading-[100%] tracking-[0%] text-center mb-5" 
                      style={{ fontFamily: 'Raleway' }}>
-                  1 ) Account Information
-                </div>
-              </div>
-
-              {Object.keys(errors).length > 0 && (
-                <Alert type="error">
-                  <ul className="list-disc list-inside">
-                    {Object.values(errors).map((error, index) => (
-                      <li key={index}>{error}</li>
-                    ))}
-                  </ul>
-                </Alert>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="username" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
-                         style={{ fontFamily: 'Raleway' }}>
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%]"
-                    style={{ fontFamily: 'Raleway' }}
-                    required
-                  />
-                  {errors.username && <span className="text-red-600 text-sm">{errors.username}</span>}
-                </div>
-
-                <div>
-                  <label htmlFor="email" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
-                         style={{ fontFamily: 'Raleway' }}>
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%]"
-                    style={{ fontFamily: 'Raleway' }}
-                    required
-                  />
-                  {errors.email && <span className="text-red-600 text-sm">{errors.email}</span>}
-                </div>
-
-                <div>
-                  <label htmlFor="password1" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
-                         style={{ fontFamily: 'Raleway' }}>
-                    Password
-                  </label>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password1"
-                    name="password1"
-                    value={formData.password1}
-                    onChange={handleChange}
-                    className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%]"
-                    style={{ fontFamily: 'Raleway' }}
-                    required
-                  />
-                  {errors.password1 && <span className="text-red-600 text-sm">{errors.password1}</span>}
-                </div>
-
-                <div>
-                  <label htmlFor="password2" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
-                         style={{ fontFamily: 'Raleway' }}>
-                    Confirm Password
-                  </label>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password2"
-                    name="password2"
-                    value={formData.password2}
-                    onChange={handleChange}
-                    className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%]"
-                    style={{ fontFamily: 'Raleway' }}
-                    required
-                  />
-                  {errors.password2 && <span className="text-red-600 text-sm">{errors.password2}</span>}
-                  <div className="mt-2">
-                    <label className="flex items-center text-[16px] font-light leading-[100%] tracking-[0%]" 
-                           style={{ fontFamily: 'Raleway' }}>
-                      <input
-                        type="checkbox"
-                        checked={showPassword}
-                        onChange={(e) => setShowPassword(e.target.checked)}
-                        className="mr-2"
-                      />
-                      Show Password
-                    </label>
+                    Already have an account?{' '}
+                    <Link 
+                      to="/login" 
+                      className="text-gray-900 font-semibold hover:underline"
+                    >
+                      Sign In
+                    </Link>
+                  </p>
+                  <div 
+                    className="text-left mb-4" 
+                    style={{ 
+                      fontFamily: 'Raleway',
+                      fontSize: '1.125rem',
+                      fontWeight: 700,
+                      lineHeight: '100%',
+                      letterSpacing: '0%'
+                    }}
+                  >
+                    1 ) Account Information
                   </div>
                 </div>
 
-                <div className="flex justify-center">
+                {/* Section 2: Fields (flex-grow: 1) */}
+                <div 
+                  style={{ 
+                    flexGrow: 1, 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    justifyContent: 'center' 
+                  }}
+                >
+                  {Object.keys(errors).length > 0 && (
+                    <div className="mb-4">
+                      <Alert type="error">
+                        <ul className="list-disc list-inside">
+                          {Object.values(errors).map((error, index) => (
+                            <li key={index}>{error}</li>
+                          ))}
+                        </ul>
+                      </Alert>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleSubmit}>
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label htmlFor="username" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
+                             style={{ fontFamily: 'Raleway', color: '#666666' }}>
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        value={formData.username}
+                        onChange={handleChange}
+                        className="w-full px-0 py-2 border-0 bg-transparent focus:outline-none text-[16px] font-semibold leading-[100%] tracking-[0%]"
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          color: '#333333',
+                          borderBottom: '2px solid #34113F'
+                        }}
+                        required
+                      />
+                      {errors.username && <span className="text-red-600 text-sm mt-1 block">{errors.username}</span>}
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label htmlFor="email" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
+                             style={{ fontFamily: 'Raleway', color: '#666666' }}>
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="w-full px-0 py-2 border-0 bg-transparent focus:outline-none text-[16px] font-semibold leading-[100%] tracking-[0%]"
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          color: '#333333',
+                          borderBottom: '2px solid #34113F'
+                        }}
+                        required
+                      />
+                      {errors.email && <span className="text-red-600 text-sm mt-1 block">{errors.email}</span>}
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label htmlFor="password1" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
+                             style={{ fontFamily: 'Raleway', color: '#666666' }}>
+                        Password
+                      </label>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password1"
+                        name="password1"
+                        value={formData.password1}
+                        onChange={handleChange}
+                        className="w-full px-0 py-2 border-0 bg-transparent focus:outline-none text-[16px] font-semibold leading-[100%] tracking-[0%]"
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          color: '#333333',
+                          borderBottom: '2px solid #34113F'
+                        }}
+                        required
+                      />
+                      {errors.password1 && <span className="text-red-600 text-sm mt-1 block">{errors.password1}</span>}
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label htmlFor="password2" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
+                             style={{ fontFamily: 'Raleway', color: '#666666' }}>
+                        Confirm Password
+                      </label>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password2"
+                        name="password2"
+                        value={formData.password2}
+                        onChange={handleChange}
+                        className="w-full px-0 py-2 border-0 bg-transparent focus:outline-none text-[16px] font-semibold leading-[100%] tracking-[0%]"
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          color: '#333333',
+                          borderBottom: '2px solid #34113F'
+                        }}
+                        required
+                      />
+                      {errors.password2 && <span className="text-red-600 text-sm mt-1 block">{errors.password2}</span>}
+                    </div>
+
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <label className="flex items-center text-[16px] font-light leading-[100%] tracking-[0%]" 
+                             style={{ fontFamily: 'Raleway', color: '#666666' }}>
+                        <input
+                          type="checkbox"
+                          checked={showPassword}
+                          onChange={(e) => setShowPassword(e.target.checked)}
+                          className="mr-2"
+                        />
+                        Show Password
+                      </label>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Section 3: Button (flex-grow: 0) */}
+                <div 
+                  className="flex justify-center" 
+                  style={{ 
+                    flexGrow: 0, 
+                    marginTop: '1.5rem' 
+                  }}
+                >
                   <button 
                     type="submit" 
-                    className="bg-[#815FB3] hover:bg-[#6d4a96] text-white font-medium py-3 px-16 rounded-lg shadow-lg hover:shadow-xl transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#815FB3] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ fontFamily: 'Raleway' }}
+                    onClick={handleSubmit}
+                    className="bg-[#815FB3] hover:bg-[#6d4a96] text-white font-medium py-3 px-16 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#815FB3] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ 
+                      fontFamily: 'Raleway',
+                      boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)'
+                    }}
                   >
                     Next
                   </button>
                 </div>
-              </form>
-            </div>
+              </div>
           </div>
         </div>
       </div>

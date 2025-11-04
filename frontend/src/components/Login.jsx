@@ -1,26 +1,205 @@
-import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
 import { useAuth } from '../context/AuthContext';
+import { useRegistration } from '../context/RegistrationContext';
 import Alert from './Alert';
 
+// Reusable Carousel Component
+const PurpleCarousel = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [fadeClass, setFadeClass] = useState('opacity-100');
 
-const Login = () => {
+  // Handle smooth slide transitions
+  const handleSlideChange = useCallback((newSlide) => {
+    if (newSlide !== currentSlide) {
+      setFadeClass('opacity-0');
+      setTimeout(() => {
+        setCurrentSlide(newSlide);
+        setFadeClass('opacity-100');
+      }, 300);
+    }
+  }, [currentSlide]);
+
+  // Autoplay functionality - switch slides every 5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      handleSlideChange((currentSlide + 1) % 2);
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [currentSlide, handleSlideChange]);
+
+  return (
+    <div className="bg-[#815FB3] text-white w-full" 
+         style={{ 
+           borderRadius: '20px', 
+           position: 'relative', 
+           padding: '10%',
+           height: '600px',
+           display: 'flex',
+           flexDirection: 'column',
+           justifyContent: 'flex-start',
+           alignItems: 'center',
+           overflow: 'visible'
+         }}>
+      
+      {/* FIXED SHARED LOGO - Always visible at top */}
+      <div className="mb-8" style={{ flexShrink: 0 }}>
+        <div className="inline-flex items-center justify-center w-full">
+          {pawIcon ? (
+            <img src={pawIcon} alt="Paw" className="w-20 h-20" />
+          ) : (
+            <span className="text-5xl mr-3">🐾</span>
+          )}
+          <h1 className="text-[#FFF07B] font-museo font-black text-[49px] leading-[100%] tracking-[0%]">
+            PAWPAL
+          </h1>
+        </div>
+      </div>
+
+      {/* CAROUSEL CONTENT AREA - Only content below logo changes */}
+      <div className="flex-1 w-full" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div className={`transition-opacity duration-300 ${fadeClass}`}>
+          {currentSlide === 0 ? (
+            // Slide 1: Health companion content (without logo)
+            <>
+              <h2 className="text-[24px] font-bold leading-[100%] tracking-[0%] mb-6"
+                  style={{ 
+                    fontFamily: 'Raleway', 
+                    color: '#FFFFF2',
+                    whiteSpace: 'nowrap',
+                    textAlign: 'center'
+                  }}>
+                Your pet&apos;s health companion
+              </h2>
+             
+              <div className="text-[17px] font-medium leading-[140%] tracking-[0%] mb-8"
+                   style={{ 
+                     fontFamily: 'Raleway', 
+                     color: '#FFFFF2', 
+                     whiteSpace: 'nowrap',
+                     display: 'flex',
+                     flexDirection: 'column',
+                     alignItems: 'center',
+                     width: '100%'
+                   }}>
+                <div style={{ textAlign: 'left', display: 'inline-block' }}>
+                  <div>Get instant answers to your pet</div>
+                  <div>health questions, track vaccinations,</div>
+                  <div>and receive personalized care</div>
+                  <div>recommendations.</div>
+                </div>
+              </div>
+             
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', width: '280px' }}>
+                  {pawBullet ? (
+                    <img src={pawBullet} alt="Paw" className="w-6 h-6 transform rotate-45" style={{ marginRight: '12px', flexShrink: 0 }} />
+                  ) : (
+                    <span className="text-yellow-400 text-lg" style={{ marginRight: '12px', flexShrink: 0 }}>🐾</span>
+                  )}
+                  <span className="text-[20px] font-medium leading-[100%] tracking-[0%]"
+                        style={{ 
+                          fontFamily: 'Raleway', 
+                          color: '#FFFFF2',
+                          whiteSpace: 'nowrap'
+                        }}>
+                    24/7 Pet Health Support
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', width: '280px' }}>
+                  {pawBullet ? (
+                    <img src={pawBullet} alt="Paw" className="w-6 h-6 transform rotate-45" style={{ marginRight: '12px', flexShrink: 0 }} />
+                  ) : (
+                    <span className="text-yellow-400 text-lg" style={{ marginRight: '12px', flexShrink: 0 }}>🐾</span>
+                  )}
+                  <span className="text-[20px] font-medium leading-[100%] tracking-[0%]"
+                        style={{ 
+                          fontFamily: 'Raleway', 
+                          color: '#FFFFF2',
+                          whiteSpace: 'nowrap'
+                        }}>
+                    Personalized Care
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', width: '280px' }}>
+                  {pawBullet ? (
+                    <img src={pawBullet} alt="Paw" className="w-6 h-6 transform rotate-45" style={{ marginRight: '12px', flexShrink: 0 }} />
+                  ) : (
+                    <span className="text-yellow-400 text-lg" style={{ marginRight: '12px', flexShrink: 0 }}>🐾</span>
+                  )}
+                  <span className="text-[20px] font-medium leading-[100%] tracking-[0%]"
+                        style={{ 
+                          fontFamily: 'Raleway', 
+                          color: '#FFFFF2'
+                        }}>
+                    Track Vaccinations<br />and Medications
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : (
+            // Slide 2: Banner image only (without logo) - Much larger now
+            <>
+              <div className="w-full h-full flex items-center justify-center" style={{ overflow: 'visible' }}>
+                <img 
+                  src="/194911935_109537641352555_8380857820585025274_n 1.png" 
+                  alt="SOUTHVALLEY VETERINARY CLINIC Banner" 
+                  className="rounded-lg"
+                  style={{ 
+                    width: '135%',
+                    maxWidth: '135%',
+                    height: 'auto',
+                    objectFit: 'contain'
+                  }}
+                />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      
+      {/* Page Indicator Dots - Fixed Position */}
+      <div 
+        className="flex justify-center space-x-2"
+        style={{
+          position: 'absolute',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)'
+        }}
+      >
+        <button
+          onClick={() => handleSlideChange(0)}
+          className={`transition-all duration-300 ${
+            currentSlide === 0 
+              ? 'w-6 h-2 bg-[#642A77] rounded-full' 
+              : 'w-2 h-2 bg-[#642A77] rounded-full hover:bg-[#7A3A87]'
+          }`}
+        />
+        <button
+          onClick={() => handleSlideChange(1)}
+          className={`transition-all duration-300 ${
+            currentSlide === 1 
+              ? 'w-6 h-2 bg-[#642A77] rounded-full' 
+              : 'w-2 h-2 bg-[#642A77] rounded-full hover:bg-[#7A3A87]'
+          }`}
+        />
+      </div>
+    </div>
+  );
+};
+
+// Login Form Component
+const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) => {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
   });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showClinicInfo, setShowClinicInfo] = useState(false);
- 
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const successMessage = location.state?.message;
-
 
   const handleChange = (e) => {
     setFormData({
@@ -29,248 +208,636 @@ const Login = () => {
     });
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
-
-
+    
     try {
-      const { username, password } = formData;
-      console.log('Attempting login with:', { username, password: password.length + ' chars' });
-     
-      const result = await login({ username, password });
-     
-      console.log('Login result:', result);
-     
+      await onSubmit(formData);
+    } catch (err) {
+      setError(err.message || 'Login failed. Please try again.');
+    }
+  };
+
+  return (
+    <div className="flex flex-col justify-center h-full px-8">
+      <div className="max-w-sm mx-auto w-full">
+        <div className="text-center mb-8">
+          <h2 className="text-[30px] font-bold leading-[100%] tracking-[5%] text-center mb-2"
+              style={{ fontFamily: 'Raleway' }}>
+            Sign In
+          </h2>
+          <p className="text-[18px] font-light leading-[100%] tracking-[0%] text-center"
+             style={{ fontFamily: 'Raleway' }}>
+            Don&apos;t have an account yet?{' '}
+            <button
+              onClick={onSwitchToRegister}
+              className="text-gray-900 font-semibold hover:underline cursor-pointer bg-transparent border-none"
+            >
+              Sign Up
+            </button>
+          </p>
+        </div>
+
+        {successMessage && (
+          <Alert type="success" message={successMessage} />
+        )}
+        
+        {error && (
+          <Alert type="error" message={error} onClose={() => setError('')} />
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label htmlFor="email" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2"
+                   style={{ fontFamily: 'Raleway' }}>
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%] placeholder-gray-400"
+              style={{ fontFamily: 'Raleway' }}
+              placeholder="your@email.com"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2"
+                   style={{ fontFamily: 'Raleway' }}>
+              Password
+            </label>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%] placeholder-gray-400"
+              style={{ fontFamily: 'Raleway' }}
+              placeholder="••••••••"
+              required
+            />
+            <div className="mt-2">
+              <label className="flex items-center text-[16px] font-light leading-[100%] tracking-[0%]"
+                     style={{ fontFamily: 'Raleway' }}>
+                <input
+                  type="checkbox"
+                  checked={showPassword}
+                  onChange={(e) => setShowPassword(e.target.checked)}
+                  className="mr-2"
+                />
+                Show Password
+              </label>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <button
+              type="button"
+              className="text-[#815FB3] text-sm hover:underline mb-4"
+              style={{ fontFamily: 'Raleway' }}
+            >
+              Forgot Password?
+            </button>
+          </div>
+
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              className="bg-[#815FB3] hover:bg-[#6d4a96] text-white font-medium py-3 px-16 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#815FB3] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ 
+                fontFamily: 'Raleway',
+                boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)'
+              }}
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Register Form Component
+const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+    // Clear specific error when user starts typing
+    if (errors[e.target.name]) {
+      setErrors({ ...errors, [e.target.name]: '' });
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+    try {
+      await onSubmit({
+        username: formData.name,
+        email: formData.email,
+        password1: formData.password,
+        password2: formData.confirmPassword
+      });
+    } catch (err) {
+      setErrors({ general: err.message || 'Registration failed. Please try again.' });
+    }
+  };
+
+  // This is the main container. 
+  return (
+    <div 
+      style={{ 
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
+        padding: '1.5rem',
+        background: '#FFFFF2'  // This is the correct beige background
+      }}
+    >
+      {/* This wrapper ensures the form has a max width and holds all content */}
+      <div style={{ width: '100%', maxWidth: '450px', margin: '0 auto' }}>
+        
+        {/* Header Section - All text is centered */}
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <h2 style={{
+            fontFamily: 'Raleway',
+            fontWeight: 700,
+            fontSize: '30px',
+            color: '#34113F',
+            marginBottom: '1rem'
+          }}>
+            Get Started
+          </h2>
+          
+          <p style={{
+            fontFamily: 'Raleway',
+            fontSize: '18px',
+            color: '#666666',
+            marginBottom: '1.5rem'
+          }}>
+            Already have an account?{' '}
+            <span 
+              onClick={onSwitchToLogin}
+              style={{
+                fontFamily: 'Raleway',
+                fontWeight: 700,
+                fontSize: '18px',
+                color: '#34113F',
+                cursor: 'pointer'
+              }}
+            >
+              Sign In
+            </span>
+          </p>
+          
+          <h3 style={{
+            fontFamily: 'Raleway',
+            fontWeight: 700,
+            fontSize: '18px',
+            color: '#34113F',
+            marginBottom: '0'
+          }}>
+            1 ) Account Information
+          </h3>
+        </div>
+
+        {errors.general && (
+          <div style={{ marginBottom: '1.5rem' }}>
+            <Alert type="error" message={errors.general} onClose={() => setErrors({ ...errors, general: '' })} />
+          </div>
+        )}
+
+        {/* Form Fields - All left-aligned */}
+        <form onSubmit={handleSubmit} style={{ marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            
+            <div>
+              <label style={{
+                display: 'block',
+                fontFamily: 'Raleway',
+                fontWeight: 300,
+                fontSize: '16px',
+                color: '#666666',
+                marginBottom: '0.5rem'
+              }}>
+                Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                style={{
+                  width: '100%',
+                  minWidth: '320px',
+                  border: 'none',
+                  background: 'transparent',
+                  borderBottom: '2px solid #34113F',
+                  outline: 'none',
+                  fontFamily: 'Raleway',
+                  fontSize: '16px',
+                  color: '#000000',
+                  padding: '0.5rem 0',
+                  boxSizing: 'border-box'
+                }}
+                required
+              />
+              {errors.name && <span style={{ color: '#ef4444', fontSize: '14px', marginTop: '0.25rem', display: 'block' }}>{errors.name}</span>}
+            </div>
+
+            <div>
+              <label style={{
+                display: 'block',
+                fontFamily: 'Raleway',
+                fontWeight: 300,
+                fontSize: '16px',
+                color: '#666666',
+                marginBottom: '0.5rem'
+              }}>
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                style={{
+                  width: '100%',
+                  minWidth: '320px',
+                  border: 'none',
+                  background: 'transparent',
+                  borderBottom: '2px solid #34113F',
+                  outline: 'none',
+                  fontFamily: 'Raleway',
+                  fontSize: '16px',
+                  color: '#000000',
+                  padding: '0.5rem 0',
+                  boxSizing: 'border-box'
+                }}
+                required
+              />
+              {errors.email && <span style={{ color: '#ef4444', fontSize: '14px', marginTop: '0.25rem', display: 'block' }}>{errors.email}</span>}
+            </div>
+
+            <div>
+              <label style={{
+                display: 'block',
+                fontFamily: 'Raleway',
+                fontWeight: 300,
+                fontSize: '16px',
+                color: '#666666',
+                marginBottom: '0.5rem'
+              }}>
+                Password
+              </label>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                style={{
+                  width: '100%',
+                  minWidth: '320px',
+                  border: 'none',
+                  background: 'transparent',
+                  borderBottom: '2px solid #34113F',
+                  outline: 'none',
+                  fontFamily: 'Raleway',
+                  fontSize: '16px',
+                  color: '#000000',
+                  padding: '0.5rem 0',
+                  boxSizing: 'border-box'
+                }}
+                required
+              />
+              {errors.password && <span style={{ color: '#ef4444', fontSize: '14px', marginTop: '0.25rem', display: 'block' }}>{errors.password}</span>}
+            </div>
+
+            <div>
+              <label style={{
+                display: 'block',
+                fontFamily: 'Raleway',
+                fontWeight: 300,
+                fontSize: '16px',
+                color: '#666666',
+                marginBottom: '0.5rem'
+              }}>
+                Confirm Password
+              </label>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                style={{
+                  width: '100%',
+                  minWidth: '320px',
+                  border: 'none',
+                  background: 'transparent',
+                  borderBottom: '2px solid #34113F',
+                  outline: 'none',
+                  fontFamily: 'Raleway',
+                  fontSize: '16px',
+                  color: '#000000',
+                  padding: '0.5rem 0',
+                  boxSizing: 'border-box'
+                }}
+                required
+              />
+              {errors.confirmPassword && <span style={{ color: '#ef4444', fontSize: '14px', marginTop: '0.25rem', display: 'block' }}>{errors.confirmPassword}</span>}
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.25rem' }}>
+              <input
+                type="checkbox"
+                checked={showPassword}
+                onChange={(e) => setShowPassword(e.target.checked)}
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  border: '1px solid #34113F',
+                  borderRadius: '5px',
+                  margin: 0
+                }}
+              />
+              <label style={{
+                fontFamily: 'Raleway',
+                fontSize: '16px',
+                color: '#000000'
+              }}>
+                Show Password
+              </label>
+            </div>
+          </div>
+        </form>
+
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <button 
+            type="submit"
+            onClick={handleSubmit}
+            disabled={loading}
+            style={{
+              width: '201px',
+              height: '40px',
+              background: '#815FB3',
+              boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
+              borderRadius: '10px',
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+              fontFamily: 'Raleway',
+              fontWeight: 800,
+              fontSize: '16px',
+              textAlign: 'center',
+              color: '#FFFFFF'
+            }}
+          >
+            {loading ? 'Creating Account...' : 'Next'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Main Unified Authentication Component
+const UnifiedAuth = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const successMessage = location.state?.message;
+  
+  // FIXED: Enhanced initial view detection
+  const getInitialView = () => {
+    const path = location.pathname;
+    if (path === '/register' || path.startsWith('/register/')) {
+      return 'register';
+    }
+    return 'login';
+  };
+
+  const [currentView, setCurrentView] = useState(getInitialView());
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+  const { login } = useAuth();
+  const { updateStep1 } = useRegistration();
+
+  // ADDED: Update view when URL changes (including refresh and browser navigation)
+  useEffect(() => {
+    const getInitialView = () => {
+      const path = location.pathname;
+      if (path === '/register' || path.startsWith('/register/')) {
+        return 'register';
+      }
+      return 'login';
+    };
+
+    const newView = getInitialView();
+    // Only update if we're not currently transitioning and the view actually needs to change
+    if (newView !== currentView && !isTransitioning) {
+      setCurrentView(newView);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]); // Only depend on location.pathname to avoid infinite loops
+
+  // ADDED: Handle browser back/forward navigation
+  const handlePopState = useCallback(() => {
+    const getInitialView = () => {
+      const path = window.location.pathname;
+      if (path === '/register' || path.startsWith('/register/')) {
+        return 'register';
+      }
+      return 'login';
+    };
+
+    const newView = getInitialView();
+    // Force update regardless of transition state for browser navigation
+    setCurrentView(newView);
+    // Reset transition state if browser navigation happened during transition
+    if (isTransitioning) {
+      setIsTransitioning(false);
+    }
+  }, [isTransitioning]);
+
+  useEffect(() => {
+    // Listen for browser back/forward button
+    window.addEventListener('popstate', handlePopState);
+
+    // Cleanup listener on unmount
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [handlePopState]);
+
+  // Handle smooth transitions between login and register with slide-and-fade effect
+  const switchToRegister = () => {
+    if (isTransitioning || currentView === 'register') return;
+    setIsTransitioning(true);
+    
+    setTimeout(() => {
+      setCurrentView('register');
+      // Update URL after view change to prevent conflicts
+      window.history.pushState(null, '', '/register');
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 700); // Wait for animation to complete
+    }, 50);
+  };
+
+  const switchToLogin = () => {
+    if (isTransitioning || currentView === 'login') return;
+    setIsTransitioning(true);
+    
+    setTimeout(() => {
+      setCurrentView('login');
+      // Update URL after view change to prevent conflicts
+      window.history.pushState(null, '', '/login');
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 700); // Wait for animation to complete
+    }, 50);
+  };
+
+  // Handle login submission
+  const handleLoginSubmit = async (formData) => {
+    setLoading(true);
+    try {
+      const result = await login({ 
+        username: formData.email, 
+        password: formData.password 
+      });
+      
       if (result.success) {
-        console.log('Login successful, should redirect to /chat');
         navigate('/chat');
       } else {
-        setError(result.error || 'Invalid credentials');
+        throw new Error(result.error || 'Invalid credentials');
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  // Handle register submission
+  const handleRegisterSubmit = async (formData) => {
+    setLoading(true);
+    try {
+      // Save step 1 data using registration context
+      updateStep1({
+        username: formData.username,
+        email: formData.email,
+        password1: formData.password1,
+        password2: formData.password2
+      });
+      
+      // Navigate to step 2 of registration
+      navigate('/register/step2');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#D8CAED] flex items-center justify-center p-4">
-      <div className="max-w-5xl w-full bg-white rounded-lg shadow-xl overflow-hidden">
-        <div className="p-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {/* Left Side - Login Form */}
-            <div className="flex flex-col justify-center">
-              <div className="max-w-sm mx-auto w-full">
-                <div className="text-center mb-8">
-                  <h2 className="text-[30px] font-bold leading-[100%] tracking-[5%] text-center mb-2"
-                      style={{ fontFamily: 'Raleway' }}>
-                    Sign In
-                  </h2>
-                  <p className="text-[18px] font-light leading-[100%] tracking-[0%] text-center"
-                     style={{ fontFamily: 'Raleway' }}>
-                    Don&apos;t have an account yet?{' '}
-                    <Link
-                      to="/register/step1"
-                      className="text-gray-900 font-semibold hover:underline"
-                    >
-                      Sign Up
-                    </Link>
-                  </p>
-                </div>
-
-
-                {successMessage && (
-                  <Alert type="success" message={successMessage} />
-                )}
-               
-                <Alert type="error" message={error} onClose={() => setError('')} />
-
-
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label htmlFor="username" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2"
-                           style={{ fontFamily: 'Raleway' }}>
-                      Username
-                    </label>
-                    <input
-                      type="text"
-                      id="username"
-                      name="username"
-                      value={formData.username}
-                      onChange={handleChange}
-                      className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%]"
-                      style={{ fontFamily: 'Raleway' }}
-                      placeholder="Mala@test.com"
-                      required
-                    />
-                  </div>
-
-
-                  <div>
-                    <label htmlFor="password" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2"
-                           style={{ fontFamily: 'Raleway' }}>
-                      Password
-                    </label>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%]"
-                      style={{ fontFamily: 'Raleway' }}
-                      placeholder="••••••••"
-                      required
-                    />
-                    <div className="mt-2">
-                      <label className="flex items-center text-[16px] font-light leading-[100%] tracking-[0%]"
-                             style={{ fontFamily: 'Raleway' }}>
-                        <input
-                          type="checkbox"
-                          checked={showPassword}
-                          onChange={(e) => setShowPassword(e.target.checked)}
-                          className="mr-2"
-                        />
-                        Show Password
-                      </label>
-                    </div>
-                  </div>
-
-
-
-
-                  <div className="flex justify-center">
-                    <button
-                      type="submit"
-                      className="bg-[#815FB3] hover:bg-[#6d4a96] text-white font-medium py-3 px-16 rounded-lg shadow-lg hover:shadow-xl transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#815FB3] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{ fontFamily: 'Raleway' }}
-                      disabled={loading}
-                    >
-                      {loading ? 'Logging in...' : 'Login'}
-                    </button>
-                  </div>
-                </form>
+      <div className="max-w-6xl w-full bg-[#FFFFF2] shadow-xl overflow-hidden" 
+           style={{ borderRadius: '30px' }}>
+        <div className="p-6">
+          <div className="flex flex-row min-h-[600px] relative">
+            
+            {/* Left Slot - ONLY Login Form */}
+            <div style={{ width: '60%' }} className="flex items-center justify-center relative">
+              {/* Login Form - Always in left slot, fades in/out based on state */}
+              <div 
+                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-in-out ${
+                  currentView === 'login' ? 'opacity-100' : 'opacity-0'
+                }`}
+                style={{ pointerEvents: currentView === 'login' ? 'auto' : 'none' }}
+              >
+                <LoginForm 
+                  onSwitchToRegister={switchToRegister}
+                  successMessage={successMessage}
+                  onSubmit={handleLoginSubmit}
+                  loading={loading}
+                />
               </div>
             </div>
 
-
-            {/* Right Side - PawPal Promotional Panel */}
-            <div className="bg-[#815FB3] text-white p-10 rounded-lg flex flex-col justify-center min-h-[500px]">
-              <div className="text-center">
-                {!showClinicInfo ? (
-                  <>
-                    <div className="mb-4">
-                      <div className="inline-flex items-center">
-                        {/* Use pawIcon if available, fallback to emoji */}
-                        {pawIcon ? (
-                          <img src={pawIcon} alt="Paw" className="w-16 h-16" />
-                        ) : (
-                          <span className="text-4xl mr-2">🐾</span>
-                        )}
-                        <h1 className="text-[#FFF07B] font-museo font-black text-[47px] leading-[100%] tracking-[0%]">
-                          PAWPAL
-                        </h1>
-                      </div>
-                    </div>
-                   
-                    <h2 className="text-[20px] font-bold leading-[100%] tracking-[0%] text-center mb-4"
-                        style={{ fontFamily: 'Raleway' }}>
-                      Your pet&apos;s health companion
-                    </h2>
-                   
-                    <div className="text-[16px] font-medium leading-[150%] tracking-[0%] mb-8 text-center"
-                         style={{ fontFamily: 'Raleway' }}>
-                      <div>Get instant answers to your pet health</div>
-                      <div>questions, track vaccinations, and receive</div>
-                      <div>personalized care recommendations.</div>
-                    </div>
-                   
-                    <div className="space-y-3">
-                      <div className="flex items-center">
-                        {/* Use pawBullet if available, fallback to emoji */}
-                        {pawBullet ? (
-                          <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
-                        ) : (
-                          <span className="text-yellow-400 mr-3">🐾</span>
-                        )}
-                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]"
-                              style={{ fontFamily: 'Raleway' }}>
-                          24/7 Pet Health Support
-                        </span>
-                      </div>
-                      <div className="flex items-center">
-                        {pawBullet ? (
-                          <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
-                        ) : (
-                          <span className="text-yellow-400 mr-3">🐾</span>
-                        )}
-                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]"
-                              style={{ fontFamily: 'Raleway' }}>
-                          Personalized Care
-                        </span>
-                      </div>
-                      <div className="flex items-center">
-                        {pawBullet ? (
-                          <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
-                        ) : (
-                          <span className="text-yellow-400 mr-3">🐾</span>
-                        )}
-                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]"
-                              style={{ fontFamily: 'Raleway' }}>
-                          Track Vaccinations and Medications
-                        </span>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="mb-4">
-                      <div className="inline-flex items-center">
-                        <span className="text-4xl mr-2">🐾</span>
-                        <h1 className="text-[#FFF07B] font-museo font-black text-[47px] leading-[100%] tracking-[0%]">
-                          PAWPAL
-                        </h1>
-                      </div>
-                    </div>
-                   
-                    <div className="w-full bg-white rounded-lg p-6 mx-auto flex items-center justify-center mb-4">
-                      <div className="text-[#815FB3] text-center">
-                        <div className="flex items-center justify-center mb-2">
-                          <div className="text-2xl mr-2">🐱</div>
-                          <div className="border-2 border-[#815FB3] rounded-full w-16 h-16 flex items-center justify-center relative">
-                            <div className="text-2xl font-bold">24</div>
-                            <div className="absolute -top-1 -left-1 w-2 h-2 bg-[#815FB3] rounded-full"></div>
-                            <div className="absolute -top-1 -right-1 w-2 h-2 bg-[#815FB3] rounded-full"></div>
-                            <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-[#815FB3] rounded-full"></div>
-                            <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-[#815FB3] rounded-full"></div>
-                          </div>
-                          <div className="text-2xl ml-2">🐱</div>
-                        </div>
-                        <h3 className="text-[#815FB3] font-bold text-xl mb-1" style={{ fontFamily: 'Raleway' }}>SOUTHVALLEY</h3>
-                        <h4 className="text-[#815FB3] font-semibold text-lg mb-1" style={{ fontFamily: 'Raleway' }}>VETERINARY CLINIC</h4>
-                        <p className="text-[#815FB3] text-sm" style={{ fontFamily: 'Raleway' }}>24 HOUR CARE FOR YOUR PET</p>
-                      </div>
-                    </div>
-                  </>
-                )}
-               
-                <div className="mt-8 flex justify-center space-x-2">
-                  <button
-                    onClick={() => setShowClinicInfo(false)}
-                    className={`w-8 h-2 rounded-full transition-colors duration-200 ${!showClinicInfo ? 'bg-purple-800' : 'bg-purple-400 hover:bg-purple-300 cursor-pointer'}`}
-                  />
-                  <button
-                    onClick={() => setShowClinicInfo(true)}
-                    className={`w-2 h-2 rounded-full transition-colors duration-200 ${showClinicInfo ? 'bg-[#FFF07B]' : 'bg-purple-400 hover:bg-[#FFF07B] cursor-pointer'}`}
-                  />
-                </div>
+            {/* Right Slot - ONLY Register Form */}
+            <div style={{ width: '40%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {/* Register Form - Always in right slot, fades in/out based on state */}
+              <div 
+                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-in-out ${
+                  currentView === 'register' ? 'opacity-100' : 'opacity-0'
+                }`}
+                style={{ 
+                  pointerEvents: currentView === 'register' ? 'auto' : 'none'
+                }}
+              >
+                <RegisterForm 
+                  onSwitchToLogin={switchToLogin}
+                  onSubmit={handleRegisterSubmit}
+                  loading={loading}
+                />
               </div>
+            </div>
+
+            {/* Purple Carousel - Slides between left and right positions */}
+            <div 
+              className="absolute flex items-center justify-center transition-all duration-700 ease-in-out"
+              style={{
+                width: '40%',
+                height: '100%',
+                left: currentView === 'login' ? '60%' : '0%', // Slide between right (60%) and left (0%) positions
+                zIndex: 10
+              }}
+            >
+              <PurpleCarousel />
             </div>
           </div>
         </div>
@@ -279,8 +846,7 @@ const Login = () => {
   );
 };
 
-
-export default Login;
+export default UnifiedAuth;
 
 
 

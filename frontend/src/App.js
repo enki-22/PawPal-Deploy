@@ -7,7 +7,6 @@ import PetHealthRecords from './components/PetHealthRecords';
 import PetProfile from './components/PetProfile';
 import ProfileSettings from './components/ProfileSettings';
 import ProtectedRoute from './components/ProtectedRoute';
-import RegisterStep1 from './components/RegisterStep1';
 import RegisterStep2 from './components/RegisterStep2';
 import { AuthProvider } from './context/AuthContext';
 import { ConversationsProvider } from './context/ConversationsContext';
@@ -22,9 +21,8 @@ function App() {
             <div className="App">
               <Routes>
                 <Route path="/login" element={<Login />} />
-                <Route path="/register/step1" element={<RegisterStep1 />} />
+                <Route path="/register" element={<Login />} />
                 <Route path="/register/step2" element={<RegisterStep2 />} />
-                <Route path="/register" element={<Navigate to="/register/step1" replace />} />
                 
                 <Route 
                   path="/ai-diagnosis" 
