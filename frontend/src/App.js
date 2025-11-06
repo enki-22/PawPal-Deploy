@@ -18,6 +18,15 @@ import AdminPets from './components/admin/AdminPets';
 import AdminRoles from './components/admin/AdminRoles';
 import AdminAnnouncements from './components/admin/AdminAnnouncements';
 import AdminProfile from './components/admin/AdminProfile';
+import AdminProfileSettings from './components/admin/AdminProfileSettings';
+                  <Route 
+                    path="/admin/profile-settings" 
+                    element={
+                      <AdminProtectedRoute>
+                        <AdminProfileSettings />
+                      </AdminProtectedRoute>
+                    } 
+                  />
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
 
 import { AuthProvider } from './context/AuthContext';
