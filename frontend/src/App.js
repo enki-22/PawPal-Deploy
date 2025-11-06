@@ -21,14 +21,6 @@ import AdminRoles from './components/admin/AdminRoles';
 import AdminAnnouncements from './components/admin/AdminAnnouncements';
 import AdminProfile from './components/admin/AdminProfile';
 import AdminProfileSettings from './components/admin/AdminProfileSettings';
-                  <Route 
-                    path="/admin/profile-settings" 
-                    element={
-                      <AdminProtectedRoute>
-                        <AdminProfileSettings />
-                      </AdminProtectedRoute>
-                    } 
-                  />
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
 
 import { AuthProvider } from './context/AuthContext';
@@ -50,7 +42,7 @@ function App() {
       </AdminAuthProvider>
     </AuthProvider>
   );
-
+}
 
 function AppWithFade() {
   const location = useLocation();
@@ -159,6 +151,14 @@ function AppWithFade() {
           </AdminProtectedRoute>
         } 
       />
+      <Route 
+        path="/admin/profile-settings" 
+        element={
+          <AdminProtectedRoute>
+            <FadeWrapper><AdminProfileSettings /></FadeWrapper>
+          </AdminProtectedRoute>
+        } 
+      />
       {/* Default Routes */}
       <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
       <Route path="/" element={<Navigate to="/login" replace />} />
@@ -179,7 +179,6 @@ function FadeWrapper({ children }) {
       </motion.div>
     </AnimatePresence>
   );
-}
 }
 
 export default App;
