@@ -1,8 +1,9 @@
 """
-Admin Dashboard Views (Chunk 4)
+Admin Dashboard Views (Chunk 4) - FIXED AUTHENTICATION
 Implements 6 dashboard endpoints with role-based permissions
 """
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
@@ -11,7 +12,8 @@ from datetime import timedelta
 import logging
 
 from .permissions import require_any_admin
-from .models import Announcement
+from .jwt_utils import verify_admin_jwt, extract_token_from_header
+from .models import Admin, Announcement
 from chatbot.models import User, Conversation, SOAPReport
 from pets.models import Pet
 
@@ -19,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(['GET'])
-@require_any_admin
+@permission_classes([AllowAny])  # Handle auth manually for debugging
 def dashboard_stats(request):
     """
     GET /api/admin/dashboard/stats
@@ -40,6 +42,42 @@ def dashboard_stats(request):
             total_conversations: Total conversations (with filter)
     """
     try:
+        # FIXED: Manual authentication check for debugging
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        token = extract_token_from_header(auth_header)
+        
+        if not token:
+            logger.error("No token provided in dashboard_stats")
+            return Response({
+                'success': False,
+                'error': 'Authentication required',
+                'code': 'AUTH_REQUIRED'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Verify token
+        payload, error = verify_admin_jwt(token)
+        
+        if error or not payload:
+            logger.error(f"Token verification failed in dashboard_stats: {error}")
+            return Response({
+                'success': False,
+                'error': error or 'Invalid token',
+                'code': 'INVALID_TOKEN'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Check admin exists and is active
+        try:
+            admin = Admin.objects.get(id=payload['admin_id'], is_active=True)
+        except Admin.DoesNotExist:
+            logger.error(f"Admin not found: {payload.get('admin_id')}")
+            return Response({
+                'success': False,
+                'error': 'Admin not found or inactive',
+                'code': 'ADMIN_NOT_FOUND'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Attach admin to request
+        request.admin = admin
         # Get filter parameters
         reports_filter = request.query_params.get('reports_filter', 'all_time')
         conversations_filter = request.query_params.get('conversations_filter', 'all_time')
@@ -112,7 +150,7 @@ def dashboard_stats(request):
 
 
 @api_view(['GET'])
-@require_any_admin
+@permission_classes([AllowAny])  # Handle auth manually
 def recent_pets(request):
     """
     GET /api/admin/dashboard/recent-pets
@@ -130,6 +168,31 @@ def recent_pets(request):
             - registration_date
     """
     try:
+        # Manual authentication check
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        token = extract_token_from_header(auth_header)
+        
+        if not token:
+            return Response({
+                'success': False,
+                'error': 'Authentication required'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        payload, error = verify_admin_jwt(token)
+        if error or not payload:
+            return Response({
+                'success': False,
+                'error': error or 'Invalid token'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        try:
+            admin = Admin.objects.get(id=payload['admin_id'], is_active=True)
+            request.admin = admin
+        except Admin.DoesNotExist:
+            return Response({
+                'success': False,
+                'error': 'Admin not found'
+            }, status=status.HTTP_401_UNAUTHORIZED)
         # Get last 5 registered pets
         pets = Pet.objects.select_related('owner').order_by('-created_at')[:5]
         
@@ -160,7 +223,7 @@ def recent_pets(request):
 
 
 @api_view(['GET'])
-@require_any_admin
+@permission_classes([AllowAny])  # Handle auth manually
 def flagged_cases(request):
     """
     GET /api/admin/dashboard/flagged-cases?filter=all|emergency|urgent|moderate
@@ -187,6 +250,32 @@ def flagged_cases(request):
     Ordering: Emergency > Urgent > Moderate, then date_flagged DESC
     """
     try:
+        # Manual authentication check
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        token = extract_token_from_header(auth_header)
+        
+        if not token:
+            return Response({
+                'success': False,
+                'error': 'Authentication required'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        payload, error = verify_admin_jwt(token)
+        if error or not payload:
+            return Response({
+                'success': False,
+                'error': error or 'Invalid token'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        try:
+            admin = Admin.objects.get(id=payload['admin_id'], is_active=True)
+            request.admin = admin
+        except Admin.DoesNotExist:
+            return Response({
+                'success': False,
+                'error': 'Admin not found'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
         filter_param = request.query_params.get('filter', 'all').lower()
         
         # Get SOAP reports
@@ -263,7 +352,7 @@ def flagged_cases(request):
 
 
 @api_view(['GET'])
-@require_any_admin
+@permission_classes([AllowAny])  # Handle auth manually
 def dashboard_charts(request):
     """
     GET /api/admin/dashboard/charts
@@ -279,6 +368,32 @@ def dashboard_charts(request):
             symptoms_by_species: Object with symptoms grouped by species
     """
     try:
+        # Manual authentication check
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        token = extract_token_from_header(auth_header)
+        
+        if not token:
+            return Response({
+                'success': False,
+                'error': 'Authentication required'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        payload, error = verify_admin_jwt(token)
+        if error or not payload:
+            return Response({
+                'success': False,
+                'error': error or 'Invalid token'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        try:
+            admin = Admin.objects.get(id=payload['admin_id'], is_active=True)
+            request.admin = admin
+        except Admin.DoesNotExist:
+            return Response({
+                'success': False,
+                'error': 'Admin not found'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
         # Species Breakdown
         species_counts = Pet.objects.values('animal_type').annotate(
             count=Count('id')
@@ -366,7 +481,7 @@ def dashboard_charts(request):
 
 
 @api_view(['GET'])
-@require_any_admin
+@permission_classes([AllowAny])  # Handle auth manually
 def dashboard_faqs(request):
     """
     GET /api/admin/dashboard/faqs
@@ -381,6 +496,32 @@ def dashboard_faqs(request):
     Note: Currently hardcoded, can be moved to database later
     """
     try:
+        # Manual authentication check
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        token = extract_token_from_header(auth_header)
+        
+        if not token:
+            return Response({
+                'success': False,
+                'error': 'Authentication required'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        payload, error = verify_admin_jwt(token)
+        if error or not payload:
+            return Response({
+                'success': False,
+                'error': error or 'Invalid token'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        try:
+            admin = Admin.objects.get(id=payload['admin_id'], is_active=True)
+            request.admin = admin
+        except Admin.DoesNotExist:
+            return Response({
+                'success': False,
+                'error': 'Admin not found'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
         faqs = [
             {
                 "question": "What services do you offer?",
@@ -442,7 +583,7 @@ def dashboard_faqs(request):
 
 
 @api_view(['GET'])
-@require_any_admin
+@permission_classes([AllowAny])  # Handle auth manually
 def dashboard_announcements(request):
     """
     GET /api/admin/dashboard/announcements
@@ -461,31 +602,56 @@ def dashboard_announcements(request):
     Ordered by created_at DESC
     """
     try:
-        now = timezone.now()
+        # Manual authentication check
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        token = extract_token_from_header(auth_header)
+        
+        if not token:
+            return Response({
+                'success': False,
+                'error': 'Authentication required'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        payload, error = verify_admin_jwt(token)
+        if error or not payload:
+            return Response({
+                'success': False,
+                'error': error or 'Invalid token'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        try:
+            admin = Admin.objects.get(id=payload['admin_id'], is_active=True)
+            request.admin = admin
+        except Admin.DoesNotExist:
+            return Response({
+                'success': False,
+                'error': 'Admin not found'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        now = timezone.now().date()
         
         # Get active, non-expired announcements
         announcements = Announcement.objects.filter(
-            is_active=True,
-            start_date__lte=now
+            is_active=True
         ).filter(
-            Q(end_date__isnull=True) | Q(end_date__gte=now)
+            Q(valid_until__isnull=True) | Q(valid_until__gte=now)
         ).order_by('-created_at')[:3]  # Get top 3
         
         announcements_data = []
         for announcement in announcements:
             # Format validity date range
-            validity = f"From {announcement.start_date.strftime('%Y-%m-%d')}"
-            if announcement.end_date:
-                validity += f" to {announcement.end_date.strftime('%Y-%m-%d')}"
+            validity = f"From {announcement.created_at.strftime('%Y-%m-%d')}"
+            if announcement.valid_until:
+                validity += f" to {announcement.valid_until.strftime('%Y-%m-%d')}"
             else:
-                validity += " (No end date)"
+                validity += " (No expiration)"
             
             announcements_data.append({
                 'title': announcement.title,
                 'validity': validity,
-                'description': announcement.content,
-                'type': announcement.get_announcement_type_display(),
-                'target_audience': announcement.get_target_audience_display()
+                'description': announcement.description,
+                'type': announcement.get_icon_type_display(),
+                'target_audience': 'All Users'  # Since model doesn't have target_audience field
             })
         
         logger.info(f"Admin {request.admin.email} accessed announcements")

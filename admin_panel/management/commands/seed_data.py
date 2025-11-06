@@ -268,5 +268,5 @@ class Command(BaseCommand):
         self.stdout.write('   The Master Admin account (maria.santos@pawpal.com)')
         self.stdout.write('   can ONLY be created through this seed command.')
         self.stdout.write('   Never create Master Admin via API for security.')
-        self.stdout.write('='*60 + '\n'))
+        self.stdout.write('='*60 + '\n')
 

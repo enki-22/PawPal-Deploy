@@ -2,7 +2,8 @@
 Admin authentication views
 Implements secure authentication endpoints for admin panel
 """
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
@@ -33,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])  # CRITICAL: Login must be public
 def admin_login(request):
     """
     POST /api/admin/login
@@ -139,6 +141,7 @@ def admin_logout(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])  # CRITICAL: Token verification must be public
 def admin_verify_token(request):
     """
     POST /api/admin/verify-token
@@ -289,6 +292,7 @@ def admin_change_password(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])  # CRITICAL: Password reset request must be public
 def admin_request_password_reset(request):
     """
     POST /api/admin/request-password-reset
