@@ -30,15 +30,20 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (token) {
       axios.get(`${API_BASE_URL}/users/profile/`, {
-        headers: { Authorization: `Token ${token}` }
+        headers: { Authorization: `Bearer ${token}` }
       })
         .then(response => {
           setUser(response.data);
         })
         .catch((error) => {
           console.log('Backend connection error or invalid token:', error.message);
-          localStorage.removeItem('token');
-          setToken(null);
+          console.log('Error response:', error.response?.data);
+          // Don't clear token on 401 - might be a temporary issue
+          // Only clear if it's a network error or 403 (forbidden)
+          if (error.response?.status === 403 || error.code === 'ERR_NETWORK') {
+            localStorage.removeItem('token');
+            setToken(null);
+          }
         })
         .finally(() => {
           setLoading(false);
@@ -50,10 +55,16 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
   try {
-    console.log('Attempting login to:', `${API_BASE_URL}/users/login/`);
-    console.log('Login credentials:', credentials); // Debug log
+    // Backend expects email and password at /api/auth/login
+    const loginData = {
+      email: credentials.email || credentials.username, // Accept both email and username
+      password: credentials.password
+    };
     
-    const response = await axios.post(`${API_BASE_URL}/users/login/`, credentials, {
+    console.log('Attempting login to:', `${API_BASE_URL}/auth/login`);
+    console.log('Login credentials:', loginData); // Debug log
+    
+    const response = await axios.post(`${API_BASE_URL}/auth/login`, loginData, {
       headers: {
         'Content-Type': 'application/json',
       }
@@ -81,6 +92,7 @@ export const AuthProvider = ({ children }) => {
   } catch (error) {
     console.log('Login error:', error);
     console.log('Error response:', error.response?.data);
+    console.log('Error response full:', JSON.stringify(error.response?.data, null, 2));
     console.log('Error status:', error.response?.status);
     
     if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
@@ -99,9 +111,46 @@ export const AuthProvider = ({ children }) => {
     
     // Handle 401 Unauthorized
     if (error.response?.status === 401) {
+      const errorData = error.response?.data || {};
+      const errorCode = errorData.code || 'UNKNOWN';
+      let errorMsg = errorData.error || 'Invalid email or password';
+      
+      // Handle different error formats
+      if (typeof errorMsg === 'object') {
+        errorMsg = JSON.stringify(errorMsg);
+      }
+      
+      console.log(`[LOGIN] 401 Error - Code: ${errorCode}, Message: ${errorMsg}`);
+      
       return { 
         success: false, 
-        error: 'Invalid username or password' 
+        error: errorMsg,
+        code: errorCode
+      };
+    }
+    
+    // Handle 403 Forbidden (account inactive)
+    if (error.response?.status === 403) {
+      const errorData = error.response?.data || {};
+      const errorMsg = errorData.error || 'Account is not active. Please verify your email.';
+      console.log(`[LOGIN] 403 Error - Account inactive: ${errorMsg}`);
+      
+      return { 
+        success: false, 
+        error: typeof errorMsg === 'string' ? errorMsg : 'Account is not active. Please verify your email.',
+        code: 'ACCOUNT_INACTIVE'
+      };
+    }
+    
+    // Handle 400 Bad Request (validation errors)
+    if (error.response?.status === 400) {
+      const errorData = error.response?.data || {};
+      const errorMsg = errorData.error || 'Invalid request data';
+      console.log(`[LOGIN] 400 Error - Validation: ${JSON.stringify(errorMsg)}`);
+      
+      return { 
+        success: false, 
+        error: typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg)
       };
     }
     

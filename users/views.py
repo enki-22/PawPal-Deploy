@@ -135,11 +135,31 @@ def test_view(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def get_user_profile(request):
     """Get current user profile"""
+    from utils.unified_permissions import check_user_or_admin
+    
+    print(f"[PROFILE] Received profile request")
+    print(f"[PROFILE] Authorization header: {request.META.get('HTTP_AUTHORIZATION', '')[:50]}...")
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        print(f"[PROFILE] Authentication failed: {error_response.data if hasattr(error_response, 'data') else 'Unknown error'}")
+        return error_response
+    
+    print(f"[PROFILE] Authentication successful, user_type: {user_type}, user: {user_obj.email if user_obj else 'None'}")
+    
+    # Only pet owners can access their own profile
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can access this endpoint'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
-        user = request.user
+        user = user_obj
         profile, created = UserProfile.objects.get_or_create(user=user)
         
         return Response({

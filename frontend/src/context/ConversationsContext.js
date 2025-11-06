@@ -23,7 +23,7 @@ export const ConversationsProvider = ({ children }) => {
       setLoadingConversations(true);
       const response = await axios.get(`${API_BASE_URL}/chatbot/conversations/`, {
         headers: {
-          'Authorization': token ? `Token ${token}` : '',
+          'Authorization': token ? `Bearer ${token}` : '',
         }
       });
       

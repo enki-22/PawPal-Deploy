@@ -34,9 +34,13 @@ def require_admin_role(allowed_roles):
             try:
                 # Extract token from Authorization header
                 auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+                print(f"[PERMISSIONS] Authorization header: {auth_header[:50]}...")
                 token = extract_token_from_header(auth_header)
+                print(f"[PERMISSIONS] Extracted token: {token[:30] if token else 'None'}...")
                 
                 if not token:
+                    print("[PERMISSIONS] ERROR: No token found in Authorization header")
+                    logger.warning("No token found in Authorization header")
                     return Response({
                         'success': False,
                         'error': 'Authentication required',
@@ -45,19 +49,29 @@ def require_admin_role(allowed_roles):
                 
                 # Verify token
                 payload, error = verify_admin_jwt(token)
+                print(f"[PERMISSIONS] Token verification - error: {error}, payload keys: {list(payload.keys()) if payload else None}")
                 
                 if error or not payload:
+                    print(f"[PERMISSIONS] ERROR: Token verification failed - {error}")
+                    logger.warning(f"Token verification failed: {error}")
                     return Response({
                         'success': False,
                         'error': error or 'Invalid token',
-                        'code': 'INVALID_TOKEN'
+                        'code': 'INVALID_TOKEN',
+                        'debug_info': {
+                            'token_preview': token[:30] + '...' if token else None,
+                            'error': error
+                        }
                     }, status=status.HTTP_401_UNAUTHORIZED)
                 
                 # Check role
                 admin_role = payload.get('role')
                 admin_id = payload.get('admin_id')
+                print(f"[PERMISSIONS] Token payload - admin_id: {admin_id}, role: {admin_role}, allowed_roles: {allowed_roles}")
+                logger.debug(f"Token payload - admin_id: {admin_id}, role: {admin_role}, allowed_roles: {allowed_roles}")
                 
                 if admin_role not in allowed_roles:
+                    print(f"[PERMISSIONS] ERROR: Role mismatch - got {admin_role}, required {allowed_roles}")
                     logger.warning(
                         f"Admin {admin_id} ({admin_role}) attempted to access "
                         f"endpoint requiring roles: {allowed_roles}"
@@ -73,11 +87,16 @@ def require_admin_role(allowed_roles):
                 # Verify admin still exists and is active
                 try:
                     admin = Admin.objects.get(id=admin_id, is_active=True)
+                    print(f"[PERMISSIONS] Admin found: {admin.email}, role: {admin.role}, active: {admin.is_active}")
+                    logger.debug(f"Admin found: {admin.email}, role: {admin.role}, active: {admin.is_active}")
                 except Admin.DoesNotExist:
+                    print(f"[PERMISSIONS] ERROR: Admin with id {admin_id} not found or inactive")
+                    logger.warning(f"Admin with id {admin_id} not found or inactive")
                     return Response({
                         'success': False,
                         'error': 'Admin account not found or inactive',
-                        'code': 'ACCOUNT_INACTIVE'
+                        'code': 'ACCOUNT_INACTIVE',
+                        'admin_id': admin_id
                     }, status=status.HTTP_401_UNAUTHORIZED)
                 
                 # Attach admin info to request for use in view

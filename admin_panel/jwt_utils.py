@@ -37,6 +37,9 @@ def generate_admin_jwt(admin) -> str:
     }
     
     token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+    # Ensure token is a string (PyJWT 2.x returns string, but older versions return bytes)
+    if isinstance(token, bytes):
+        token = token.decode('utf-8')
     return token
 
 
@@ -55,20 +58,39 @@ def verify_admin_jwt(token: str) -> Tuple[Optional[Dict], Optional[str]]:
         - "Invalid token"
         - "Invalid token type"
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
     try:
+        print(f"[JWT_UTILS] Verifying token: {token[:30]}...")
+        logger.debug(f"Verifying token: {token[:30]}...")
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+        print(f"[JWT_UTILS] Token decoded successfully. Payload keys: {list(payload.keys())}")
+        print(f"[JWT_UTILS] Token type in payload: {payload.get('token_type')}")
+        logger.debug(f"Token decoded successfully. Payload keys: {list(payload.keys())}")
+        logger.debug(f"Token type in payload: {payload.get('token_type')}")
         
         # Verify it's an admin token
         if payload.get('token_type') != 'admin_access':
+            print(f"[JWT_UTILS] ERROR: Invalid token type: {payload.get('token_type')}, expected: admin_access")
+            logger.warning(f"Invalid token type: {payload.get('token_type')}, expected: admin_access")
             return None, "Invalid token type"
         
+        print(f"[JWT_UTILS] Token verified successfully for admin_id: {payload.get('admin_id')}")
+        logger.debug(f"Token verified successfully for admin_id: {payload.get('admin_id')}")
         return payload, None
         
-    except jwt.ExpiredSignatureError:
+    except jwt.ExpiredSignatureError as e:
+        print(f"[JWT_UTILS] ERROR: Token expired: {str(e)}")
+        logger.warning(f"Token expired: {str(e)}")
         return None, "Token expired"
-    except jwt.InvalidTokenError:
-        return None, "Invalid token"
+    except jwt.InvalidTokenError as e:
+        print(f"[JWT_UTILS] ERROR: Invalid token: {str(e)}")
+        logger.warning(f"Invalid token: {str(e)}")
+        return None, f"Invalid token: {str(e)}"
     except Exception as e:
+        print(f"[JWT_UTILS] ERROR: Token verification failed: {str(e)}")
+        logger.error(f"Token verification failed: {str(e)}", exc_info=True)
         return None, f"Token verification failed: {str(e)}"
 
 

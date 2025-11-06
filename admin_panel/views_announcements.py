@@ -2,7 +2,8 @@
 Announcement Management Views (Chunk 9)
 Implements 5 announcement management endpoints
 """
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
@@ -85,6 +86,7 @@ def validate_announcement_data(data, is_update=False):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def manage_announcements(request):
     """
@@ -188,6 +190,7 @@ def _create_announcement(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def manage_announcement_detail(request, announcement_id):
     """

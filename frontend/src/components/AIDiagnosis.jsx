@@ -6,6 +6,7 @@ import useConversations from '../hooks/useConversations';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
 import LogoutModal from './LogoutModal';
+import SOAPReportViewer from './SOAPReportViewer';
 
 const AIDiagnosis = () => {
   const [diagnoses, setDiagnoses] = useState([]);
@@ -20,6 +21,7 @@ const AIDiagnosis = () => {
     dateRange: ''
   });
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [selectedCaseId, setSelectedCaseId] = useState(null);
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
   
@@ -55,7 +57,7 @@ const AIDiagnosis = () => {
         `http://localhost:8000/api/chatbot/diagnoses/?${params}`,
         {
           headers: {
-            'Authorization': token ? `Token ${token}` : '',
+            'Authorization': token ? `Bearer ${token}` : '',
           }
         }
       );
@@ -228,21 +230,44 @@ const AIDiagnosis = () => {
                 </div>
               ) : (
                 diagnoses.map((diagnosis) => (
-                  <div key={diagnosis.id} className="bg-white rounded-lg shadow-sm border p-6">
+                  <div 
+                    key={diagnosis.id} 
+                    className="bg-white rounded-lg shadow-sm border p-6 cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => diagnosis.case_id && setSelectedCaseId(diagnosis.case_id)}
+                  >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: 'Raleway' }}>
-                          {diagnosis.condition_name}
-                        </h3>
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900" style={{ fontFamily: 'Raleway' }}>
+                            {diagnosis.pet_name || 'Pet Diagnosis'}
+                          </h3>
+                          {diagnosis.case_id && (
+                            <span className="text-xs text-blue-600 font-medium" style={{ fontFamily: 'Raleway' }}>
+                              {diagnosis.case_id}
+                            </span>
+                          )}
+                        </div>
                         <div className="flex items-center space-x-4 mb-3">
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${severityColors[diagnosis.severity?.toLowerCase()] || 'bg-gray-100 text-gray-800'}`}>
                             {diagnosis.severity}
                           </span>
                           <span className="text-sm text-gray-500" style={{ fontFamily: 'Raleway' }}>
-                            {diagnosis.species} • {new Date(diagnosis.created_at).toLocaleDateString()}
+                            {diagnosis.animal_type || diagnosis.species} • {diagnosis.created_at || new Date().toLocaleDateString()}
                           </span>
                         </div>
                       </div>
+                      {diagnosis.case_id && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedCaseId(diagnosis.case_id);
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                          style={{ fontFamily: 'Raleway' }}
+                        >
+                          View Full Report
+                        </button>
+                      )}
                     </div>
                     
                     <div className="space-y-3">
@@ -260,18 +285,11 @@ const AIDiagnosis = () => {
                         </p>
                       </div>
                       
-                      <div>
-                        <h4 className="font-medium text-gray-900 mb-1" style={{ fontFamily: 'Raleway' }}>Recommendations:</h4>
-                        <p className="text-gray-600 text-sm" style={{ fontFamily: 'Raleway' }}>
-                          {diagnosis.recommendations}
-                        </p>
-                      </div>
-                      
-                      {diagnosis.confidence_score && (
+                      {diagnosis.case_id && (
                         <div className="mt-4 pt-3 border-t border-gray-200">
-                          <span className="text-sm text-gray-500" style={{ fontFamily: 'Raleway' }}>
-                            Confidence: {Math.round(diagnosis.confidence_score * 100)}%
-                          </span>
+                          <p className="text-xs text-blue-600" style={{ fontFamily: 'Raleway' }}>
+                            Click to view complete SOAP report →
+                          </p>
                         </div>
                       )}
                     </div>
@@ -331,6 +349,14 @@ const AIDiagnosis = () => {
         onConfirm={handleLogoutConfirm}
         loading={loading}
       />
+
+      {/* SOAP Report Viewer */}
+      {selectedCaseId && (
+        <SOAPReportViewer
+          caseId={selectedCaseId}
+          onClose={() => setSelectedCaseId(null)}
+        />
+      )}
     </div>
   );
 };

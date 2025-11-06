@@ -2,7 +2,8 @@
 Admin Role Management Views (Chunk 8)
 Implements 6 comprehensive admin account management endpoints (MASTER ONLY)
 """
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
@@ -54,6 +55,7 @@ def log_admin_action(admin, action, target_admin_id, target_admin_email=None, de
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_admin_role(['MASTER'])
 def get_admin_roles(request):
     """
@@ -273,6 +275,7 @@ def _create_admin_role(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_admin_role(['MASTER'])
 def get_admin_role_detail(request, admin_id):
     """
@@ -642,6 +645,7 @@ def _delete_admin_role(request, admin_id):
 
 
 @api_view(['PUT'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_admin_role(['MASTER'])
 def toggle_admin_status(request, admin_id):
     """

@@ -902,7 +902,7 @@ const UnifiedAuth = () => {
     setLoading(true);
     try {
       const result = await login({ 
-        username: formData.email, 
+        email: formData.email, // Changed from username to email
         password: formData.password 
       });
       

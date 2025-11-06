@@ -1,0 +1,10 @@
+Collecting ml-dtypes
+  Downloading ml_dtypes-0.5.3-cp313-cp313-win_amd64.whl.metadata (9.2 kB)
+Collecting numpy>=1.21 (from ml-dtypes)
+  Downloading numpy-2.3.4-cp313-cp313-win_amd64.whl.metadata (60 kB)
+Downloading ml_dtypes-0.5.3-cp313-cp313-win_amd64.whl (208 kB)
+Downloading numpy-2.3.4-cp313-cp313-win_amd64.whl (12.8 MB)
+   ---------------------------------------- 12.8/12.8 MB 81.1 kB/s  0:02:15
+Installing collected packages: numpy, ml-dtypes
+
+Successfully installed ml-dtypes-0.5.3 numpy-2.3.4

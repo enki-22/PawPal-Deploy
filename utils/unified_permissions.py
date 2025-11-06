@@ -8,6 +8,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from admin_panel.jwt_utils import extract_token_from_header, verify_admin_jwt
 from admin_panel.models import Admin
+from users.utils import verify_jwt_token
+from users.models import User
 import logging
 
 logger = logging.getLogger(__name__)
@@ -27,9 +29,20 @@ def check_user_or_admin(request):
         (user_type, user_object, None) on success
         (None, None, error_response) on failure
     """
-    # First, try to check if it's an admin (admin tokens typically have different format)
+    # Extract token from Authorization header
     auth_header = request.META.get('HTTP_AUTHORIZATION', '')
-    token = extract_token_from_header(auth_header)
+    print(f"[UNIFIED_PERMISSIONS] Authorization header: {auth_header[:50] if auth_header else 'None'}...")
+    
+    # Try to extract token (supports both "Bearer <token>" and "Token <token>" formats)
+    token = None
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ', 1)[1] if len(auth_header.split(' ', 1)) > 1 else None
+        print(f"[UNIFIED_PERMISSIONS] Extracted Bearer token: {token[:30] if token else 'None'}...")
+    elif auth_header.startswith('Token '):
+        token = auth_header.split(' ', 1)[1] if len(auth_header.split(' ', 1)) > 1 else None
+        print(f"[UNIFIED_PERMISSIONS] Extracted Token token: {token[:30] if token else 'None'}...")
+    else:
+        print(f"[UNIFIED_PERMISSIONS] No Bearer/Token prefix found in header")
     
     if token:
         # Try admin authentication first
@@ -41,17 +54,35 @@ def check_user_or_admin(request):
             
             try:
                 admin = Admin.objects.get(id=admin_id, is_active=True)
+                print(f"[UNIFIED_PERMISSIONS] Admin authenticated: {admin.email}, role: {admin_role}")
                 return ('admin', admin, None)
             except Admin.DoesNotExist:
                 # Admin token valid but admin not found - fall through to pet owner check
                 pass
+        
+        # Try pet owner JWT authentication
+        print(f"[UNIFIED_PERMISSIONS] Attempting pet owner JWT verification...")
+        payload, error = verify_jwt_token(token)
+        if payload and not error:
+            # Valid pet owner JWT token
+            user_id = payload.get('user_id')
+            print(f"[UNIFIED_PERMISSIONS] Pet owner JWT verified, user_id: {user_id}")
+            try:
+                user = User.objects.get(id=user_id, is_active=True)
+                print(f"[UNIFIED_PERMISSIONS] Pet owner authenticated: {user.email}")
+                return ('pet_owner', user, None)
+            except User.DoesNotExist:
+                print(f"[UNIFIED_PERMISSIONS] User with id {user_id} not found or inactive")
+        else:
+            print(f"[UNIFIED_PERMISSIONS] Pet owner JWT verification failed: {error}")
     
-    # Try pet owner authentication (Django's standard authentication)
-    # This uses rest_framework's authentication classes
+    # Fallback: Try Django's standard authentication (for DRF TokenAuthentication, etc.)
     if hasattr(request, 'user') and request.user.is_authenticated:
+        print(f"[UNIFIED_PERMISSIONS] Pet owner authenticated via DRF: {request.user.email}")
         return ('pet_owner', request.user, None)
     
     # Not authenticated
+    print(f"[UNIFIED_PERMISSIONS] Authentication failed - no valid token or user")
     return (None, None, Response({
         'success': False,
         'error': 'Authentication required',

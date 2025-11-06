@@ -2,7 +2,8 @@
 Admin Pet Management Views (Chunk 7)
 Implements 10 comprehensive pet management endpoints
 """
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Q, Count, Prefetch
@@ -21,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def get_pets(request):
     """
@@ -108,6 +110,7 @@ def get_pets(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def get_pet_detail(request, pet_id):
     """
@@ -177,6 +180,7 @@ def get_pet_detail(request, pet_id):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def get_pet_medical_records(request, pet_id):
     """
@@ -240,6 +244,7 @@ def get_pet_medical_records(request, pet_id):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def get_pet_vaccinations(request, pet_id):
     """
@@ -289,6 +294,7 @@ def get_pet_vaccinations(request, pet_id):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def get_pet_diagnoses(request, pet_id):
     """
@@ -359,6 +365,7 @@ def get_pet_diagnoses(request, pet_id):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def get_pet_chat_history(request, pet_id):
     """
@@ -428,6 +435,7 @@ def get_pet_chat_history(request, pet_id):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def get_pet_chat_detail(request, pet_id, chat_id):
     """
@@ -512,6 +520,7 @@ def get_pet_chat_detail(request, pet_id, chat_id):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def get_pet_files(request, pet_id):
     """
@@ -562,6 +571,7 @@ def get_pet_files(request, pet_id):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def download_pet_file(request, pet_id, file_id):
     """
@@ -609,6 +619,7 @@ def download_pet_file(request, pet_id, file_id):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def download_all_pet_files(request, pet_id):
     """

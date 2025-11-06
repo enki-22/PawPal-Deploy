@@ -47,33 +47,37 @@ def register(request):
     """
     serializer = UserRegistrationSerializer(data=request.data)
     if not serializer.is_valid():
+        # Format errors to be more user-friendly
+        error_messages = []
+        for field, errors in serializer.errors.items():
+            if isinstance(errors, list):
+                for error in errors:
+                    if isinstance(error, dict):
+                        # Nested errors
+                        for nested_field, nested_errors in error.items():
+                            error_messages.append(f"{nested_field}: {', '.join(str(e) for e in nested_errors) if isinstance(nested_errors, list) else str(nested_errors)}")
+                    else:
+                        error_messages.append(f"{field}: {str(error)}")
+            else:
+                error_messages.append(f"{field}: {str(errors)}")
+        
         return Response({
             'success': False, 
-            'error': serializer.errors
+            'error': '; '.join(error_messages) if error_messages else 'Invalid registration data',
+            'errors': serializer.errors  # Include detailed errors for debugging
         }, status=status.HTTP_400_BAD_REQUEST)
 
-    # Create inactive user
+    # Create active user (OTP verification temporarily disabled)
     with transaction.atomic():
         user = serializer.save()
         
-        # Generate OTP for account creation
-        otp = OTP.create_new(email=user.email, purpose=OTP.PURPOSE_ACCOUNT, user=user)
-        otp.code = _generate_otp_code()
-        otp.save()
-        
-        # Send OTP email
-        send_mail(
-            subject='Verify Your PawPal Account',
-            message=f'Welcome to PawPal! Your verification code is {otp.code}. It will expire in 10 minutes.',
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
-            recipient_list=[user.email],
-            fail_silently=True,
-        )
+        # OTP verification temporarily disabled - accounts are created active
+        # TODO: Re-enable OTP verification later
         
     return Response({
         'success': True,
         'user_id': user.id,
-        'message': 'OTP sent to email'
+        'message': 'Account created successfully. You can now log in.'
     }, status=status.HTTP_201_CREATED)
 
 
@@ -377,8 +381,10 @@ def login(request):
     - Check account is active
     - Return: JWT token, user info
     """
+    print(f"[LOGIN] Received login request: {request.data}")
     serializer = LoginSerializer(data=request.data)
     if not serializer.is_valid():
+        print(f"[LOGIN] Serializer validation failed: {serializer.errors}")
         return Response({
             'success': False, 
             'error': serializer.errors
@@ -386,11 +392,14 @@ def login(request):
     
     email = serializer.validated_data['email']
     password = serializer.validated_data['password']
+    print(f"[LOGIN] Attempting login for email: {email}")
     
     # Get user by email
     try:
         user = User.objects.get(email=email)
+        print(f"[LOGIN] User found: {user.username}, is_active: {user.is_active}")
     except User.DoesNotExist:
+        print(f"[LOGIN] User not found for email: {email}")
         return Response({
             'success': False, 
             'error': 'Invalid email or password',
@@ -399,8 +408,10 @@ def login(request):
     
     # Authenticate with username (Django's authenticate uses username)
     authenticated_user = authenticate(username=user.username, password=password)
+    print(f"[LOGIN] Authentication result: {authenticated_user is not None}")
     
     if not authenticated_user:
+        print(f"[LOGIN] Password authentication failed for user: {user.username}")
         return Response({
             'success': False, 
             'error': 'Invalid email or password',
@@ -409,6 +420,7 @@ def login(request):
     
     # Check if account is active
     if not authenticated_user.is_active:
+        print(f"[LOGIN] Account is inactive for user: {authenticated_user.username}")
         return Response({
             'success': False, 
             'error': 'Account is not active. Please verify your email.',

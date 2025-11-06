@@ -13,8 +13,13 @@ const adminAxios = axios.create({
 adminAxios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('admin_token');
+    console.log('🔐 Admin API Request:', config.url);
+    console.log('🔐 Admin token from localStorage:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('🔐 Authorization header set:', `Bearer ${token.substring(0, 20)}...`);
+    } else {
+      console.warn('⚠️ No admin token found in localStorage for request to:', config.url);
     }
     return config;
   },
@@ -61,6 +66,13 @@ export const AdminAuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('admin_token'));
   const [loading, setLoading] = useState(true);
 
+  // Debug admin auth state
+  console.log('=== ADMIN AUTH CONTEXT DEBUG ===');
+  console.log('Admin token state:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
+  console.log('Admin state:', admin);
+  console.log('localStorage admin_token:', localStorage.getItem('admin_token') ? `${localStorage.getItem('admin_token').substring(0, 20)}...` : 'NO TOKEN');
+  console.log('Is admin authenticated:', !!token && !!admin);
+
   // adminAxios is now stable and imported from top-level
 
   // Check token validity on app start
@@ -100,17 +112,23 @@ export const AdminAuthProvider = ({ children }) => {
 
   const adminLogin = async (credentials) => {
     try {
-      console.log('🔄 Admin login attempt:', credentials);
+      console.log('🔄 Admin login attempt:', credentials.email);
+      // Clear any existing user token to avoid conflicts
+      localStorage.removeItem('token');
+      console.log('🧹 Cleared user token from localStorage');
+      
       const response = await axios.post(`${API_BASE_URL}/admin/login`, credentials);
       console.log('✅ Admin login raw response:', response);
       console.log('✅ Admin login response data:', response.data);
       if (response.data.success && response.data.data.token) {
         const { token, admin_info } = response.data.data;
-        console.log('📝 Storing token in localStorage:', token);
+        console.log('📝 Storing admin token in localStorage:', token ? `${token.substring(0, 30)}...` : 'NO TOKEN');
         localStorage.setItem('admin_token', token);
         setToken(token);
         setAdmin(admin_info);
-        console.log('✅ Admin login successful, role:', admin_info.role, 'admin_info:', admin_info);
+        console.log('✅ Admin login successful, role:', admin_info.role);
+        console.log('✅ Admin info:', admin_info);
+        console.log('✅ Verified admin_token in localStorage:', localStorage.getItem('admin_token') ? 'PRESENT' : 'MISSING');
         return { success: true };
       } else {
         console.warn('⚠️ Login failed, response:', response.data);

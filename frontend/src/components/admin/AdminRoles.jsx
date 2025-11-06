@@ -28,10 +28,23 @@ export default function AdminRoles() {
         setError('Failed to load admin accounts');
       }
     } catch (err) {
+      console.error('❌ AdminRoles fetch error:', err);
+      console.error('❌ Error response:', err.response);
+      console.error('❌ Error response data:', err.response?.data);
+      console.error('❌ Error response status:', err.response?.status);
+      
       if (err.response?.status === 403) {
         setError('Access denied. Only Master Admin can access this page.');
       } else if (err.response?.status === 401) {
-        setError('Authentication failed. Please login again.');
+        const errorData = err.response?.data || {};
+        const errorMsg = typeof errorData.error === 'string' ? errorData.error : JSON.stringify(errorData.error);
+        const errorCode = errorData.code || 'UNKNOWN';
+        console.error(`❌ 401 Error: ${errorMsg} (code: ${errorCode})`);
+        console.error('❌ Full error response data:', JSON.stringify(errorData, null, 2));
+        if (errorData.debug_info) {
+          console.error('❌ Debug info:', errorData.debug_info);
+        }
+        setError(`Authentication failed: ${errorMsg}. Please login again.`);
       } else {
         setError('Failed to load admin accounts. Please try again.');
       }

@@ -3,8 +3,8 @@ Diagnosis and SOAP Report API Views
 Implements Chunk 2: SOAP Report & Diagnosis Endpoints
 Supports both Pet Owners and Admins via unified permission system
 """
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -232,7 +232,8 @@ def generate_diagnosis(request):
 
 
 @api_view(['GET'])
-@require_user_or_admin
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def get_soap_report_by_case_id(request, case_id):
     """
     GET /api/diagnosis/soap/:caseId
@@ -256,6 +257,13 @@ def get_soap_report_by_case_id(request, case_id):
         - Admins: Can view any SOAP report
         - Pet Owners: Can only view reports for their own pets
     """
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
     try:
         # Clean case_id (remove # prefix if missing)
         case_id_clean = case_id.strip()
@@ -266,63 +274,69 @@ def get_soap_report_by_case_id(request, case_id):
         soap_report = get_object_or_404(SOAPReport, case_id=case_id_clean)
         
         # Role-based access check
-        if request.user_type == 'admin':
+        if user_type == 'admin':
             # Admins can view any report
             pass
         else:  # pet_owner
             # Pet owners can only view their own reports
-            if soap_report.pet.owner != request.user:
+            if soap_report.pet.owner != user_obj:
                 return Response({
                     'success': False,
                     'error': 'You do not have permission to view this report',
                     'code': 'FORBIDDEN'
                 }, status=status.HTTP_403_FORBIDDEN)
         
-        # Serialize and return (format matches admin expectations if admin)
-        serializer = SOAPReportSerializer(soap_report)
+        # Format response matching CHUNK2 spec format
+        pet = soap_report.pet
+        owner = pet.owner
+        owner_name = f"{owner.first_name} {owner.last_name}".strip() or owner.username or owner.email
         
-        # For admin requests, format response similar to admin endpoint
-        if request.user_type == 'admin':
-            pet = soap_report.pet
-            owner = pet.owner
-            owner_name = f"{owner.first_name} {owner.last_name}".strip() or owner.username
-            
-            return Response({
-                'success': True,
-                'report': {
-                    'case_id': soap_report.case_id,
-                    'pet_info': {
-                        'id': pet.id,
-                        'name': pet.name,
-                        'species': pet.get_animal_type_display(),
-                        'breed': pet.breed or 'Unknown',
-                        'age': pet.age,
-                        'sex': pet.get_sex_display(),
-                        'weight': float(pet.weight) if pet.weight else None,
-                        'image': request.build_absolute_uri(pet.image.url) if pet.image else None,
-                        'medical_notes': pet.medical_notes
-                    },
-                    'owner_info': {
-                        'id': owner.id,
-                        'name': owner_name,
-                        'email': owner.email,
-                        'username': owner.username
-                    },
-                    'subjective': soap_report.subjective,
-                    'objective': soap_report.objective,
-                    'assessment': soap_report.assessment,
-                    'plan': soap_report.plan,
-                    'flag_level': soap_report.flag_level,
-                    'date_generated': soap_report.date_generated.isoformat(),
-                    'date_flagged': soap_report.date_flagged.isoformat() if soap_report.date_flagged else None
-                }
-            }, status=status.HTTP_200_OK)
-        else:
-            # Pet owner format (existing format)
-            return Response({
-                'success': True,
-                'data': serializer.data
-            }, status=status.HTTP_200_OK)
+        # Get animal_type display value
+        animal_type = getattr(pet, 'animal_type', 'Unknown')
+        if hasattr(pet, 'get_animal_type_display'):
+            try:
+                animal_type = pet.get_animal_type_display()
+            except:
+                animal_type = str(animal_type)
+        
+        # Get sex display value
+        sex = getattr(pet, 'sex', 'Unknown')
+        if hasattr(pet, 'get_sex_display'):
+            try:
+                sex = pet.get_sex_display()
+            except:
+                sex = str(sex)
+        
+        return Response({
+            'success': True,
+            'case_id': soap_report.case_id,
+            'soap_report': {
+                'case_id': soap_report.case_id,
+                'pet': {
+                    'id': pet.id,
+                    'name': pet.name,
+                    'animal_type': animal_type,
+                    'breed': getattr(pet, 'breed', 'Unknown') or 'Unknown',
+                    'age': getattr(pet, 'age', 'Unknown'),
+                    'sex': sex,
+                    'weight': float(pet.weight) if pet.weight else None
+                },
+                'owner': {
+                    'id': owner.id,
+                    'name': owner_name,
+                    'email': owner.email
+                },
+                'subjective': soap_report.subjective,
+                'objective': soap_report.objective,
+                'assessment': soap_report.assessment,
+                'plan': soap_report.plan,
+                'flag_level': soap_report.flag_level,
+                'date_generated': soap_report.date_generated.isoformat(),
+                'date_flagged': soap_report.date_flagged.isoformat() if soap_report.date_flagged else None,
+                'chat_conversation_id': soap_report.chat_conversation.id if soap_report.chat_conversation else None
+            },
+            'message': f'SOAP report retrieved successfully with case ID: {soap_report.case_id}'
+        }, status=status.HTTP_200_OK)
         
     except SOAPReport.DoesNotExist:
         return Response({

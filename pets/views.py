@@ -1,7 +1,7 @@
 from rest_framework import generics, status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response  
 from django.db.models import Q
 from .models import Pet
 from .serializers import PetSerializer
@@ -16,10 +16,21 @@ except ImportError:
 
 class PetListCreateView(generics.ListCreateAPIView):
     serializer_class = PetSerializer
-    permission_classes = [IsAuthenticated]
+    authentication_classes = []  # Disable DRF authentication
+    permission_classes = [AllowAny] 
     
     def get_queryset(self):
-        queryset = Pet.objects.filter(owner=self.request.user)
+        from utils.unified_permissions import check_user_or_admin
+        
+        # Check authentication
+        user_type, user_obj, error_response = check_user_or_admin(self.request)
+        if error_response or user_type != 'pet_owner':
+            return Pet.objects.none()  # Return empty queryset if not authenticated
+        
+        # Set request.user for compatibility
+        self.request.user = user_obj
+        
+        queryset = Pet.objects.filter(owner=user_obj)
         
         # Apply filters
         search = self.request.GET.get('search', '')
@@ -41,16 +52,37 @@ class PetListCreateView(generics.ListCreateAPIView):
         return queryset
     
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        from utils.unified_permissions import check_user_or_admin
+        
+        # Check authentication
+        user_type, user_obj, error_response = check_user_or_admin(self.request)
+        if error_response or user_type != 'pet_owner':
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Authentication required")
+        
+        serializer.save(owner=user_obj)
 
 class PetDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PetSerializer
-    permission_classes = [IsAuthenticated]
+    authentication_classes = []  # Disable DRF authentication
+    permission_classes = [AllowAny]  # Allow any - we'll handle auth in get_queryset
     
     def get_queryset(self):
-        return Pet.objects.filter(owner=self.request.user)
+        from utils.unified_permissions import check_user_or_admin
+        
+        # Check authentication
+        user_type, user_obj, error_response = check_user_or_admin(self.request)
+        if error_response or user_type != 'pet_owner':
+            return Pet.objects.none()  # Return empty queryset if not authenticated
+        
+        # Set request.user for compatibility
+        self.request.user = user_obj
+        
+        return Pet.objects.filter(owner=user_obj)
 
 @api_view(['GET'])
+@authentication_classes([])  # Disable DRF authentication - our decorator handles it
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_user_or_admin
 def pet_list(request):
     """
@@ -80,6 +112,8 @@ def pet_list(request):
         - Admins: Can view all pets with advanced filtering
         - Pet Owners: Can only view their own pets
     """
+    print(f"[PET_LIST] Received request, user_type: {getattr(request, 'user_type', 'NOT SET')}")
+    print(f"[PET_LIST] Authorization header: {request.META.get('HTTP_AUTHORIZATION', '')[:50]}...")
     try:
         # Check if this is an admin request (check for admin-specific params)
         is_admin_format = request.query_params.get('species') is not None or \
@@ -200,6 +234,8 @@ def pet_list(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([])  # Disable DRF authentication - our decorator handles it
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_user_or_admin
 def pet_detail(request, pet_id):
     """
@@ -333,13 +369,28 @@ def pet_detail(request, pet_id):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - we handle it in the function
+@permission_classes([AllowAny])  # Allow any - we'll handle auth in the function
 def pet_create(request):
     """Create a new pet"""
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    # Only pet owners can create pets
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can create pets'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
         serializer = PetSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            pet = serializer.save(owner=request.user)
+            pet = serializer.save(owner=user_obj)
             # Return the created pet with proper image URL
             response_data = serializer.data
             if pet.image:

@@ -58,7 +58,7 @@ const ProfileSettings = () => {
       setFetchingData(true);
       const response = await axios.get(`${API_BASE_URL}/users/profile/`, {
         headers: {
-          'Authorization': token ? `Token ${token}` : '',
+          'Authorization': token ? `Bearer ${token}` : '',
         }
       });
 
@@ -111,7 +111,7 @@ const ProfileSettings = () => {
 
       const response = await axios.put(`${API_BASE_URL}/users/profile/`, updateData, {
         headers: {
-          'Authorization': token ? `Token ${token}` : '',
+          'Authorization': token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
         }
       });
@@ -145,7 +145,7 @@ const ProfileSettings = () => {
 
       const response = await axios.patch(`${API_BASE_URL}/users/profile/`, updateData, {
         headers: {
-          'Authorization': token ? `Token ${token}` : '',
+          'Authorization': token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
         }
       });

@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Conversation, Message
@@ -64,7 +64,12 @@ def get_gemini_client():
                             raise quota_error
                         
         except Exception as list_error:
+            error_str = str(list_error)
             print(f"❌ Could not use models: {list_error}")
+            
+            # Check for API key issues
+            if "403" in error_str or "leaked" in error_str.lower() or "invalid" in error_str.lower() or "permission" in error_str.lower():
+                raise Exception("Gemini API key is invalid or has been revoked. Please get a new API key from https://aistudio.google.com/app/apikey and update your .env file.")
         
         # If quota exceeded, try the free tier models specifically
         print("\n=== TRYING FREE TIER MODELS ===")
@@ -76,6 +81,7 @@ def get_gemini_client():
             'gemini-pro'
         ]
         
+        api_key_error = False
         for model_name in free_tier_models:
             try:
                 print(f"Trying free tier model: {model_name}")
@@ -88,12 +94,20 @@ def get_gemini_client():
                     return model
                     
             except Exception as e:
-                if "quota" in str(e).lower():
+                error_str = str(e)
+                if "403" in error_str or "leaked" in error_str.lower() or "invalid" in error_str.lower() or "permission" in error_str.lower():
+                    api_key_error = True
+                    print(f"❌ API key error for {model_name}: {e}")
+                    break  # No point trying other models if API key is invalid
+                elif "quota" in error_str.lower():
                     print(f"⚠️ Quota exceeded for {model_name}")
                     continue
                 else:
                     print(f"❌ Free tier {model_name} failed: {e}")
                     continue
+        
+        if api_key_error:
+            raise Exception("Gemini API key is invalid or has been revoked. Please get a new API key from https://aistudio.google.com/app/apikey and update your .env file.")
         
         raise Exception("All models quota exceeded. Please upgrade your Gemini API plan or wait for quota reset.")
         
@@ -267,8 +281,16 @@ You already know about {pet_context['name']}, so don't ask for basic information
             return "I'm having trouble responding right now. Could you please try again?"
        
     except Exception as e:
+        error_str = str(e)
         print(f"Gemini Error: {type(e).__name__}: {e}")
-        return "I'm experiencing technical difficulties. Please try again or consult with a veterinarian for immediate concerns."
+        
+        # Provide more specific error messages
+        if "API key" in error_str or "invalid" in error_str.lower() or "revoked" in error_str.lower():
+            return "I'm currently unavailable due to API configuration issues. Please contact support or try again later. For immediate pet health concerns, please consult with a veterinarian."
+        elif "quota" in error_str.lower():
+            return "I'm experiencing high demand right now. Please try again in a few minutes or consult with a veterinarian for immediate concerns."
+        else:
+            return "I'm experiencing technical difficulties. Please try again or consult with a veterinarian for immediate concerns."
 def generate_conversation_title(first_message, ai_response=None):
     """Generate a conversation title using Gemini"""
     try:
@@ -360,9 +382,24 @@ def chat_view(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def chat(request):
     """API endpoint for chatbot (React frontend)"""
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    # Only pet owners can use the chat
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can use the chat'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
         user_message = request.data.get('message')
         conversation_id = request.data.get('conversation_id')
@@ -376,12 +413,34 @@ def chat(request):
         # Get or create conversation
         if conversation_id:
             try:
-                conversation = Conversation.objects.get(id=conversation_id, user=request.user)
+                conversation = Conversation.objects.get(id=conversation_id, user=user_obj)  # Changed from request.user
             except Conversation.DoesNotExist:
-                conversation = Conversation.objects.create(user=request.user, title="New Conversation")
+                conversation = Conversation.objects.create(user=user_obj, title="New Conversation")  # Changed from request.user
         else:
-            conversation = Conversation.objects.create(user=request.user, title="New Conversation")
-       
+            conversation = Conversation.objects.create(user=user_obj, title="New Conversation")  # Changed from request.user
+        
+        # Link pet to conversation if pet_id is provided and conversation doesn't have one
+        pet_id = request.data.get('pet_id')
+        # Also check pet_context if pet_id is not provided
+        if not pet_id:
+            pet_context = request.data.get('pet_context')
+            if pet_context and isinstance(pet_context, dict):
+                pet_id = pet_context.get('id')
+        
+        if pet_id and not conversation.pet:
+            try:
+                pet = Pet.objects.get(id=pet_id, owner=user_obj)
+                conversation.pet = pet
+                conversation.save()
+                print(f"✅ Linked pet {pet.name} (ID: {pet.id}) to conversation {conversation.id}")
+            except Pet.DoesNotExist:
+                print(f"⚠️ Pet with ID {pet_id} not found or not owned by user")
+            except Exception as e:
+                print(f"⚠️ Error linking pet to conversation: {str(e)}")
+        
+        # Debug: Check if conversation has pet
+        print(f"[CHAT] Conversation {conversation.id} - Has pet: {conversation.pet is not None}, Pet ID: {conversation.pet.id if conversation.pet else None}, Chat mode: {chat_mode}")
+        
         # Save user message
         user_msg = Message.objects.create(
             conversation=conversation,
@@ -416,7 +475,194 @@ def chat(request):
             pet_context
         )
         print(f"AI response: {ai_response}")
-       
+        
+        # Automatically create SOAP report for symptom checker mode if pet is linked
+        soap_report = None
+        ai_diagnosis = None
+        case_id = None
+        print(f"[SOAP_CHECK] chat_mode={chat_mode}, has_pet={hasattr(conversation, 'pet') and conversation.pet is not None}")
+        if chat_mode == 'symptom_checker' and hasattr(conversation, 'pet') and conversation.pet:
+            try:
+                pet = conversation.pet
+                print(f"[SOAP_CREATION] Starting SOAP report creation for pet {pet.name} (ID: {pet.id})")
+                
+                # Extract symptoms from user message (use the message as symptoms text)
+                symptoms_text = user_message
+                
+                # Create a new request for predict_symptoms
+                # Since predict_symptoms is a DRF view, we need to create a Django HttpRequest
+                # The @api_view decorator will wrap it in a DRF Request
+                from django.test import RequestFactory
+                import json
+                
+                factory = RequestFactory()
+                predict_data = {
+                    'symptoms': symptoms_text,
+                    'species': getattr(pet, 'animal_type', 'dog').lower(),
+                    'pet_id': pet.id
+                }
+                # Create request with JSON body
+                json_body = json.dumps(predict_data)
+                
+                # Generate JWT token for the user so predict_symptoms can authenticate
+                from users.utils import generate_jwt_token
+                user_token = generate_jwt_token(user_obj)
+                
+                predict_request = factory.post(
+                    '/api/chatbot/predict/',
+                    data=json_body,
+                    content_type='application/json',
+                    HTTP_AUTHORIZATION=f'Bearer {user_token}'  # Add Authorization header
+                )
+                # Ensure the body is set correctly for DRF parsing
+                predict_request._body = json_body.encode('utf-8')
+                
+                # Call predict_symptoms with Django HttpRequest (not DRF Request)
+                # The @api_view decorator will handle wrapping it
+                ml_response = predict_symptoms(predict_request)
+                
+                print(f"[SOAP_CREATION] predict_symptoms response status: {ml_response.status_code}")
+                if hasattr(ml_response, 'data'):
+                    print(f"[SOAP_CREATION] predict_symptoms response data keys: {list(ml_response.data.keys()) if isinstance(ml_response.data, dict) else 'Not a dict'}")
+                    if isinstance(ml_response.data, dict) and 'error' in ml_response.data:
+                        print(f"[SOAP_CREATION] Error in response: {ml_response.data.get('error')}")
+                else:
+                    print(f"[SOAP_CREATION] predict_symptoms response: {ml_response}")
+                
+                # Extract symptoms list (try to parse from message or use as single item)
+                symptoms_list = [s.strip() for s in symptoms_text.replace(',', '|').replace(' and ', '|').split('|') if s.strip()]
+                if not symptoms_list:
+                    symptoms_list = [symptoms_text]
+                
+                # Try to get ML predictions, but create SOAP report even if ML fails
+                ml_data = None
+                if ml_response.status_code == 200:
+                    ml_data = ml_response.data
+                    print(f"[SOAP_CREATION] Successfully got ML predictions, proceeding with SOAP creation...")
+                else:
+                    print(f"⚠️ predict_symptoms returned non-200 status: {ml_response.status_code}")
+                    if hasattr(ml_response, 'data'):
+                        print(f"⚠️ Error response: {ml_response.data}")
+                    print(f"[SOAP_CREATION] Creating SOAP report without ML predictions (using AI response only)...")
+                
+                # Build assessment entries
+                assessment = []
+                if ml_data and ml_data.get('predictions'):
+                    # Use ML predictions if available
+                    for pred in ml_data.get('predictions', [])[:3]:
+                        assessment.append({
+                            'condition': pred.get('label', 'Unknown'),
+                            'likelihood': float(pred.get('confidence', 0.0)),
+                            'description': 'AI-predicted condition based on reported symptoms.',
+                            'matched_symptoms': symptoms_list,
+                            'urgency': ml_data.get('urgency', 'routine').title() if ml_data.get('urgency') else 'Mild',
+                            'contagious': False,
+                        })
+                else:
+                    # Fallback: Create basic assessment from symptoms
+                    # Analyze symptoms to determine urgency (basic keyword matching)
+                    urgent_keywords = ['not moving', 'not eating', 'not responding', 'emergency', 'critical', 'severe', 'lethargy', 'unresponsive']
+                    symptom_lower = symptoms_text.lower()
+                    is_urgent = any(keyword in symptom_lower for keyword in urgent_keywords)
+                    
+                    assessment.append({
+                        'condition': 'Symptom Assessment Required',
+                        'likelihood': 0.7,
+                        'description': 'AI assessment based on reported symptoms. Veterinary examination recommended for accurate diagnosis.',
+                        'matched_symptoms': symptoms_list,
+                        'urgency': 'Immediate' if is_urgent else 'Soon',
+                        'contagious': False,
+                    })
+                
+                # Determine plan severity based on assessment urgency
+                severity_map = {
+                    'routine': 'Moderate',
+                    'soon': 'Urgent',
+                    'immediate': 'Emergency',
+                    'emergency': 'Emergency',
+                }
+                
+                if ml_data:
+                    # Use ML urgency if available
+                    ml_urgency = str(ml_data.get('urgency', 'routine')).lower()
+                    severity_level = severity_map.get(ml_urgency, 'Moderate')
+                else:
+                    # For symptom checker mode without ML, default to Urgent
+                    # This ensures consistent flag level matching
+                    severity_level = 'Urgent'
+                
+                # Ensure flag level matches severity level exactly
+                flag_level = severity_level
+                
+                # Debug logging
+                print(f"[FLAG_LEVEL] Severity Level: {severity_level}, Flag Level: {flag_level}")
+                if ml_data:
+                    print(f"[FLAG_LEVEL] ML Urgency: {ml_data.get('urgency')}")
+                else:
+                    print(f"[FLAG_LEVEL] No ML data - using default Urgent for symptom checker mode")
+                
+                # Generate case ID
+                case_id = f"#PDX-{timezone.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:3].upper()}"
+                
+                # Create SOAP Report
+                soap_report = SOAPReport.objects.create(
+                    case_id=case_id,
+                    pet=pet,
+                    chat_conversation=conversation,
+                    subjective=f"Owner reports: {symptoms_text}",
+                    objective={
+                        'symptoms': symptoms_list,
+                        'duration': '',  # Could extract from message if available
+                        'image_analysis': ml_data.get('image_analysis') if ml_data else None,
+                        'ml_confidence': ml_data.get('confidence_score', 0.0) if ml_data else 0.0
+                    },
+                    assessment=assessment,
+                    plan={
+                        'severityLevel': severity_level,
+                        'careAdvice': [
+                            'Monitor your pet closely and provide comfort.',
+                            'Ensure access to fresh water and rest.',
+                            'Seek veterinary care based on severity.',
+                        ],
+                        'aiExplanation': ml_data.get('ai_explanation', ai_response) if ml_data else ai_response,
+                        'recommendedActions': []
+                    },
+                    flag_level=flag_level,
+                )
+                
+                # Create AIDiagnosis record
+                ai_diagnosis = AIDiagnosis.objects.create(
+                    user=user_obj,
+                    pet=pet,
+                    case_id=case_id,
+                    symptoms_text=symptoms_text,
+                    image_analysis=ml_data.get('image_analysis') if ml_data else None,
+                    ml_predictions=ml_data.get('predictions', []) if ml_data else [],
+                    ai_explanation=ml_data.get('ai_explanation', ai_response) if ml_data else ai_response,
+                    suggested_diagnoses=assessment,
+                    overall_severity=ml_data.get('severity', 'moderate') if ml_data else 'moderate',
+                    urgency_level=ml_data.get('urgency', 'routine') if ml_data else 'soon',
+                    pet_context=pet_context or {},
+                    confidence_score=ml_data.get('confidence_score', 0.0) if ml_data else 0.0
+                )
+                
+                print(f"✅ Created SOAP report {case_id} and AI Diagnosis for conversation {conversation.id}")
+                print(f"✅ SOAP Report ID: {soap_report.id}, AI Diagnosis ID: {ai_diagnosis.id}")
+                if not ml_data:
+                    print(f"⚠️ Note: SOAP report created without ML predictions due to ML model error")
+                    
+            except Exception as e:
+                print(f"⚠️ Error creating SOAP report: {str(e)}")
+                print(f"⚠️ Error type: {type(e).__name__}")
+                # Don't fail the chat if SOAP creation fails
+                import traceback
+                traceback.print_exc()
+        else:
+            if chat_mode != 'symptom_checker':
+                print(f"[SOAP_CHECK] Skipping SOAP creation - chat_mode is '{chat_mode}', not 'symptom_checker'")
+            elif not hasattr(conversation, 'pet') or not conversation.pet:
+                print(f"[SOAP_CHECK] Skipping SOAP creation - conversation {conversation.id} has no pet linked")
+        
         # Save AI response
         ai_msg = Message.objects.create(
             conversation=conversation,
@@ -438,14 +684,53 @@ def chat(request):
         conversation.updated_at = timezone.now()
         conversation.save()
        
-        return Response({
+        response_data = {
             'response': ai_response,
             'conversation_id': conversation.id,
             'conversation_title': conversation.title,
             'message_id': ai_msg.id,
             'chat_mode': chat_mode,
             'pet_context': pet_context
-        }, status=status.HTTP_200_OK)
+        }
+        
+        # Include full SOAP report if created (matching CHUNK2 spec format)
+        if case_id and soap_report:
+            pet = soap_report.pet
+            owner = pet.owner
+            owner_name = f"{owner.first_name} {owner.last_name}".strip() or owner.username or owner.email
+            
+            response_data['soap_report'] = {
+                'success': True,
+                'case_id': case_id,
+                'soap_report': {
+                    'case_id': case_id,
+                    'pet': {
+                        'id': pet.id,
+                        'name': pet.name,
+                        'animal_type': getattr(pet, 'animal_type', 'Unknown'),
+                        'breed': getattr(pet, 'breed', 'Unknown'),
+                        'age': getattr(pet, 'age', 'Unknown'),
+                        'sex': getattr(pet, 'sex', 'Unknown'),
+                        'weight': float(pet.weight) if pet.weight else None
+                    },
+                    'owner': {
+                        'id': owner.id,
+                        'name': owner_name,
+                        'email': owner.email
+                    },
+                    'subjective': soap_report.subjective,
+                    'objective': soap_report.objective,
+                    'assessment': soap_report.assessment,
+                    'plan': soap_report.plan,
+                    'flag_level': soap_report.flag_level,
+                    'date_generated': soap_report.date_generated.isoformat(),
+                    'date_flagged': soap_report.date_flagged.isoformat() if soap_report.date_flagged else None,
+                    'chat_conversation_id': conversation.id if conversation else None
+                },
+                'message': f'SOAP report generated successfully with case ID: {case_id}'
+            }
+        
+        return Response(response_data, status=status.HTTP_200_OK)
        
     except Exception as e:
         print(f"Chat API error: {e}")
@@ -453,7 +738,7 @@ def chat(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def get_conversations(request):
     """
     GET /api/chatbot/conversations/
@@ -575,11 +860,26 @@ def get_conversations(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def toggle_pin_conversation(request, conversation_id):
     """Pin/unpin a conversation"""
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    # Only pet owners can pin/unpin conversations
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can pin/unpin conversations'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
-        conversation = Conversation.objects.get(id=conversation_id, user=request.user)
+        conversation = Conversation.objects.get(id=conversation_id, user=user_obj)
         conversation.is_pinned = not conversation.is_pinned
         conversation.save()
         
@@ -593,7 +893,8 @@ def toggle_pin_conversation(request, conversation_id):
 
 # Add diagnosis-related views from your code
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def get_conversation_messages(request, conversation_id):
     """
     GET /api/chatbot/conversations/:conversationId/
@@ -620,7 +921,7 @@ def get_conversation_messages(request, conversation_id):
     if user_type == 'admin':
         request.admin = user_obj
     else:
-        request.user = user_obj
+        request.user = user_obj  # Set for compatibility
     
     try:
         # Get conversation
@@ -644,7 +945,7 @@ def get_conversation_messages(request, conversation_id):
                 }, status=status.HTTP_400_BAD_REQUEST)
         else:  # pet_owner
             # Pet owners can only view their own conversations
-            if conversation.user != request.user:
+            if conversation.user != user_obj:  # Changed from request.user
                 return Response({
                     'success': False,
                     'error': 'You do not have permission to view this conversation'
@@ -704,12 +1005,27 @@ def get_conversation_messages(request, conversation_id):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def create_new_conversation(request):
     """Create a new conversation"""
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    # Only pet owners can create conversations
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can create conversations'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
         conversation = Conversation.objects.create(
-            user=request.user,
+            user=user_obj,
             title="New Conversation"
         )
        
@@ -726,11 +1042,26 @@ def create_new_conversation(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def toggle_pin_conversation(request, conversation_id):
     """Pin/unpin a conversation"""
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    # Only pet owners can pin/unpin conversations
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can pin/unpin conversations'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
-        conversation = Conversation.objects.get(id=conversation_id, user=request.user)
+        conversation = Conversation.objects.get(id=conversation_id, user=user_obj)
         conversation.is_pinned = not conversation.is_pinned
         conversation.save()
        
@@ -745,15 +1076,27 @@ def toggle_pin_conversation(request, conversation_id):
 
 # Add diagnosis-related views from your code
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def get_diagnoses(request):
     """Get paginated diagnoses with filtering"""
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    # Only pet owners can view diagnoses
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can view diagnoses'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
-        # Import here to avoid circular imports if Diagnosis model doesn't exist yet
-        try:
-            from .models import Diagnosis
-        except ImportError:
-            return Response({'error': 'Diagnosis model not implemented yet'}, status=status.HTTP_501_NOT_IMPLEMENTED)
+        # Query AIDiagnosis instead of Diagnosis
+        from .models import AIDiagnosis
        
         # Get query parameters
         search = request.GET.get('search', '')
@@ -762,22 +1105,22 @@ def get_diagnoses(request):
         page = int(request.GET.get('page', 1))
         page_size = int(request.GET.get('page_size', 10))
        
-        # Build query
-        diagnoses = Diagnosis.objects.filter(user=request.user)
+        # Build query - filter by user
+        diagnoses = AIDiagnosis.objects.filter(user=user_obj).select_related('pet')
        
         if search:
             diagnoses = diagnoses.filter(
-                Q(pet_name__icontains=search) |
+                Q(symptoms_text__icontains=search) |
                 Q(case_id__icontains=search) |
-                Q(diagnosis__icontains=search) |
-                Q(symptoms__icontains=search)
+                Q(pet__name__icontains=search) |
+                Q(ai_explanation__icontains=search)
             )
        
         if severity:
-            diagnoses = diagnoses.filter(severity=severity)
+            diagnoses = diagnoses.filter(overall_severity=severity)
            
         if species:
-            diagnoses = diagnoses.filter(animal_type=species)
+            diagnoses = diagnoses.filter(pet__animal_type__iexact=species)
        
         # Paginate
         paginator = Paginator(diagnoses, page_size)
@@ -788,14 +1131,14 @@ def get_diagnoses(request):
         for diagnosis in page_obj:
             diagnoses_data.append({
                 'id': diagnosis.id,
-                'pet_name': diagnosis.pet_name,
-                'animal_type': diagnosis.animal_type,
-                'breed': diagnosis.breed or 'Mixed Breed',
-                'severity': diagnosis.severity,
+                'pet_name': diagnosis.pet.name if diagnosis.pet else 'Unknown Pet',
+                'animal_type': diagnosis.pet.animal_type if diagnosis.pet else 'Unknown',
+                'breed': (diagnosis.pet.breed if diagnosis.pet else None) or 'Mixed Breed',
+                'severity': diagnosis.overall_severity,
                 'case_id': diagnosis.case_id,
-                'created_at': diagnosis.created_at.strftime('%B %d, %Y'),
-                'diagnosis': diagnosis.diagnosis,
-                'symptoms': diagnosis.symptoms,
+                'created_at': diagnosis.generated_at.strftime('%B %d, %Y'),
+                'diagnosis': diagnosis.ai_explanation[:200] + '...' if len(diagnosis.ai_explanation) > 200 else diagnosis.ai_explanation,
+                'symptoms': diagnosis.symptoms_text,
             })
        
         return Response({
@@ -812,9 +1155,24 @@ def get_diagnoses(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def create_diagnosis(request):
     """Create a new diagnosis from chat conversation"""
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    # Only pet owners can create diagnoses
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can create diagnoses'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
         # Import here to avoid circular imports if Diagnosis model doesn't exist yet
         try:
@@ -828,7 +1186,7 @@ def create_diagnosis(request):
         case_id = f"PDX-{datetime.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:3].upper()}"
        
         diagnosis = Diagnosis.objects.create(
-            user=request.user,
+            user=user_obj,
             pet_name=data.get('pet_name', 'Unknown Pet'),
             animal_type=data.get('animal_type', 'dog'),
             breed=data.get('breed', ''),
@@ -849,11 +1207,26 @@ def create_diagnosis(request):
 
 
 @api_view(['PATCH'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def update_conversation(request, conversation_id):
     """Update conversation details (like title)"""
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    # Only pet owners can update conversations
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can update conversations'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
-        conversation = Conversation.objects.get(id=conversation_id, user=request.user)
+        conversation = Conversation.objects.get(id=conversation_id, user=user_obj)
         
         if 'title' in request.data:
             new_title = request.data['title'].strip()
@@ -874,11 +1247,26 @@ def update_conversation(request, conversation_id):
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def delete_conversation(request, conversation_id):
     """Delete a conversation"""
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    # Only pet owners can delete conversations
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can delete conversations'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
-        conversation = Conversation.objects.get(id=conversation_id, user=request.user)
+        conversation = Conversation.objects.get(id=conversation_id, user=user_obj)
         conversation.delete()
         
         return Response({'message': 'Conversation deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
@@ -942,12 +1330,37 @@ def debug_openai(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def predict_symptoms(request):
     """Predict likely condition from symptoms using a RandomForest pipeline.
 
     Payload: { "symptoms": "vomiting, lethargy", "species": "dog", "pet_id": 1, "image_url": "optional" }
     """
+    from utils.unified_permissions import check_user_or_admin
+    from django.contrib.auth.models import AnonymousUser
+    
+    # Check authentication (supports both user types)
+    # If request.user is already set to a real user (internal call), use it; otherwise authenticate
+    if isinstance(request.user, AnonymousUser) or not hasattr(request.user, 'id') or request.user.id is None:
+        user_type, user_obj, error_response = check_user_or_admin(request)
+        if error_response:
+            return error_response
+        
+        # Only pet owners can use symptom prediction
+        if user_type != 'pet_owner':
+            return Response({
+                'success': False,
+                'error': 'Only pet owners can use symptom prediction'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        request.user = user_obj
+    else:
+        # User is already set (internal call), verify it's a pet owner
+        if not hasattr(request.user, 'is_staff') or request.user.is_staff:
+            # Admin users shouldn't use this endpoint directly
+            pass  # Allow it for now, but could add check here if needed
+    
     try:
         body = request.data
         symptoms_text = (body.get('symptoms') or '').strip()
@@ -1080,9 +1493,24 @@ def predict_symptoms(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def create_ai_diagnosis(request):
     """Create a comprehensive AI diagnosis report"""
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    # Only pet owners can create AI diagnoses
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can create AI diagnoses'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
         from pets.models import Pet
         
@@ -1095,9 +1523,12 @@ def create_ai_diagnosis(request):
         
         # Get pet
         try:
-            pet = Pet.objects.get(id=pet_id, owner=request.user)
+            pet = Pet.objects.get(id=pet_id, owner=user_obj)
         except Pet.DoesNotExist:
             return Response({'error': 'Pet not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Temporarily set request.user for predict_symptoms function
+        request.user = user_obj
         
         # Get ML predictions
         ml_response = predict_symptoms(request)
@@ -1108,7 +1539,7 @@ def create_ai_diagnosis(request):
         
         # Create AI Diagnosis record
         ai_diagnosis = AIDiagnosis.objects.create(
-            user=request.user,
+            user=user_obj,
             pet=pet,
             symptoms_text=symptoms_text,
             image_analysis=ml_data.get('image_analysis'),
@@ -1257,15 +1688,36 @@ def upload_symptom_image(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def get_user_pets(request):
     """Get all pets for the current user"""
+    from utils.unified_permissions import check_user_or_admin
+    
+    print(f"[GET_USER_PETS] Received request")
+    print(f"[GET_USER_PETS] Authorization header: {request.META.get('HTTP_AUTHORIZATION', '')[:50]}...")
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        print(f"[GET_USER_PETS] Authentication failed: {error_response.data if hasattr(error_response, 'data') else 'Unknown error'}")
+        return error_response
+    
+    print(f"[GET_USER_PETS] Authentication successful, user_type: {user_type}, user: {user_obj.email if user_obj else 'None'}")
+    
+    # Only pet owners can access their own pets
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can access this endpoint'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
-        logger.info(f"get_user_pets called by user: {request.user}")
+        logger.info(f"get_user_pets called by user: {user_obj.email}")
         
         # Check if Pet model is imported
         logger.info("Fetching pets from database...")
-        pets = Pet.objects.filter(owner=request.user)
+        pets = Pet.objects.filter(owner=user_obj)
         logger.info(f"Found {pets.count()} pets")
         
         pets_data = []
@@ -1311,9 +1763,24 @@ def get_user_pets(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def start_conversation_with_pet(request):
     """Start a new conversation with a selected pet"""
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    # Only pet owners can start conversations
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can start conversations'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
         pet_id = request.data.get('pet_id')
         
@@ -1325,7 +1792,7 @@ def start_conversation_with_pet(request):
         
         # Check if pet exists and belongs to user
         try:
-            pet = Pet.objects.get(id=pet_id, owner=request.user)
+            pet = Pet.objects.get(id=pet_id, owner=user_obj)  # Changed from request.user
         except Pet.DoesNotExist:
             return Response({
                 'success': False,
@@ -1334,7 +1801,7 @@ def start_conversation_with_pet(request):
         
         # Create a new conversation (using your actual model fields)
         conversation = Conversation.objects.create(
-            user=request.user,
+            user=user_obj,  # Changed from request.user
             pet=pet,
             title=f"Chat with {pet.name}"
         )
@@ -1351,9 +1818,15 @@ def start_conversation_with_pet(request):
         return Response({
             'success': True,
             'conversation_id': conversation.id,
-            'message': 'Conversation started successfully',
-            'welcome_message': welcome_message,
-            'pet_name': pet.name
+            'pet_context': {
+                'id': pet.id,
+                'name': pet.name,
+                'species': getattr(pet, 'species', getattr(pet, 'animal_type', 'Unknown')),
+                'breed': getattr(pet, 'breed', 'Unknown'),
+                'age': getattr(pet, 'age', 0)
+            },
+            'initial_message': welcome_message,
+            'message': 'Conversation started successfully'
         })
         
     except Exception as e:
@@ -1666,8 +2139,8 @@ def generate_soap_report(request):
         }
         severity_level = severity_map.get(str(ml.get('urgency', 'routine')).lower(), 'Moderate')
 
-        # Flag level
-        flag_level = _calculate_flag_level(assessment, matched_symptoms_all=symptoms)
+        # Set flag level to match severity level
+        flag_level = severity_level
 
         case_id = f"#PDX-{timezone.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:3].upper()}"
         report = SOAPReport.objects.create(
@@ -1722,10 +2195,25 @@ def get_soap_report(request, case_id: str):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def get_pet_diagnoses(request, pet_id: int):
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    # Only pet owners can view pet diagnoses
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can view pet diagnoses'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
-        pet = Pet.objects.get(id=pet_id, owner=request.user)
+        pet = Pet.objects.get(id=pet_id, owner=user_obj)
         reports = pet.soap_reports.all().order_by('-date_generated')
         results = [
             {
@@ -1743,10 +2231,25 @@ def get_pet_diagnoses(request, pet_id: int):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def get_flagged_cases_for_pet(request, pet_id: int):
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Check authentication (supports both user types)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    # Only pet owners can view flagged cases
+    if user_type != 'pet_owner':
+        return Response({
+            'success': False,
+            'error': 'Only pet owners can view flagged cases'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     try:
-        pet = Pet.objects.get(id=pet_id, owner=request.user)
+        pet = Pet.objects.get(id=pet_id, owner=user_obj)
         reports = pet.soap_reports.filter(flag_level__in=['Urgent', 'Emergency']).order_by('-date_flagged')
         results = [
             {

@@ -9,6 +9,7 @@ import PetProfile from './components/PetProfile';
 import ProfileSettings from './components/ProfileSettings';
 import ProtectedRoute from './components/ProtectedRoute';
 import RegisterStep2 from './components/RegisterStep2';
+import VerifyEmail from './components/VerifyEmail';
 
 // Admin Components
 import AdminLogin from './components/admin/AdminLogin';
@@ -59,6 +60,7 @@ function AppWithFade() {
       <Route path="/login" element={<FadeWrapper><Login /></FadeWrapper>} />
       <Route path="/register" element={<FadeWrapper><Login /></FadeWrapper>} />
       <Route path="/register/step2" element={<FadeWrapper><RegisterStep2 /></FadeWrapper>} />
+      <Route path="/verify-email" element={<FadeWrapper><VerifyEmail /></FadeWrapper>} />
       <Route 
         path="/ai-diagnosis" 
         element={

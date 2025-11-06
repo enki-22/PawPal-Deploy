@@ -195,16 +195,21 @@ const PurpleCarousel = () => {
 // Register Step 2 Form Component
 const RegisterStep2Form = ({ onSubmit, loading }) => {
   const { registrationData, updateStep2 } = useRegistration();
-  const [formData, setFormData] = useState(registrationData.step2);
+  const [formData, setFormData] = useState({
+    ...registrationData.step2,
+    clinic_agreement: false,
+    terms_agreement: false
+  });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   const handleChange = (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: value,
     });
-    // Clear specific error when user starts typing
+    // Clear specific error when user starts typing/checking
     if (errors[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: '' });
     }
@@ -220,6 +225,12 @@ const RegisterStep2Form = ({ onSubmit, loading }) => {
     }
     if (!formData.city) {
       newErrors.city = 'City is required';
+    }
+    if (!formData.clinic_agreement) {
+      newErrors.clinic_agreement = 'You must confirm that you are a client of Southvalley Veterinary Clinic';
+    }
+    if (!formData.terms_agreement) {
+      newErrors.terms_agreement = 'You must agree to the Terms and Conditions and Privacy Policy';
     }
     return newErrors;
   };
@@ -541,61 +552,127 @@ const RegisterStep2Form = ({ onSubmit, loading }) => {
 
               {/* Checkboxes */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.638rem', marginTop: '0.638rem' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.638rem' }}>
-                  <input
-                    type="checkbox"
-                    id="clinic_agreement"
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.638rem', position: 'relative' }}>
+                  <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <input
+                      type="checkbox"
+                      id="clinic_agreement"
+                      name="clinic_agreement"
+                      checked={formData.clinic_agreement || false}
+                      onChange={handleChange}
+                      style={{
+                        width: '21.6px',
+                        height: '21.6px',
+                        border: errors.clinic_agreement ? '2px solid #dc2626' : '1px solid #34113F',
+                        borderRadius: '5px',
+                        margin: 0,
+                        marginTop: '2px',
+                        appearance: 'none',
+                        WebkitAppearance: 'none',
+                        MozAppearance: 'none',
+                        cursor: 'pointer',
+                        backgroundColor: formData.clinic_agreement ? '#34113F' : 'transparent',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                      required
+                    />
+                    {formData.clinic_agreement && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '6px',
+                        left: '4px',
+                        color: '#FFF07B',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        pointerEvents: 'none',
+                        lineHeight: '1'
+                      }}>✓</span>
+                    )}
+                  </div>
+                  <label 
+                    htmlFor="clinic_agreement" 
+                    onClick={() => handleChange({ target: { name: 'clinic_agreement', type: 'checkbox', checked: !formData.clinic_agreement } })}
                     style={{
-                      width: '21.6px',
-                      height: '21.6px',
-                      border: '1px solid #34113F',
-                      borderRadius: '5px',
-                      margin: 0,
-                      marginTop: '2px',
-                      appearance: 'none',
-                      WebkitAppearance: 'none',
-                      MozAppearance: 'none',
-                      flexShrink: 0
+                      fontFamily: 'Raleway',
+                      fontSize: '16.8px',
+                      color: errors.clinic_agreement ? '#dc2626' : '#000000',
+                      lineHeight: '1.3',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      flex: 1
                     }}
-                    required
-                  />
-                  <label htmlFor="clinic_agreement" style={{
-                    fontFamily: 'Raleway',
-                    fontSize: '16.8px',
-                    color: '#000000',
-                    lineHeight: '1.3'
-                  }}>
+                  >
                     I confirm that I am a client of Southvalley Veterinary Clinic.
                   </label>
                 </div>
+                {errors.clinic_agreement && (
+                  <div style={{ color: '#dc2626', fontSize: '14px', marginLeft: '28px', marginTop: '-0.5rem' }}>
+                    {errors.clinic_agreement}
+                  </div>
+                )}
 
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.638rem' }}>
-                  <input
-                    type="checkbox"
-                    id="terms_agreement"
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.638rem', position: 'relative' }}>
+                  <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <input
+                      type="checkbox"
+                      id="terms_agreement"
+                      name="terms_agreement"
+                      checked={formData.terms_agreement || false}
+                      onChange={handleChange}
+                      style={{
+                        width: '21.6px',
+                        height: '21.6px',
+                        border: errors.terms_agreement ? '2px solid #dc2626' : '1px solid #34113F',
+                        borderRadius: '5px',
+                        margin: 0,
+                        marginTop: '2px',
+                        appearance: 'none',
+                        WebkitAppearance: 'none',
+                        MozAppearance: 'none',
+                        cursor: 'pointer',
+                        backgroundColor: formData.terms_agreement ? '#34113F' : 'transparent',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                      required
+                    />
+                    {formData.terms_agreement && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '6px',
+                        left: '4px',
+                        color: '#FFF07B',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        pointerEvents: 'none',
+                        lineHeight: '1'
+                      }}>✓</span>
+                    )}
+                  </div>
+                  <label 
+                    htmlFor="terms_agreement"
+                    onClick={() => handleChange({ target: { name: 'terms_agreement', type: 'checkbox', checked: !formData.terms_agreement } })}
                     style={{
-                      width: '21.6px',
-                      height: '21.6px',
-                      border: '1px solid #34113F',
-                      borderRadius: '5px',
-                      margin: 0,
-                      marginTop: '2px',
-                      appearance: 'none',
-                      WebkitAppearance: 'none',
-                      MozAppearance: 'none',
-                      flexShrink: 0
+                      fontFamily: 'Raleway',
+                      fontSize: '16.8px',
+                      color: errors.terms_agreement ? '#dc2626' : '#000000',
+                      lineHeight: '1.3',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      flex: 1
                     }}
-                    required
-                  />
-                  <label htmlFor="terms_agreement" style={{
-                    fontFamily: 'Raleway',
-                    fontSize: '16.8px',
-                    color: '#000000',
-                    lineHeight: '1.3'
-                  }}>
+                  >
                     I confirm that I have read and agree to the Terms and Conditions and Privacy Policy of this website.
                   </label>
                 </div>
+                {errors.terms_agreement && (
+                  <div style={{ color: '#dc2626', fontSize: '14px', marginLeft: '28px', marginTop: '-0.5rem' }}>
+                    {errors.terms_agreement}
+                  </div>
+                )}
               </div>
             </div>
           </form>
@@ -655,14 +732,17 @@ const RegisterStep2 = () => {
     setLoading(true);
     
     // Send all data in one request to match Django backend expectations
+    // Construct name from username (capitalize first letter)
+    const username = registrationData.step1.username;
+    const name = username ? username.charAt(0).toUpperCase() + username.slice(1) : '';
+    
     const completeData = {
       // User data (required by UserRegistrationSerializer)
-      username: registrationData.step1.username,
+      name: name, // Use name field (backend will split into first_name/last_name)
+      username: username,
       email: registrationData.step1.email,
       password: registrationData.step1.password1,
       password_confirm: registrationData.step1.password2,
-      first_name: '',
-      last_name: '',
       
       // UserProfile data (will be handled by the view)
       phone_number: formData.phone_number,
@@ -674,16 +754,18 @@ const RegisterStep2 = () => {
     console.log('Complete registration data being sent:', completeData);
     
     try {
-      // Use the registration endpoint which creates active user directly (no OTP)
-      await authService.registerWithOtp(completeData);
+      // Use the registration endpoint (OTP verification temporarily disabled - accounts are created active)
+      const response = await authService.registerWithOtp(completeData);
       
       // Fade out before navigation
       setFadeOut(true);
       setTimeout(() => {
         clearData();
-        // Navigate to login after successful registration
+        // Navigate to login page after successful registration (OTP verification temporarily disabled)
         navigate('/login', { 
-          state: { message: 'Registration successful! Please log in.' },
+          state: { 
+            message: 'Registration successful! You can now log in.' 
+          },
           replace: true
         });
       }, 500); // 500ms fade out duration

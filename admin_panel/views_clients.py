@@ -2,7 +2,8 @@
 Admin Client Management Views (Chunk 6)
 Implements 6 comprehensive client management endpoints
 """
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.mail import send_mail
@@ -24,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def get_clients(request):
     """
@@ -119,6 +121,7 @@ def get_clients(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def get_client_detail(request, user_id):
     """
@@ -204,6 +207,7 @@ def get_client_detail(request, user_id):
 
 
 @api_view(['PUT'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_admin_role(['MASTER', 'VET'])  # NOT DESK
 def update_client(request, user_id):
     """
@@ -319,6 +323,7 @@ def update_client(request, user_id):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_admin_role(['MASTER', 'VET'])  # NOT DESK
 def verify_client(request, user_id):
     """
@@ -401,6 +406,7 @@ def verify_client(request, user_id):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_admin_role(['MASTER', 'VET'])  # NOT DESK
 def deactivate_client(request, user_id):
     """
@@ -481,6 +487,7 @@ def deactivate_client(request, user_id):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin  # ALL roles can send email
 def send_client_email(request, user_id):
     """

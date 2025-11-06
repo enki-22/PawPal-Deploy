@@ -2,7 +2,8 @@
 Admin Profile Management Views (Chunk 10)
 Implements admin profile management endpoints
 """
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.mail import send_mail
@@ -26,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(['GET', 'PUT'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def get_admin_profile(request):
     """
@@ -176,6 +178,7 @@ def _update_admin_profile(request):
 
 
 @api_view(['PUT'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def update_admin_profile_photo(request):
     """
@@ -252,6 +255,7 @@ def update_admin_profile_photo(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
 def set_recovery_email(request):
     """
