@@ -79,6 +79,27 @@ class PetDetailView(generics.RetrieveUpdateDestroyAPIView):
         self.request.user = user_obj
         
         return Pet.objects.filter(owner=user_obj)
+    
+    def perform_update(self, serializer):
+        """Override to update AI diagnoses when pet is updated"""
+        pet = serializer.save()
+        
+        # Update pet_context in all related AI diagnoses
+        from chatbot.models import AIDiagnosis
+        updated_pet_context = {
+            'name': pet.name,
+            'species': getattr(pet, 'animal_type', 'Unknown'),
+            'breed': getattr(pet, 'breed', 'Unknown') or 'Unknown',
+            'age': getattr(pet, 'age', 'Unknown'),
+            'sex': getattr(pet, 'sex', 'Unknown'),
+            'weight': float(pet.weight) if pet.weight else None,
+            'medical_notes': getattr(pet, 'medical_notes', '') or '',
+        }
+        
+        # Update all AI diagnoses for this pet
+        updated_count = AIDiagnosis.objects.filter(pet=pet).update(pet_context=updated_pet_context)
+        if updated_count > 0:
+            print(f"✅ Updated pet_context in {updated_count} AI diagnosis(es) for pet {pet.name}")
 
 @api_view(['GET'])
 @authentication_classes([])  # Disable DRF authentication - our decorator handles it
@@ -343,6 +364,24 @@ def pet_detail(request, pet_id):
             serializer = PetSerializer(pet, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
+                
+                # Update pet_context in all related AI diagnoses
+                from chatbot.models import AIDiagnosis
+                updated_pet_context = {
+                    'name': pet.name,
+                    'species': getattr(pet, 'animal_type', 'Unknown'),
+                    'breed': getattr(pet, 'breed', 'Unknown') or 'Unknown',
+                    'age': getattr(pet, 'age', 'Unknown'),
+                    'sex': getattr(pet, 'sex', 'Unknown'),
+                    'weight': float(pet.weight) if pet.weight else None,
+                    'medical_notes': getattr(pet, 'medical_notes', '') or '',
+                }
+                
+                # Update all AI diagnoses for this pet
+                updated_count = AIDiagnosis.objects.filter(pet=pet).update(pet_context=updated_pet_context)
+                if updated_count > 0:
+                    print(f"✅ Updated pet_context in {updated_count} AI diagnosis(es) for pet {pet.name}")
+                
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

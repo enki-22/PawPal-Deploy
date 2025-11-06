@@ -20,31 +20,13 @@ const AdminClients = () => {
             console.error('❌ Error response data:', err.response.data);
             console.error('❌ Error response status:', err.response.status);
           }
-          return { data: { data: [] } };
+          return { data: { results: [] } };
         });
-      setClientsData(response.data.data || []);
+      // Backend returns 'results' not 'data'
+      setClientsData(response.data.results || []);
     } catch (error) {
       console.error('Failed to fetch clients data:', error);
-      setClientsData([
-        {
-          id: 1,
-          name: "Maria Garcia",
-          email: "mariagarcia@gmail.com",
-          pet_count: 1,
-          status: "Active",
-          date_created: "2025-06-04",
-          is_active: true
-        },
-        {
-          id: 2,
-          name: "Mal Beausoleil",
-          email: "mal@gmail.com",
-          pet_count: 3,
-          status: "Active",
-          date_created: "2025-06-04",
-          is_active: true
-        }
-      ]);
+      setClientsData([]);
     } finally {
       setLoading(false);
     }

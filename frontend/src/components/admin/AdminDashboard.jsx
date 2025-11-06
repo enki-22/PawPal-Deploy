@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import AdminTopNav from './AdminTopNav';
 
@@ -7,12 +8,18 @@ import { BarChart, XAxis, YAxis, Bar } from 'recharts';
 import { ChevronDown } from 'lucide-react';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   // --- State and Data Definitions ---
   const { adminAxios } = useAdminAuth();
   const [userCount, setUserCount] = useState(0);
   const [petCount, setPetCount] = useState(0);
   const [soapCount, setSoapCount] = useState(0);
   const [conversationCount, setConversationCount] = useState(0);
+  
+  // Filters for SOAP Reports and Conversations (declared before useEffect)
+  const [conversationFilter, setConversationFilter] = useState('This Month');
+  const [soapFilter, setSoapFilter] = useState('This Month');
+  
   // Stat cards in correct order with imported SVGs
   const stats = [
   { label: 'Users', value: userCount, icon: '/Group 129.png' },
@@ -22,47 +29,57 @@ const AdminDashboard = () => {
   ];
 
   useEffect(() => {
-    // Fetch pet owner user count and pet count from backend
+    // Fetch dashboard stats from the correct endpoint
     const fetchDashboardCounts = async () => {
       try {
-        // Users
-        const userRes = await adminAxios.get('/admin/clients');
-        setUserCount(Array.isArray(userRes.data.data) ? userRes.data.data.length : 0);
-        // Pets
-        const petRes = await adminAxios.get('/admin/pets');
-        setPetCount(Array.isArray(petRes.data.data) ? petRes.data.data.length : 0);
-  // SOAP Reports
-  const soapRes = await adminAxios.get('/admin/soap-reports');
-  setSoapCount(Array.isArray(soapRes.data.data) ? soapRes.data.data.length : 0);
-  // Conversations
-  const convRes = await adminAxios.get('/admin/conversations');
-  setConversationCount(Array.isArray(convRes.data.data) ? convRes.data.data.length : 0);
+        // Map frontend filter values to backend filter values
+        const reportsFilterMap = {
+          'Last 24 Hours': 'last_7_days', // Backend doesn't have last_24_hours, use last_7_days
+          'Last 7 Days': 'last_7_days',
+          'Last Month': 'last_30_days',
+          'All Time': 'all_time'
+        };
+        const conversationsFilterMap = {
+          'Last 24 Hours': 'this_week', // Backend doesn't have last_24_hours, use this_week
+          'This Week': 'this_week',
+          'This Month': 'this_month',
+          'All Time': 'all_time'
+        };
+        
+        const reportsFilter = reportsFilterMap[soapFilter] || 'all_time';
+        const conversationsFilterValue = conversationsFilterMap[conversationFilter] || 'all_time';
+        
+        // Use the dashboard/stats endpoint which returns all counts
+        const statsRes = await adminAxios.get(`/admin/dashboard/stats?reports_filter=${reportsFilter}&conversations_filter=${conversationsFilterValue}`);
+        if (statsRes.data.success && statsRes.data.data) {
+          setUserCount(statsRes.data.data.total_users || 0);
+          setPetCount(statsRes.data.data.total_pets || 0);
+          setSoapCount(statsRes.data.data.total_reports || 0);
+          setConversationCount(statsRes.data.data.total_conversations || 0);
+        }
       } catch (error) {
+        console.error('Failed to fetch dashboard stats:', error);
         setUserCount(0);
         setPetCount(0);
         setSoapCount(0);
+        setConversationCount(0);
       }
     };
     fetchDashboardCounts();
-  }, [adminAxios]);
-
-  // Filters for SOAP Reports and Conversations
-  const [conversationFilter, setConversationFilter] = useState('This Month');
-
-  // SOAP filter state
-  const [soapFilter, setSoapFilter] = useState('This Month');
+  }, [adminAxios, soapFilter, conversationFilter]);
 
   // FAQ state
   const [faqs, setFaqs] = useState([]);
   const [openFAQ, setOpenFAQ] = useState(null);
 
   useEffect(() => {
-    // Fetch FAQs from backend (frequently asked questions from pet owner conversations)
+    // Fetch FAQs from correct endpoint
     const fetchFaqs = async () => {
       try {
-        const response = await adminAxios.get('/admin/faqs');
+        const response = await adminAxios.get('/admin/dashboard/faqs');
         setFaqs(Array.isArray(response.data.data) ? response.data.data : []);
       } catch (error) {
+        console.error('Failed to fetch FAQs:', error);
         setFaqs([]);
       }
     };
@@ -73,12 +90,13 @@ const AdminDashboard = () => {
   const [pets, setPets] = useState([]);
 
   useEffect(() => {
-    // Fetch recently added pets from pet owner side data
+    // Fetch recently added pets from correct endpoint
     const fetchPets = async () => {
       try {
-        const response = await adminAxios.get('/admin/pets');
-        setPets(Array.isArray(response.data.data) ? response.data.data.slice(0, 5) : []); // Show only the 5 most recent
+        const response = await adminAxios.get('/admin/dashboard/recent-pets');
+        setPets(Array.isArray(response.data.data) ? response.data.data : []);
       } catch (error) {
+        console.error('Failed to fetch recent pets:', error);
         setPets([]);
       }
     };
@@ -89,12 +107,13 @@ const AdminDashboard = () => {
   const [cases, setCases] = useState([]);
 
   useEffect(() => {
-    // Fetch flagged cases from pet owner side data
+    // Fetch flagged cases from correct endpoint
     const fetchFlaggedCases = async () => {
       try {
-        const response = await adminAxios.get('/admin/flagged-cases');
-        setCases(Array.isArray(response.data.data) ? response.data.data.slice(0, 5) : []); // Show only the 5 most recent
+        const response = await adminAxios.get('/admin/dashboard/flagged-cases?filter=all');
+        setCases(Array.isArray(response.data.data) ? response.data.data.slice(0, 5) : []);
       } catch (error) {
+        console.error('Failed to fetch flagged cases:', error);
         setCases([]);
       }
     };
@@ -106,17 +125,26 @@ const AdminDashboard = () => {
   const [speciesData, setSpeciesData] = useState([]);
 
   useEffect(() => {
-    // Fetch species check data from backend
+    // Fetch species chart data from dashboard/charts endpoint
     const fetchSpeciesData = async () => {
       try {
-        const response = await adminAxios.get(`/admin/species-checks?filter=${encodeURIComponent(speciesFilter)}`);
-        setSpeciesData(Array.isArray(response.data.data) ? response.data.data : []);
+        const response = await adminAxios.get('/admin/dashboard/charts');
+        if (response.data.success && response.data.data) {
+          const speciesBreakdown = response.data.data.species_breakdown || {};
+          // Convert to array format for chart
+          const speciesArray = Object.entries(speciesBreakdown).map(([name, value]) => ({
+            name,
+            value: value || 0
+          }));
+          setSpeciesData(speciesArray);
+        }
       } catch (error) {
+        console.error('Failed to fetch species data:', error);
         setSpeciesData([]);
       }
     };
     fetchSpeciesData();
-  }, [adminAxios, speciesFilter]);
+  }, [adminAxios]);
 
   // Symptoms data
   const [symptoms, setSymptoms] = useState([]);
@@ -128,44 +156,43 @@ const AdminDashboard = () => {
   const [announcements, setAnnouncements] = useState([]);
 
   useEffect(() => {
-    // Fetch most common symptoms
+    // Fetch symptoms data from dashboard/charts endpoint
     const fetchSymptoms = async () => {
       try {
-        const response = await adminAxios.get('/admin/common-symptoms');
-        setSymptoms(Array.isArray(response.data.data) ? response.data.data : []);
+        const response = await adminAxios.get('/admin/dashboard/charts');
+        if (response.data.success && response.data.data) {
+          setSymptoms(Array.isArray(response.data.data.common_symptoms) ? response.data.data.common_symptoms : []);
+          setSymptomsBySpecies(response.data.data.symptoms_by_species || {});
+        }
       } catch (error) {
+        console.error('Failed to fetch symptoms:', error);
         setSymptoms([]);
-      }
-    };
-    // Fetch common symptoms in species
-    const fetchSymptomsBySpecies = async () => {
-      try {
-        const response = await adminAxios.get('/admin/symptoms-by-species');
-        setSymptomsBySpecies(response.data.data || {});
-      } catch (error) {
         setSymptomsBySpecies({});
       }
     };
-    // Fetch latest SOAP reports
+    // Fetch latest SOAP reports from reports endpoint
     const fetchLatestSoapReports = async () => {
       try {
-        const response = await adminAxios.get('/admin/latest-soap-reports');
-        setLatestSoapReports(Array.isArray(response.data.data) ? response.data.data : []);
+        const response = await adminAxios.get('/admin/reports?limit=5');
+        // Backend returns results array
+        const reports = response.data.results || response.data.data || [];
+        setLatestSoapReports(reports.slice(0, 5));
       } catch (error) {
+        console.error('Failed to fetch latest SOAP reports:', error);
         setLatestSoapReports([]);
       }
     };
-    // Fetch announcements
+    // Fetch announcements from dashboard/announcements endpoint
     const fetchAnnouncements = async () => {
       try {
-        const response = await adminAxios.get('/admin/announcements');
+        const response = await adminAxios.get('/admin/dashboard/announcements');
         setAnnouncements(Array.isArray(response.data.data) ? response.data.data : []);
       } catch (error) {
+        console.error('Failed to fetch announcements:', error);
         setAnnouncements([]);
       }
     };
     fetchSymptoms();
-    fetchSymptomsBySpecies();
     fetchLatestSoapReports();
     fetchAnnouncements();
   }, [adminAxios]);
@@ -247,7 +274,10 @@ const AdminDashboard = () => {
               <div className="bg-white rounded-[10px] p-[28px]">
                 <div className="flex items-center justify-between mb-[28px]">
                   <h2 className="font-['Raleway:Bold',sans-serif] tracking-[1.1px]">Recently Added Pets</h2>
-                  <button className="bg-[#f0e4b3] rounded-[10px] px-[41px] py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px]">
+                  <button 
+                    onClick={() => navigate('/admin/pets')}
+                    className="bg-[#f0e4b3] rounded-[10px] px-[41px] py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px] cursor-pointer hover:bg-[#e8d9a0] transition-colors"
+                  >
                     Show All Pets
                   </button>
                 </div>
@@ -290,7 +320,10 @@ const AdminDashboard = () => {
               <div className="bg-white rounded-[10px] p-[28px]">
                 <div className="flex items-center justify-between mb-[28px]">
                   <h2 className="font-['Raleway:Bold',sans-serif] tracking-[1.1px]">Flagged Cases</h2>
-                  <button className="bg-[#f0e4b3] rounded-[10px] px-[41px] py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px]">
+                  <button 
+                    onClick={() => navigate('/admin/reports')}
+                    className="bg-[#f0e4b3] rounded-[10px] px-[41px] py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px] cursor-pointer hover:bg-[#e8d9a0] transition-colors"
+                  >
                     View All Flagged SOAP Reports
                   </button>
                 </div>
@@ -389,7 +422,12 @@ const AdminDashboard = () => {
                     </li>
                   ))}
                 </ul>
-                <button className="mt-2 w-full bg-[#efe8be] rounded-[5px] py-1 text-xs font-bold text-[#57166B]">View All Common Symptoms in Species</button>
+                <button 
+                  onClick={() => navigate('/admin/reports')}
+                  className="mt-2 w-full bg-[#efe8be] rounded-[5px] py-1 text-xs font-bold text-[#57166B] cursor-pointer hover:bg-[#e5dba8] transition-colors"
+                >
+                  View All Common Symptoms in Species
+                </button>
               </div>
               {/* Latest SOAP Report Generated */}
               <div className="bg-white rounded-[10px] p-[18px]">
@@ -405,7 +443,12 @@ const AdminDashboard = () => {
                     <li className="text-gray-500">No SOAP reports found.</li>
                   )}
                 </ul>
-                <button className="mt-2 w-full bg-[#efe8be] rounded-[5px] py-1 text-xs font-bold text-[#57166B]">View All SOAP Reports</button>
+                <button 
+                  onClick={() => navigate('/admin/reports')}
+                  className="mt-2 w-full bg-[#efe8be] rounded-[5px] py-1 text-xs font-bold text-[#57166B] cursor-pointer hover:bg-[#e5dba8] transition-colors"
+                >
+                  View All SOAP Reports
+                </button>
               </div>
               {/* Announcement Management */}
               <div className="bg-white rounded-[10px] p-[18px]">
@@ -428,7 +471,10 @@ const AdminDashboard = () => {
                     </div>
                   ))}
                 </div>
-                <button className="w-full bg-[#f0e4b3] rounded-[10px] py-2 mt-4 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px]">
+                <button 
+                  onClick={() => navigate('/admin/announcements')}
+                  className="w-full bg-[#f0e4b3] rounded-[10px] py-2 mt-4 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px] cursor-pointer hover:bg-[#e8d9a0] transition-colors"
+                >
                   View All Announcements
                 </button>
               </div>

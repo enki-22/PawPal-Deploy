@@ -20,35 +20,24 @@ const AdminPets = () => {
             console.error('❌ Error response data:', err.response.data);
             console.error('❌ Error response status:', err.response.status);
           }
-          return { data: { data: [] } };
+          return { data: { results: [] } };
         });
-      setPetsData(response.data.data || []);
+      // Backend returns 'results' not 'data'
+      // Map the response format to match frontend expectations
+      const pets = response.data.results || [];
+      setPetsData(pets.map(pet => ({
+        id: pet.pet_id || pet.id,
+        pet_name: pet.name,
+        species: pet.species,
+        breed: pet.breed,
+        owner_name: pet.owner_name,
+        status: pet.status || 'Active',
+        date_registered: pet.registered_date || pet.created_at,
+        pet_image: pet.photo
+      })));
     } catch (error) {
       console.error('Failed to fetch pets data:', error);
-      setPetsData([
-        {
-          id: 1,
-          pet_name: "Bruno",
-          species: "Dog",
-          breed: "Pitbull",
-          owner_name: "Maria Garcia",
-          status: "Active",
-          date_registered: "2025-06-15",
-          pet_image: "/pat-removebg-preview 2.png",
-          is_active: true
-        },
-        {
-          id: 2,
-          pet_name: "Charlie",
-          species: "Cat",
-          breed: "Domestic Shorthair", 
-          owner_name: "Mal Beausoleil",
-          status: "Active",
-          date_registered: "2025-06-04",
-          pet_image: "/pat-removebg-preview 2.png",
-          is_active: true
-        }
-      ]);
+      setPetsData([]);
     } finally {
       setLoading(false);
     }

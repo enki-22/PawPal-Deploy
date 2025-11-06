@@ -1,17 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, Search, ArrowUpDown } from 'lucide-react';
 import AdminTopNav from './AdminTopNav';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 
 const AdminReports = () => {
-  // ...existing code...
+  const { adminAxios } = useAdminAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReports, setSelectedReports] = useState([]);
   const [reportsData, setReportsData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Dummy data for demonstration; replace with API call as needed
   useEffect(() => {
-  setReportsData([]);
-  }, []);
+    const fetchReports = async () => {
+      try {
+        setLoading(true);
+        const response = await adminAxios.get('/admin/reports')
+          .catch((err) => {
+            console.error('❌ /admin/reports error:', err);
+            if (err.response) {
+              console.error('❌ Error response data:', err.response.data);
+              console.error('❌ Error response status:', err.response.status);
+            }
+            return { data: { results: [] } };
+          });
+        // Backend returns 'results' array
+        const reports = response.data.results || response.data.data || [];
+        setReportsData(reports.map(report => ({
+          id: report.case_id || report.id,
+          pet_name: report.pet_name,
+          species: report.species,
+          breed: report.breed,
+          owner_name: report.owner_name,
+          case_id: report.case_id,
+          date_generated: report.date_generated,
+          pet_image: null // Pet image not included in reports endpoint response
+        })));
+      } catch (error) {
+        console.error('Failed to fetch reports:', error);
+        setReportsData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReports();
+  }, [adminAxios]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f0f0f0] flex items-center justify-center">
+        <div className="text-xl">Loading reports...</div>
+      </div>
+    );
+  }
 
   const handleSelectAll = (checked) => {
     if (checked) {

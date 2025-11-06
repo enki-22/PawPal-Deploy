@@ -84,9 +84,17 @@ def dashboard_stats(request):
         
         today = timezone.now().date()
         
-        # Total users and pets (no filter)
-        total_users = User.objects.count()
-        total_pets = Pet.objects.count()
+        # Total users - only count pet owners (exclude vet admins)
+        # Vet admins are managed separately in admin roles page
+        # Use 'profile' as related_name (defined in UserProfile model)
+        total_users = User.objects.filter(
+            profile__is_vet_admin=False
+        ).count()
+        
+        # Total pets - only count pets owned by regular pet owners
+        total_pets = Pet.objects.filter(
+            owner__profile__is_vet_admin=False
+        ).count()
         
         # Total SOAP reports with filter
         reports_queryset = SOAPReport.objects.all()

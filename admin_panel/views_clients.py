@@ -70,8 +70,12 @@ def get_clients(request):
                 'details': error_message
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Get base queryset
-        queryset = User.objects.select_related('userprofile').all()
+        # Get base queryset - exclude vet admins, only show pet owners
+        # Vet admins are managed separately in admin roles page
+        # Use 'profile' as related_name (not 'userprofile')
+        queryset = User.objects.select_related('profile').filter(
+            profile__is_vet_admin=False
+        )
         
         # Apply filters and pagination
         filtered_queryset, pagination_info, applied_filters = filter_clients(
@@ -85,7 +89,7 @@ def get_clients(request):
             # Determine status
             if not user.is_active:
                 user_status = "Inactive"
-            elif hasattr(user, 'userprofile') and not user.userprofile.is_verified:
+            elif hasattr(user, 'profile') and not user.profile.is_verified:
                 user_status = "Pending Verification"
             else:
                 user_status = "Active"
