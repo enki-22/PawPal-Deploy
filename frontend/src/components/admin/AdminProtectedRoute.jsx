@@ -5,16 +5,9 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 const AdminProtectedRoute = ({ children, requiredRole }) => {
   const { isAdminAuthenticated, loading, admin } = useAdminAuth();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-white p-8 rounded-lg shadow-lg">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <div className="text-lg font-medium">Loading...</div>
-        </div>
-      </div>
-    );
-  }
+    if (loading) {
+      return null;
+    }
 
   if (!isAdminAuthenticated) {
     return <Navigate to="/admin/login" replace />;

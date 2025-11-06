@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import LogoutModal from '../LogoutModal';
 import { Settings, LogOut } from 'lucide-react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 
 export default function AdminTopNav({ activePage = '' }) {
   const { adminLogout } = useAdminAuth();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
   const navLinks = [
     { href: '/admin/dashboard', label: 'Dashboard' },
@@ -21,7 +24,7 @@ export default function AdminTopNav({ activePage = '' }) {
         <div className="w-[40px] h-[40px] relative">
           <img src="/pat__1_-removebg-preview 3.png" alt="PAWPAL Logo" className="w-full h-full object-contain" />
         </div>
-        <img src="/PAWPAL.png" alt="PAWPAL" className="h-[35px] ml-4 object-contain" />
+  <img src="/PAWPAL.png" alt="PAWPAL" className="h-[26.25px] ml-4 object-contain" />
       </div>
       <nav className="flex items-center gap-[30px]">
         {navLinks.map(link => (
@@ -62,10 +65,22 @@ export default function AdminTopNav({ activePage = '' }) {
                 <Settings className="w-6 h-6" />
                 Settings
               </button>
-              <button className="flex items-center gap-3 text-[#57166B] font-bold text-[18px] hover:bg-[#e5e5c3] rounded px-2 py-1" onClick={adminLogout}>
+              <button className="flex items-center gap-3 text-[#57166B] font-bold text-[18px] hover:bg-[#e5e5c3] rounded px-2 py-1" onClick={() => setLogoutModalOpen(true)}>
                 <LogOut className="w-6 h-6" />
                 Logout
               </button>
+      {/* Logout Modal */}
+      <LogoutModal
+        isOpen={logoutModalOpen}
+        loading={logoutLoading}
+        onClose={() => setLogoutModalOpen(false)}
+        onConfirm={async () => {
+          setLogoutLoading(true);
+          await adminLogout();
+          setLogoutLoading(false);
+          setLogoutModalOpen(false);
+        }}
+      />
             </div>
           </div>
         )}

@@ -15,7 +15,7 @@ export default function AdminRoles() {
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { admin, adminAxios } = useAdminAuth();
+  const { adminAxios } = useAdminAuth();
 
   const fetchAdmins = React.useCallback(async () => {
     try {
@@ -45,20 +45,8 @@ export default function AdminRoles() {
   }, [fetchAdmins]);
 
   // Loading state
-  if (loading) {
-    return (
-      <div className="bg-[#f0f0f0] relative size-full" data-name="Admin Roles">
-        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <div className="animate-pulse h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-          <div className="bg-white shadow rounded-lg overflow-hidden">
-            <div className="h-12 bg-gray-100"></div>
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-16 bg-gray-50 border-t"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    if (loading) {
+      return null;
   }
 
   // Error state

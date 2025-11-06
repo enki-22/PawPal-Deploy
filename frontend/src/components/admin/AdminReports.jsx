@@ -3,28 +3,14 @@ import { ChevronDown, Search, ArrowUpDown } from 'lucide-react';
 import AdminTopNav from './AdminTopNav';
 
 const AdminReports = () => {
-  const [loading, setLoading] = useState(true);
+  // ...existing code...
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReports, setSelectedReports] = useState([]);
   const [reportsData, setReportsData] = useState([]);
 
   // Dummy data for demonstration; replace with API call as needed
   useEffect(() => {
-    setTimeout(() => {
-      setReportsData([
-        {
-          id: 1,
-          pet_name: 'Bruno',
-          species: 'Dog',
-          breed: 'Pitbull',
-          owner_name: 'Maria Garcia',
-          case_id: 'C123',
-          date_generated: '2025-06-15',
-          pet_image: '/pat-removebg-preview 2.png',
-        },
-      ]);
-      setLoading(false);
-    }, 500);
+  setReportsData([]);
   }, []);
 
   const handleSelectAll = (checked) => {
@@ -43,52 +29,48 @@ const AdminReports = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#f0f0f0] flex items-center justify-center">
-        <div className="text-xl">Loading reports...</div>
-      </div>
-    );
-  }
+
 
   return (
-    <div className="min-h-screen bg-[#f0f0f0] relative">
+  <div className="min-h-screen bg-[#f0f0f0] relative pt-[80px]">
       <AdminTopNav activePage="Reports" />
-      {/* Page Title and Controls */}
-      <div className="flex items-center justify-between px-[129px] py-[28px]">
-        <h1 className="font-['Raleway:Bold',sans-serif] font-bold text-[20px] text-black tracking-[1px]">AI Diagnosis</h1>
-        <div className="flex items-center gap-4">
-          {/* Search Bar */}
-          <div className="relative">
-            <div className="w-[465px] h-[31px] border border-[#888888] rounded-[5px] flex items-center px-3">
-              <Search className="w-[18px] h-[18px] text-[#888888] mr-2" />
-              <input
-                type="text"
-                placeholder="Search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1 text-[12px] text-[#888888] bg-transparent outline-none font-['Inter:Regular',sans-serif]"
-              />
+      {/* Controls Bar - Title, Search centered, Filters right */}
+      <div className="px-[129px] pt-[28px] pb-0 bg-transparent">
+        <div className="flex items-center justify-between w-full mb-2">
+          <h1 className="font-['Raleway:Bold',sans-serif] font-bold text-[20px] text-black tracking-[1px]">AI Diagnosis</h1>
+          <div className="flex items-center gap-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <div className="w-[465px] h-[31px] border border-[#888888] rounded-[5px] flex items-center px-3">
+                <Search className="w-[18px] h-[18px] text-[#888888] mr-2" />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="flex-1 text-[12px] text-[#888888] bg-transparent outline-none font-['Inter:Regular',sans-serif]"
+                />
+              </div>
             </div>
-          </div>
-          {/* Date Range Filter */}
-          <div className="relative">
-            <div className="bg-[#f0e4b3] h-[31px] w-[125px] rounded-[5px] flex items-center justify-between px-3 cursor-pointer">
-              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Date Range</span>
-              <ChevronDown className="w-[12px] h-[12px] text-black" />
+            {/* Date Range Filter */}
+            <div className="relative">
+              <div className="bg-[#f0e4b3] h-[31px] w-[125px] rounded-[5px] flex items-center justify-between px-3 cursor-pointer">
+                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Date Range</span>
+                <ChevronDown className="w-[12px] h-[12px] text-black" />
+              </div>
             </div>
-          </div>
-          {/* Species Filter */}
-          <div className="relative">
-            <div className="bg-[#f0e4b3] h-[31px] w-[122px] rounded-[5px] flex items-center justify-between px-3 cursor-pointer">
-              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Species</span>
-              <ChevronDown className="w-[12px] h-[12px] text-black" />
+            {/* Species Filter */}
+            <div className="relative">
+              <div className="bg-[#f0e4b3] h-[31px] w-[122px] rounded-[5px] flex items-center justify-between px-3 cursor-pointer">
+                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Species</span>
+                <ChevronDown className="w-[12px] h-[12px] text-black" />
+              </div>
             </div>
           </div>
         </div>
       </div>
       {/* Data Table */}
-      <div className="mx-[98px] bg-[#fffff2] rounded-t-[10px] overflow-hidden">
+  <div className="mx-[100px] bg-[#fffff2] rounded-t-[10px] overflow-hidden mt-[18px]">
         {/* Table Header */}
         <div className="bg-[#fffff2] h-[40px] border-b border-[#888888] flex items-center px-[31px]">
           <div className="flex items-center gap-4 flex-1">
@@ -168,18 +150,18 @@ const AdminReports = () => {
             </div>
           </div>
         ))}
-        {/* Pagination at the bottom */}
-        <div className="flex items-center justify-center gap-2 mt-12 pb-2">
-          <button className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black">
-            <ChevronDown className="w-[11px] h-[21px] rotate-90" />
-          </button>
-          <div className="bg-[#815fb3] w-[27px] h-[27px] rounded-[5px] flex items-center justify-center">
-            <span className="font-['Inter:Regular',sans-serif] text-[12px] text-white">1</span>
-          </div>
-          <button className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black">
-            <ChevronDown className="w-[11px] h-[21px] -rotate-90" />
-          </button>
+      </div>
+      {/* Pagination at the bottom, outside the table */}
+      <div className="flex items-center justify-center gap-2 mt-12 pb-2">
+        <button className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black">
+          <ChevronDown className="w-[11px] h-[21px] rotate-90" />
+        </button>
+        <div className="bg-[#815fb3] w-[27px] h-[27px] rounded-[5px] flex items-center justify-center">
+          <span className="font-['Inter:Regular',sans-serif] text-[12px] text-white">1</span>
         </div>
+        <button className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black">
+          <ChevronDown className="w-[11px] h-[21px] -rotate-90" />
+        </button>
       </div>
     </div>
   );

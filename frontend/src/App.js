@@ -1,5 +1,6 @@
 import React from 'react';
-import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import AIDiagnosis from './components/AIDiagnosis';
 import Chat from './components/Chat';
 import Login from './components/Login';
@@ -41,135 +42,142 @@ function App() {
         <RegistrationProvider>
           <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <ConversationsProvider>
-              <div className="App">
-                <Routes>
-                  {/* Pet Owner Routes */}
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Login />} />
-                  <Route path="/register/step2" element={<RegisterStep2 />} />
-                  
-                  <Route 
-                    path="/ai-diagnosis" 
-                    element={
-                      <ProtectedRoute>
-                        <AIDiagnosis />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  <Route 
-                    path="/pet-health-records" 
-                    element={
-                      <ProtectedRoute>
-                        <PetHealthRecords />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  <Route 
-                    path="/pet-profile/:petId" 
-                    element={
-                      <ProtectedRoute>
-                        <PetProfile />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  <Route 
-                    path="/chat" 
-                    element={
-                      <ProtectedRoute>
-                        <Chat />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  <Route 
-                    path="/profile-settings" 
-                    element={
-                      <ProtectedRoute>
-                        <ProfileSettings />
-                      </ProtectedRoute>
-                    } 
-                  />
-
-                  {/* Admin Routes */}
-                  <Route path="/admin/login" element={<AdminLogin />} />
-                  
-                  <Route 
-                    path="/admin/dashboard" 
-                    element={
-                      <AdminProtectedRoute>
-                        <AdminDashboard />
-                      </AdminProtectedRoute>
-                    } 
-                  />
-                  
-                  <Route 
-                    path="/admin/reports" 
-                    element={
-                      <AdminProtectedRoute>
-                        <AdminReports />
-                      </AdminProtectedRoute>
-                    } 
-                  />
-                  
-                  <Route 
-                    path="/admin/clients" 
-                    element={
-                      <AdminProtectedRoute>
-                        <AdminClients />
-                      </AdminProtectedRoute>
-                    } 
-                  />
-                  
-                  <Route 
-                    path="/admin/pets" 
-                    element={
-                      <AdminProtectedRoute>
-                        <AdminPets />
-                      </AdminProtectedRoute>
-                    } 
-                  />
-                  
-                  <Route 
-                    path="/admin/roles" 
-                    element={
-                      <AdminProtectedRoute requiredRole="MASTER">
-                        <AdminRoles />
-                      </AdminProtectedRoute>
-                    } 
-                  />
-                  
-                  <Route 
-                    path="/admin/announcements" 
-                    element={
-                      <AdminProtectedRoute>
-                        <AdminAnnouncements />
-                      </AdminProtectedRoute>
-                    } 
-                  />
-                  
-                  <Route 
-                    path="/admin/profile" 
-                    element={
-                      <AdminProtectedRoute>
-                        <AdminProfile />
-                      </AdminProtectedRoute>
-                    } 
-                  />
-                  
-                  {/* Default Routes */}
-                  <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
-                  <Route path="/" element={<Navigate to="/login" replace />} />
-                </Routes>
-              </div>
+              <AppWithFade />
             </ConversationsProvider>
           </Router>
         </RegistrationProvider>
       </AdminAuthProvider>
     </AuthProvider>
   );
+
+
+function AppWithFade() {
+  const location = useLocation();
+  return (
+    <Routes location={location} key={location.pathname}>
+      {/* Pet Owner Routes */}
+      <Route path="/login" element={<FadeWrapper><Login /></FadeWrapper>} />
+      <Route path="/register" element={<FadeWrapper><Login /></FadeWrapper>} />
+      <Route path="/register/step2" element={<FadeWrapper><RegisterStep2 /></FadeWrapper>} />
+      <Route 
+        path="/ai-diagnosis" 
+        element={
+          <ProtectedRoute>
+            <FadeWrapper><AIDiagnosis /></FadeWrapper>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/pet-health-records" 
+        element={
+          <ProtectedRoute>
+            <FadeWrapper><PetHealthRecords /></FadeWrapper>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/pet-profile/:petId" 
+        element={
+          <ProtectedRoute>
+            <FadeWrapper><PetProfile /></FadeWrapper>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/chat" 
+        element={
+          <ProtectedRoute>
+            <FadeWrapper><Chat /></FadeWrapper>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/profile-settings" 
+        element={
+          <ProtectedRoute>
+            <FadeWrapper><ProfileSettings /></FadeWrapper>
+          </ProtectedRoute>
+        } 
+      />
+      {/* Admin Routes */}
+      <Route path="/admin/login" element={<FadeWrapper><AdminLogin /></FadeWrapper>} />
+      <Route 
+        path="/admin/dashboard" 
+        element={
+          <AdminProtectedRoute>
+            <FadeWrapper><AdminDashboard /></FadeWrapper>
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/reports" 
+        element={
+          <AdminProtectedRoute>
+            <FadeWrapper><AdminReports /></FadeWrapper>
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/clients" 
+        element={
+          <AdminProtectedRoute>
+            <FadeWrapper><AdminClients /></FadeWrapper>
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/pets" 
+        element={
+          <AdminProtectedRoute>
+            <FadeWrapper><AdminPets /></FadeWrapper>
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/roles" 
+        element={
+          <AdminProtectedRoute requiredRole="MASTER">
+            <FadeWrapper><AdminRoles /></FadeWrapper>
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/announcements" 
+        element={
+          <AdminProtectedRoute>
+            <FadeWrapper><AdminAnnouncements /></FadeWrapper>
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/profile" 
+        element={
+          <AdminProtectedRoute>
+            <FadeWrapper><AdminProfile /></FadeWrapper>
+          </AdminProtectedRoute>
+        } 
+      />
+      {/* Default Routes */}
+      <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
+    </Routes>
+  );
+}
+
+function FadeWrapper({ children }) {
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
+  );
+}
 }
 
 export default App;

@@ -1,6 +1,6 @@
 import React from 'react';
 import AdminTopNav from './AdminTopNav';
-import { Pencil, Trash2, ChevronDown } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 // Inline SVG paths to avoid import error
 const svgPaths = {
   p337ed400: "M45 0C69.8528 0 90 20.1472 90 45C90 69.8528 69.8528 90 45 90C20.1472 90 0 69.8528 0 45C0 20.1472 20.1472 0 45 0ZM45 10C25.67 10 10 25.67 10 45C10 64.33 25.67 80 45 80C64.33 80 80 64.33 80 45C80 25.67 64.33 10 45 10Z",
@@ -80,43 +80,50 @@ export default function AdminAnnouncements() {
       {/* Main Content */}
       <div className="pt-[110px] pb-12 flex flex-col items-center w-full">
         <div className="w-full max-w-[900px]">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="font-['Raleway:Bold',sans-serif] font-bold text-[32px] text-black tracking-[1.6px]">Announcement Management</h2>
-            <button className="bg-[#bba0e4] hover:bg-[#a88ad2] text-black font-['Inter:Semi_Bold',sans-serif] font-semibold text-[15px] px-6 py-2 rounded-[5px] shadow">+ New Announcement</button>
+          <div className="flex flex-row items-center justify-between mb-4 w-full" style={{alignItems: 'center'}}>
+            <h2
+              className="font-['Raleway',sans-serif] font-bold"
+              style={{
+                fontFamily: 'Raleway',
+                fontStyle: 'normal',
+                fontWeight: 700,
+                fontSize: '32px',
+                lineHeight: '38px',
+                letterSpacing: '0.05em',
+                color: '#000000',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Announcement Management
+            </h2>
+            <button
+              className="bg-[#bba0e4] hover:bg-[#a88ad2] text-black font-['Inter:Semi_Bold',sans-serif] font-semibold px-[12.4px] py-[4.14px] rounded-[10.33px] shadow flex items-center justify-center"
+              style={{ alignSelf: 'flex-start' }}
+            >
+              <span className="text-[14.4585px] w-full text-center">+ New Announcement</span>
+            </button>
           </div>
-          <div className="flex flex-col gap-7">
+          <div className="flex flex-col gap-[21px]">
             {announcementsData.map((card) => (
-              <div key={card.id} className="bg-[#f7f5fc] rounded-[15px] border border-[#d1c4e9] shadow px-8 py-7 flex flex-col md:flex-row items-center md:items-start relative w-full">
-                <div className="mb-4 md:mb-0 md:mr-8 flex-shrink-0 flex items-center justify-center" style={{ minWidth: 70 }}>
+              <div key={card.id} className="bg-[#f7f5fc] rounded-[33.75px] border border-[#d1c4e9] shadow px-[18px] py-[16px] flex flex-col md:flex-row justify-center relative w-full" style={{ minHeight: '180px' }}>
+                <div className="mb-6 md:mb-0 md:mr-12 flex-shrink-0 flex items-center justify-center" style={{ minWidth: 105 }}>
                   {renderIcon(card.icon)}
                 </div>
-                <div className="flex-1 w-full">
-                  <h3 className="font-['Raleway:Bold',sans-serif] font-bold text-[28px] text-black mb-1 tracking-[1.4px]">{card.title}</h3>
-                  <p className="font-['Raleway:Light',sans-serif] text-[15px] text-[#57166B] mb-2 tracking-[0.75px]">Valid until: {card.validUntil}</p>
-                  <p className="font-['Raleway:Light',sans-serif] text-[18px] text-black tracking-[1px]">{card.description}</p>
+                <div className="flex-1 w-full flex flex-col justify-center">
+                  <h3 className="font-['Raleway:Bold',sans-serif] font-bold text-[21.56px] text-black mb-1.5 tracking-[2.1px]">{card.title}</h3>
+                  <p className="font-['Raleway:Light',sans-serif] text-[11.64px] text-[#57166B] mb-3 tracking-[1.125px]">Valid until: {card.validUntil}</p>
+                  <p className="font-['Raleway:Light',sans-serif] text-[13.8px] text-black tracking-[1.5px]">{card.description}</p>
                 </div>
-                <div className="absolute right-8 top-8 flex gap-2">
-                  <button className="p-2 rounded hover:bg-[#f3f0fa] border border-[#bba0e4]" title="Edit">
-                    <Pencil className="w-6 h-6 text-[#57166B]" />
+                <div className="absolute right-6 top-6 flex gap-2">
+                  <button className="p-1 rounded-[2px] hover:bg-[#f3f0fa] border border-[#bba0e4]" title="Edit">
+                    <Pencil className="w-2.25 h-2.25 text-[#57166B]" />
                   </button>
-                  <button className="p-2 rounded hover:bg-[#f3f0fa] border border-[#bba0e4]" title="Delete">
-                    <Trash2 className="w-5 h-5 text-[#57166B]" />
+                  <button className="p-1 rounded-[2px] hover:bg-[#f3f0fa] border border-[#bba0e4]" title="Delete">
+                    <Trash2 className="w-1.875 h-1.875 text-[#57166B]" />
                   </button>
                 </div>
               </div>
             ))}
-          </div>
-          {/* Pagination at the bottom */}
-          <div className="flex items-center justify-center gap-2 mt-12 pb-2">
-            <button className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black">
-              <ChevronDown className="w-[11px] h-[21px] rotate-90" />
-            </button>
-            <div className="bg-[#815fb3] w-[27px] h-[27px] rounded-[5px] flex items-center justify-center">
-              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-white">1</span>
-            </div>
-            <button className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black">
-              <ChevronDown className="w-[11px] h-[21px] -rotate-90" />
-            </button>
           </div>
         </div>
       </div>

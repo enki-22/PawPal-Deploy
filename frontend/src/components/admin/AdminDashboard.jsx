@@ -1,488 +1,443 @@
+import React, { useState } from 'react';
+import { useEffect } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
-import React, { useState, useEffect, useCallback } from 'react';
 import AdminTopNav from './AdminTopNav';
-import { ChevronDown, ArrowUp } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+
+import { BarChart, XAxis, YAxis, Bar } from 'recharts';
+import { ChevronDown } from 'lucide-react';
 
 const AdminDashboard = () => {
+  // --- State and Data Definitions ---
   const { adminAxios } = useAdminAuth();
-  const [dashboardData, setDashboardData] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [openFAQ, setOpenFAQ] = useState(null);
-  const [selectedSpecies, setSelectedSpecies] = useState("Dogs");
-
-  const fetchDashboardData = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      console.log('🔄 Fetching dashboard data...');
-      const [stats, recentPets, flaggedCases, charts, faqs, announcements] = await Promise.all([
-        adminAxios.get('/admin/dashboard/stats').catch((err) => {
-          console.error('❌ /admin/dashboard/stats error:', err);
-          if (err.response) {
-            console.error('❌ Error response data:', err.response.data);
-            console.error('❌ Error response status:', err.response.status);
-          }
-          return { data: { data: {} } };
-        }),
-        adminAxios.get('/admin/dashboard/recent-pets').catch((err) => {
-          console.error('❌ /admin/dashboard/recent-pets error:', err);
-          if (err.response) {
-            console.error('❌ Error response data:', err.response.data);
-            console.error('❌ Error response status:', err.response.status);
-          }
-          return { data: { data: [] } };
-        }),
-        adminAxios.get('/admin/dashboard/flagged-cases').catch((err) => {
-          console.error('❌ /admin/dashboard/flagged-cases error:', err);
-          if (err.response) {
-            console.error('❌ Error response data:', err.response.data);
-            console.error('❌ Error response status:', err.response.status);
-          }
-          return { data: { data: [] } };
-        }),
-        adminAxios.get('/admin/dashboard/charts').catch((err) => {
-          console.error('❌ /admin/dashboard/charts error:', err);
-          if (err.response) {
-            console.error('❌ Error response data:', err.response.data);
-            console.error('❌ Error response status:', err.response.status);
-          }
-          return { data: { data: {} } };
-        }),
-        adminAxios.get('/admin/dashboard/faqs').catch((err) => {
-          console.error('❌ /admin/dashboard/faqs error:', err);
-          if (err.response) {
-            console.error('❌ Error response data:', err.response.data);
-            console.error('❌ Error response status:', err.response.status);
-          }
-          return { data: { data: [] } };
-        }),
-        adminAxios.get('/admin/dashboard/announcements').catch((err) => {
-          console.error('❌ /admin/dashboard/announcements error:', err);
-          if (err.response) {
-            console.error('❌ Error response data:', err.response.data);
-            console.error('❌ Error response status:', err.response.status);
-          }
-          return { data: { data: [] } };
-        })
-      ]);
-      setDashboardData({
-        stats: stats.data.data,
-        recentPets: recentPets.data.data,
-        flaggedCases: flaggedCases.data.data,
-        charts: charts.data.data,
-        faqs: faqs.data.data,
-        announcements: announcements.data.data
-      });
-    } catch (err) {
-      setError('Failed to fetch dashboard data.');
-    } finally {
-      setLoading(false);
-    }
-  }, [adminAxios]);
+  const [userCount, setUserCount] = useState(0);
+  const [petCount, setPetCount] = useState(0);
+  const [soapCount, setSoapCount] = useState(0);
+  const [conversationCount, setConversationCount] = useState(0);
+  // Stat cards in correct order with imported SVGs
+  const stats = [
+  { label: 'Users', value: userCount, icon: '/Group 129.png' },
+  { label: 'Pets', value: petCount, icon: '/pets logo.png' },
+  { label: 'SOAP Reports', value: soapCount, icon: '/soap reports.png' },
+  { label: 'Conversations', value: conversationCount, icon: '/conversations.png' },
+  ];
 
   useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
+    // Fetch pet owner user count and pet count from backend
+    const fetchDashboardCounts = async () => {
+      try {
+        // Users
+        const userRes = await adminAxios.get('/admin/clients');
+        setUserCount(Array.isArray(userRes.data.data) ? userRes.data.data.length : 0);
+        // Pets
+        const petRes = await adminAxios.get('/admin/pets');
+        setPetCount(Array.isArray(petRes.data.data) ? petRes.data.data.length : 0);
+  // SOAP Reports
+  const soapRes = await adminAxios.get('/admin/soap-reports');
+  setSoapCount(Array.isArray(soapRes.data.data) ? soapRes.data.data.length : 0);
+  // Conversations
+  const convRes = await adminAxios.get('/admin/conversations');
+  setConversationCount(Array.isArray(convRes.data.data) ? convRes.data.data.length : 0);
+      } catch (error) {
+        setUserCount(0);
+        setPetCount(0);
+        setSoapCount(0);
+      }
+    };
+    fetchDashboardCounts();
+  }, [adminAxios]);
 
-  const stats = [
-    {
-      icon: "💬",
-      value: dashboardData.stats?.total_conversations || "100",
-      label: "Conversations",
-      badge: "This Month"
-    },
-    {
-      icon: "👥",
-      value: dashboardData.stats?.total_users || "50",
-      label: "Users"
-    },
-    {
-      icon: "🐾",
-      value: dashboardData.stats?.total_pets || "100",
-      label: "Pets"
-    },
-    {
-      icon: "📊",
-      value: dashboardData.stats?.total_reports || "100",
-      label: "SOAP Reports",
-      badge: "Last 7 Days"
-    }
-  ];
+  // Filters for SOAP Reports and Conversations
+  const [conversationFilter, setConversationFilter] = useState('This Month');
 
-  const symptoms = [
-    { symptom: "Vomiting", count: 21 },
-    { symptom: "Eye Discharge", count: 16 },
-    { symptom: "Appetite Loss", count: 14 },
-  ];
+  // SOAP filter state
+  const [soapFilter, setSoapFilter] = useState('This Month');
 
-  const symptomsBySpecies = dashboardData.charts?.symptoms_by_species || {
-    Dogs: ["Vomiting", "Diarrhea"],
-    Cats: ["Allergies"],
-    Rabbits: ["Loss of Appetite"],
-    Birds: ["Feather Plucking"],
-  };
+  // FAQ state
+  const [faqs, setFaqs] = useState([]);
+  const [openFAQ, setOpenFAQ] = useState(null);
 
-  const pets = dashboardData.recentPets?.slice(0, 2) || [
-    {
-      pet_name: "Luna",
-      species: "Cat",
-      breed: "Persian",
-      owner_name: "Maria Garcia",
-      registration_date: "2025-06-05"
-    },
-    {
-      pet_name: "Mocih",
-      species: "Dog", 
-      breed: "Shih Tzu",
-      owner_name: "Jonald Kiel",
-      registration_date: "2025-07-05"
-    }
-  ];
+  useEffect(() => {
+    // Fetch FAQs from backend (frequently asked questions from pet owner conversations)
+    const fetchFaqs = async () => {
+      try {
+        const response = await adminAxios.get('/admin/faqs');
+        setFaqs(Array.isArray(response.data.data) ? response.data.data : []);
+      } catch (error) {
+        setFaqs([]);
+      }
+    };
+    fetchFaqs();
+  }, [adminAxios]);
 
-  const cases = dashboardData.flaggedCases?.slice(0, 3) || [
-    {
-      pet_name: "Charlie",
-      species: "Cat",
-      condition: "Upper Respiratory Infection",
-      likelihood: "89%",
-      urgency: "Urgent",
-      owner_name: "Mal Beausoleil",
-      date_flagged: "June 4"
-    }
-  ];
+  // Pets data
+  const [pets, setPets] = useState([]);
 
-  const announcements = dashboardData.announcements || [
-    {
-      title: "Summer Vaccination Special",
-      validity: "July 30, 2025",
-      description: "Get 20% off all vaccinations during June and July. Keep your pets protected for less!"
-    },
-    {
-      title: "New Client Welcome Package", 
-      validity: "Ongoing",
-      description: "First-time clients receive 15% off their initial consultation and a free pet care kit."
-    }
-  ];
+  useEffect(() => {
+    // Fetch recently added pets from pet owner side data
+    const fetchPets = async () => {
+      try {
+        const response = await adminAxios.get('/admin/pets');
+        setPets(Array.isArray(response.data.data) ? response.data.data.slice(0, 5) : []); // Show only the 5 most recent
+      } catch (error) {
+        setPets([]);
+      }
+    };
+    fetchPets();
+  }, [adminAxios]);
 
-  const faqs = dashboardData.faqs?.length > 0 ? dashboardData.faqs : [
-    {
-      question: "What services do you offer?",
-      answer: "We offer consultations, vaccinations, deworming, surgery, diagnostics, dental care, and pet wellness programs."
-    },
-    {
-      question: "How often should I bring my pet for a check-up?",
-      answer: "Annual check-ups are recommended for healthy pets. Puppies, kittens, and senior pets may need more frequent visits."
-    },
-    {
-      question: "What should I bring to my pet's first visit?",
-      answer: "Please bring any previous medical records, vaccination history, and a stool sample if possible."
-    }
-  ];
+  // Flagged cases data
+  const [cases, setCases] = useState([]);
 
-  const speciesData = dashboardData.charts?.species_breakdown
-    ? Object.entries(dashboardData.charts.species_breakdown).map(([name, value]) => ({ name, value }))
-    : [
-        { name: "Cat", value: 40 },
-        { name: "Dog", value: 60 },
-      ];
+  useEffect(() => {
+    // Fetch flagged cases from pet owner side data
+    const fetchFlaggedCases = async () => {
+      try {
+        const response = await adminAxios.get('/admin/flagged-cases');
+        setCases(Array.isArray(response.data.data) ? response.data.data.slice(0, 5) : []); // Show only the 5 most recent
+      } catch (error) {
+        setCases([]);
+      }
+    };
+    fetchFlaggedCases();
+  }, [adminAxios]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#f0f0f0] flex items-center justify-center">
-        <div className="text-xl">Loading dashboard...</div>
-      </div>
-    );
-  }
+  // Species chart data
+  const [speciesFilter, setSpeciesFilter] = useState('Last 7 Days');
+  const [speciesData, setSpeciesData] = useState([]);
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-[#f0f0f0] flex items-center justify-center">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
-          <h2 className="text-lg font-semibold text-red-800 mb-2">Error Loading Dashboard</h2>
-          <p className="text-red-600 mb-4">{error}</p>
-          <button
-            onClick={fetchDashboardData}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    // Fetch species check data from backend
+    const fetchSpeciesData = async () => {
+      try {
+        const response = await adminAxios.get(`/admin/species-checks?filter=${encodeURIComponent(speciesFilter)}`);
+        setSpeciesData(Array.isArray(response.data.data) ? response.data.data : []);
+      } catch (error) {
+        setSpeciesData([]);
+      }
+    };
+    fetchSpeciesData();
+  }, [adminAxios, speciesFilter]);
+
+  // Symptoms data
+  const [symptoms, setSymptoms] = useState([]);
+  // Symptoms by species
+  const [symptomsBySpecies, setSymptomsBySpecies] = useState({});
+  // Latest SOAP reports
+  const [latestSoapReports, setLatestSoapReports] = useState([]);
+  // Announcements data
+  const [announcements, setAnnouncements] = useState([]);
+
+  useEffect(() => {
+    // Fetch most common symptoms
+    const fetchSymptoms = async () => {
+      try {
+        const response = await adminAxios.get('/admin/common-symptoms');
+        setSymptoms(Array.isArray(response.data.data) ? response.data.data : []);
+      } catch (error) {
+        setSymptoms([]);
+      }
+    };
+    // Fetch common symptoms in species
+    const fetchSymptomsBySpecies = async () => {
+      try {
+        const response = await adminAxios.get('/admin/symptoms-by-species');
+        setSymptomsBySpecies(response.data.data || {});
+      } catch (error) {
+        setSymptomsBySpecies({});
+      }
+    };
+    // Fetch latest SOAP reports
+    const fetchLatestSoapReports = async () => {
+      try {
+        const response = await adminAxios.get('/admin/latest-soap-reports');
+        setLatestSoapReports(Array.isArray(response.data.data) ? response.data.data : []);
+      } catch (error) {
+        setLatestSoapReports([]);
+      }
+    };
+    // Fetch announcements
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await adminAxios.get('/admin/announcements');
+        setAnnouncements(Array.isArray(response.data.data) ? response.data.data : []);
+      } catch (error) {
+        setAnnouncements([]);
+      }
+    };
+    fetchSymptoms();
+    fetchSymptomsBySpecies();
+    fetchLatestSoapReports();
+    fetchAnnouncements();
+  }, [adminAxios]);
+
+  // ...existing code...
 
   return (
     <div className="min-h-screen bg-[#f0f0f0]">
       <AdminTopNav activePage="Dashboard" />
-
-      {/* Main Content */}
       <div className="px-[100px] pt-[114px] pb-[50px]">
         {/* Stats Cards */}
         <div className="grid grid-cols-4 gap-[30px] mb-[34px]">
-          {stats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-[10px] p-[24px]">
-              <div className="flex items-start justify-between mb-3">
-                <div className="text-4xl">{stat.icon}</div>
-                {stat.badge && (
-                  <div className="bg-[#efe8be] rounded-[5px] px-2 py-1 text-xs">
-                    {stat.badge}
+          {stats.map((stat, index) => {
+            // ...existing stat card code...
+            return (
+              <div key={index} style={{position: 'relative', width: 300, height: 110, background: '#FFFFFF', borderRadius: 10}}>
+                {/* For Users stat, show only the logo without circle */}
+                <div style={{position: 'absolute', width: 76.5, height: 76.5, left: 29, top: 17, background: '#EFE8BE', borderRadius: '100px', boxShadow: '0 2px 6px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                  <img src={stat.icon} alt={stat.label} style={{width: 57.375, height: 57.375, objectFit: 'contain'}} />
+                </div>
+                  {/* Dropdown for SOAP Reports and Conversations */}
+                  {(stat.label === 'SOAP Reports' || stat.label === 'Conversations') && (
+                    <div style={{position: 'absolute', width: 85, height: 20, right: 15, top: 15, background: '#EFE8BE', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 8px', cursor: 'pointer'}}>
+                      <select
+                        value={stat.label === 'SOAP Reports' ? soapFilter : conversationFilter}
+                        onChange={stat.label === 'SOAP Reports'
+                          ? (e) => setSoapFilter(e.target.value)
+                          : (e) => setConversationFilter(e.target.value)
+                        }
+                        style={{background: 'transparent', border: 'none', fontFamily: 'Raleway', fontWeight: 400, fontSize: 11, color: '#000', outline: 'none', width: '110px', cursor: 'pointer'}}
+                      >
+                        <option value="Last 24 Hours">Last 24 Hours</option>
+                        <option value="Last 7 Days">Last 7 Days</option>
+                        <option value="Last Month">Last Month</option>
+                        <option value="All Time">All Time</option>
+                      </select>
+                    </div>
+                  )}
+                  {/* Centered value and label */}
+                  <div style={{position: 'absolute', left: 122, top: '50%', transform: 'translateY(-50%)', textAlign: 'left'}}>
+                    <div style={{width: 99, height: 35, fontFamily: 'Raleway', fontWeight: 700, fontSize: 30, lineHeight: '35px', letterSpacing: '0.05em', color: '#34113F'}}>{stat.value}</div>
+                    <div style={{width: 99, height: 16, fontFamily: 'Raleway', fontWeight: 400, fontSize: 14, lineHeight: '16px', letterSpacing: '0.05em', color: '#000000'}}>{stat.label}</div>
                   </div>
-                )}
-              </div>
-              <div className="font-['Raleway:Bold',sans-serif] text-3xl mb-1">{stat.value}</div>
-              <div className="font-['Raleway:Regular',sans-serif] text-[#666666]">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* FAQs Section */}
-        <div className="bg-white rounded-[10px] p-[31px] mb-[34px]">
-          <h2 className="font-['Raleway:Bold',sans-serif] tracking-[1.1px] mb-[24px]">Frequently Asked Questions</h2>
-          <div className="space-y-[10px]">
-            {faqs.map((faq, index) => (
-              <div key={index} className="border border-[#666666] rounded-[5px]">
-                <button
-                  onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
-                  className="w-full px-[17px] py-[13px] flex items-center justify-between font-['Poppins:SemiBold',sans-serif] tracking-[0.9px] text-left"
-                >
-                  {faq.question}
-                  <ChevronDown className={`size-5 transition-transform ${openFAQ === index ? 'rotate-180' : ''}`} />
-                </button>
-                {openFAQ === index && (
-                  <div className="px-[17px] pb-[13px] font-['Poppins:Light',sans-serif] tracking-[0.75px]">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="flex gap-[33px]">
-          {/* Recently Added Pets */}
-          <div className="flex-1 bg-white rounded-[10px] p-[31px]">
-            <div className="flex items-center justify-between mb-[52px]">
-              <h2 className="font-['Raleway:Bold',sans-serif] tracking-[1.1px]">Recently Added Pets</h2>
-              <button className="bg-[#f0e4b3] rounded-[10px] px-[41px] py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px]">
-                Show All Pets
-              </button>
-            </div>
-            
-            <div className="space-y-[39px]">
-              {pets.map((pet, index) => (
-                <div key={index} className="bg-[#ebe2f7] rounded-[5px] p-[21px_25px]">
-                  <div className="grid grid-cols-5 gap-4">
-                    <div>
-                      <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Name</div>
-                      <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.pet_name || pet.name}</div>
-                    </div>
-                    <div>
-                      <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Species</div>
-                      <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.species}</div>
-                    </div>
-                    <div>
-                      <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Breed</div>
-                      <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.breed}</div>
-                    </div>
-                    <div>
-                      <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Owner</div>
-                      <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.owner_name || pet.owner}</div>
-                    </div>
-                    <div>
-                      <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Registered On</div>
-                      <div className="font-['Raleway:Regular',sans-serif] text-black">
-                        {pet.registration_date ? new Date(pet.registration_date).toLocaleDateString() : pet.registeredOn}
+          {/* Main Content Grid: Left (FAQ, Pets, Flagged Cases) and Right (Charts, Symptoms, Announcements) */}
+          <div className="grid grid-cols-3 gap-[30px] mb-[34px]">
+            {/* Left Column */}
+            <div className="col-span-2 flex flex-col gap-[30px]">
+              {/* FAQ */}
+              <div className="bg-white rounded-[10px] p-[28px]">
+                <h2 className="font-['Raleway:Bold',sans-serif] tracking-[1.1px] mb-[24px]">Frequently Asked Questions</h2>
+                <div className="space-y-[10px]">
+                  {faqs.length > 0 ? (
+                    faqs.map((faq, index) => (
+                      <div key={index} className="border border-[#666666] rounded-[5px]">
+                        <button
+                          onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
+                          className="w-full px-[17px] py-[13px] flex items-center justify-between font-['Poppins:SemiBold',sans-serif] tracking-[0.9px] text-left"
+                        >
+                          {faq.question}
+                          <ChevronDown className={`size-5 transition-transform ${openFAQ === index ? 'rotate-180' : ''}`} />
+                        </button>
+                        {openFAQ === index && (
+                          <div className="px-[17px] pb-[13px] font-['Poppins:Light',sans-serif] tracking-[0.75px]">
+                            {faq.answer}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Charts Section */}
-          <div className="w-[300px] space-y-[22px]">
-            {/* Checks by Species */}
-            <div className="bg-white rounded-[10px] p-[18px]">
-              <div className="flex items-center justify-between mb-4">
-                <p className="font-['Raleway:Regular',sans-serif] tracking-[0.6px]">
-                  <span>Checks by </span>
-                  <span className="font-['Raleway:Bold',sans-serif] text-[#34113f]">Species</span>
-                </p>
-                <div className="bg-[#efe8be] rounded-[5px] px-2 py-1 flex items-center gap-1">
-                  <span className="tracking-[0.45px]">Last 7 Days</span>
-                  <ArrowUp className="size-3 rotate-180 scale-y-[-100%]" />
+                    ))
+                  ) : (
+                    <div className="text-center text-gray-500 py-8">There are no chats yet.</div>
+                  )}
                 </div>
               </div>
-              <div className="h-[98px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={speciesData} layout="vertical">
-                    <XAxis type="number" hide />
-                    <YAxis type="category" dataKey="name" width={40} />
-                    <Bar dataKey="value" fill="#815FB3" radius={[0, 4, 4, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Most Common Symptoms */}
-            <div className="bg-white rounded-[10px] p-[18px]">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-['Raleway:Bold',sans-serif] tracking-[0.6px]">Most Common Symptoms</h3>
-                <div className="bg-[#efe8be] rounded-[5px] px-2 py-1 flex items-center gap-1">
-                  <span className="tracking-[0.45px]">Last 7 Days</span>
-                  <ArrowUp className="size-3 rotate-180 scale-y-[-100%]" />
-                </div>
-              </div>
-              <div className="space-y-3">
-                {symptoms.map((symptom, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="size-3 rounded-full bg-[#815FB3]" />
-                    <span className="font-['Raleway:Regular',sans-serif] tracking-[0.6px] flex-1">{symptom.symptom || symptom.name}</span>
-                    <span className="font-['Raleway:Bold',sans-serif] tracking-[0.6px]">{symptom.count}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Common Symptoms in Species */}
-            <div className="bg-white rounded-[10px] p-[18px]">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-['Raleway:Bold',sans-serif] tracking-[0.6px]">Common Symptoms in Species</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-2 mb-4">
-                {Object.keys(symptomsBySpecies).map((species) => (
-                  <button
-                    key={species}
-                    onClick={() => setSelectedSpecies(species)}
-                    className={`py-2 rounded-[5px] transition-colors ${
-                      selectedSpecies === species
-                        ? 'bg-[#815FB3] text-white'
-                        : 'bg-[#ebe2f7] text-black'
-                    }`}
-                  >
-                    {species}
+              {/* Recently Added Pets */}
+              <div className="bg-white rounded-[10px] p-[28px]">
+                <div className="flex items-center justify-between mb-[28px]">
+                  <h2 className="font-['Raleway:Bold',sans-serif] tracking-[1.1px]">Recently Added Pets</h2>
+                  <button className="bg-[#f0e4b3] rounded-[10px] px-[41px] py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px]">
+                    Show All Pets
                   </button>
-                ))}
+                </div>
+                <div className="space-y-[18px]">
+                  {pets.length > 0 ? (
+                    pets.map((pet, index) => (
+                      <div key={index} className="bg-[#ebe2f7] rounded-[5px] p-[12px_18px]">
+                        <div className="grid grid-cols-5 gap-4">
+                          <div>
+                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Name</div>
+                            <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.pet_name || pet.name}</div>
+                          </div>
+                          <div>
+                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Species</div>
+                            <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.species}</div>
+                          </div>
+                          <div>
+                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Breed</div>
+                            <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.breed}</div>
+                          </div>
+                          <div>
+                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Owner</div>
+                            <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.owner_name || pet.owner}</div>
+                          </div>
+                          <div>
+                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Registered On</div>
+                            <div className="font-['Raleway:Regular',sans-serif] text-black">
+                              {pet.registration_date ? new Date(pet.registration_date).toLocaleDateString() : pet.registeredOn}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center text-gray-500 py-8">There are no pets yet.</div>
+                  )}
+                </div>
               </div>
-              <div className="space-y-2">
-                {symptomsBySpecies[selectedSpecies]?.map((symptom, index) => (
-                  <div key={index} className="bg-[#ebe2f7] rounded-[5px] p-3 text-center">
-                    <p className="font-['Raleway:Regular',sans-serif]">{symptom}</p>
-                  </div>
-                ))}
-              </div>
-              <button className="w-full bg-[#f0e4b3] rounded-[10px] py-2 mt-3 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px]">
-                View All Common Symptoms in Species
-              </button>
-            </div>
-
-            {/* Latest SOAP Report */}
-            <div className="bg-white rounded-[10px] p-[18px]">
-              <h3 className="font-['Raleway:Bold',sans-serif] tracking-[0.75px] mb-4">Latest SOAP Report Generated</h3>
-              <div className="space-y-2 mb-4">
-                {pets.slice(0, 2).map((pet, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="size-3 rounded-full bg-[#815FB3]" />
-                    <span className="font-['Inter:Regular',sans-serif]">{pet.pet_name || pet.name}</span>
-                    <span className="font-['Inter:Regular',sans-serif] ml-auto">#PDX-{new Date().getFullYear()}-{String(new Date().getMonth() + 1).padStart(2, '0')}{String(new Date().getDate()).padStart(2, '0')}-00{index + 1}</span>
-                  </div>
-                ))}
-              </div>
-              <button className="w-full bg-[#f0e4b3] rounded-[10px] py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px]">
-                View All SOAP Reports
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Flagged Cases and Announcements */}
-        <div className="mt-[34px] flex gap-[33px]">
-          {/* Flagged Cases */}
-          <div className="flex-1 bg-white rounded-[10px] p-[36px]">
-            <div className="flex items-center justify-between mb-[87px]">
-              <h2 className="font-['Raleway:Bold',sans-serif] tracking-[1px]">Flagged Cases</h2>
-              <button className="bg-[#f0e4b3] rounded-[10px] px-[78px] py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px]">
-                View All Flagged SOAP Reports
-              </button>
-            </div>
-            
-            <div className="space-y-[1px]">
-              {cases.map((caseItem, index) => (
-                <div key={index} className="bg-[#ebe2f7] rounded-[5px] p-[23px] mb-[1px]">
-                  <div className="grid grid-cols-6 gap-4 items-center">
-                    <div>
-                      <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Name</div>
-                      <div className="font-['Raleway:SemiBold',sans-serif] text-black">{caseItem.pet_name}</div>
-                    </div>
-                    <div>
-                      <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Species</div>
-                      <div className="font-['Raleway:Regular',sans-serif]">{caseItem.species}</div>
-                    </div>
-                    <div>
-                      <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Condition</div>
-                      <div className="font-['Raleway:Regular',sans-serif]">{caseItem.condition || 'Under Review'}</div>
-                    </div>
-                    <div>
-                      <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Likelihood</div>
-                      <div className="font-['Raleway:Regular',sans-serif]">{caseItem.likelihood || 'N/A'}</div>
-                    </div>
-                    <div>
-                      <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Urgency</div>
-                      <div className="bg-[#ffd2a8] rounded-[5px] px-2 py-1 inline-block">
-                        <span className="font-['Raleway:Regular',sans-serif]">{caseItem.urgency || caseItem.flag_level}</span>
+              {/* Flagged Cases */}
+              <div className="bg-white rounded-[10px] p-[28px]">
+                <div className="flex items-center justify-between mb-[28px]">
+                  <h2 className="font-['Raleway:Bold',sans-serif] tracking-[1.1px]">Flagged Cases</h2>
+                  <button className="bg-[#f0e4b3] rounded-[10px] px-[41px] py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px]">
+                    View All Flagged SOAP Reports
+                  </button>
+                </div>
+                <div className="space-y-[18px]">
+                  {cases.map((caseItem, index) => (
+                    <div key={index} className="bg-[#ebe2f7] rounded-[5px] p-[12px_18px]">
+                      <div className="grid grid-cols-6 gap-4 items-center">
+                        <div>
+                          <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Name</div>
+                          <div className="font-['Raleway:SemiBold',sans-serif] text-black">{caseItem.pet_name}</div>
+                        </div>
+                        <div>
+                          <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Species</div>
+                          <div className="font-['Raleway:Regular',sans-serif]">{caseItem.species}</div>
+                        </div>
+                        <div>
+                          <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Condition</div>
+                          <div className="font-['Raleway:Regular',sans-serif]">{caseItem.condition || 'Under Review'}</div>
+                        </div>
+                        <div>
+                          <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Likelihood</div>
+                          <div className="font-['Raleway:Regular',sans-serif]">{caseItem.likelihood || 'N/A'}</div>
+                        </div>
+                        <div>
+                          <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Urgency</div>
+                          <div className="bg-[#ffd2a8] rounded-[5px] px-2 py-1 inline-block">
+                            <span className="font-['Raleway:Regular',sans-serif]">{caseItem.urgency || caseItem.flag_level}</span>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Owner</div>
+                          <div className="font-['Raleway:Regular',sans-serif]">{caseItem.owner_name}</div>
+                        </div>
+                      </div>
+                      <div className="mt-3 pt-3 border-t border-[#666666]/50">
+                        <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666]">Date Flagged</div>
+                        <div className="font-['Raleway:Regular',sans-serif]">
+                          {caseItem.date_flagged || (caseItem.date_created ? new Date(caseItem.date_created).toLocaleDateString() : 'Recent')}
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Owner</div>
-                      <div className="font-['Raleway:Regular',sans-serif]">{caseItem.owner_name}</div>
-                    </div>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-[#666666]/50">
-                    <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666]">Date Flagged</div>
-                    <div className="font-['Raleway:Regular',sans-serif]">
-                      {caseItem.date_flagged || (caseItem.date_created ? new Date(caseItem.date_created).toLocaleDateString() : 'Recent')}
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
-          </div>
-
-          {/* Announcements */}
-          <div className="w-[300px] bg-white rounded-[10px] p-[18px]">
-            <h3 className="font-['Raleway:Bold',sans-serif] text-center tracking-[0.8px] mb-[28px]">Announcement Management</h3>
-            
-            <div className="space-y-[25px]">
-              {announcements.map((announcement, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex items-start gap-3">
-                    <div className="size-[40px] flex-shrink-0 flex items-center justify-center bg-[#57166B] text-white text-xl rounded">
-                      📢
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-['Raleway:Bold',sans-serif] tracking-[0.75px] mb-2">{announcement.title}</h4>
-                      <p className="font-['Raleway:Light',sans-serif] tracking-[0.75px] mb-2">
-                        Valid until: {announcement.validity || (announcement.valid_until ? new Date(announcement.valid_until).toLocaleDateString() : 'Ongoing')}
-                      </p>
-                      <p className="font-['Raleway:Regular',sans-serif] tracking-[0.65px]">{announcement.description}</p>
-                    </div>
-                  </div>
+            {/* Right Column: Charts, Symptoms, Announcements */}
+            <div className="flex flex-col gap-[30px]">
+              {/* Checks by Species Chart */}
+              <div className="bg-white rounded-[10px] p-[18px]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-['Raleway:Bold',sans-serif]">Checks by <span className="text-[#57166B]">Species</span></span>
+                  <select
+                    value={speciesFilter}
+                    onChange={e => setSpeciesFilter(e.target.value)}
+                    className="bg-[#efe8be] rounded-[5px] px-2 py-1 text-xs font-semibold text-[#57166B] border-none outline-none cursor-pointer"
+                    style={{ minWidth: 110 }}
+                  >
+                    <option value="Last 24 Hours">Last 24 Hours</option>
+                    <option value="Last 7 Days">Last 7 Days</option>
+                    <option value="Last Month">Last Month</option>
+                    <option value="All Time">All Time</option>
+                  </select>
                 </div>
-              ))}
+                <BarChart
+                  width={300}
+                  height={200}
+                  data={speciesData}
+                  layout="vertical"
+                  margin={{ left: 60, right: 20, top: 10, bottom: 30 }}
+                >
+                  <YAxis type="category" dataKey="name" fontSize={16} tick={{ fill: '#34113F', fontWeight: 700 }} axisLine={false} tickLine={false} />
+                  <XAxis type="number" domain={[0, 100]} fontSize={16} tick={{ fill: '#000', fontWeight: 700 }} axisLine={false} tickLine={false} label={{ value: 'Percentage', position: 'bottom', fontSize: 16, fontWeight: 700 }} />
+                  <Bar dataKey="value" fill="#efe8be" barSize={24} radius={[0, 10, 10, 0]} />
+                </BarChart>
+              </div>
+              {/* Most Common Symptoms */}
+              <div className="bg-white rounded-[10px] p-[18px]">
+                <div className="font-['Raleway:Bold',sans-serif] mb-2">Most Common Symptoms</div>
+                <ul className="space-y-1">
+                  {symptoms.map((s, i) => (
+                    <li key={i} className="flex justify-between text-sm">
+                      <span>{s.symptom}</span>
+                      <span className="font-bold text-[#57166B]">{s.count}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {/* Common Symptoms in Species */}
+              <div className="bg-white rounded-[10px] p-[18px]">
+                <div className="font-['Raleway:Bold',sans-serif] mb-2">Common Symptoms in Species</div>
+                <ul className="space-y-1">
+                  {Object.entries(symptomsBySpecies).map(([species, symptoms], i) => (
+                    <li key={i} className="flex justify-between text-sm">
+                      <span className="font-bold text-[#57166B]">{species}</span>
+                      <span>{Array.isArray(symptoms) ? symptoms.join(', ') : symptoms}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button className="mt-2 w-full bg-[#efe8be] rounded-[5px] py-1 text-xs font-bold text-[#57166B]">View All Common Symptoms in Species</button>
+              </div>
+              {/* Latest SOAP Report Generated */}
+              <div className="bg-white rounded-[10px] p-[18px]">
+                <div className="font-['Raleway:Bold',sans-serif] mb-2">Latest SOAP Report Generated</div>
+                <ul className="space-y-1 text-xs">
+                  {latestSoapReports.length > 0 ? (
+                    latestSoapReports.map((report, i) => (
+                      <li key={i}>
+                        {report.pet_name || report.pet?.name || 'Unknown Pet'} <span className="ml-2 text-[#57166B]">{report.report_id || report.id || ''}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="text-gray-500">No SOAP reports found.</li>
+                  )}
+                </ul>
+                <button className="mt-2 w-full bg-[#efe8be] rounded-[5px] py-1 text-xs font-bold text-[#57166B]">View All SOAP Reports</button>
+              </div>
+              {/* Announcement Management */}
+              <div className="bg-white rounded-[10px] p-[18px]">
+                <h3 className="font-['Raleway:Bold',sans-serif] text-center tracking-[0.8px] mb-[18px]">Announcement Management</h3>
+                <div className="space-y-[18px]">
+                  {announcements.map((announcement, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="flex items-start gap-3">
+                        <div className="size-[40px] flex-shrink-0 flex items-center justify-center bg-[#57166B] text-white text-xl rounded">
+                          📢
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-['Raleway:Bold',sans-serif] tracking-[0.75px] mb-2">{announcement.title}</h4>
+                          <p className="font-['Raleway:Light',sans-serif] tracking-[0.75px] mb-2">
+                            Valid until: {announcement.validity || (announcement.valid_until ? new Date(announcement.valid_until).toLocaleDateString() : 'Ongoing')}
+                          </p>
+                          <p className="font-['Raleway:Regular',sans-serif] tracking-[0.65px]">{announcement.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button className="w-full bg-[#f0e4b3] rounded-[10px] py-2 mt-4 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px]">
+                  View All Announcements
+                </button>
+              </div>
             </div>
-
-            <button className="w-full bg-[#f0e4b3] rounded-[10px] py-2 mt-6 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px]">
-              View All Announcements
-            </button>
           </div>
         </div>
-      </div>
+  {/* ...existing code... */}
     </div>
   );
-};
+}
 
 export default AdminDashboard;
