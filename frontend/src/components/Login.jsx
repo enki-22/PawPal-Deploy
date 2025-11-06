@@ -9,16 +9,12 @@ import Alert from './Alert';
 // Reusable Carousel Component
 const PurpleCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [fadeClass, setFadeClass] = useState('opacity-100');
+  // Removed fadeClass for no fade transitions
 
-  // Handle smooth slide transitions
+  // Simple slide change, no fade
   const handleSlideChange = useCallback((newSlide) => {
     if (newSlide !== currentSlide) {
-      setFadeClass('opacity-0');
-      setTimeout(() => {
-        setCurrentSlide(newSlide);
-        setFadeClass('opacity-100');
-      }, 300);
+      setCurrentSlide(newSlide);
     }
   }, [currentSlide]);
 
@@ -61,7 +57,7 @@ const PurpleCarousel = () => {
 
       {/* CAROUSEL CONTENT AREA - Only content below logo changes */}
       <div className="flex-1 w-full" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <div className={`transition-opacity duration-300 ${fadeClass}`}>
+  <div>
           {currentSlide === 0 ? (
             // Slide 1: Health companion content (without logo)
             <>
@@ -173,19 +169,19 @@ const PurpleCarousel = () => {
       >
         <button
           onClick={() => handleSlideChange(0)}
-          className={`transition-all duration-300 ${
+          className={
             currentSlide === 0 
               ? 'w-6 h-2 bg-[#642A77] rounded-full' 
               : 'w-2 h-2 bg-[#642A77] rounded-full hover:bg-[#7A3A87]'
-          }`}
+          }
         />
         <button
           onClick={() => handleSlideChange(1)}
-          className={`transition-all duration-300 ${
+          className={
             currentSlide === 1 
               ? 'w-6 h-2 bg-[#642A77] rounded-full' 
               : 'w-2 h-2 bg-[#642A77] rounded-full hover:bg-[#7A3A87]'
-          }`}
+          }
         />
       </div>
     </div>
