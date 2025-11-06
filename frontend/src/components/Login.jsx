@@ -254,7 +254,7 @@ const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) =>
               Email
             </label>
             <input
-              type="email"
+              type="text"
               id="email"
               name="email"
               value={formData.email}
