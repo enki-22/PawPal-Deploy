@@ -1,6 +1,10 @@
 import React from 'react';
 import AdminTopNav from './AdminTopNav';
+import { useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
+import AddAnnouncementModal from './AddAnnouncementModal';
+import ConfirmDeleteModal from './ConfirmDeleteModal';
+import EditAnnouncementModal from './EditAnnouncementModal';
 // Inline SVG paths to avoid import error
 const svgPaths = {
   p337ed400: "M45 0C69.8528 0 90 20.1472 90 45C90 69.8528 69.8528 90 45 90C20.1472 90 0 69.8528 0 45C0 20.1472 20.1472 0 45 0ZM45 10C25.67 10 10 25.67 10 45C10 64.33 25.67 80 45 80C64.33 80 80 64.33 80 45C80 25.67 64.33 10 45 10Z",
@@ -49,7 +53,9 @@ function renderIcon(iconType) {
   }
 }
 
-const announcementsData = [
+
+// This would be fetched from backend in a real app
+const defaultAnnouncements = [
   {
     id: 1,
     title: "Summer Vaccination Special",
@@ -73,7 +79,56 @@ const announcementsData = [
   }
 ];
 
+import { useEffect } from 'react';
+
 export default function AdminAnnouncements() {
+  const [announcements, setAnnouncements] = useState(() => {
+    const stored = localStorage.getItem('admin_announcements');
+    return stored ? JSON.parse(stored) : defaultAnnouncements;
+  });
+  // Persist announcements to localStorage on change
+  useEffect(() => {
+    localStorage.setItem('admin_announcements', JSON.stringify(announcements));
+  }, [announcements]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [announcementToEdit, setAnnouncementToEdit] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [announcementToDelete, setAnnouncementToDelete] = useState(null);
+
+  const handleAddAnnouncement = (newAnnouncement) => {
+    setAnnouncements(prev => [
+      {
+        ...newAnnouncement,
+        id: Date.now(),
+        icon: 'paw', // Default icon, or you can add icon selection to modal
+        validUntil: newAnnouncement.validity ? new Date(newAnnouncement.validity).toLocaleDateString() : 'Ongoing',
+      },
+      ...prev,
+    ]);
+  };
+
+  const handleEditAnnouncement = (updatedAnnouncement) => {
+    setAnnouncements(prev => prev.map(a =>
+      a.id === updatedAnnouncement.id
+        ? {
+            ...a,
+            title: updatedAnnouncement.title,
+            validUntil: updatedAnnouncement.validity ? new Date(updatedAnnouncement.validity).toLocaleDateString() : 'Ongoing',
+            description: updatedAnnouncement.description,
+          }
+        : a
+    ));
+    setEditModalOpen(false);
+    setAnnouncementToEdit(null);
+  };
+
+  const handleDeleteAnnouncement = (id) => {
+    setAnnouncements(prev => prev.filter(a => a.id !== id));
+    setDeleteModalOpen(false);
+    setAnnouncementToDelete(null);
+  };
+
   return (
     <div className="min-h-screen bg-[#f0f0f0]">
       <AdminTopNav activePage="Announcements" />
@@ -99,12 +154,13 @@ export default function AdminAnnouncements() {
             <button
               className="bg-[#bba0e4] hover:bg-[#a88ad2] text-black font-['Inter:Semi_Bold',sans-serif] font-semibold px-[12.4px] py-[4.14px] rounded-[10.33px] shadow flex items-center justify-center"
               style={{ alignSelf: 'flex-start' }}
+              onClick={() => setModalOpen(true)}
             >
               <span className="text-[14.4585px] w-full text-center">+ New Announcement</span>
             </button>
           </div>
           <div className="flex flex-col gap-[21px]">
-            {announcementsData.map((card) => (
+            {announcements.map((card) => (
               <div key={card.id} className="bg-[#f7f5fc] rounded-[33.75px] border border-[#d1c4e9] shadow px-[18px] py-[16px] flex flex-col md:flex-row justify-center relative w-full" style={{ minHeight: '180px' }}>
                 <div className="mb-6 md:mb-0 md:mr-12 flex-shrink-0 flex items-center justify-center" style={{ minWidth: 105 }}>
                   {renderIcon(card.icon)}
@@ -115,10 +171,24 @@ export default function AdminAnnouncements() {
                   <p className="font-['Raleway:Light',sans-serif] text-[13.8px] text-black tracking-[1.5px]">{card.description}</p>
                 </div>
                 <div className="absolute right-6 top-6 flex gap-2">
-                  <button className="p-1 rounded-[2px] hover:bg-[#f3f0fa] border border-[#bba0e4]" title="Edit">
+                  <button
+                    className="p-1 rounded-[2px] hover:bg-[#f3f0fa] border border-[#bba0e4]"
+                    title="Edit"
+                    onClick={() => {
+                      setAnnouncementToEdit(card);
+                      setEditModalOpen(true);
+                    }}
+                  >
                     <Pencil className="w-2.25 h-2.25 text-[#57166B]" />
                   </button>
-                  <button className="p-1 rounded-[2px] hover:bg-[#f3f0fa] border border-[#bba0e4]" title="Delete">
+                  <button
+                    className="p-1 rounded-[2px] hover:bg-[#f3f0fa] border border-[#bba0e4]"
+                    title="Delete"
+                    onClick={() => {
+                      setAnnouncementToDelete(card.id);
+                      setDeleteModalOpen(true);
+                    }}
+                  >
                     <Trash2 className="w-1.875 h-1.875 text-[#57166B]" />
                   </button>
                 </div>
@@ -127,6 +197,22 @@ export default function AdminAnnouncements() {
           </div>
         </div>
       </div>
+      <AddAnnouncementModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onAdd={handleAddAnnouncement}
+      />
+      <EditAnnouncementModal
+        isOpen={editModalOpen}
+        onClose={() => { setEditModalOpen(false); setAnnouncementToEdit(null); }}
+        onSave={handleEditAnnouncement}
+        announcement={announcementToEdit}
+      />
+      <ConfirmDeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => { setDeleteModalOpen(false); setAnnouncementToDelete(null); }}
+        onConfirm={() => handleDeleteAnnouncement(announcementToDelete)}
+      />
     </div>
   );
 }
