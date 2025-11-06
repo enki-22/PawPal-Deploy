@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import AdminTopNav from './AdminTopNav';
 
-import { BarChart, XAxis, YAxis, Bar } from 'recharts';
+import { BarChart, XAxis, YAxis, Bar, CartesianGrid } from 'recharts';
 import { ChevronDown } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -34,15 +34,15 @@ const AdminDashboard = () => {
       try {
         // Map frontend filter values to backend filter values
         const reportsFilterMap = {
-          'Last 24 Hours': 'last_7_days', // Backend doesn't have last_24_hours, use last_7_days
+          'Last 24 Hours': 'last_24_hours',
           'Last 7 Days': 'last_7_days',
           'Last Month': 'last_30_days',
           'All Time': 'all_time'
         };
         const conversationsFilterMap = {
-          'Last 24 Hours': 'this_week', // Backend doesn't have last_24_hours, use this_week
-          'This Week': 'this_week',
-          'This Month': 'this_month',
+          'Last 24 Hours': 'last_24_hours',
+          'Last 7 Days': 'last_7_days',
+          'Last Month': 'last_30_days',
           'All Time': 'all_time'
         };
         
@@ -128,7 +128,16 @@ const AdminDashboard = () => {
     // Fetch species chart data from dashboard/charts endpoint
     const fetchSpeciesData = async () => {
       try {
-        const response = await adminAxios.get('/admin/dashboard/charts');
+        // Map frontend filter to backend filter
+        const dateFilterMap = {
+          'Last 24 Hours': 'last_24_hours',
+          'Last 7 Days': 'last_7_days',
+          'Last Month': 'last_30_days',
+          'All Time': 'all_time'
+        };
+        const dateFilter = dateFilterMap[speciesFilter] || 'all_time';
+        
+        const response = await adminAxios.get(`/admin/dashboard/charts?date_filter=${dateFilter}`);
         if (response.data.success && response.data.data) {
           const speciesBreakdown = response.data.data.species_breakdown || {};
           // Convert to array format for chart
@@ -144,7 +153,7 @@ const AdminDashboard = () => {
       }
     };
     fetchSpeciesData();
-  }, [adminAxios]);
+  }, [adminAxios, speciesFilter]);
 
   // Symptoms data
   const [symptoms, setSymptoms] = useState([]);
@@ -392,11 +401,34 @@ const AdminDashboard = () => {
                   height={200}
                   data={speciesData}
                   layout="vertical"
-                  margin={{ left: 60, right: 20, top: 10, bottom: 30 }}
+                  margin={{ left: 60, right: 20, top: 10, bottom: 40 }}
                 >
-                  <YAxis type="category" dataKey="name" fontSize={16} tick={{ fill: '#34113F', fontWeight: 700 }} axisLine={false} tickLine={false} />
-                  <XAxis type="number" domain={[0, 100]} fontSize={16} tick={{ fill: '#000', fontWeight: 700 }} axisLine={false} tickLine={false} label={{ value: 'Percentage', position: 'bottom', fontSize: 16, fontWeight: 700 }} />
-                  <Bar dataKey="value" fill="#efe8be" barSize={24} radius={[0, 10, 10, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e0e0e0" />
+                  <YAxis 
+                    type="category" 
+                    dataKey="name" 
+                    fontSize={14} 
+                    tick={{ fill: '#34113F', fontWeight: 700 }} 
+                    axisLine={false} 
+                    tickLine={false}
+                    width={50}
+                    label={{ value: 'Species', angle: -90, position: 'left', fontSize: 12, fontWeight: 700, offset: -50 }}
+                  />
+                  <XAxis 
+                    type="number" 
+                    domain={[0, 'dataMax']}
+                    fontSize={12} 
+                    tick={{ fill: '#000', fontWeight: 700 }} 
+                    axisLine={false} 
+                    tickLine={false}
+                    label={{ value: 'Percentage', position: 'bottom', fontSize: 12, fontWeight: 700 }}
+                  />
+                  <Bar 
+                    dataKey="value" 
+                    fill="#efe8be" 
+                    barSize={24} 
+                    radius={[0, 10, 10, 0]}
+                  />
                 </BarChart>
               </div>
               {/* Most Common Symptoms */}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronDown, Search, ArrowUpDown } from 'lucide-react';
 import AdminTopNav from './AdminTopNav';
 import { useAdminAuth } from '../../context/AdminAuthContext';
+import AdminSOAPReportViewer from './AdminSOAPReportViewer';
 
 const AdminReports = () => {
   const { adminAxios } = useAdminAuth();
@@ -9,6 +10,7 @@ const AdminReports = () => {
   const [selectedReports, setSelectedReports] = useState([]);
   const [reportsData, setReportsData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCaseId, setSelectedCaseId] = useState(null);
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -148,12 +150,20 @@ const AdminReports = () => {
         </div>
         {/* Table Rows */}
         {reportsData.map((report) => (
-          <div key={report.id} className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[31px] hover:bg-gray-50">
+          <div 
+            key={report.id} 
+            className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[31px] hover:bg-gray-50 cursor-pointer"
+            onClick={() => setSelectedCaseId(report.case_id)}
+          >
             <div className="flex items-center gap-4 flex-1">
               <input
                 type="checkbox"
                 checked={selectedReports.includes(report.id)}
-                onChange={(e) => handleSelectReport(report.id, e.target.checked)}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  handleSelectReport(report.id, e.target.checked);
+                }}
+                onClick={(e) => e.stopPropagation()}
                 className="w-[12px] h-[12px] border border-[#888888] rounded-[1px]"
               />
               <div className="flex items-center gap-3">
@@ -203,6 +213,14 @@ const AdminReports = () => {
           <ChevronDown className="w-[11px] h-[21px] -rotate-90" />
         </button>
       </div>
+
+      {/* Admin SOAP Report Viewer */}
+      {selectedCaseId && (
+        <AdminSOAPReportViewer
+          caseId={selectedCaseId}
+          onClose={() => setSelectedCaseId(null)}
+        />
+      )}
     </div>
   );
 }

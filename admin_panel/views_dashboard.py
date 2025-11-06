@@ -30,8 +30,8 @@ def dashboard_stats(request):
     Permissions: MASTER, VET, DESK
     
     Query Parameters:
-        - reports_filter: last_7_days | last_30_days | all_time (default: all_time)
-        - conversations_filter: this_week | this_month | all_time (default: all_time)
+        - reports_filter: last_24_hours | last_7_days | last_30_days | all_time (default: all_time)
+        - conversations_filter: last_24_hours | last_7_days | last_30_days | this_week | this_month | all_time (default: all_time)
     
     Returns:
         success: True/False
@@ -99,7 +99,12 @@ def dashboard_stats(request):
         # Total SOAP reports with filter
         reports_queryset = SOAPReport.objects.all()
         
-        if reports_filter == 'last_7_days':
+        if reports_filter == 'last_24_hours':
+            twenty_four_hours_ago = timezone.now() - timedelta(hours=24)
+            reports_queryset = reports_queryset.filter(
+                date_generated__gte=twenty_four_hours_ago
+            )
+        elif reports_filter == 'last_7_days':
             seven_days_ago = today - timedelta(days=7)
             reports_queryset = reports_queryset.filter(
                 date_generated__date__gte=seven_days_ago
@@ -116,7 +121,22 @@ def dashboard_stats(request):
         # Total conversations with filter
         conversations_queryset = Conversation.objects.all()
         
-        if conversations_filter == 'this_week':
+        if conversations_filter == 'last_24_hours':
+            twenty_four_hours_ago = timezone.now() - timedelta(hours=24)
+            conversations_queryset = conversations_queryset.filter(
+                created_at__gte=twenty_four_hours_ago
+            )
+        elif conversations_filter == 'last_7_days':
+            seven_days_ago = today - timedelta(days=7)
+            conversations_queryset = conversations_queryset.filter(
+                created_at__date__gte=seven_days_ago
+            )
+        elif conversations_filter == 'last_30_days':
+            thirty_days_ago = today - timedelta(days=30)
+            conversations_queryset = conversations_queryset.filter(
+                created_at__date__gte=thirty_days_ago
+            )
+        elif conversations_filter == 'this_week':
             week_start = today - timedelta(days=today.weekday())
             conversations_queryset = conversations_queryset.filter(
                 created_at__date__gte=week_start
@@ -363,17 +383,20 @@ def flagged_cases(request):
 @permission_classes([AllowAny])  # Handle auth manually
 def dashboard_charts(request):
     """
-    GET /api/admin/dashboard/charts
+    GET /api/admin/dashboard/charts?date_filter=last_24_hours|last_7_days|last_30_days|all_time
     
     Return chart data for dashboard visualizations
     Permissions: MASTER, VET, DESK
     
+    Query Parameters:
+        - date_filter: last_24_hours | last_7_days | last_30_days | all_time (default: all_time)
+    
     Returns:
         success: True/False
         data:
-            species_breakdown: Object with species counts
-            common_symptoms: Array of top 10 symptoms with counts
-            symptoms_by_species: Object with symptoms grouped by species
+            species_breakdown: Object with species counts (filtered by date)
+            common_symptoms: Array of top 10 symptoms with counts (filtered by date)
+            symptoms_by_species: Object with symptoms grouped by species (filtered by date)
     """
     try:
         # Manual authentication check
@@ -402,8 +425,29 @@ def dashboard_charts(request):
                 'error': 'Admin not found'
             }, status=status.HTTP_401_UNAUTHORIZED)
         
-        # Species Breakdown
-        species_counts = Pet.objects.values('animal_type').annotate(
+        # Get date filter parameter
+        date_filter = request.query_params.get('date_filter', 'all_time')
+        filter_date = timezone.now().date()
+        
+        # Species Breakdown with date filter
+        pet_queryset = Pet.objects.filter(
+            owner__profile__is_vet_admin=False
+        ).exclude(
+            owner__profile__isnull=True
+        )
+        
+        if date_filter == 'last_24_hours':
+            filter_datetime = timezone.now() - timedelta(hours=24)
+            pet_queryset = pet_queryset.filter(created_at__gte=filter_datetime)
+        elif date_filter == 'last_7_days':
+            filter_date = filter_date - timedelta(days=7)
+            pet_queryset = pet_queryset.filter(created_at__date__gte=filter_date)
+        elif date_filter == 'last_30_days':
+            filter_date = filter_date - timedelta(days=30)
+            pet_queryset = pet_queryset.filter(created_at__date__gte=filter_date)
+        # else: all_time (no filter)
+        
+        species_counts = pet_queryset.values('animal_type').annotate(
             count=Count('id')
         )
         
@@ -430,12 +474,25 @@ def dashboard_charts(request):
             else:
                 species_breakdown['Others'] += count
         
-        # Common Symptoms (from SOAP reports)
+        # Common Symptoms (from SOAP reports) with date filter
         symptom_counts = {}
         symptoms_by_species = {}
         
-        # Get all SOAP reports with symptoms
-        soap_reports = SOAPReport.objects.select_related('pet').all()
+        # Get SOAP reports with date filter
+        soap_reports_queryset = SOAPReport.objects.select_related('pet').all()
+        
+        if date_filter == 'last_24_hours':
+            filter_datetime = timezone.now() - timedelta(hours=24)
+            soap_reports_queryset = soap_reports_queryset.filter(date_generated__gte=filter_datetime)
+        elif date_filter == 'last_7_days':
+            filter_date = timezone.now().date() - timedelta(days=7)
+            soap_reports_queryset = soap_reports_queryset.filter(date_generated__date__gte=filter_date)
+        elif date_filter == 'last_30_days':
+            filter_date = timezone.now().date() - timedelta(days=30)
+            soap_reports_queryset = soap_reports_queryset.filter(date_generated__date__gte=filter_date)
+        # else: all_time (no filter)
+        
+        soap_reports = soap_reports_queryset
         
         for report in soap_reports:
             # Extract symptoms from objective field

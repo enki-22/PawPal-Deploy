@@ -1,27 +1,187 @@
-
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
-// Temporary SVG paths
-const svgPaths = {
-  p26a65980: "M2 2C2 2.55228 1.55228 3 1 3C0.447715 3 0 2.55228 0 2C0 1.44772 0.447715 1 1 1C1.55228 1 2 1.44772 2 2Z M2 8C2 8.55228 1.55228 9 1 9C0.447715 9 0 8.55228 0 8C0 7.44772 0.447715 7 1 7C1.55228 7 2 7.44772 2 8Z M2 14C2 14.5523 1.55228 15 1 15C0.447715 15 0 14.5523 0 14C0 13.4477 0.447715 13 1 13C1.55228 13 2 13.4477 2 14Z",
-  p1351f980: "M12.5 11H11.71L11.43 10.73C12.41 9.59 13 8.11 13 6.5C13 2.91 10.09 0 6.5 0C2.91 0 0 2.91 0 6.5C0 10.09 2.91 13 6.5 13C8.11 13 9.59 12.41 10.73 11.43L11 11.71V12.5L16 17.49L17.49 16L12.5 11ZM6.5 11C4.01 11 2 8.99 2 6.5C2 4.01 4.01 2 6.5 2C8.99 2 11 4.01 11 6.5C11 8.99 8.99 11 6.5 11Z",
-  p134c4200: "M4.5 0L9 5H0L4.5 0Z",
-  p158ce200: "M5 0L10 7H0L5 0ZM5 14L10 7H0L5 14Z",
-  p34a09400: "M0 10.5L10.5 21V0L0 10.5Z"
+import AdminTopNav from './AdminTopNav';
+import { ChevronDown, Search, ArrowUpDown, X } from 'lucide-react';
+
+// Create New Admin Modal Component
+const CreateAdminModal = ({ isOpen, onClose, onSuccess, adminAxios }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    role: 'VET'
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const response = await adminAxios.post('/admin/roles', {
+        name: formData.name,
+        email: formData.email,
+        role: formData.role
+      });
+
+      if (response.data.success) {
+        // Reset form
+        setFormData({ name: '', email: '', role: 'VET' });
+        onSuccess();
+        onClose();
+      } else {
+        setError(response.data.error || 'Failed to create admin');
+      }
+    } catch (err) {
+      console.error('Error creating admin:', err);
+      setError(err.response?.data?.error || 'Failed to create admin. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-lg w-[600px] max-w-[90vw] shadow-xl" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-gray-900" style={{fontFamily: 'Raleway, sans-serif'}}>
+            Create New Admin
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6">
+          {error && (
+            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              {error}
+            </div>
+          )}
+
+          {/* Name Field */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-2" style={{fontFamily: 'Inter, sans-serif'}}>
+              Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Name"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815fb3] focus:border-transparent"
+              style={{fontFamily: 'Inter, sans-serif'}}
+            />
+          </div>
+
+          {/* Email Field */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-2" style={{fontFamily: 'Inter, sans-serif'}}>
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Email"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815fb3] focus:border-transparent"
+              style={{fontFamily: 'Inter, sans-serif'}}
+            />
+          </div>
+
+          {/* Role Field */}
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-700 mb-2" style={{fontFamily: 'Inter, sans-serif'}}>
+              Role
+            </label>
+            <div className="relative">
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815fb3] focus:border-transparent appearance-none bg-white"
+                style={{fontFamily: 'Inter, sans-serif'}}
+              >
+                <option value="VET">Veterinarian</option>
+                <option value="DESK">Front Desk</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <ChevronDown className="w-5 h-5 text-gray-400" />
+              </div>
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-semibold"
+              style={{fontFamily: 'Inter, sans-serif'}}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-2 bg-[#815fb3] text-white rounded-lg hover:bg-[#6d4d99] transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{fontFamily: 'Inter, sans-serif'}}
+            >
+              {loading ? 'Creating...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default function AdminRoles() {
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { adminAxios } = useAdminAuth();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedAdmins, setSelectedAdmins] = useState([]);
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { adminAxios, admin } = useAdminAuth();
 
-  const fetchAdmins = React.useCallback(async () => {
+  // Check if current admin is Master Admin
+  const isMasterAdmin = admin?.role === 'MASTER' || admin?.role === 'Master Admin';
+
+  const fetchAdmins = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await adminAxios.get('/admin/roles');
+      const params = {
+        search: searchTerm,
+        role: roleFilter,
+        status: statusFilter
+      };
+      const response = await adminAxios.get('/admin/roles', { params });
       if (response.data.success) {
         setAdmins(response.data.results || []);
       } else {
@@ -51,185 +211,224 @@ export default function AdminRoles() {
     } finally {
       setLoading(false);
     }
-  }, [adminAxios]);
+  }, [adminAxios, searchTerm, roleFilter, statusFilter]);
 
   useEffect(() => {
     fetchAdmins();
   }, [fetchAdmins]);
 
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedAdmins(admins.map(admin => admin.admin_id || admin.id));
+    } else {
+      setSelectedAdmins([]);
+    }
+  };
+
+  const handleSelectAdmin = (adminId, checked) => {
+    if (checked) {
+      setSelectedAdmins([...selectedAdmins, adminId]);
+    } else {
+      setSelectedAdmins(selectedAdmins.filter(id => id !== adminId));
+    }
+  };
+
+  const handleAdminCreated = () => {
+    // Refresh the admin list after successful creation
+    fetchAdmins();
+  };
+
   // Loading state
-    if (loading) {
-      return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f0f0f0] flex items-center justify-center">
+        <div className="text-xl">Loading admin roles...</div>
+      </div>
+    );
   }
 
   // Error state
   if (error) {
     return (
-      <div className="bg-[#f0f0f0] relative size-full" data-name="Admin Roles">
-        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-50 border border-red-200 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-red-800 mb-2">Error</h2>
-          <p className="text-red-600 mb-4">{error}</p>
-          <button
-            onClick={fetchAdmins}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-          >
-            Retry
-          </button>
+      <div className="min-h-screen bg-[#f0f0f0] relative">
+        <AdminTopNav activePage="Admin Roles" />
+        <div className="pt-[100px] flex items-center justify-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
+            <h2 className="text-lg font-semibold text-red-800 mb-2">Error</h2>
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={fetchAdmins}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+            >
+              Retry
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#f0f0f0] relative size-full" data-name="Admin Roles">
-      {/* Header */}
-      <div className="absolute bg-[#57166b] h-[80px] left-0 top-0 w-[1535px]" />
-      {/* Logo */}
-      <div className="absolute left-[28px] size-[40px] top-[20px] flex items-center justify-center bg-white rounded-full" data-name="pat__1_-removebg-preview 3">
-        <span role="img" aria-label="logo" style={{fontSize: "32px"}}>🐾</span>
-      </div>
-      {/* PAWPAL Text */}
-      <p className="absolute font-['MuseoModerno:Black',sans-serif] font-black leading-[normal] left-[155px] text-[#fff07b] text-[35px] text-center text-nowrap top-[13px] translate-x-[-50%] whitespace-pre">PAWPAL</p>
-      {/* Navigation */}
-      <p className="absolute font-['Raleway:SemiBold',sans-serif] font-semibold leading-[normal] left-[298px] text-[18px] text-nowrap text-white top-[31px] tracking-[0.9px] whitespace-pre">Dashboard</p>
-      <p className="absolute font-['Raleway:SemiBold',sans-serif] font-semibold leading-[normal] left-[436px] text-[18px] text-nowrap text-white top-[31px] tracking-[0.9px] whitespace-pre">Reports</p>
-      <p className="absolute font-['Raleway:SemiBold',sans-serif] font-semibold leading-[normal] left-[545px] text-[18px] text-nowrap text-white top-[31px] tracking-[0.9px] whitespace-pre">Clients</p>
-      <p className="absolute font-['Raleway:SemiBold',sans-serif] font-semibold leading-[normal] left-[647px] text-[18px] text-nowrap text-white top-[31px] tracking-[0.9px] whitespace-pre">Pets</p>
-      <p className="absolute font-['Raleway:SemiBold',sans-serif] font-semibold leading-[normal] left-[724px] text-[#fff07b] text-[18px] text-nowrap top-[32px] tracking-[0.9px] whitespace-pre">Admin Roles</p>
-      <p className="absolute font-['Raleway:SemiBold',sans-serif] font-semibold leading-[normal] left-[881px] text-[18px] text-nowrap text-white top-[32px] tracking-[0.9px] whitespace-pre">Announcements</p>
-      {/* Profile Menu Icon */}
-      <div className="absolute left-[1429px] size-[24px] top-[28px]" data-name="fe:elipsis-v">
-        <div className="absolute inset-[16.67%_41.67%]" data-name="Vector">
-          <div className="absolute inset-0" style={{ "--fill-0": "rgba(255, 240, 123, 1)" }}>
-            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 4 16">
-              <path clipRule="evenodd" d={svgPaths.p26a65980} fill="var(--fill-0, #FFF07B)" fillRule="evenodd" id="Vector" />
-            </svg>
-          </div>
-        </div>
-      </div>
-      {/* Profile Picture */}
-      <div className="absolute bg-white left-[1456px] rounded-[100px] size-[40px] top-[20px] flex items-center justify-center" data-name="Profile">
-        <span role="img" aria-label="profile" style={{fontSize: "28px"}}>👤</span>
-        <div aria-hidden="true" className="absolute border-2 border-[#fff07b] border-solid inset-0 pointer-events-none rounded-[100px]" />
-      </div>
-      {/* Page Title */}
-      <p className="absolute font-['Raleway:Bold',sans-serif] font-bold leading-[normal] left-[129px] text-[20px] text-black text-nowrap top-[108px] tracking-[1px] whitespace-pre">Admin Roles</p>
-      {/* Add Admin Button */}
-      <div className="absolute bg-[rgba(187,159,228,0.8)] h-[31px] left-[394px] rounded-[5px] top-[100px] w-[121px]" />
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[417px] not-italic text-[12px] text-black text-nowrap top-[108px] whitespace-pre">+ Add Admin</p>
-      {/* Search Bar */}
-      <div className="absolute h-[31px] left-[536px] rounded-[5px] top-[100px] w-[465px]">
-        <div aria-hidden="true" className="absolute border border-[#888888] border-solid inset-0 pointer-events-none rounded-[5px]" />
-      </div>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[571px] not-italic text-[#888888] text-[12px] text-nowrap top-[108px] whitespace-pre">Search</p>
-      <div className="absolute left-[542px] size-[24px] top-[104px]" data-name="material-symbols:search-rounded">
-        <div className="absolute inset-[12.5%_14.27%_14.27%_12.5%]" data-name="Vector">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 18 18">
-            <path d={svgPaths.p1351f980} fill="var(--fill-0, #888888)" id="Vector" />
-          </svg>
-        </div>
-      </div>
-      {/* Role Filter */}
-      <div className="absolute bg-[#f0e4b3] h-[31px] left-[1158px] rounded-[5px] top-[100px] w-[121px]" />
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[1167px] not-italic text-[12px] text-black text-nowrap top-[108px] whitespace-pre">Role</p>
-      <div className="absolute flex items-center justify-center left-[1259px] size-[12px] top-[110px]">
-        <div className="flex-none scale-y-[-100%]">
-          <div className="relative size-[12px]" data-name="ep:arrow-up">
-            <div className="absolute inset-[32.66%_13.69%_26.3%_13.69%]" data-name="Vector">
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 9 5">
-                <path d={svgPaths.p134c4200} fill="var(--fill-0, black)" id="Vector" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Status Filter */}
-      <div className="absolute bg-[#f0e4b3] h-[31px] left-[1296px] rounded-[5px] top-[100px] w-[122px]" />
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[1311px] not-italic text-[12px] text-black text-nowrap top-[108px] whitespace-pre">Status</p>
-      <div className="absolute flex items-center justify-center left-[1398px] size-[12px] top-[110px]">
-        <div className="flex-none scale-y-[-100%]">
-          <div className="relative size-[12px]" data-name="ep:arrow-up">
-            <div className="absolute inset-[32.66%_13.69%_26.3%_13.69%]" data-name="Vector">
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 9 5">
-                <path d={svgPaths.p134c4200} fill="var(--fill-0, black)" id="Vector" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Table Container */}
-      <div className="absolute bg-[#fffff2] h-[537px] left-[118px] overflow-clip top-[148px] w-[1300px]">
-        {/* Table Header */}
-        <div className="absolute contents left-0 top-0">
-          <div className="absolute bg-[#fffff2] h-[40px] left-0 rounded-tl-[10px] rounded-tr-[10px] top-0 w-[1300px]">
-            <div aria-hidden="true" className="absolute border-[#888888] border-[0px_0px_1px] border-solid inset-0 pointer-events-none rounded-tl-[10px] rounded-tr-[10px]" />
-          </div>
-          <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[75px] not-italic text-[#888888] text-[12px] text-nowrap top-[12px] whitespace-pre">Registered User</p>
-          <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[325px] not-italic text-[#888888] text-[12px] text-nowrap top-[13px] whitespace-pre">Emails</p>
-          <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[575px] not-italic text-[#888888] text-[12px] text-nowrap top-[12px] whitespace-pre">Role</p>
-          <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[825px] not-italic text-[#888888] text-[12px] text-nowrap top-[11px] whitespace-pre">Account Status</p>
-          <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[1075px] not-italic text-[#888888] text-[12px] text-nowrap top-[12px] whitespace-pre">Date Account Created</p>
-          {/* Sort Icons */}
-          {/* ...SVG sort icons unchanged... */}
-        </div>
-        {/* Header Checkbox */}
-        <div className="absolute left-[32px] size-[12px] top-[13px]" data-name="Checkbox">
-          <div className="absolute bg-[#ededed] inset-0 rounded-[1px]">
-            <div aria-hidden="true" className="absolute border border-[#888888] border-solid inset-0 pointer-events-none rounded-[1px]" />
-          </div>
-        </div>
-        {/* Dynamic Table Rows */}
-        {admins.length === 0 ? (
-          <div className="absolute left-0 top-[40px] w-[1300px] h-[50px] flex items-center justify-center">
-            <span className="text-gray-500">No admin accounts found</span>
-          </div>
-        ) : (
-          admins.map((adminItem, idx) => {
-            const top = 40 + idx * 50;
-            return (
-              <div key={adminItem.admin_id || adminItem.id} className="absolute contents left-0" style={{ top: `${top}px` }}>
-                <div className="absolute bg-[#fffff2] h-[50px] left-0 top-0 w-[1300px]">
-                  <div aria-hidden="true" className="absolute border-[#888888] border-[0px_0px_1px] border-solid inset-0 pointer-events-none" />
-                </div>
-                <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[75px] not-italic text-[12px] text-black text-nowrap top-[16px] whitespace-pre">{adminItem.name}</p>
-                <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[287px] not-italic text-[12px] text-black text-nowrap top-[16px] whitespace-pre">{adminItem.email}</p>
-                <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[575px] not-italic text-[12px] text-black text-nowrap top-[17px] whitespace-pre">{adminItem.role_display || adminItem.role}</p>
-                <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[1075px] not-italic text-[12px] text-black text-nowrap top-[17px] whitespace-pre">{new Date(adminItem.date_created || adminItem.created_at).toLocaleDateString()}</p>
-                {/* Status Badge */}
-                <div className={`absolute ${adminItem.status === 'Active' || adminItem.is_active ? 'bg-[#c2f0b3]' : 'bg-[#ffb2a8]'} h-[30px] left-[825px] rounded-[5px] top-[10px] w-[66px]`} />
-                <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[841px] not-italic text-[12px] text-black text-nowrap top-[17px] whitespace-pre">{adminItem.status || (adminItem.is_active ? 'Active' : 'Inactive')}</p>
-                {/* Row Checkbox */}
-                <div className="absolute left-[32px] size-[12px] top-[29px]" data-name="Checkbox">
-                  <div className="absolute bg-[#ededed] inset-0 rounded-[1px]">
-                    <div aria-hidden="true" className="absolute border border-[#888888] border-solid inset-0 pointer-events-none rounded-[1px]" />
-                  </div>
+    <div className="min-h-screen bg-[#f0f0f0] relative">
+      <AdminTopNav activePage="Admin Roles" />
+      
+      {/* Main Content */}
+      <div className="pt-[80px]">
+        {/* Page Title and Controls */}
+        <div className="px-[129px] pt-[28px] pb-0 bg-transparent">
+          <div className="flex items-center justify-between w-full mb-2">
+            <h1 className="font-['Raleway:Bold',sans-serif] font-bold text-[20px] text-black tracking-[1px]">Admin Roles</h1>
+            
+            <div className="flex items-center gap-4">
+              {/* Add Admin Button - Only visible to Master Admin */}
+              {isMasterAdmin && (
+                <button 
+                  onClick={() => setIsModalOpen(true)}
+                  className="bg-[rgba(187,159,228,0.8)] h-[31px] px-4 rounded-[5px] font-['Inter:Regular',sans-serif] text-[12px] text-black hover:bg-[rgba(187,159,228,1)] transition-colors"
+                >
+                  + Add Admin
+                </button>
+              )}
+              
+              {/* Search Bar */}
+              <div className="relative">
+                <div className="w-[465px] h-[31px] border border-[#888888] rounded-[5px] flex items-center px-3">
+                  <Search className="w-[18px] h-[18px] text-[#888888] mr-2" />
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="flex-1 text-[12px] text-[#888888] bg-transparent outline-none font-['Inter:Regular',sans-serif]"
+                  />
                 </div>
               </div>
-            );
-          })
-        )}
-      </div>
-      {/* Pagination (static for now) */}
-      <div className="absolute left-[741px] size-[24px] top-[724px]" data-name="fluent:ios-arrow-24-filled">
-        <div className="absolute inset-[8.33%_45.79%_8.29%_10.41%]" data-name="Vector">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 11 21">
-            <path d={svgPaths.p34a09400} fill="var(--fill-0, #888888)" id="Vector" />
-          </svg>
-        </div>
-      </div>
-      <div className="absolute bg-[#815fb3] left-[765px] rounded-[5px] size-[27px] top-[722px]" />
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[776px] not-italic text-[12px] text-nowrap text-white top-[728px] whitespace-pre">1</p>
-      <div className="absolute flex items-center justify-center left-[792px] size-[24px] top-[724px]">
-        <div className="flex-none rotate-[180deg] scale-y-[-100%]">
-          <div className="relative size-[24px]" data-name="fluent:ios-arrow-24-filled">
-            <div className="absolute inset-[8.33%_45.79%_8.29%_10.41%]" data-name="Vector">
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 11 21">
-                <path d={svgPaths.p34a09400} fill="var(--fill-0, #888888)" id="Vector" />
-              </svg>
+              
+              {/* Role Filter */}
+              <div className="relative">
+                <div className="bg-[#f0e4b3] h-[31px] w-[121px] rounded-[5px] flex items-center justify-between px-3 cursor-pointer hover:bg-[#e5d4a0] transition-colors">
+                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Role</span>
+                  <ChevronDown className="w-[12px] h-[12px] text-black" />
+                </div>
+              </div>
+              
+              {/* Status Filter */}
+              <div className="relative">
+                <div className="bg-[#f0e4b3] h-[31px] w-[122px] rounded-[5px] flex items-center justify-between px-3 cursor-pointer hover:bg-[#e5d4a0] transition-colors">
+                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Status</span>
+                  <ChevronDown className="w-[12px] h-[12px] text-black" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Data Table */}
+        <div className="mx-[100px] bg-[#fffff2] rounded-t-[10px] overflow-hidden mt-[18px]">
+          {/* Table Header */}
+          <div className="bg-[#fffff2] h-[40px] border-b border-[#888888] flex items-center px-[31px]">
+            <div className="flex items-center gap-4 flex-1">
+              <input
+                type="checkbox"
+                checked={selectedAdmins.length === admins.length && admins.length > 0}
+                onChange={(e) => handleSelectAll(e.target.checked)}
+                className="w-[12px] h-[12px] border border-[#888888] rounded-[1px]"
+              />
+              <div className="flex items-center gap-1">
+                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Registered User</span>
+                <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+              </div>
+            </div>
+            <div className="w-[250px] flex items-center gap-1">
+              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Email</span>
+              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+            </div>
+            <div className="w-[200px] flex items-center gap-1">
+              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Role</span>
+              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+            </div>
+            <div className="w-[150px] flex items-center gap-1">
+              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Account Status</span>
+              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+            </div>
+            <div className="w-[200px] flex items-center gap-1">
+              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Date Account Created</span>
+              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+            </div>
+          </div>
+
+          {/* Table Rows */}
+          {admins.length === 0 ? (
+            <div className="bg-[#fffff2] h-[50px] flex items-center justify-center border-b border-[#888888]">
+              <span className="text-gray-500 font-['Inter:Regular',sans-serif] text-[12px]">No admin accounts found</span>
+            </div>
+          ) : (
+            admins.map((adminItem) => (
+              <div 
+                key={adminItem.admin_id || adminItem.id} 
+                className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[31px] hover:bg-gray-50"
+              >
+                <div className="flex items-center gap-4 flex-1">
+                  <input
+                    type="checkbox"
+                    checked={selectedAdmins.includes(adminItem.admin_id || adminItem.id)}
+                    onChange={(e) => handleSelectAdmin(adminItem.admin_id || adminItem.id, e.target.checked)}
+                    className="w-[12px] h-[12px] border border-[#888888] rounded-[1px]"
+                  />
+                  <span className="font-['Inter:Bold',sans-serif] font-bold text-[12px] text-black">
+                    {adminItem.name}
+                  </span>
+                </div>
+                <div className="w-[250px]">
+                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{adminItem.email}</span>
+                </div>
+                <div className="w-[200px]">
+                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
+                    {adminItem.role_display || adminItem.role}
+                  </span>
+                </div>
+                <div className="w-[150px]">
+                  <div className={`inline-flex items-center px-2 py-1 rounded-[5px] ${
+                    adminItem.status === 'Active' || adminItem.is_active 
+                      ? 'bg-[#c2f0b3]' 
+                      : 'bg-[#ffb2a8]'
+                  }`}>
+                    <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
+                      {adminItem.status || (adminItem.is_active ? 'Active' : 'Inactive')}
+                    </span>
+                  </div>
+                </div>
+                <div className="w-[200px]">
+                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
+                    {new Date(adminItem.date_created || adminItem.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-center gap-2 mt-12 pb-2">
+          <button className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black">
+            <ChevronDown className="w-[11px] h-[21px] rotate-90" />
+          </button>
+          <div className="bg-[#815fb3] w-[27px] h-[27px] rounded-[5px] flex items-center justify-center">
+            <span className="font-['Inter:Regular',sans-serif] text-[12px] text-white">1</span>
+          </div>
+          <button className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black">
+            <ChevronDown className="w-[11px] h-[21px] -rotate-90" />
+          </button>
+        </div>
       </div>
+
+      {/* Create Admin Modal */}
+      <CreateAdminModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={handleAdminCreated}
+        adminAxios={adminAxios}
+      />
     </div>
   );
 }
