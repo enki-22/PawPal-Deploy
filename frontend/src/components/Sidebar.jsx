@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+// import { useAuth } from '../context/AuthContext';
 import ConversationMenu from './ConversationMenu';
 
 const Sidebar = ({ 
@@ -21,16 +21,15 @@ const Sidebar = ({
   onDeleteConversation = null
 }) => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  // ...existing code...
   const [renamingConversationId, setRenamingConversationId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Ensure conversations is always an array
   const safeConversations = Array.isArray(conversations) ? conversations : [];
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+
 
   const handleStartRename = (conversationId) => {
     setRenamingConversationId(conversationId);
@@ -39,6 +38,30 @@ const Sidebar = ({
   const handleCancelRename = () => {
     setRenamingConversationId(null);
   };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setShowSuggestions(true);
+  };
+
+  const handleSuggestionClick = (conversationId) => {
+    setSearchTerm('');
+    setShowSuggestions(false);
+    if (onLoadConversation) {
+      onLoadConversation(conversationId);
+    }
+    navigate('/chat');
+  };
+
+  const handleSearchBlur = () => {
+    setTimeout(() => setShowSuggestions(false), 100);
+  };
+
+  const filteredSuggestions = searchTerm
+    ? safeConversations.filter(conv =>
+        conv.title.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   const menuItems = [
     {
@@ -66,11 +89,10 @@ const Sidebar = ({
       )
     }
   ];
-
+// ...existing code...
   return (
     <>
-      {/* Sidebar Container - Always present, changes transparency and width */}
-      <div className={`${
+      <div className={`$${
         sidebarVisible ? 'w-80 bg-[#DCCEF1]' : 'w-auto bg-transparent'
       } transition-all duration-300 ease-in-out flex flex-col h-screen relative`}>
         
@@ -141,10 +163,29 @@ const Sidebar = ({
                   placeholder="Search"
                   className="w-full bg-white bg-opacity-50 rounded-lg py-2.5 px-4 pl-10 text-[14px] font-regular"
                   style={{ fontFamily: 'Raleway' }}
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={handleSearchBlur}
                 />
                 <svg className="w-4 h-4 absolute left-3 top-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
+                {/* Suggestions Dropdown */}
+                {showSuggestions && filteredSuggestions.length > 0 && (
+                  <div className="absolute z-10 left-0 right-0 bg-white border border-gray-200 rounded-lg mt-1 shadow-lg max-h-48 overflow-y-auto">
+                    {filteredSuggestions.map(conv => (
+                      <div
+                        key={conv.id}
+                        className="px-4 py-2 cursor-pointer hover:bg-purple-100 text-[14px] truncate"
+                        style={{ fontFamily: 'Raleway' }}
+                        onMouseDown={() => handleSuggestionClick(conv.id)}
+                      >
+                        {conv.title}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
