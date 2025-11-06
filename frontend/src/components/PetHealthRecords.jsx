@@ -10,10 +10,12 @@ import LogoutModal from './LogoutModal';
 
 const PetHealthRecords = () => {
   const [pets, setPets] = useState([]);
+  const [allPetNames, setAllPetNames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [filters, setFilters] = useState({
     search: '',
+    name: '',
     animal_type: '',
     sex: '',
     age: ''
@@ -39,10 +41,9 @@ const PetHealthRecords = () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      
-      // Only add non-empty filters
+      // Only add non-empty filters except 'name' and 'age' (handled client-side)
       Object.entries(filters).forEach(([key, value]) => {
-        if (value && value.trim() !== '') {
+        if (key !== 'name' && key !== 'age' && value && value.trim() !== '') {
           params.append(key, value);
         }
       });
@@ -56,11 +57,41 @@ const PetHealthRecords = () => {
         }
       );
 
-      setPets(response.data || []);
-      console.log('Pets fetched:', response.data);
-      // Debug: Log each pet's image URL
-      if (response.data && response.data.length > 0) {
-        response.data.forEach(pet => {
+      // Always update allPetNames from the full response (not filtered)
+      setAllPetNames(
+        Array.from(new Set((response.data || []).map(pet => pet.name).filter(Boolean)))
+      );
+
+      let filteredPets = response.data || [];
+      // Filter by name client-side if needed
+      if (filters.name && filters.name.trim() !== '') {
+        filteredPets = filteredPets.filter(
+          pet => pet.name && pet.name.toLowerCase() === filters.name.toLowerCase()
+        );
+      }
+      // Filter by age client-side
+      if (filters.age && filters.age.trim() !== '') {
+        filteredPets = filteredPets.filter(pet => {
+          const petAge = Number(pet.age);
+          if (filters.age === '0-1') {
+            return petAge >= 0 && petAge <= 1;
+          }
+          if (filters.age === '1-3') {
+            return petAge > 1 && petAge <= 3;
+          }
+          if (filters.age === '3-7') {
+            return petAge > 3 && petAge <= 7;
+          }
+          if (filters.age === '7+') {
+            return petAge > 7;
+          }
+          return true;
+        });
+      }
+      setPets(filteredPets);
+      // ...existing debug logs...
+      if (filteredPets && filteredPets.length > 0) {
+        filteredPets.forEach(pet => {
           console.log(`Pet ${pet.name} (${pet.animal_type}) - Image URL:`, pet.image);
           console.log(`Pet ${pet.name} - Image exists:`, !!pet.image);
           console.log(`Pet ${pet.name} - Full pet data:`, pet);
@@ -73,6 +104,7 @@ const PetHealthRecords = () => {
         navigate('/login');
       }
       setPets([]);
+      setAllPetNames([]);
     } finally {
       setLoading(false);
     }
@@ -192,12 +224,12 @@ const PetHealthRecords = () => {
               <select
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
-                value=""
+                value={filters.name}
                 onChange={(e) => handleFilterChange('name', e.target.value)}
               >
                 <option value="">Pet Name</option>
-                {pets.map(pet => (
-                  <option key={pet.id} value={pet.name}>{pet.name}</option>
+                {allPetNames.map((name, idx) => (
+                  <option key={idx} value={name}>{name}</option>
                 ))}
               </select>
 

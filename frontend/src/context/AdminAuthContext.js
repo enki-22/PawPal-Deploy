@@ -31,10 +31,10 @@ adminAxios.interceptors.response.use(
   (response) => response,
   (error) => {
     // Prevent infinite logout loop: do NOT auto-logout if the request was to /admin/logout
-    const isLogoutRequest =
-      error.config &&
-      error.config.url &&
-      error.config.url.includes('/admin/logout');
+    // const isLogoutRequest =
+    //   error.config &&
+    //   error.config.url &&
+    //   error.config.url.includes('/admin/logout');
     const isVerifyTokenRequest =
       error.config &&
       error.config.url &&
@@ -108,7 +108,8 @@ export const AdminAuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
-  }, [token, adminAxios]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   const adminLogin = async (credentials) => {
     try {

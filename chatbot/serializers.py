@@ -89,7 +89,8 @@ class SOAPReportListSerializer(serializers.ModelSerializer):
             'date_generated',
             'flag_level',
             'top_condition',
-            'likelihood'
+            'likelihood',
+            'severity',
         ]
     
     def get_owner_name(self, obj):
@@ -110,6 +111,11 @@ class SOAPReportListSerializer(serializers.ModelSerializer):
             return obj.assessment[0].get('likelihood', 0)
         return None
 
+    def get_severity(self, obj):
+        """Get severity of top condition"""
+        if obj.assessment and len(obj.assessment) > 0:
+            return obj.assessment[0].get('severity', 'Unknown')
+        return None
 
 class DiagnosisGenerateSerializer(serializers.Serializer):
     """Serializer for diagnosis generation input"""

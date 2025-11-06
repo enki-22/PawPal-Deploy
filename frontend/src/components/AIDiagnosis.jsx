@@ -218,85 +218,56 @@ const AIDiagnosis = () => {
           {/* Diagnoses List */}
           {loading ? (
             <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3]"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3]" />
             </div>
           ) : (
-            <div className="space-y-4">
-              {diagnoses.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-gray-500" style={{ fontFamily: 'Raleway' }}>
-                    No diagnoses found. Start a conversation with the AI to get diagnoses.
-                  </p>
-                </div>
-              ) : (
-                diagnoses.map((diagnosis) => (
-                  <div 
-                    key={diagnosis.id} 
-                    className="bg-white rounded-lg shadow-sm border p-6 cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => diagnosis.case_id && setSelectedCaseId(diagnosis.case_id)}
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900" style={{ fontFamily: 'Raleway' }}>
-                            {diagnosis.pet_name || 'Pet Diagnosis'}
-                          </h3>
-                          {diagnosis.case_id && (
-                            <span className="text-xs text-blue-600 font-medium" style={{ fontFamily: 'Raleway' }}>
-                              {diagnosis.case_id}
-                            </span>
+            diagnoses.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500" style={{ fontFamily: 'Raleway' }}>
+                  No diagnoses found. Start a conversation with the AI to get diagnoses.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-[#FFFFF2] rounded-xl shadow border text-[15px]" style={{ fontFamily: 'Raleway' }}>
+                  <thead>
+                    <tr className="bg-[#FFFFF2] text-gray-700">
+                      <th className="px-4 py-3 text-left font-semibold">Pet Name</th>
+                      <th className="px-4 py-3 text-left font-semibold">Animal</th>
+                      <th className="px-4 py-3 text-left font-semibold">Breed</th>
+                      <th className="px-4 py-3 text-left font-semibold">Severity</th>
+                      <th className="px-4 py-3 text-left font-semibold">Case ID</th>
+                      <th className="px-4 py-3 text-left font-semibold">Date Generated</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {diagnoses.map((diagnosis) => (
+                      <tr
+                        key={diagnosis.id}
+                        className="border-b last:border-b-0 hover:bg-[#f7f6fa] cursor-pointer"
+                        onClick={() => diagnosis.case_id && setSelectedCaseId(diagnosis.case_id)}
+                      >
+                        <td className="px-4 py-3 flex items-center gap-2">
+                          {diagnosis.pet_photo_url && (
+                            <img src={diagnosis.pet_photo_url} alt={diagnosis.pet_name} className="w-8 h-8 rounded-full object-cover" />
                           )}
-                        </div>
-                        <div className="flex items-center space-x-4 mb-3">
+                          <span className="font-semibold">{diagnosis.pet_name || 'Pet Diagnosis'}</span>
+                        </td>
+                        <td className="px-4 py-3">{diagnosis.animal_type || diagnosis.species}</td>
+                        <td className="px-4 py-3">{diagnosis.breed || '-'}</td>
+                        <td className="px-4 py-3">
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${severityColors[diagnosis.severity?.toLowerCase()] || 'bg-gray-100 text-gray-800'}`}>
                             {diagnosis.severity}
                           </span>
-                          <span className="text-sm text-gray-500" style={{ fontFamily: 'Raleway' }}>
-                            {diagnosis.animal_type || diagnosis.species} • {diagnosis.created_at || new Date().toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                      {diagnosis.case_id && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedCaseId(diagnosis.case_id);
-                          }}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                          style={{ fontFamily: 'Raleway' }}
-                        >
-                          View Full Report
-                        </button>
-                      )}
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div>
-                        <h4 className="font-medium text-gray-900 mb-1" style={{ fontFamily: 'Raleway' }}>Symptoms:</h4>
-                        <p className="text-gray-600 text-sm" style={{ fontFamily: 'Raleway' }}>
-                          {diagnosis.symptoms}
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium text-gray-900 mb-1" style={{ fontFamily: 'Raleway' }}>Diagnosis:</h4>
-                        <p className="text-gray-600 text-sm" style={{ fontFamily: 'Raleway' }}>
-                          {diagnosis.diagnosis}
-                        </p>
-                      </div>
-                      
-                      {diagnosis.case_id && (
-                        <div className="mt-4 pt-3 border-t border-gray-200">
-                          <p className="text-xs text-blue-600" style={{ fontFamily: 'Raleway' }}>
-                            Click to view complete SOAP report →
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+                        </td>
+                        <td className="px-4 py-3 font-mono text-sm text-gray-700">{diagnosis.case_id || '-'}</td>
+                        <td className="px-4 py-3">{diagnosis.created_at ? new Date(diagnosis.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
           )}
 
           {/* Pagination */}
