@@ -13,7 +13,7 @@ export default function LandingPage() {
         <div className="absolute h-[40px] right-[90px] top-[12px] w-[151.65px]" data-name="Container">
           <button
             className="absolute bg-[#7e57c2] h-[40px] left-[0.05px] rounded-[9999px] top-0 w-[99.65px] flex items-center justify-center"
-            onClick={() => navigate('/petowner/login')}
+            onClick={() => navigate('/login')}
             data-name="Button"
           >
             <img src="/login-signup.png" alt="login icon" className="ml-4 w-4 h-4" />
@@ -24,7 +24,7 @@ export default function LandingPage() {
         <div className="absolute bg-[#7e57c2] h-[40px] right-[27px] rounded-[9999px] top-[11px] w-[99.65px] flex items-center justify-center" data-name="Button">
           <button
             className="w-full h-full flex items-center justify-center rounded-[9999px]"
-            onClick={() => navigate('/petowner/signup')}
+            onClick={() => navigate('/register')}
           >
             <img src="/login-signup.png" alt="signup icon" className="ml-4 w-4 h-4" />
             <span className="ml-2 text-white font-['Inter',sans-serif] text-[13.6px]">Sign Up</span>
