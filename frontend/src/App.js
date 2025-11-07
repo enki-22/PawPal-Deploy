@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import AIDiagnosis from './components/AIDiagnosis';
+import LandingPage from './components/LandingPage';
 import Chat from './components/Chat';
 import Login from './components/Login';
 import PetHealthRecords from './components/PetHealthRecords';
@@ -159,9 +160,9 @@ function AppWithFade() {
           </AdminProtectedRoute>
         } 
       />
-      {/* Default Routes */}
-      <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
-      <Route path="/" element={<Navigate to="/login" replace />} />
+  {/* Default Routes */}
+  <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+  <Route path="/" element={<FadeWrapper><LandingPage /></FadeWrapper>} />
     </Routes>
   );
 }
