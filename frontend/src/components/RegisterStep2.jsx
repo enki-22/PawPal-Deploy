@@ -6,6 +6,8 @@ import phLocations from '../data/ph_locations.json';
 import { useRegistration } from '../context/RegistrationContext';
 import { authService } from '../services/api';
 import Alert from './Alert';
+import TermsOfService from './TermsOfService';
+import PrivacyPolicy from './PrivacyPolicy';
 
 // Reusable Carousel Component (same as Login)
 const PurpleCarousel = () => {
@@ -194,7 +196,7 @@ const PurpleCarousel = () => {
 };
 
 // Register Step 2 Form Component
-const RegisterStep2Form = ({ onSubmit, loading }) => {
+const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) => {
   const { registrationData, updateStep2 } = useRegistration();
   const [formData, setFormData] = useState({
     ...registrationData.step2,
@@ -677,7 +679,25 @@ const RegisterStep2Form = ({ onSubmit, loading }) => {
                       flex: 1
                     }}
                   >
-                    I confirm that I have read and agree to the Terms and Conditions and Privacy Policy of this website.
+                    I confirm that I have read and agree to the{' '}
+                    <span
+                      style={{ color: '#815FB3', textDecoration: 'underline', cursor: 'pointer' }}
+                      onClick={e => {
+                        e.preventDefault();
+                        setShowTerms(true);
+                      }}
+                    >
+                      Terms and Conditions
+                    </span>{' '}and{' '}
+                    <span
+                      style={{ color: '#815FB3', textDecoration: 'underline', cursor: 'pointer' }}
+                      onClick={e => {
+                        e.preventDefault();
+                        setShowPrivacy(true);
+                      }}
+                    >
+                      Privacy Policy
+                    </span>{' '}of this website.
                   </label>
                 </div>
                 {errors.terms_agreement && (
@@ -724,7 +744,8 @@ const RegisterStep2 = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
-  
+  const [showTerms, setShowTerms] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
   const navigate = useNavigate();
 
   // Redirect if step 1 is not completed
@@ -842,12 +863,16 @@ const RegisterStep2 = () => {
                 <RegisterStep2Form 
                   onSubmit={handleSubmit}
                   loading={loading}
+                  setShowTerms={setShowTerms}
+                  setShowPrivacy={setShowPrivacy}
                 />
               </div>
             </div>
           </div>
         </div>
       </div>
+      {showTerms && <TermsOfService onClose={() => setShowTerms(false)} />}
+      {showPrivacy && <PrivacyPolicy onClose={() => setShowPrivacy(false)} />}
     </div>
   );
 };
