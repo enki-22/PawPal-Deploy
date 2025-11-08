@@ -2,6 +2,29 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
+  // Blood type options by species
+  const bloodTypeOptions = {
+    dog: [
+      { value: 'DEA 1.1', label: 'DEA 1.1 (Dog)' },
+      { value: 'DEA 1.2', label: 'DEA 1.2 (Dog)' },
+      { value: 'DEA 3', label: 'DEA 3 (Dog)' },
+      { value: 'DEA 4', label: 'DEA 4 (Dog)' },
+      { value: 'DEA 5', label: 'DEA 5 (Dog)' },
+      { value: 'DEA 7', label: 'DEA 7 (Dog)' },
+    ],
+    cat: [
+      { value: 'A', label: 'A (Cat)' },
+      { value: 'B', label: 'B (Cat)' },
+      { value: 'AB', label: 'AB (Cat)' },
+    ],
+    other: [
+      { value: 'Unknown', label: 'Unknown' },
+    ],
+    hamster: [ { value: 'Unknown', label: 'Unknown' } ],
+    bird: [ { value: 'Unknown', label: 'Unknown' } ],
+    rabbit: [ { value: 'Unknown', label: 'Unknown' } ],
+    fish: [ { value: 'Unknown', label: 'Unknown' } ],
+  };
   const [newPet, setNewPet] = useState({
     name: '',
     animal_type: '',
@@ -243,8 +266,10 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                       <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Weight</label>
                       <input
                         type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={newPet.weight || ''}
-                        onChange={(e) => handleInputChange('weight', e.target.value)}
+                        onChange={(e) => handleInputChange('weight', e.target.value.replace(/[^0-9.]/g, ''))}
                         className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
                         placeholder="Weight"
                         style={{ fontFamily: 'Raleway' }}
@@ -294,14 +319,19 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                   <div className="grid grid-cols-2 gap-6 mb-6">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Blood Type</label>
-                      <input
-                        type="text"
+                      <select
                         value={newPet.blood_type}
                         onChange={(e) => handleInputChange('blood_type', e.target.value)}
                         className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
-                        placeholder="Blood Type"
                         style={{ fontFamily: 'Raleway' }}
-                      />
+                        required
+                        disabled={!newPet.animal_type}
+                      >
+                        <option value="">Select Blood Type</option>
+                        {(bloodTypeOptions[newPet.animal_type] || bloodTypeOptions['other']).map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-3" style={{ fontFamily: 'Raleway' }}>Spayed or Neutered</label>
@@ -312,7 +342,7 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                             name="spayed_neutered"
                             value="true"
                             checked={newPet.spayed_neutered === true}
-                            onChange={(e) => handleInputChange('spayed_neutered', true)}
+                            onChange={() => handleInputChange('spayed_neutered', true)}
                             className="mr-3 w-4 h-4 text-[#815FB3]"
                           />
                           <span className="text-base text-gray-700" style={{ fontFamily: 'Raleway' }}>Yes</span>
@@ -323,7 +353,7 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                             name="spayed_neutered"
                             value="false"
                             checked={newPet.spayed_neutered === false}
-                            onChange={(e) => handleInputChange('spayed_neutered', false)}
+                            onChange={() => handleInputChange('spayed_neutered', false)}
                             className="mr-3 w-4 h-4 text-[#815FB3]"
                           />
                           <span className="text-base text-gray-700" style={{ fontFamily: 'Raleway' }}>No</span>
@@ -343,7 +373,20 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                         className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
                         placeholder="Allergies"
                         style={{ fontFamily: 'Raleway' }}
+                        disabled={newPet.allergies === 'Unknown'}
                       />
+                      <div className="mt-2 flex items-center">
+                        <input
+                          type="checkbox"
+                          id="allergiesUnknown"
+                          checked={newPet.allergies === 'Unknown'}
+                          onChange={() => handleInputChange('allergies', newPet.allergies === 'Unknown' ? '' : 'Unknown')}
+                          className="mr-2"
+                        />
+                        <label htmlFor="allergiesUnknown" className="text-sm text-gray-700" style={{ fontFamily: 'Raleway' }}>
+                          Allergies Unknown
+                        </label>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Chronic Disease</label>
@@ -354,7 +397,20 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                         className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
                         placeholder="Chronic Disease"
                         style={{ fontFamily: 'Raleway' }}
+                        disabled={newPet.chronic_disease === 'Unknown'}
                       />
+                      <div className="mt-2 flex items-center">
+                        <input
+                          type="checkbox"
+                          id="chronicDiseaseUnknown"
+                          checked={newPet.chronic_disease === 'Unknown'}
+                          onChange={() => handleInputChange('chronic_disease', newPet.chronic_disease === 'Unknown' ? '' : 'Unknown')}
+                          className="mr-2"
+                        />
+                        <label htmlFor="chronicDiseaseUnknown" className="text-sm text-gray-700" style={{ fontFamily: 'Raleway' }}>
+                          Chronic Disease Unknown
+                        </label>
+                      </div>
                     </div>
                   </div>
                 </div>
