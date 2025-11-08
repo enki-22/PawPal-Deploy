@@ -194,6 +194,7 @@ const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) =>
     email: '',
     password: '',
   });
+  const [errors, setErrors] = useState({});
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -204,10 +205,28 @@ const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) =>
     });
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    }
+    return newErrors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
     try {
       await onSubmit(formData);
     } catch (err) {
@@ -239,6 +258,7 @@ const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) =>
           <Alert type="success" message={successMessage} />
         )}
         
+        {/* Only show top Alert for general/server errors, not for field validation */}
         {error && (
           <Alert type="error" message={error} onClose={() => setError('')} />
         )}
@@ -249,17 +269,48 @@ const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) =>
                    style={{ fontFamily: 'Raleway' }}>
               Email
             </label>
-            <input
-              type="text"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%] placeholder-gray-400"
-              style={{ fontFamily: 'Raleway' }}
-              placeholder="your@email.com"
-              required
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type="text"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%] placeholder-gray-400"
+                style={{ fontFamily: 'Raleway' }}
+                placeholder="your@email.com"
+              />
+              {errors.email && (
+                  <div style={{
+                    position: 'absolute',
+                    right: '0',
+                    bottom: '-44px',
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '8px 12px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontFamily: 'Raleway',
+                    fontWeight: '500',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                    zIndex: 1000,
+                    animation: 'errorPop 0.3s ease-out'
+                  }}>
+                    {errors.email}
+                    <div style={{
+                      position: 'absolute',
+                      right: '16px',
+                      top: '-8px',
+                      width: '0',
+                      height: '0',
+                      borderLeft: '8px solid transparent',
+                      borderRight: '8px solid transparent',
+                      borderBottom: '8px solid #ef4444'
+                    }}></div>
+                  </div>
+              )}
+            </div>
           </div>
 
           <div>
@@ -267,28 +318,59 @@ const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) =>
                    style={{ fontFamily: 'Raleway' }}>
               Password
             </label>
-            <input
-              type={showPassword ? "text" : "password"}
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%] placeholder-gray-400"
-              style={{ fontFamily: 'Raleway' }}
-              placeholder="••••••••"
-              required
-            />
-            <div className="mt-2">
-              <label className="flex items-center text-[16px] font-light leading-[100%] tracking-[0%]"
-                     style={{ fontFamily: 'Raleway' }}>
-                <input
-                  type="checkbox"
-                  checked={showPassword}
-                  onChange={(e) => setShowPassword(e.target.checked)}
-                  className="mr-2"
-                />
-                Show Password
-              </label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%] placeholder-gray-400"
+                style={{ fontFamily: 'Raleway' }}
+                placeholder="••••••••"
+              />
+              {errors.password && (
+                  <div style={{
+                    position: 'absolute',
+                    right: '0',
+                    bottom: '-20px',
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '8px 12px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontFamily: 'Raleway',
+                    fontWeight: '500',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                    zIndex: 1000,
+                    animation: 'errorPop 0.3s ease-out'
+                  }}>
+                    {errors.password}
+                    <div style={{
+                      position: 'absolute',
+                      right: '16px',
+                      top: '-8px',
+                      width: '0',
+                      height: '0',
+                      borderLeft: '8px solid transparent',
+                      borderRight: '8px solid transparent',
+                      borderBottom: '8px solid #ef4444'
+                    }}></div>
+                  </div>
+              )}
+              <div className="mt-2">
+                <label className="flex items-center text-[16px] font-light leading-[100%] tracking-[0%]"
+                       style={{ fontFamily: 'Raleway' }}>
+                  <input
+                    type="checkbox"
+                    checked={showPassword}
+                    onChange={(e) => setShowPassword(e.target.checked)}
+                    className="mr-2"
+                  />
+                  Show Password
+                </label>
+              </div>
             </div>
           </div>
 
@@ -345,9 +427,6 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -355,11 +434,6 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
     }
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
-    }
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
     }
     return newErrors;
   };
