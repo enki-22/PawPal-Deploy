@@ -8,34 +8,33 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchSOAPReport = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Remove # if present in caseId
+        const cleanCaseId = caseId.replace('#', '');
+
+        // Use the unified endpoint that supports admin auth
+        const response = await adminAxios.get(`/chatbot/diagnosis/soap/${cleanCaseId}`);
+
+        if (response.data.success && response.data.soap_report) {
+          setReport(response.data.soap_report);
+        } else {
+          setError('Failed to load SOAP report');
+        }
+      } catch (err) {
+        console.error('Error fetching SOAP report:', err);
+        setError(err.response?.data?.error || 'Failed to load SOAP report');
+      } finally {
+        setLoading(false);
+      }
+    };
     if (caseId) {
       fetchSOAPReport();
     }
   }, [caseId, adminAxios]);
-
-  const fetchSOAPReport = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // Remove # if present in caseId
-      const cleanCaseId = caseId.replace('#', '');
-      
-      // Use the unified endpoint that supports admin auth
-      const response = await adminAxios.get(`/chatbot/diagnosis/soap/${cleanCaseId}`);
-
-      if (response.data.success && response.data.soap_report) {
-        setReport(response.data.soap_report);
-      } else {
-        setError('Failed to load SOAP report');
-      }
-    } catch (err) {
-      console.error('Error fetching SOAP report:', err);
-      setError(err.response?.data?.error || 'Failed to load SOAP report');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';

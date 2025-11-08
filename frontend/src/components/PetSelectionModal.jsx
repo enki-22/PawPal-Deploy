@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+
 const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) => {
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState(null);
   const [error, setError] = useState(null);
-  
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -20,67 +20,36 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
       setError(null);
       fetchUserPets();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const fetchUserPets = async () => {
+    let response;
     try {
       setLoading(true);
-      
       // DEBUG: Check all possible token sources
       const tokenFromAuth = token;
       const tokenFromLocalStorage = localStorage.getItem('token');
       const tokenFromAuthToken = localStorage.getItem('authToken');
-      
-      console.log('=== TOKEN DEBUG ===');
-      console.log('token from useAuth():', tokenFromAuth);
-      console.log('token from localStorage("token"):', tokenFromLocalStorage);
-      console.log('token from localStorage("authToken"):', tokenFromAuthToken);
-      
-      // Try to get the correct token
       const authToken = tokenFromAuth || tokenFromLocalStorage || tokenFromAuthToken;
-      console.log('Final token to use:', authToken);
-      
       if (!authToken) {
         throw new Error('No authentication token found. Please log in again.');
       }
-      
       const headers = {
         'Authorization': `Token ${authToken}`,
         'Content-Type': 'application/json',
       };
-      
-      console.log('Request headers:', headers);
-      console.log('Full URL:', `${API_BASE_URL}/chatbot/get-user-pets/`);
-      
-      const response = await fetch(`${API_BASE_URL}/chatbot/get-user-pets/`, {
+      response = await fetch(`${API_BASE_URL}/chatbot/get-user-pets/`, {
         method: 'GET',
         headers: headers
       });
-
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.log('Error response body:', errorText);
-        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
-      }
-      
       const data = await response.json();
-      console.log('SUCCESS! Pets data received:', data);
-      
       if (data.success) {
         setPets(data.pets);
-        setError(null); // Clear any previous errors
-      } else {
-        setError(data.error || 'Failed to fetch pets');
+        setError(null);
       }
     } catch (error) {
-      console.error('=== ERROR FETCHING PETS ===');
-      console.error('Error object:', error);
-      console.error('Error message:', error.message);
-      setError(`Failed to load pets: ${error.message}`);
-      setPets([]);
+      setError(error.message || 'Failed to fetch pets');
     } finally {
       setLoading(false);
     }
@@ -88,33 +57,24 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
 
   const handleStartConversation = async (petId = null, isNewPet = false) => {
     try {
-      console.log('Starting conversation with pet ID:', petId, 'isNewPet:', isNewPet); // Debug log
-      
       const requestBody = {
         type: conversationType,
         pet_id: petId,
         is_new_pet: isNewPet,
         pet_name: isNewPet ? 'New Pet' : pets.find(p => p.id === petId)?.name
       };
-
-      console.log('Request body:', requestBody); // Debug log
-
       const response = await fetch(`${API_BASE_URL}/chatbot/start-conversation-with-pet/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': token ? `Token ${token}` : '', // Fixed: Use Token instead of Bearer
+          'Authorization': token ? `Token ${token}` : '',
         },
         body: JSON.stringify(requestBody)
       });
-      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
       const data = await response.json();
-      console.log('Conversation started:', data); // Debug log
-      
       if (data.success) {
         onSelectPet({
           conversation_id: data.conversation_id,
@@ -127,15 +87,13 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
         setError(data.error || 'Failed to start conversation');
       }
     } catch (error) {
-      console.error('Error starting conversation:', error);
       setError(`Failed to start conversation: ${error.message}`);
     }
   };
 
-  // NEW: Handle redirect to pet health records
   const handleAddNewPet = () => {
-    onClose(); // Close the modal first
-    navigate('/pet-health-records'); // Redirect to pet health records page
+    onClose();
+    navigate('/pet-health-records');
   };
 
   if (!isOpen) return null;
@@ -146,14 +104,12 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
         <h2 className="text-xl font-bold mb-4" style={{ fontFamily: 'Raleway' }}>
           {conversationType === 'general' ? 'General Pet Healthcare' : 'Symptom Checker'}
         </h2>
-        
         <p className="text-gray-600 mb-6" style={{ fontFamily: 'Raleway' }}>
           {conversationType === 'general' 
             ? "Want to check what&apos;s normal for your pet? Let&apos;s start with: Do you want to check for an existing pet or add a new one?"
             : "Let&apos;s analyze your pet&apos;s symptoms. Do you want to check an existing pet or add a new one?"
           }
         </p>
-
         {/* Error Display */}
         {error && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -166,7 +122,6 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
             </button>
           </div>
         )}
-
         {!selectedOption && (
           <div className="space-y-3">
             <button
@@ -185,7 +140,6 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
             </button>
           </div>
         )}
-
         {selectedOption === 'existing' && (
           <div className="space-y-3">
             <h3 className="font-semibold" style={{ fontFamily: 'Raleway' }}>Select your pet:</h3>
@@ -240,14 +194,12 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
             </button>
           </div>
         )}
-
         {selectedOption === 'new' && (
           <div className="space-y-4">
             <div className="text-center">
               <p className="text-gray-600 mb-4" style={{ fontFamily: 'Raleway' }}>
                 Let&apos;s add your new pet&apos;s information first so I can provide better assistance.
               </p>
-              
               {/* Option 1: Redirect to Pet Health Records */}
               <div className="space-y-3">
                 <button
@@ -260,7 +212,6 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
                     Go to Pet Health Records to add your pet&apos;s information
                   </div>
                 </button>
-                
                 {/* Option 2: Continue without details */}
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -270,7 +221,6 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
                     <span className="px-2 bg-white text-gray-500">or</span>
                   </div>
                 </div>
-                
                 <button
                   onClick={() => handleStartConversation(null, true)}
                   className="w-full p-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
@@ -283,7 +233,6 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
                 </button>
               </div>
             </div>
-            
             <button
               onClick={() => setSelectedOption(null)}
               className="w-full p-2 text-gray-500 hover:text-gray-700"
@@ -293,7 +242,6 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
             </button>
           </div>
         )}
-
         <button
           onClick={onClose}
           className="w-full mt-6 p-2 text-gray-500 hover:text-gray-700 border-t pt-4"

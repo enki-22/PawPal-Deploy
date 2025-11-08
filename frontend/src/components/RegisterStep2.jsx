@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
+import phLocations from '../data/ph_locations.json';
 import { useRegistration } from '../context/RegistrationContext';
 import { authService } from '../services/api';
 import Alert from './Alert';
@@ -216,8 +217,13 @@ const RegisterStep2Form = ({ onSubmit, loading }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.phone_number.trim()) {
+    const phone = formData.phone_number.trim();
+    // Philippines phone number regex: only 09XXXXXXXXX
+    const phRegex = /^09\d{9}$/;
+    if (!phone) {
       newErrors.phone_number = 'Phone number is required';
+    } else if (!phRegex.test(phone)) {
+      newErrors.phone_number = 'Enter a valid Philippine phone number (09XXXXXXXXX)';
     }
     if (!formData.province) {
       newErrors.province = 'Province is required';
@@ -252,16 +258,11 @@ const RegisterStep2Form = ({ onSubmit, loading }) => {
     }
   };
 
-  const provinces = [
-    'Alberta', 'British Columbia', 'Manitoba', 'New Brunswick',
-    'Newfoundland and Labrador', 'Northwest Territories', 'Nova Scotia',
-    'Nunavut', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan', 'Yukon'
-  ];
-
-  const cities = [
-    'Toronto', 'Vancouver', 'Montreal', 'Calgary', 'Edmonton', 'Ottawa', 
-    'Winnipeg', 'Quebec City', 'Hamilton', 'Other'
-  ];
+  // Get all provinces from phLocations
+  const provinces = Object.keys(phLocations);
+  // Cities for selected province
+  const selectedProvince = formData.province;
+  const cities = selectedProvince ? phLocations[selectedProvince] : [];
 
   return (
     <>
@@ -323,7 +324,7 @@ const RegisterStep2Form = ({ onSubmit, loading }) => {
               color: '#34113F',
               marginBottom: '0'
             }}>
-              2 ) Contact Information
+              2) Contact Information
             </h3>
           </div>
 
@@ -353,7 +354,16 @@ const RegisterStep2Form = ({ onSubmit, loading }) => {
                     type="tel"
                     name="phone_number"
                     value={formData.phone_number}
-                    onChange={handleChange}
+                    onChange={e => {
+                      // Only allow numbers, max 11 digits, must start with 09
+                      let val = e.target.value.replace(/[^\d]/g, '');
+                      if (val.length > 11) val = val.slice(0, 11);
+                      if (val && !val.startsWith('09')) val = '09';
+                      setFormData({ ...formData, phone_number: val });
+                      if (errors.phone_number) {
+                        setErrors({ ...errors, phone_number: '' });
+                      }
+                    }}
                     style={{
                       width: '100%',
                       minWidth: '384px',
@@ -367,7 +377,7 @@ const RegisterStep2Form = ({ onSubmit, loading }) => {
                       padding: '0.425rem 0',
                       boxSizing: 'border-box'
                     }}
-                    placeholder="(123) 456-7890"
+                    placeholder="09XXXXXXXXX"
                     required
                   />
                   {errors.phone_number && (
@@ -433,7 +443,9 @@ const RegisterStep2Form = ({ onSubmit, loading }) => {
                         outline: 'none',
                         fontFamily: 'Raleway',
                         fontSize: '19.2px',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        maxHeight: '180px',
+                        overflowY: 'auto'
                       }}
                       required
                     >
@@ -507,6 +519,7 @@ const RegisterStep2Form = ({ onSubmit, loading }) => {
                         boxSizing: 'border-box'
                       }}
                       required
+                      disabled={!formData.province}
                     >
                       <option value="">City</option>
                       {cities.map(city => (

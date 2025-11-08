@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
@@ -274,34 +273,20 @@ const RegisterStep1 = () => {
                              style={{ fontFamily: 'Raleway', color: '#666666' }}>
                         Password
                       </label>
-                      <div className="relative mt-1">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          id="password1"
-                          name="password1"
-                          value={formData.password1}
-                          onChange={handleChange}
-                          className="w-full px-0 py-2 pr-10 border-0 bg-transparent focus:outline-none text-[16px] font-semibold leading-[100%] tracking-[0%]"
-                          style={{ 
-                            fontFamily: 'Raleway',
-                            color: '#333333',
-                            borderBottom: '2px solid #34113F'
-                          }}
-                          required
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 focus:outline-none"
-                          aria-label={showPassword ? "Hide password" : "Show password"}
-                        >
-                          {showPassword ? (
-                            <FiEyeOff className="w-5 h-5" />
-                          ) : (
-                            <FiEye className="w-5 h-5" />
-                          )}
-                        </button>
-                      </div>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password1"
+                        name="password1"
+                        value={formData.password1}
+                        onChange={handleChange}
+                        className="w-full px-0 py-2 border-0 bg-transparent focus:outline-none text-[16px] font-semibold leading-[100%] tracking-[0%]"
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          color: '#333333',
+                          borderBottom: '2px solid #34113F'
+                        }}
+                        required
+                      />
                       {errors.password1 && <span className="text-red-600 text-sm mt-1 block">{errors.password1}</span>}
                     </div>
 
@@ -310,38 +295,35 @@ const RegisterStep1 = () => {
                              style={{ fontFamily: 'Raleway', color: '#666666' }}>
                         Confirm Password
                       </label>
-                      <div className="relative mt-1">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          id="password2"
-                          name="password2"
-                          value={formData.password2}
-                          onChange={handleChange}
-                          className="w-full px-0 py-2 pr-10 border-0 bg-transparent focus:outline-none text-[16px] font-semibold leading-[100%] tracking-[0%]"
-                          style={{ 
-                            fontFamily: 'Raleway',
-                            color: '#333333',
-                            borderBottom: '2px solid #34113F'
-                          }}
-                          required
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 focus:outline-none"
-                          aria-label={showPassword ? "Hide password" : "Show password"}
-                        >
-                          {showPassword ? (
-                            <FiEyeOff className="w-5 h-5" />
-                          ) : (
-                            <FiEye className="w-5 h-5" />
-                          )}
-                        </button>
-                      </div>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password2"
+                        name="password2"
+                        value={formData.password2}
+                        onChange={handleChange}
+                        className="w-full px-0 py-2 border-0 bg-transparent focus:outline-none text-[16px] font-semibold leading-[100%] tracking-[0%]"
+                        style={{ 
+                          fontFamily: 'Raleway',
+                          color: '#333333',
+                          borderBottom: '2px solid #34113F'
+                        }}
+                        required
+                      />
                       {errors.password2 && <span className="text-red-600 text-sm mt-1 block">{errors.password2}</span>}
                     </div>
 
-                    {/* Removed Show Password checkbox, replaced by icon in input */}
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <label className="flex items-center text-[16px] font-light leading-[100%] tracking-[0%]" 
+                             style={{ fontFamily: 'Raleway', color: '#666666' }}>
+                        <input
+                          type="checkbox"
+                          checked={showPassword}
+                          onChange={(e) => setShowPassword(e.target.checked)}
+                          className="mr-2"
+                        />
+                        Show Password
+                      </label>
+                    </div>
                   </form>
                 </div>
 
