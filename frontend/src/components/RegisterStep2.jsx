@@ -201,7 +201,6 @@ const RegisterStep2Form = ({ onSubmit, loading }) => {
     terms_agreement: false
   });
   const [errors, setErrors] = useState({});
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -755,7 +754,7 @@ const RegisterStep2 = () => {
     
     try {
       // Use the registration endpoint (OTP verification temporarily disabled - accounts are created active)
-      const response = await authService.registerWithOtp(completeData);
+  await authService.registerWithOtp(completeData);
       
       // Fade out before navigation
       setFadeOut(true);

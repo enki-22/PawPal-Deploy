@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
@@ -318,59 +319,59 @@ const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) =>
                    style={{ fontFamily: 'Raleway' }}>
               Password
             </label>
-            <div style={{ position: 'relative' }}>
+            <div className="relative mt-1">
               <input
-                type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
+                type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-0 py-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%] placeholder-gray-400"
+                className="w-full px-0 py-2 pr-10 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-gray-600 text-[16px] font-light leading-[100%] tracking-[0%] placeholder-gray-400"
                 style={{ fontFamily: 'Raleway' }}
                 placeholder="••••••••"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <FiEyeOff className="w-5 h-5" />
+                ) : (
+                  <FiEye className="w-5 h-5" />
+                )}
+              </button>
               {errors.password && (
+                <div style={{
+                  position: 'absolute',
+                  right: '0',
+                  bottom: '-20px',
+                  background: '#ef4444',
+                  color: 'white',
+                  padding: '8px 12px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontFamily: 'Raleway',
+                  fontWeight: '500',
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                  zIndex: 1000,
+                  animation: 'errorPop 0.3s ease-out'
+                }}>
+                  {errors.password}
                   <div style={{
                     position: 'absolute',
-                    right: '0',
-                    bottom: '-20px',
-                    background: '#ef4444',
-                    color: 'white',
-                    padding: '8px 12px',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    fontFamily: 'Raleway',
-                    fontWeight: '500',
-                    whiteSpace: 'nowrap',
-                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
-                    zIndex: 1000,
-                    animation: 'errorPop 0.3s ease-out'
-                  }}>
-                    {errors.password}
-                    <div style={{
-                      position: 'absolute',
-                      right: '16px',
-                      top: '-8px',
-                      width: '0',
-                      height: '0',
-                      borderLeft: '8px solid transparent',
-                      borderRight: '8px solid transparent',
-                      borderBottom: '8px solid #ef4444'
-                    }}></div>
-                  </div>
+                    right: '16px',
+                    top: '-8px',
+                    width: '0',
+                    height: '0',
+                    borderLeft: '8px solid transparent',
+                    borderRight: '8px solid transparent',
+                    borderBottom: '8px solid #ef4444'
+                  }}></div>
+                </div>
               )}
-              <div className="mt-2">
-                <label className="flex items-center text-[16px] font-light leading-[100%] tracking-[0%]"
-                       style={{ fontFamily: 'Raleway' }}>
-                  <input
-                    type="checkbox"
-                    checked={showPassword}
-                    onChange={(e) => setShowPassword(e.target.checked)}
-                    className="mr-2"
-                  />
-                  Show Password
-                </label>
-              </div>
             </div>
           </div>
 
@@ -413,6 +414,7 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -692,7 +694,7 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
               }}>
                 Password
               </label>
-              <div style={{ position: 'relative' }}>
+              <div style={{ position: 'relative', minWidth: '320px' }}>
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
@@ -700,7 +702,6 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
                   onChange={handleChange}
                   style={{
                     width: '100%',
-                    minWidth: '320px',
                     border: 'none',
                     background: 'transparent',
                     borderBottom: '2px solid #34113F',
@@ -709,10 +710,24 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
                     fontSize: '16px',
                     color: '#000000',
                     padding: '0.405rem 0',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    paddingRight: '2.5rem'
                   }}
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  style={{ top: '0', height: '100%' }}
+                >
+                  {showPassword ? (
+                    <FiEyeOff className="w-5 h-5" />
+                  ) : (
+                    <FiEye className="w-5 h-5" />
+                  )}
+                </button>
                 {errors.password && (
                   <div style={{
                     position: 'absolute',
@@ -759,9 +774,9 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
               }}>
                 Confirm Password
               </label>
-              <div style={{ position: 'relative' }}>
+              <div style={{ position: 'relative', minWidth: '320px' }}>
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
@@ -776,10 +791,24 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
                     fontSize: '16px',
                     color: '#000000',
                     padding: '0.405rem 0',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    paddingRight: '2.5rem'
                   }}
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  style={{ top: '0', height: '100%' }}
+                >
+                  {showConfirmPassword ? (
+                    <FiEyeOff className="w-5 h-5" />
+                  ) : (
+                    <FiEye className="w-5 h-5" />
+                  )}
+                </button>
                 {errors.confirmPassword && (
                   <div style={{
                     position: 'absolute',
@@ -815,27 +844,7 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6075rem', marginTop: '0.2025rem' }}>
-              <input
-                type="checkbox"
-                checked={showPassword}
-                onChange={(e) => setShowPassword(e.target.checked)}
-                style={{
-                  width: '18px',
-                  height: '18px',
-                  border: '1px solid #34113F',
-                  borderRadius: '5px',
-                  margin: 0
-                }}
-              />
-              <label style={{
-                fontFamily: 'Raleway',
-                fontSize: '16px',
-                color: '#000000'
-              }}>
-                Show Password
-              </label>
-            </div>
+            {/* Show Password checkbox removed, eye icon is sufficient */}
           </div>
         </form>
 
