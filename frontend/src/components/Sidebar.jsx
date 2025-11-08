@@ -94,7 +94,7 @@ const Sidebar = ({
     <>
       <div className={`$${
         sidebarVisible ? 'w-80 bg-[#DCCEF1]' : 'w-auto bg-transparent'
-      } transition-all duration-300 ease-in-out flex flex-col h-screen relative`}>
+      } transition-all duration-300 ease-in-out flex flex-col h-screen relative overflow-hidden`}>
         
         {/* Minimized Header - Always visible */}
         <div className={`flex items-center p-4 ${sidebarVisible ? 'justify-between' : 'justify-start'}`}>
@@ -269,11 +269,11 @@ const Sidebar = ({
 
             {/* Recent Chats */}
             {showRecentChats && (
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1">
                 <h3 className="text-[14px] font-medium text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>
                   Recent Chats
                 </h3>
-                <div className="space-y-1">
+                <div className="space-y-1 max-h-[320px] overflow-y-auto w-full pr-1">
                   {loadingConversations && conversations.length === 0 ? (
                     <div className="text-center text-gray-600 text-sm">Loading...</div>
                   ) : (
