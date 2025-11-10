@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -48,12 +48,8 @@ const ProfileSettings = () => {
   // API Base URL
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
 
-  useEffect(() => {
-    // Load user profile data
-    fetchProfileData();
-  }, []);
-
-  const fetchProfileData = async () => {
+  // Memoize fetchProfileData to avoid useEffect dependency warning
+  const fetchProfileData = useCallback(async () => {
     try {
       setFetchingData(true);
       const response = await axios.get(`${API_BASE_URL}/users/profile/`, {
@@ -91,7 +87,14 @@ const ProfileSettings = () => {
     } finally {
       setFetchingData(false);
     }
-  };
+  }, [API_BASE_URL, token, user]);
+
+  useEffect(() => {
+    // Load user profile data
+    fetchProfileData();
+  }, [fetchProfileData]);
+
+  // ...existing code...
 
   const handleProfileUpdate = async () => {
     setLoading(true);
@@ -109,7 +112,7 @@ const ProfileSettings = () => {
         }
       };
 
-      const response = await axios.put(`${API_BASE_URL}/users/profile/`, updateData, {
+  const response = await axios.patch(`${API_BASE_URL}/users/profile/`, updateData, {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -123,8 +126,13 @@ const ProfileSettings = () => {
         await fetchProfileData();
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('Failed to update profile. Please try again.');
+      if (error.response) {
+        console.error('Error updating profile:', error.response.status, error.response.data);
+        alert(`Failed to update profile: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
+      } else {
+        console.error('Error updating profile:', error);
+        alert('Failed to update profile. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -292,7 +300,7 @@ const ProfileSettings = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontFamily: 'Raleway' }}>
-                        Name
+                        Username
                       </label>
                       {editingProfile ? (
                         <input
@@ -310,17 +318,7 @@ const ProfileSettings = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontFamily: 'Raleway' }}>
                         Email
                       </label>
-                      {editingProfile ? (
-                        <input
-                          type="email"
-                          value={profileData.email}
-                          onChange={(e) => handleInputChange('email', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3]"
-                          style={{ fontFamily: 'Raleway' }}
-                        />
-                      ) : (
-                        <p className="text-gray-900" style={{ fontFamily: 'Raleway' }}>{profileData.email}</p>
-                      )}
+                      <p className="text-gray-900" style={{ fontFamily: 'Raleway' }}>{profileData.email}</p>
                     </div>
                   </div>
 
