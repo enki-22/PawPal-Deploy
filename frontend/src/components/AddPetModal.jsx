@@ -137,8 +137,8 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[1000]">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden z-[1001]">
         {/* Modal Header */}
         <div className="bg-[#815FB3] text-white p-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold" style={{ fontFamily: 'Raleway' }}>

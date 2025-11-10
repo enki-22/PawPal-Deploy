@@ -92,9 +92,9 @@ const Sidebar = ({
 // ...existing code...
   return (
     <>
-      <div className={`$${
+      <div className={`${
         sidebarVisible ? 'w-80 bg-[#DCCEF1]' : 'w-auto bg-transparent'
-      } transition-all duration-300 ease-in-out flex flex-col h-screen relative overflow-hidden`}>
+      } transition-all duration-300 ease-in-out flex flex-col h-full relative overflow-hidden`}>
         
         {/* Minimized Header - Always visible */}
         <div className={`flex items-center p-4 ${sidebarVisible ? 'justify-between' : 'justify-start'}`}>

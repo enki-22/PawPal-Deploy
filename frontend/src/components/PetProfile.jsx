@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from 'react';
+import AddVaccinationRecordModal from './AddVaccinationRecordModal';
+import AddMedicalRecordModal from './AddMedicalRecordModal';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
 import Modal from './LogoutModal';
+import AddPetModal from './AddPetModal';
 import { useAuth } from '../context/AuthContext';
 import useConversations from '../hooks/useConversations';
+import MedicalRecordDetailsModal from './MedicalRecordDetailsModal';
+import VaccinationRecordDetailsModal from './VaccinationRecordDetailsModal';
 
 const PetProfile = () => {
+  const [showVaccinationRecordModal, setShowVaccinationRecordModal] = useState(false);
+  const [showMedicalRecordModal, setShowMedicalRecordModal] = useState(false);
   const [pet, setPet] = useState(null);
   const [allPets, setAllPets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,6 +22,20 @@ const PetProfile = () => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [currentPetId, setCurrentPetId] = useState(null); // Add state for current pet ID
+  const [showAddPetModal, setShowAddPetModal] = useState(false); // Modal state for AddPetModal
+  const [medicalRecords, setMedicalRecords] = useState(() => {
+    const saved = localStorage.getItem('medicalRecords');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  // Vaccination details modal state
+  const [selectedVaccinationRecord, setSelectedVaccinationRecord] = useState(null);
+  const [showVaccinationDetailsModal, setShowVaccinationDetailsModal] = useState(false);
+  const [vaccinationRecords, setVaccinationRecords] = useState(() => {
+    const saved = localStorage.getItem('vaccinationRecords');
+    return saved ? JSON.parse(saved) : [];
+  });
   const { petId } = useParams();
   const { token, logout } = useAuth();
   const navigate = useNavigate();
@@ -30,40 +51,6 @@ const PetProfile = () => {
     handleArchiveConversation,
     handleDeleteConversation,
   } = useConversations();
-
-  // Mock data for demonstration - replace with actual API calls
-  const mockMedicalRecords = [
-    // Temporarily empty to show empty state - uncomment below for data
-    // {
-    //   id: 1,
-    //   serviceType: 'Check-up',
-    //   serviceProvider: 'Hazel Liwanag',
-    //   dateProvided: 'September 10, 2025'
-    // },
-    // {
-    //   id: 2,
-    //   serviceType: 'Vaccination',
-    //   serviceProvider: 'Hazel Liwanag',
-    //   dateProvided: 'September 10, 2025'
-    // },
-    // {
-    //   id: 3,
-    //   serviceType: 'Laboratory',
-    //   serviceProvider: 'Hazel Liwanag',
-    //   dateProvided: 'September 10, 2025'
-    // }
-  ];
-
-  const mockVaccinationRecords = [
-    // Temporarily empty to show empty state - uncomment below for data
-    // {
-    //   id: 1,
-    //   vaccine: 'Rabies',
-    //   administeredBy: 'Hazel Liwanag',
-    //   dateAdministered: 'September 10, 2025',
-    //   nextDue: 'December 10, 2025'
-    // }
-  ];
 
   const mockFiles = [
     // Temporarily empty to show empty state - uncomment below for data
@@ -185,6 +172,17 @@ const PetProfile = () => {
 
   return (
     <div className="min-h-screen flex bg-[#F0F0F0]">
+      {/* AddPetModal - overlays everything including header */}
+      <AddPetModal
+        isOpen={showAddPetModal}
+        onClose={() => setShowAddPetModal(false)}
+        onPetAdded={() => {
+          setShowAddPetModal(false);
+          fetchAllPets();
+        }}
+        token={token}
+      />
+
       {/* Sidebar Container */}
       <div
         style={{
@@ -256,11 +254,11 @@ const PetProfile = () => {
           <div className="flex items-center space-x-6">
             {/* Add Pet Button - LARGER */}
             <button 
-              onClick={() => navigate('/add-pet')}
+              onClick={() => setShowAddPetModal(true)}
               className="flex-shrink-0 transition-all duration-300 ease-in-out hover:transform hover:scale-105"
               style={{
-                width: '80px',  // Increased from ~48px
-                height: '80px', // Increased from ~48px
+                width: '80px',
+                height: '80px',
                 background: '#FFF4C9',
                 borderRadius: '50%',
                 display: 'flex',
@@ -269,12 +267,13 @@ const PetProfile = () => {
                 border: 'none',
                 cursor: 'pointer'
               }}
+              title="Add Pet"
             >
               <span 
                 className="font-bold text-gray-600"
                 style={{ 
-                  fontSize: '32px',  // Increased from ~20px
-                  fontWeight: '900'  // Bolder stroke
+                  fontSize: '32px',
+                  fontWeight: '900'
                 }}
               >
                 +
@@ -347,8 +346,18 @@ const PetProfile = () => {
 
         {/* Main Content Grid */}
         <div className="flex-1 px-6 pb-6">
+          {/* AddPetModal - Centered, overlay, blur */}
+          <AddPetModal
+            isOpen={showAddPetModal}
+            onClose={() => setShowAddPetModal(false)}
+            onPetAdded={() => {
+              setShowAddPetModal(false);
+              fetchAllPets(); // Refresh pets after adding
+            }}
+            token={token}
+          />
           {/* Add subtle loading indicator only for the content area during pet switching */}
-          <div className={`transition-opacity duration-200 ${petSwitchLoading ? 'opacity-50' : 'opacity-100'}`}>
+          <div className={`transition-opacity duration-200 ${petSwitchLoading ? 'opacity-50' : 'opacity-100'}`}> 
             <div className="grid grid-cols-2 gap-6">
               {/* Left Column - Pet Info */}
               <div className="space-y-6">
@@ -428,8 +437,8 @@ const PetProfile = () => {
                         <img 
                           src="/mdi_paw.png" 
                           alt="Species" 
-                          className="w-8 h-8"
-                          style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.8)' }}
+                          className="w-[35px] h-[35px]"
+                          style={{ filter: 'none', color: '#815FB3' }}
                         />
                       </div>
                       <p 
@@ -449,7 +458,7 @@ const PetProfile = () => {
                           fontSize: '14px'
                         }}
                       >
-                        {pet.species || 'Cat'}
+                        {pet.animal_type ? pet.animal_type.charAt(0).toUpperCase() + pet.animal_type.slice(1) : 'N/A'}
                       </p>
                     </div>
 
@@ -459,8 +468,8 @@ const PetProfile = () => {
                         <img 
                           src="/solar_health-bold.png" 
                           alt="Sex" 
-                          className="w-8 h-8"
-                          style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.8)' }}
+                          className="w-[35px] h-[35px]"
+                          style={{ filter: 'none', color: '#815FB3' }}
                         />
                       </div>
                       <p 
@@ -480,7 +489,7 @@ const PetProfile = () => {
                           fontSize: '14px'
                         }}
                       >
-                        {pet.sex || 'Male'}
+                        {pet.sex ? pet.sex.charAt(0).toUpperCase() + pet.sex.slice(1) : 'N/A'}
                       </p>
                     </div>
 
@@ -490,8 +499,8 @@ const PetProfile = () => {
                         <img 
                           src="/mage_calendar-fill.png" 
                           alt="Age" 
-                          className="w-8 h-8"
-                          style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.8)' }}
+                          className="w-[35px] h-[35px]"
+                          style={{ filter: 'none', color: '#815FB3' }}
                         />
                       </div>
                       <p 
@@ -511,7 +520,7 @@ const PetProfile = () => {
                           fontSize: '14px'
                         }}
                       >
-                        {pet.age ? `${pet.age} years old` : '2 years old'}
+                        {typeof pet.age !== 'undefined' ? `${pet.age} years old` : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -538,30 +547,22 @@ const PetProfile = () => {
                             src="/healthicons_blood-drop-24px.png" 
                             alt="Blood Type" 
                             className="w-6 h-6"
-                            style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.6)' }}
+                            style={{ filter: 'none', color: '#34113F' }}
                           />
                           <span 
                             className="text-gray-700"
-                            style={{ 
-                              fontFamily: 'Raleway',
-                              fontSize: '14px',
-                              fontWeight: 500
-                            }}
+                            style={{ fontFamily: 'Raleway', fontSize: '14px', fontWeight: 500 }}
                           >
                             Blood Type
                           </span>
                         </div>
                         <span 
                           className="text-gray-900 font-semibold"
-                          style={{ 
-                            fontFamily: 'Raleway',
-                            fontSize: '14px'
-                          }}
+                          style={{ fontFamily: 'Raleway', fontSize: '14px' }}
                         >
-                          Type A
+                          {pet.blood_type ? pet.blood_type : (pet.medical_notes && pet.medical_notes.match(/Blood Type: ([^\n]+)/)?.[1]) || 'N/A'}
                         </span>
                       </div>
-                      
                       {/* Spayed/Neutered */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
@@ -569,30 +570,22 @@ const PetProfile = () => {
                             src="/mynaui_heart-x-solid.png" 
                             alt="Spayed/Neutered" 
                             className="w-6 h-6"
-                            style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.6)' }}
+                            style={{ filter: 'none', color: '#34113F' }}
                           />
                           <span 
                             className="text-gray-700"
-                            style={{ 
-                              fontFamily: 'Raleway',
-                              fontSize: '14px',
-                              fontWeight: 500
-                            }}
+                            style={{ fontFamily: 'Raleway', fontSize: '14px', fontWeight: 500 }}
                           >
                             Spayed/Neutered
                           </span>
                         </div>
                         <span 
                           className="text-gray-900 font-semibold"
-                          style={{ 
-                            fontFamily: 'Raleway',
-                            fontSize: '14px'
-                          }}
+                          style={{ fontFamily: 'Raleway', fontSize: '14px' }}
                         >
-                          No
+                          {typeof pet.spayed_neutered !== 'undefined' ? (pet.spayed_neutered ? 'Yes' : 'No') : (pet.medical_notes && pet.medical_notes.match(/Spayed\/Neutered: ([^\n]+)/)?.[1]) || 'N/A'}
                         </span>
                       </div>
-                      
                       {/* Allergies */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
@@ -600,30 +593,22 @@ const PetProfile = () => {
                             src="/material-symbols-light_pet-supplies.png" 
                             alt="Allergies" 
                             className="w-6 h-6"
-                            style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.6)' }}
+                            style={{ filter: 'none', color: '#34113F' }}
                           />
                           <span 
                             className="text-gray-700"
-                            style={{ 
-                              fontFamily: 'Raleway',
-                              fontSize: '14px',
-                              fontWeight: 500
-                            }}
+                            style={{ fontFamily: 'Raleway', fontSize: '14px', fontWeight: 500 }}
                           >
                             Allergies
                           </span>
                         </div>
                         <span 
                           className="text-gray-900 font-semibold"
-                          style={{ 
-                            fontFamily: 'Raleway',
-                            fontSize: '14px'
-                          }}
+                          style={{ fontFamily: 'Raleway', fontSize: '14px' }}
                         >
-                          Flea Allergy Dermatitis
+                          {pet.allergies ? pet.allergies : (pet.medical_notes && pet.medical_notes.match(/Allergies: ([^\n]+)/)?.[1]) || 'N/A'}
                         </span>
                       </div>
-                      
                       {/* Chronic Disease */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
@@ -631,27 +616,20 @@ const PetProfile = () => {
                             src="/fa6-solid_disease.png" 
                             alt="Chronic Disease" 
                             className="w-6 h-6"
-                            style={{ filter: 'hue-rotate(260deg) saturate(1.5) brightness(0.6)' }}
+                            style={{ filter: 'none', color: '#34113F' }}
                           />
                           <span 
                             className="text-gray-700"
-                            style={{ 
-                              fontFamily: 'Raleway',
-                              fontSize: '14px',
-                              fontWeight: 500
-                            }}
+                            style={{ fontFamily: 'Raleway', fontSize: '14px', fontWeight: 500 }}
                           >
                             Chronic Disease
                           </span>
                         </div>
                         <span 
                           className="text-gray-900 font-semibold"
-                          style={{ 
-                            fontFamily: 'Raleway',
-                            fontSize: '14px'
-                          }}
+                          style={{ fontFamily: 'Raleway', fontSize: '14px' }}
                         >
-                          N/A
+                          {pet.chronic_disease ? pet.chronic_disease : (pet.medical_notes && pet.medical_notes.match(/Chronic Disease: ([^\n]+)/)?.[1]) || 'N/A'}
                         </span>
                       </div>
                     </div>
@@ -806,9 +784,9 @@ const PetProfile = () => {
                     >
                       MEDICAL RECORDS
                     </h3>
-                    
                     {/* Add Button - Closer to title with shadow */}
                     <button 
+                      onClick={() => setShowMedicalRecordModal(true)}
                       className="rounded text-center transition-colors hover:opacity-90"
                       style={{ 
                         width: '50px',
@@ -829,8 +807,20 @@ const PetProfile = () => {
                     >
                       Add
                     </button>
+                    {/* Add Medical Record Modal */}
+                      <AddMedicalRecordModal
+                        isOpen={showMedicalRecordModal}
+                        onClose={() => setShowMedicalRecordModal(false)}
+                        onSave={record => {
+                          setMedicalRecords(prev => {
+                            const updated = [...prev, record];
+                            localStorage.setItem('medicalRecords', JSON.stringify(updated));
+                            return updated;
+                          });
+                          setShowMedicalRecordModal(false);
+                        }}
+                      />
                   </div>
-                  
                   {/* Right side - Search Bar separated */}
                   <div className="ml-auto">
                     {/* Search Bar - Shorter width to align with table */}
@@ -856,117 +846,32 @@ const PetProfile = () => {
                     />
                   </div>
                 </div>
-
                 {/* Main Card - Only contains table */}
-                <div 
-                  className="rounded-lg"
-                  style={{ 
-                    background: '#FFFFF2',
-                    borderRadius: '10px'
-                  }}
-                >
-                  {/* Table Header Row - First thing inside the card */}
-                  <div 
-                    className="flex items-center py-3 px-4"
-                    style={{ 
-                      borderBottom: '1px solid #E5E7EB'
-                    }}
-                  >
-                    {/* Header Checkbox */}
-                    <div className="flex items-center mr-4">
-                      <input 
-                        type="checkbox" 
-                        className="rounded border-gray-300"
-                        style={{ width: '16px', height: '16px' }}
-                      />
-                    </div>
-                    
-                    {/* Service Type Column Header */}
-                    <div className="flex-1 flex items-center">
-                      <span 
-                        style={{ 
-                          fontFamily: 'Raleway',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          color: '#888888'
-                        }}
-                      >
-                        Service Type
-                      </span>
-                      <svg 
-                        className="ml-2 w-3 h-3" 
-                        fill="#888888" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
-                      </svg>
-                    </div>
-                    
-                    {/* Service Provider Column Header */}
-                    <div className="flex-1 flex items-center">
-                      <span 
-                        style={{ 
-                          fontFamily: 'Raleway',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          color: '#888888'
-                        }}
-                      >
-                        Service Provider
-                      </span>
-                      <svg 
-                        className="ml-2 w-3 h-3" 
-                        fill="#888888" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
-                      </svg>
-                    </div>
-                    
-                    {/* Date Provided Column Header */}
-                    <div className="flex-1 flex items-center">
-                      <span 
-                        style={{ 
-                          fontFamily: 'Raleway',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          color: '#888888'
-                        }}
-                      >
-                        Date Provided
-                      </span>
-                      <svg 
-                        className="ml-2 w-3 h-3" 
-                        fill="#888888" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Empty State Content - Inside the card, below header */}
-                  <div className="text-center py-12 px-4">
-                    <div className="flex justify-center mb-4">
-                      <svg 
-                        className="w-12 h-12" 
-                        fill="#CCCCCC" 
-                        viewBox="0 0 20 20"
-                      >
-                        <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM4 15a1 1 0 100 2h6a1 1 0 100-2H4z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <p 
-                      style={{ 
-                        fontFamily: 'Raleway',
-                        fontSize: '14px',
-                        fontWeight: 400,
-                        color: '#999999'
-                      }}
-                    >
-                      No medical records yet.
-                    </p>
-                  </div>
+                <div className="rounded-lg" style={{ background: '#FFFFF2', borderRadius: '10px' }}>
+                  <table className="min-w-full divide-y divide-gray-200" style={{ fontFamily: 'Raleway' }}>
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Type</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Provider</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Provided</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {medicalRecords.length === 0 ? (
+                        <tr>
+                          <td colSpan={3} className="px-6 py-4 text-center text-gray-400">No medical records yet.</td>
+                        </tr>
+                      ) : (
+                        medicalRecords.map((record, idx) => (
+                          <tr key={idx} className="cursor-pointer hover:bg-gray-100" onClick={() => { setSelectedRecord(idx); setShowDetailsModal(true); }}>
+                            <td className="px-6 py-4 whitespace-nowrap">{record.serviceType}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{record.provider}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{record.date}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
@@ -994,6 +899,7 @@ const PetProfile = () => {
                     
                     {/* Add Button - Same style as Medical Records */}
                     <button 
+                      onClick={() => setShowVaccinationRecordModal(true)}
                       className="rounded text-center transition-colors hover:opacity-90"
                       style={{ 
                         width: '50px',
@@ -1014,6 +920,19 @@ const PetProfile = () => {
                     >
                       Add
                     </button>
+                    {/* Add Vaccination Record Modal */}
+                    <AddVaccinationRecordModal
+                      isOpen={showVaccinationRecordModal}
+                      onClose={() => setShowVaccinationRecordModal(false)}
+                      onSave={record => {
+                        setVaccinationRecords(prev => {
+                          const updated = [...prev, record];
+                          localStorage.setItem('vaccinationRecords', JSON.stringify(updated));
+                          return updated;
+                        });
+                        setShowVaccinationRecordModal(false);
+                      }}
+                    />
                   </div>
                   
                   {/* Right side - Search Bar separated */}
@@ -1042,137 +961,44 @@ const PetProfile = () => {
                   </div>
                 </div>
 
-                {/* Main Card - Only contains table */}
-                <div 
+                {/* Main Card - Table of vaccination records */}
+                <div
                   className="rounded-lg"
-                  style={{ 
-                    background: '#FFFFF2',
-                    borderRadius: '10px'
-                  }}
+                  style={{ background: '#FFFFF2', borderRadius: '10px' }}
                 >
-                  {/* Table Header Row - First thing inside the card */}
-                  <div 
-                    className="flex items-center py-3 px-4"
-                    style={{ 
-                      borderBottom: '1px solid #E5E7EB'
-                    }}
-                  >
-                    {/* Header Checkbox */}
-                    <div className="flex items-center" style={{ width: '40px' }}>
-                      <input 
-                        type="checkbox" 
-                        className="rounded border-gray-300"
-                        style={{ width: '16px', height: '16px' }}
-                      />
-                    </div>
-                    
-                    {/* Vaccine Column Header */}
-                    <div className="flex items-center" style={{ width: '120px' }}>
-                      <span 
-                        style={{ 
-                          fontFamily: 'Raleway',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          color: '#888888'
-                        }}
-                      >
-                        Vaccine
-                      </span>
-                      <svg 
-                        className="ml-2 w-3 h-3" 
-                        fill="#888888" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
-                      </svg>
-                    </div>
-                    
-                    {/* Administered By Column Header */}
-                    <div className="flex items-center" style={{ width: '160px' }}>
-                      <span 
-                        style={{ 
-                          fontFamily: 'Raleway',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          color: '#888888'
-                        }}
-                      >
-                        Administered By
-                      </span>
-                      <svg 
-                        className="ml-2 w-3 h-3" 
-                        fill="#888888" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
-                      </svg>
-                    </div>
-                    
-                    {/* Date Administered Column Header */}
-                    <div className="flex items-center" style={{ width: '170px' }}>
-                      <span 
-                        style={{ 
-                          fontFamily: 'Raleway',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          color: '#888888'
-                        }}
-                      >
-                        Date Administered
-                      </span>
-                      <svg 
-                        className="ml-2 w-3 h-3" 
-                        fill="#888888" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
-                      </svg>
-                    </div>
-                    
-                    {/* Next Due Column Header */}
-                    <div className="flex items-center" style={{ width: '120px' }}>
-                      <span 
-                        style={{ 
-                          fontFamily: 'Raleway',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          color: '#888888'
-                        }}
-                      >
-                        Next Due
-                      </span>
-                      <svg 
-                        className="ml-2 w-3 h-3" 
-                        fill="#888888" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Empty State Content - Inside the card, below header */}
-                  <div className="text-center py-12 px-4">
-                    <div className="flex justify-center mb-4">
-                      <svg 
-                        className="w-12 h-12" 
-                        fill="#CCCCCC" 
-                        viewBox="0 0 20 20"
-                      >
-                        <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <p 
-                      style={{ 
-                        fontFamily: 'Raleway',
-                        fontSize: '14px',
-                        fontWeight: 400,
-                        color: '#999999'
-                      }}
-                    >
-                      No vaccination records yet.
-                    </p>
-                  </div>
+                  <table className="min-w-full divide-y divide-gray-200" style={{ fontFamily: 'Raleway' }}>
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vaccine</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Administered By</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Administered</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Due</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {vaccinationRecords.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="px-6 py-4 text-center text-gray-400">No vaccination records yet.</td>
+                        </tr>
+                      ) : (
+                        vaccinationRecords.map((record, idx) => (
+                          <tr
+                            key={idx}
+                            className="cursor-pointer hover:bg-gray-100"
+                            onClick={() => {
+                              setSelectedVaccinationRecord(idx);
+                              setShowVaccinationDetailsModal(true);
+                            }}
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap">{record.vaccineType}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{record.administeredBy}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{record.dateAdministered}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{record.nextDueDate}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -1194,6 +1020,68 @@ const PetProfile = () => {
           message="Are you sure you want to logout?"
           confirmText="Logout"
           confirmButtonColor="bg-red-500 hover:bg-red-600"
+        />
+      )}
+
+      {/* Medical Record Details Modal - Pop-out modal for medical record details */}
+      {showDetailsModal && (
+        <MedicalRecordDetailsModal
+          isOpen={showDetailsModal}
+          record={medicalRecords[selectedRecord]}
+          onClose={() => setShowDetailsModal(false)}
+          onDelete={() => {
+            setMedicalRecords(prev => {
+              const updated = prev.filter((_, i) => i !== selectedRecord);
+              localStorage.setItem('medicalRecords', JSON.stringify(updated));
+              return updated;
+            });
+            setShowDetailsModal(false);
+            setSelectedRecord(null);
+          }}
+          onSave={(updatedRecord) => {
+            setMedicalRecords(prev => {
+              const updated = prev.map((item, index) => {
+                if (index === selectedRecord) {
+                  return updatedRecord;
+                }
+                return item;
+              });
+              localStorage.setItem('medicalRecords', JSON.stringify(updated));
+              return updated;
+            });
+            setShowDetailsModal(false);
+          }}
+        />
+      )}
+
+      {/* Vaccination Record Details Modal - Pop-out modal for vaccination record details */}
+      {showVaccinationDetailsModal && (
+        <VaccinationRecordDetailsModal
+          isOpen={showVaccinationDetailsModal}
+          record={vaccinationRecords[selectedVaccinationRecord]}
+          onClose={() => setShowVaccinationDetailsModal(false)}
+          onDelete={() => {
+            setVaccinationRecords(prev => {
+              const updated = prev.filter((_, i) => i !== selectedVaccinationRecord);
+              localStorage.setItem('vaccinationRecords', JSON.stringify(updated));
+              return updated;
+            });
+            setShowVaccinationDetailsModal(false);
+            setSelectedVaccinationRecord(null);
+          }}
+          onSave={(updatedRecord) => {
+            setVaccinationRecords(prev => {
+              const updated = prev.map((item, index) => {
+                if (index === selectedVaccinationRecord) {
+                  return updatedRecord;
+                }
+                return item;
+              });
+              localStorage.setItem('vaccinationRecords', JSON.stringify(updated));
+              return updated;
+            });
+            setShowVaccinationDetailsModal(false);
+          }}
         />
       )}
     </div>

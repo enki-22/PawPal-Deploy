@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import useConversations from '../hooks/useConversations';
@@ -10,19 +10,17 @@ import LogoutModal from './LogoutModal';
 
 const PetHealthRecords = () => {
   const [pets, setPets] = useState([]);
-  const [allPetNames, setAllPetNames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [filters, setFilters] = useState({
     search: '',
-    name: '',
     animal_type: '',
     sex: '',
     age: ''
   });
   const [showAddPetModal, setShowAddPetModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const { user, token, logout } = useAuth();
+  const { token, logout } = useAuth();
   const navigate = useNavigate();
   
   // Use conversations hook
@@ -37,17 +35,16 @@ const PetHealthRecords = () => {
     handleDeleteConversation
   } = useConversations();
 
-  const fetchPets = async () => {
+  const fetchPets = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      // Only add non-empty filters except 'name' and 'age' (handled client-side)
+      // Only add non-empty filters
       Object.entries(filters).forEach(([key, value]) => {
-        if (key !== 'name' && key !== 'age' && value && value.trim() !== '') {
+        if (value && value.trim() !== '') {
           params.append(key, value);
         }
       });
-
       const response = await axios.get(
         `http://localhost:8000/api/pets/?${params}`,
         {
@@ -56,71 +53,39 @@ const PetHealthRecords = () => {
           }
         }
       );
-
-      // Always update allPetNames from the full response (not filtered)
-      setAllPetNames(
-        Array.from(new Set((response.data || []).map(pet => pet.name).filter(Boolean)))
-      );
-
-      let filteredPets = response.data || [];
-      // Filter by name client-side if needed
-      if (filters.name && filters.name.trim() !== '') {
-        filteredPets = filteredPets.filter(
-          pet => pet.name && pet.name.toLowerCase() === filters.name.toLowerCase()
-        );
-      }
-      // Filter by age client-side
-      if (filters.age && filters.age.trim() !== '') {
-        filteredPets = filteredPets.filter(pet => {
-          const petAge = Number(pet.age);
-          if (filters.age === '0-1') {
-            return petAge >= 0 && petAge <= 1;
-          }
-          if (filters.age === '1-3') {
-            return petAge > 1 && petAge <= 3;
-          }
-          if (filters.age === '3-7') {
-            return petAge > 3 && petAge <= 7;
-          }
-          if (filters.age === '7+') {
-            return petAge > 7;
-          }
-          return true;
-        });
-      }
-      setPets(filteredPets);
-      // ...existing debug logs...
-      if (filteredPets && filteredPets.length > 0) {
-        filteredPets.forEach(pet => {
-          console.log(`Pet ${pet.name} (${pet.animal_type}) - Image URL:`, pet.image);
-          console.log(`Pet ${pet.name} - Image exists:`, !!pet.image);
-          console.log(`Pet ${pet.name} - Full pet data:`, pet);
-        });
-      }
+      setPets(response.data || []);
+      // Debug: Log each pet's image URL
+      // No need to define 'pet' if not used
+      // if (response.data && response.data.length > 0) {
+      //   response.data.forEach(pet => {
+      //     // console.log(`Pet ${pet.name} (${pet.animal_type}) - Image URL:`, pet.image);
+      //     // console.log(`Pet ${pet.name} - Image exists:`, !!pet.image);
+      //     // console.log(`Pet ${pet.name} - Full pet data:`, pet);
+      //   });
+      // }
     } catch (error) {
-      console.error('Error fetching pets:', error);
+      // console.error('Error fetching pets:', error);
       if (error.response?.status === 401) {
         logout();
         navigate('/login');
       }
       setPets([]);
-      setAllPetNames([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, token, logout, navigate]);
 
   useEffect(() => {
     fetchPets();
-  }, [filters]);
+  }, [filters, fetchPets]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleAddPet = () => {
-    setShowAddPetModal(true);
-  };
+    useEffect(() => {
+      fetchPets();
+    }, [fetchPets]);
 
   const handleCloseModal = () => {
     setShowAddPetModal(false);
@@ -164,25 +129,49 @@ const PetHealthRecords = () => {
     return emojis[animalType?.toLowerCase()] || '🐾';
   };
 
+  // Sidebar widths
+  const sidebarExpandedWidth = 320;
+  const sidebarMinimizedWidth = 200;
+
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: '#f0f1f1' }}>
-      {/* Left Sidebar */}
-      <Sidebar 
-        sidebarVisible={sidebarVisible}
-        currentPage="pet-health-records" 
-        onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
-        conversations={conversations}
-        loadingConversations={loadingConversations}
-        onLoadConversation={handleLoadConversation}
-        onCreateNewConversation={handleCreateNewConversation}
-        onPinConversation={handlePinConversation}
-        onRenameConversation={handleRenameConversation}
-        onArchiveConversation={handleArchiveConversation}
-        onDeleteConversation={handleDeleteConversation}
-      />
+      {/* Left Sidebar - Fixed Position */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          height: '100vh',
+          zIndex: 50,
+          width: sidebarVisible ? sidebarExpandedWidth : sidebarMinimizedWidth,
+          transition: 'width 0.3s cubic-bezier(.4,0,.2,1)',
+        }}
+      >
+        <Sidebar
+          sidebarVisible={sidebarVisible}
+          currentPage="pet-health-records"
+          onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
+          conversations={conversations}
+          loadingConversations={loadingConversations}
+          onLoadConversation={handleLoadConversation}
+          onCreateNewConversation={handleCreateNewConversation}
+          onPinConversation={handlePinConversation}
+          onRenameConversation={handleRenameConversation}
+          onArchiveConversation={handleArchiveConversation}
+          onDeleteConversation={handleDeleteConversation}
+        />
+      </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col bg-white">
+      {/* Main Content Area - marginLeft matches sidebar width */}
+      <div
+        className="flex-1 flex flex-col bg-white"
+        style={{
+          marginLeft: sidebarVisible ? sidebarExpandedWidth : sidebarMinimizedWidth,
+          transition: 'margin-left 0.3s cubic-bezier(.4,0,.2,1)',
+          height: '100vh',
+          overflow: 'hidden',
+        }}
+      >
         {/* Header */}
         <div className="bg-[#f0f1f1] border-b p-4 flex items-center justify-between">
           {/* Page Title */}
@@ -224,12 +213,12 @@ const PetHealthRecords = () => {
               <select
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
-                value={filters.name}
+                value=""
                 onChange={(e) => handleFilterChange('name', e.target.value)}
               >
                 <option value="">Pet Name</option>
-                {allPetNames.map((name, idx) => (
-                  <option key={idx} value={name}>{name}</option>
+                {pets.map(pet => (
+                  <option key={pet.id} value={pet.name}>{pet.name}</option>
                 ))}
               </select>
 
@@ -498,7 +487,7 @@ const PetHealthRecords = () => {
             
             {/* Add Pet Card */}
             <div 
-              onClick={handleAddPet}
+              onClick={() => setShowAddPetModal(true)}
               className="cursor-pointer hover:transform hover:scale-105 transition-all duration-300"
               style={{
                 position: 'relative',
@@ -526,9 +515,10 @@ const PetHealthRecords = () => {
             </div>
           </div>
         </div>
+
       </div>
 
-      {/* Add Pet Modal */}
+      {/* Modals are outside the main layout */}
       <AddPetModal
         isOpen={showAddPetModal}
         onClose={handleCloseModal}
@@ -536,7 +526,6 @@ const PetHealthRecords = () => {
         token={token}
       />
 
-      {/* Logout Modal */}
       <LogoutModal
         isOpen={showLogoutModal}
         onClose={handleLogoutCancel}
