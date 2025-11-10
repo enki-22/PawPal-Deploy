@@ -280,7 +280,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
               {/* Recently Added Pets */}
-              <div className="bg-white rounded-[10px] p-[28px]">
+              <div className="bg-white rounded-[10px] p-[28px]" style={{ maxHeight: 350, overflowY: 'auto' }}>
                 <div className="flex items-center justify-between mb-[28px]">
                   <h2 className="font-['Raleway:Bold',sans-serif] tracking-[1.1px]">Recently Added Pets</h2>
                   <button 
@@ -326,7 +326,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
               {/* Flagged Cases */}
-              <div className="bg-white rounded-[10px] p-[28px]">
+              <div className="bg-white rounded-[10px] p-[28px]" style={{ maxHeight: 350, overflowY: 'auto' }}>
                 <div className="flex items-center justify-between mb-[28px]">
                   <h2 className="font-['Raleway:Bold',sans-serif] tracking-[1.1px]">Flagged Cases</h2>
                   <button 

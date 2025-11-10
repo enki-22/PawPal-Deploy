@@ -95,7 +95,7 @@ def get_clients(request):
                 user_status = "Active"
             
             results.append({
-                'user_id': user.id,
+                'id': user.id,
                 'name': f"{user.first_name} {user.last_name}".strip() or user.username,
                 'email': user.email,
                 'pet_count': user.pet_count if hasattr(user, 'pet_count') else 0,
@@ -172,17 +172,29 @@ def get_client_detail(request, user_id):
         pets = Pet.objects.filter(owner=user)
         pets_data = []
         for pet in pets:
+            photo_url = None
+            if getattr(pet, 'image', None) and hasattr(pet.image, 'url'):
+                try:
+                    photo_url = request.build_absolute_uri(pet.image.url)
+                except Exception:
+                    photo_url = None
+            species = ''
+            if hasattr(pet, 'get_animal_type_display'):
+                try:
+                    species = pet.get_animal_type_display()
+                except Exception:
+                    species = ''
             pets_data.append({
                 'pet_id': pet.id,
                 'name': pet.name,
-                'species': pet.get_animal_type_display(),
+                'species': species,
                 'breed': pet.breed or 'Unknown',
-                'photo': request.build_absolute_uri(pet.image.url) if pet.image else None
+                'photo': photo_url
             })
         
         # Build client data
         client_data = {
-            'user_id': user.id,
+            'id': user.id,
             'name': f"{user.first_name} {user.last_name}".strip() or user.username,
             'email': user.email,
             'contact_number': profile.contact_number if profile and hasattr(profile, 'contact_number') else None,

@@ -2,13 +2,16 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import AdminTopNav from './AdminTopNav';
 import { ChevronDown, Search, ArrowUpDown } from 'lucide-react';
+import AdminClientDetailsModal from './AdminClientDetailsModal';
 
 const AdminClients = () => {
   const { adminAxios } = useAdminAuth();
   const [clientsData, setClientsData] = useState([]);
+  const [filteredClients, setFilteredClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedClients, setSelectedClients] = useState([]);
+  const [selectedClientId, setSelectedClientId] = useState(null);
 
   const fetchClientsData = useCallback(async () => {
     try {
@@ -24,6 +27,7 @@ const AdminClients = () => {
         });
       // Backend returns 'results' not 'data'
       setClientsData(response.data.results || []);
+      setFilteredClients(response.data.results || []);
     } catch (error) {
       console.error('Failed to fetch clients data:', error);
       setClientsData([]);
@@ -35,6 +39,21 @@ const AdminClients = () => {
   useEffect(() => {
     fetchClientsData();
   }, [fetchClientsData]);
+
+  useEffect(() => {
+    if (!searchTerm) {
+      setFilteredClients(clientsData);
+    } else {
+      const term = searchTerm.toLowerCase();
+      setFilteredClients(
+        clientsData.filter(
+          client =>
+            client.name?.toLowerCase().includes(term) ||
+            client.email?.toLowerCase().includes(term)
+        )
+      );
+    }
+  }, [searchTerm, clientsData]);
 
   const handleSelectAll = (checked) => {
     if (checked) {
@@ -103,11 +122,12 @@ const AdminClients = () => {
           </div>
         </div>
 
-        {/* Data Table */}
+        {/* --- Data Table (FIXED LAYOUT) --- */}
         <div className="mx-[118px] bg-[#fffff2] rounded-t-[10px] overflow-hidden">
           {/* Table Header */}
-          <div className="bg-[#fffff2] h-[40px] border-b border-[#888888] flex items-center px-[32px]">
-            <div className="flex items-center gap-4 flex-1">
+          <div className="bg-[#fffff2] h-[40px] border-b border-[#888888] flex items-center px-[32px] gap-4">
+            {/* Col 1: Checkbox */}
+            <div className="w-16 flex items-center">
               <input
                 type="checkbox"
                 checked={selectedClients.length === clientsData.length && clientsData.length > 0}
@@ -115,32 +135,46 @@ const AdminClients = () => {
                 className="w-[12px] h-[12px] border border-[#888888] rounded-[1px]"
               />
             </div>
-            <div className="w-[250px] flex items-center gap-1">
+            {/* Col 2: Registered User */}
+            <div className="flex-1 flex items-center gap-1">
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Registered User</span>
               <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
             </div>
-            <div className="w-[250px] flex items-center gap-1">
+            {/* Col 3: Pets Owned */}
+            <div className="w-48 flex items-center gap-1">
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Number of Pets Owned</span>
               <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
             </div>
-            <div className="w-[250px] flex items-center gap-1">
+            {/* Col 4: Email */}
+            <div className="flex-1 flex items-center gap-1">
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Email</span>
               <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
             </div>
-            <div className="w-[250px] flex items-center gap-1">
+            {/* Col 5: Status */}
+            <div className="w-48 flex items-center gap-1">
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Account Status</span>
               <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
             </div>
-            <div className="w-[250px] flex items-center gap-1">
+            {/* Col 6: Date Created */}
+            <div className="w-56 flex items-center gap-1">
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Date Account Created</span>
               <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
             </div>
           </div>
 
           {/* Table Rows */}
-          {clientsData.map((client) => (
-            <div key={client.id} className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[32px] hover:bg-gray-50">
-              <div className="flex items-center gap-4 flex-1">
+          {filteredClients.map((client, idx) => (
+            <div
+              key={client.id ? `client-row-${client.id}` : `client-row-${idx}`}
+              className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[32px] gap-4 hover:bg-gray-50 cursor-pointer"
+              onClick={() => {
+                console.log('Row clicked, client object:', client);
+                console.log('Setting selectedClientId:', client.id);
+                setSelectedClientId(client.id);
+              }}
+            >
+              {/* Col 1: Checkbox */}
+              <div className="w-16 flex items-center" onClick={e => e.stopPropagation()}>
                 <input
                   type="checkbox"
                   checked={selectedClients.includes(client.id)}
@@ -148,23 +182,26 @@ const AdminClients = () => {
                   className="w-[12px] h-[12px] border border-[#888888] rounded-[1px]"
                 />
               </div>
-              <div className="w-[250px]">
+              {/* Col 2: Registered User */}
+              <div className="flex-1 truncate">
                 <span className="font-['Inter:Bold',sans-serif] font-bold text-[12px] text-black">{client.name}</span>
               </div>
-              <div className="w-[250px]">
+              {/* Col 3: Pets Owned */}
+              <div className="w-48">
                 <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{client.pet_count}</span>
               </div>
-              <div className="w-[250px]">
+              {/* Col 4: Email */}
+              <div className="flex-1 truncate">
                 <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{client.email}</span>
               </div>
-              <div className="w-[250px]">
-                <div className="bg-[#c2f0b3] h-[30px] w-[66px] rounded-[5px] flex items-center justify-center">
-                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
-                    {client.status || (client.is_active ? 'Active' : 'Inactive')}
-                  </span>
+              {/* Col 5: Status */}
+              <div className="w-48 flex items-center">
+                <div className="bg-[#c2f0b3] h-[30px] w-auto px-3 rounded-[5px] flex items-center justify-center">
+                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Active</span>
                 </div>
               </div>
-              <div className="w-[250px]">
+              {/* Col 6: Date Created */}
+              <div className="w-56">
                 <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
                   {new Date(client.date_created).toLocaleDateString('en-US', { 
                     year: 'numeric', 
@@ -190,8 +227,18 @@ const AdminClients = () => {
           </button>
         </div>
       </div>
+      {selectedClientId && (
+        <>
+          {console.log('Rendering AdminClientDetailsModal for clientId:', selectedClientId)}
+          <AdminClientDetailsModal
+            clientId={selectedClientId}
+            onClose={() => setSelectedClientId(null)}
+            adminAxios={adminAxios}
+          />
+        </>
+      )}
     </div>
   );
-};
+}
 
 export default AdminClients;
