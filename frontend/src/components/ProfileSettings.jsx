@@ -188,7 +188,7 @@ const ProfileSettings = () => {
     try {
       setLoading(true);
       await logout();
-      navigate('/login');
+  navigate('/petowner/login');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

@@ -1,5 +1,5 @@
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import useConversations from '../hooks/useConversations';
@@ -22,7 +22,7 @@ const AIDiagnosis = () => {
   });
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [selectedCaseId, setSelectedCaseId] = useState(null);
-  const { user, token, logout } = useAuth();
+  const { token, logout } = useAuth();
   const navigate = useNavigate();
   
   // Use conversations hook
@@ -44,7 +44,7 @@ const AIDiagnosis = () => {
     critical: 'bg-red-100 text-red-800'
   };
 
-  const fetchDiagnoses = async (page = 1) => {
+  const fetchDiagnoses = useCallback(async (page = 1) => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -75,11 +75,11 @@ const AIDiagnosis = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, token, logout, navigate]);
 
   useEffect(() => {
     fetchDiagnoses();
-  }, [filters]);
+  }, [filters, fetchDiagnoses]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -99,8 +99,8 @@ const AIDiagnosis = () => {
   const handleLogoutConfirm = async () => {
     try {
       setLoading(true);
-      await logout();
-      navigate('/login');
+  await logout();
+  navigate('/petowner/login');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -229,9 +229,9 @@ const AIDiagnosis = () => {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full bg-[#FFFFF2] rounded-xl shadow border text-[15px]" style={{ fontFamily: 'Raleway' }}>
+                <table className="min-w-full bg-[#fffde7] rounded-xl shadow border text-[15px]" style={{ fontFamily: 'Raleway' }}>
                   <thead>
-                    <tr className="bg-[#FFFFF2] text-gray-700">
+                    <tr className="bg-[#fffde7] text-gray-700">
                       <th className="px-4 py-3 text-left font-semibold">Pet Name</th>
                       <th className="px-4 py-3 text-left font-semibold">Animal</th>
                       <th className="px-4 py-3 text-left font-semibold">Breed</th>

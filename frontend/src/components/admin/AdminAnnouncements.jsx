@@ -55,36 +55,13 @@ function renderIcon(iconType) {
 
 
 // This would be fetched from backend in a real app
-const defaultAnnouncements = [
-  {
-    id: 1,
-    title: "Summer Vaccination Special",
-    validUntil: "July 30, 2025",
-    description: "Get 20% off all vaccinations during June and July. Keep your pets protected for less!",
-    icon: 'syringe',
-  },
-  {
-    id: 2,
-    title: "Senior Pet Wellness Month",
-    validUntil: "August 15, 2025",
-    description: "Comprehensive check-ups for senior pets at a special rate. Includes blood work and arthritis screening.",
-    icon: 'checkup',
-  },
-  {
-    id: 3,
-    title: "New Client Welcome Package",
-    validUntil: "Ongoing",
-    description: "First-time clients receive 15% off their initial consultation and a free pet care kit.",
-    icon: 'paw',
-  }
-];
 
 import { useEffect } from 'react';
 
 export default function AdminAnnouncements() {
   const [announcements, setAnnouncements] = useState(() => {
     const stored = localStorage.getItem('admin_announcements');
-    return stored ? JSON.parse(stored) : defaultAnnouncements;
+    return stored ? JSON.parse(stored) : [];
   });
   // Persist announcements to localStorage on change
   useEffect(() => {
@@ -160,40 +137,46 @@ export default function AdminAnnouncements() {
             </button>
           </div>
           <div className="flex flex-col gap-[21px]">
-            {announcements.map((card) => (
-              <div key={card.id} className="bg-[#f7f5fc] rounded-[33.75px] border border-[#d1c4e9] shadow px-[18px] py-[16px] flex flex-col md:flex-row justify-center relative w-full" style={{ minHeight: '180px' }}>
-                <div className="mb-6 md:mb-0 md:mr-12 flex-shrink-0 flex items-center justify-center" style={{ minWidth: 105 }}>
-                  {renderIcon(card.icon)}
+            {announcements.length > 0 ? (
+              announcements.map((card) => (
+                <div key={card.id} className="bg-[#f7f5fc] rounded-[33.75px] border border-[#d1c4e9] shadow px-[18px] py-[16px] flex flex-col md:flex-row justify-center relative w-full" style={{ minHeight: '180px' }}>
+                  <div className="mb-6 md:mb-0 md:mr-12 flex-shrink-0 flex items-center justify-center" style={{ minWidth: 105 }}>
+                    {renderIcon(card.icon)}
+                  </div>
+                  <div className="flex-1 w-full flex flex-col justify-center">
+                    <h3 className="font-['Raleway:Bold',sans-serif] font-bold text-[21.56px] text-black mb-1.5 tracking-[2.1px]">{card.title}</h3>
+                    <p className="font-['Raleway:Light',sans-serif] text-[11.64px] text-[#57166B] mb-3 tracking-[1.125px]">Valid until: {card.validUntil}</p>
+                    <p className="font-['Raleway:Light',sans-serif] text-[13.8px] text-black tracking-[1.5px]">{card.description}</p>
+                  </div>
+                  <div className="absolute right-6 top-6 flex gap-2">
+                    <button
+                      className="p-1 rounded-[2px] hover:bg-[#f3f0fa] border border-[#bba0e4]"
+                      title="Edit"
+                      onClick={() => {
+                        setAnnouncementToEdit(card);
+                        setEditModalOpen(true);
+                      }}
+                    >
+                      <Pencil className="w-2.25 h-2.25 text-[#57166B]" />
+                    </button>
+                    <button
+                      className="p-1 rounded-[2px] hover:bg-[#f3f0fa] border border-[#bba0e4]"
+                      title="Delete"
+                      onClick={() => {
+                        setAnnouncementToDelete(card.id);
+                        setDeleteModalOpen(true);
+                      }}
+                    >
+                      <Trash2 className="w-1.875 h-1.875 text-[#57166B]" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex-1 w-full flex flex-col justify-center">
-                  <h3 className="font-['Raleway:Bold',sans-serif] font-bold text-[21.56px] text-black mb-1.5 tracking-[2.1px]">{card.title}</h3>
-                  <p className="font-['Raleway:Light',sans-serif] text-[11.64px] text-[#57166B] mb-3 tracking-[1.125px]">Valid until: {card.validUntil}</p>
-                  <p className="font-['Raleway:Light',sans-serif] text-[13.8px] text-black tracking-[1.5px]">{card.description}</p>
-                </div>
-                <div className="absolute right-6 top-6 flex gap-2">
-                  <button
-                    className="p-1 rounded-[2px] hover:bg-[#f3f0fa] border border-[#bba0e4]"
-                    title="Edit"
-                    onClick={() => {
-                      setAnnouncementToEdit(card);
-                      setEditModalOpen(true);
-                    }}
-                  >
-                    <Pencil className="w-2.25 h-2.25 text-[#57166B]" />
-                  </button>
-                  <button
-                    className="p-1 rounded-[2px] hover:bg-[#f3f0fa] border border-[#bba0e4]"
-                    title="Delete"
-                    onClick={() => {
-                      setAnnouncementToDelete(card.id);
-                      setDeleteModalOpen(true);
-                    }}
-                  >
-                    <Trash2 className="w-1.875 h-1.875 text-[#57166B]" />
-                  </button>
-                </div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center" style={{ minHeight: '220px' }}>
+                <span className="text-gray-500 text-2xl font-semibold">No announcement yet</span>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

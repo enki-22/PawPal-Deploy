@@ -887,7 +887,7 @@ const UnifiedAuth = () => {
   // FIXED: Enhanced initial view detection
   const getInitialView = () => {
     const path = location.pathname;
-    if (path === '/register' || path.startsWith('/register/')) {
+    if (path === 'petwoner/register' || path.startsWith('petowner/register/')) {
       return 'register';
     }
     return 'login';
@@ -904,7 +904,7 @@ const UnifiedAuth = () => {
   useEffect(() => {
     const getInitialView = () => {
       const path = location.pathname;
-      if (path === '/register' || path.startsWith('/register/')) {
+      if (path === '/petowner/register' || path.startsWith('/petowner/register/')) {
         return 'register';
       }
       return 'login';
@@ -922,7 +922,7 @@ const UnifiedAuth = () => {
   const handlePopState = useCallback(() => {
     const getInitialView = () => {
       const path = window.location.pathname;
-      if (path === '/register' || path.startsWith('/register/')) {
+      if (path === '/petowner/register' || path.startsWith('/petowner/register/')) {
         return 'register';
       }
       return 'login';
@@ -955,7 +955,7 @@ const UnifiedAuth = () => {
     setTimeout(() => {
       setCurrentView('register');
       // Update URL after view change to prevent conflicts
-      window.history.pushState(null, '', '/register');
+      window.history.pushState(null, '', '/petowner/register');
       setTimeout(() => {
         setIsTransitioning(false);
       }, 700); // Wait for animation to complete
@@ -969,7 +969,7 @@ const UnifiedAuth = () => {
     setTimeout(() => {
       setCurrentView('login');
       // Update URL after view change to prevent conflicts
-      window.history.pushState(null, '', '/login');
+      window.history.pushState(null, '', '/petowner/login');
       setTimeout(() => {
         setIsTransitioning(false);
       }, 700); // Wait for animation to complete
@@ -1008,7 +1008,7 @@ const UnifiedAuth = () => {
       });
       
       // Navigate to step 2 of registration
-      navigate('/register/step2');
+      navigate('petowner/register/step2');
     } finally {
       setLoading(false);
     }

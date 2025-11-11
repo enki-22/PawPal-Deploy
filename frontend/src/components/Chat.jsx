@@ -1,5 +1,6 @@
+
 import axios from 'axios';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useConversations } from '../context/ConversationsContext';
@@ -49,7 +50,7 @@ const Chat = () => {
   // Load conversations on component mount
   useEffect(() => {
     fetchConversations();
-  }, []);
+  }, [fetchConversations]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -62,22 +63,8 @@ const Chat = () => {
     }
   };
 
-  // Handle conversation loading when conversations change
-  useEffect(() => {
-    if (conversations && conversations.length > 0) {
-      // If no current conversation and conversations exist, load the most recent one
-      if (!currentConversationId) {
-        const mostRecent = conversations[0];
-        loadConversation(mostRecent.id);
-      }
-    } else if (conversations && conversations.length === 0) {
-      // No conversations exist, show mode selection
-      setShowModeSelection(true);
-      setMessages([]);
-    }
-  }, [conversations, currentConversationId]);
-
-  const loadConversation = async (conversationId) => {
+  // Define loadConversation before useEffect to avoid ReferenceError
+  const loadConversation = useCallback(async (conversationId) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/chatbot/conversations/${conversationId}/`, {
         headers: {
@@ -111,7 +98,22 @@ const Chat = () => {
     } catch (error) {
       console.error('Error loading conversation:', error);
     }
-  };
+  }, [API_BASE_URL, token]);
+
+  // Handle conversation loading when conversations change
+  useEffect(() => {
+    if (conversations && conversations.length > 0) {
+      // If no current conversation and conversations exist, load the most recent one
+      if (!currentConversationId) {
+        const mostRecent = conversations[0];
+        loadConversation(mostRecent.id);
+      }
+    } else if (conversations && conversations.length === 0) {
+      // No conversations exist, show mode selection
+      setShowModeSelection(true);
+      setMessages([]);
+    }
+  }, [conversations, currentConversationId, loadConversation]);
 
   const createNewConversation = async () => {
     try {
@@ -185,7 +187,7 @@ const Chat = () => {
     }
   };
 
-  const handleImageSelect = (event, isCamera = false) => {
+  const handleImageSelect = (event) => {
     const file = event.target.files[0];
     if (file) {
       if (file.type.startsWith('image/')) {
@@ -448,7 +450,7 @@ const handleSubmit = async (e) => {
     try {
       setLoading(true);
       await logout();
-      navigate('/login');
+  navigate('/petowner/login');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -461,10 +463,6 @@ const handleSubmit = async (e) => {
     setShowLogoutModal(false);
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   return (
     <div className="h-screen bg-[#F0F0F0] flex overflow-hidden">

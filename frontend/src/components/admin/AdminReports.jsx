@@ -5,12 +5,57 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import AdminSOAPReportViewer from './AdminSOAPReportViewer';
 
 const AdminReports = () => {
+  // Species filter options (same as AddPet)
+  const speciesOptions = [
+    { value: '', label: 'All Species' },
+    { value: 'cat', label: 'Cat' },
+    { value: 'dog', label: 'Dog' },
+    { value: 'hamster', label: 'Hamster' },
+    { value: 'bird', label: 'Bird' },
+    { value: 'rabbit', label: 'Rabbit' },
+    { value: 'fish', label: 'Fish' },
+    { value: 'other', label: 'Other' }
+  ];
+  const [speciesFilter, setSpeciesFilter] = useState('');
+  // Date range filter options (same as other admin dropdowns)
+  const dateRangeOptions = [
+    'Last 24 Hours',
+    'Last 7 Days',
+    'Last Month',
+    'All Time'
+  ];
+  const [dateRange, setDateRange] = useState('All Time');
+
   const { adminAxios } = useAdminAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReports, setSelectedReports] = useState([]);
   const [reportsData, setReportsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCaseId, setSelectedCaseId] = useState(null);
+
+  // Filter reports by search term
+  const filteredReports = reportsData.filter(report => {
+  // Filter by species
+  if (speciesFilter && report.species && report.species.toLowerCase() !== speciesFilter) return false;
+    // Filter by date range
+    if (dateRange !== 'All Time' && report.date_generated) {
+      const now = new Date();
+      const reportDate = new Date(report.date_generated);
+      let diff = (now - reportDate) / (1000 * 60 * 60 * 24); // difference in days
+      if (dateRange === 'Last 24 Hours' && diff > 1) return false;
+      if (dateRange === 'Last 7 Days' && diff > 7) return false;
+      if (dateRange === 'Last Month' && diff > 30) return false;
+    }
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      (report.pet_name && report.pet_name.toLowerCase().includes(term)) ||
+      (report.species && report.species.toLowerCase().includes(term)) ||
+      (report.breed && report.breed.toLowerCase().includes(term)) ||
+      (report.owner_name && report.owner_name.toLowerCase().includes(term)) ||
+      (report.case_id && String(report.case_id).toLowerCase().includes(term))
+    );
+  });
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -57,7 +102,7 @@ const AdminReports = () => {
 
   const handleSelectAll = (checked) => {
     if (checked) {
-      setSelectedReports(reportsData.map(report => report.id));
+      setSelectedReports(filteredReports.map(report => report.id));
     } else {
       setSelectedReports([]);
     }
@@ -96,17 +141,35 @@ const AdminReports = () => {
             </div>
             {/* Date Range Filter */}
             <div className="relative">
-              <div className="bg-[#f0e4b3] h-[31px] w-[125px] rounded-[5px] flex items-center justify-between px-3 cursor-pointer">
-                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Date Range</span>
+              <select
+                value={dateRange}
+                onChange={e => setDateRange(e.target.value)}
+                className="bg-[#f0e4b3] h-[31px] w-[125px] rounded-[5px] px-3 pr-8 text-[12px] text-black font-['Inter:Regular',sans-serif] border-none outline-none cursor-pointer"
+                style={{ appearance: 'none' }}
+              >
+                {dateRangeOptions.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2">
                 <ChevronDown className="w-[12px] h-[12px] text-black" />
-              </div>
+              </span>
             </div>
             {/* Species Filter */}
             <div className="relative">
-              <div className="bg-[#f0e4b3] h-[31px] w-[122px] rounded-[5px] flex items-center justify-between px-3 cursor-pointer">
-                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Species</span>
+              <select
+                value={speciesFilter}
+                onChange={e => setSpeciesFilter(e.target.value)}
+                className="bg-[#f0e4b3] h-[31px] w-[122px] rounded-[5px] px-3 pr-8 text-[12px] text-black font-['Inter:Regular',sans-serif] border-none outline-none cursor-pointer"
+                style={{ appearance: 'none' }}
+              >
+                {speciesOptions.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2">
                 <ChevronDown className="w-[12px] h-[12px] text-black" />
-              </div>
+              </span>
             </div>
           </div>
         </div>
@@ -149,57 +212,63 @@ const AdminReports = () => {
           </div>
         </div>
         {/* Table Rows */}
-        {reportsData.map((report) => (
-          <div 
-            key={report.id} 
-            className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[31px] hover:bg-gray-50 cursor-pointer"
-            onClick={() => setSelectedCaseId(report.case_id)}
-          >
-            <div className="flex items-center gap-4 flex-1">
-              <input
-                type="checkbox"
-                checked={selectedReports.includes(report.id)}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  handleSelectReport(report.id, e.target.checked);
-                }}
-                onClick={(e) => e.stopPropagation()}
-                className="w-[12px] h-[12px] border border-[#888888] rounded-[1px]"
-              />
-              <div className="flex items-center gap-3">
-                <div className="w-[35px] h-[35px] rounded-full overflow-hidden">
-                  <img 
-                    src={report.pet_image || "/pat-removebg-preview 2.png"} 
-                    alt={report.pet_name} 
-                    className="w-full h-full object-cover" 
-                  />
+        {filteredReports.length === 0 ? (
+          <div className="h-[80px] flex items-center justify-center text-[#888888] text-[16px] font-['Inter:Regular',sans-serif]">
+            No reports found
+          </div>
+        ) : (
+          filteredReports.map((report) => (
+            <div 
+              key={report.id} 
+              className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[31px] hover:bg-gray-50 cursor-pointer"
+              onClick={() => setSelectedCaseId(report.case_id)}
+            >
+              <div className="flex items-center gap-4 flex-1">
+                <input
+                  type="checkbox"
+                  checked={selectedReports.includes(report.id)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    handleSelectReport(report.id, e.target.checked);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-[12px] h-[12px] border border-[#888888] rounded-[1px]"
+                />
+                <div className="flex items-center gap-3">
+                  <div className="w-[35px] h-[35px] rounded-full overflow-hidden">
+                    <img 
+                      src={report.pet_image || "/pat-removebg-preview 2.png"} 
+                      alt={report.pet_name} 
+                      className="w-full h-full object-cover" 
+                    />
+                  </div>
+                  <span className="font-['Inter:Bold',sans-serif] font-bold text-[12px] text-black">{report.pet_name}</span>
                 </div>
-                <span className="font-['Inter:Bold',sans-serif] font-bold text-[12px] text-black">{report.pet_name}</span>
+              </div>
+              <div className="w-[200px]">
+                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{report.species}</span>
+              </div>
+              <div className="w-[190px]">
+                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{report.breed}</span>
+              </div>
+              <div className="w-[216px]">
+                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{report.owner_name}</span>
+              </div>
+              <div className="w-[216px]">
+                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{report.case_id}</span>
+              </div>
+              <div className="w-[172px]">
+                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
+                  {new Date(report.date_generated).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
+                </span>
               </div>
             </div>
-            <div className="w-[200px]">
-              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{report.species}</span>
-            </div>
-            <div className="w-[190px]">
-              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{report.breed}</span>
-            </div>
-            <div className="w-[216px]">
-              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{report.owner_name}</span>
-            </div>
-            <div className="w-[216px]">
-              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{report.case_id}</span>
-            </div>
-            <div className="w-[172px]">
-              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
-                {new Date(report.date_generated).toLocaleDateString('en-US', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
-              </span>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
       {/* Pagination at the bottom, outside the table */}
       <div className="flex items-center justify-center gap-2 mt-12 pb-2">

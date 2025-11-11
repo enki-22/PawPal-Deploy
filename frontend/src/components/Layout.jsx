@@ -8,7 +8,7 @@ const Layout = ({ children, title = "PawPal Veterinary Assistant", showLogout = 
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+  navigate('/petowner/login');
   };
 
   return (

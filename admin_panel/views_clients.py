@@ -86,14 +86,11 @@ def get_clients(request):
         # Format results
         results = []
         for user in filtered_queryset:
-            # Determine status
-            if not user.is_active:
-                user_status = "Inactive"
-            elif hasattr(user, 'profile') and not user.profile.is_verified:
-                user_status = "Pending Verification"
-            else:
+            # Determine status: only 'Active' or 'Deactivated' (deactivated only if is_active=False)
+            if user.is_active:
                 user_status = "Active"
-            
+            else:
+                user_status = "Deactivated"
             results.append({
                 'id': user.id,
                 'name': f"{user.first_name} {user.last_name}".strip() or user.username,

@@ -99,8 +99,8 @@ const Sidebar = ({
         {/* Minimized Header - Always visible */}
         <div className={`flex items-center p-4 ${sidebarVisible ? 'justify-between' : 'justify-start'}`}>
           <div className="flex items-center">
-            <img src="/pawpalicon.png" alt="PawPal" className={`${sidebarVisible ? 'w-12 h-12' : 'w-8 h-8'} mr-2 transition-all duration-300`} />
-            <h1 className={`text-[#815FB3] font-extrabold transition-all duration-300 ${sidebarVisible ? 'text-2xl' : 'text-lg'}`} style={{ fontFamily: 'Raleway' }}>
+            <img src="/pawpalicon.png" alt="PawPal" className="w-12 h-12 mr-2 transition-all duration-300" />
+            <h1 className="text-2xl text-[#815FB3] font-extrabold transition-all duration-300" style={{ fontFamily: 'Raleway' }}>
               PAWPAL
             </h1>
           </div>
@@ -113,7 +113,7 @@ const Sidebar = ({
               <img 
                 src="/sidebar-expand-icon.png" 
                 alt="Toggle sidebar" 
-                className={`transition-all duration-300 ${sidebarVisible ? 'w-6 h-6' : 'w-4 h-4'}`}
+                className="transition-all duration-300 w-6 h-6"
                 style={{ transform: sidebarVisible ? 'rotate(180deg)' : 'rotate(0deg)' }}
               />
             </button>

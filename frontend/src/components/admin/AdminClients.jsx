@@ -5,6 +5,17 @@ import { ChevronDown, Search, ArrowUpDown } from 'lucide-react';
 import AdminClientDetailsModal from './AdminClientDetailsModal';
 
 const AdminClients = () => {
+  // Status filter options
+  const statusOptions = ['All', 'Active', 'Deactivated'];
+  const [status, setStatus] = useState('All');
+  // Date range filter options (same as other admin dropdowns)
+  const dateRangeOptions = [
+    'Last 24 Hours',
+    'Last 7 Days',
+    'Last Month',
+    'All Time'
+  ];
+  const [dateRange, setDateRange] = useState('All Time');
   const { adminAxios } = useAdminAuth();
   const [clientsData, setClientsData] = useState([]);
   const [filteredClients, setFilteredClients] = useState([]);
@@ -41,19 +52,38 @@ const AdminClients = () => {
   }, [fetchClientsData]);
 
   useEffect(() => {
-    if (!searchTerm) {
-      setFilteredClients(clientsData);
-    } else {
+    let filtered = clientsData;
+    // Filter by search term
+    if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      setFilteredClients(
-        clientsData.filter(
-          client =>
-            client.name?.toLowerCase().includes(term) ||
-            client.email?.toLowerCase().includes(term)
-        )
+      filtered = filtered.filter(
+        client =>
+          client.name?.toLowerCase().includes(term) ||
+          client.email?.toLowerCase().includes(term)
       );
     }
-  }, [searchTerm, clientsData]);
+    // Filter by date range
+    if (dateRange !== 'All Time') {
+      const now = new Date();
+      filtered = filtered.filter(client => {
+        if (!client.date_joined) return true;
+        const joinedDate = new Date(client.date_joined);
+        let diff = (now - joinedDate) / (1000 * 60 * 60 * 24); // difference in days
+        if (dateRange === 'Last 24 Hours' && diff > 1) return false;
+        if (dateRange === 'Last 7 Days' && diff > 7) return false;
+        if (dateRange === 'Last Month' && diff > 30) return false;
+        return true;
+      });
+    }
+    // Filter by status
+    if (status !== 'All') {
+      filtered = filtered.filter(client => {
+        // Case-insensitive, trims spaces
+        return client.status?.trim().toLowerCase() === status.toLowerCase();
+      });
+    }
+    setFilteredClients(filtered);
+  }, [searchTerm, clientsData, dateRange, status]);
 
   const handleSelectAll = (checked) => {
     if (checked) {
@@ -106,21 +136,40 @@ const AdminClients = () => {
             
             {/* Date Range Filter */}
             <div className="relative">
-              <div className="bg-[#f0e4b3] h-[31px] w-[125px] rounded-[5px] flex items-center justify-between px-3 cursor-pointer">
-                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Date Range</span>
+              <select
+                value={dateRange}
+                onChange={e => setDateRange(e.target.value)}
+                className="bg-[#f0e4b3] h-[31px] w-[125px] rounded-[5px] px-3 pr-8 text-[12px] text-black font-['Inter:Regular',sans-serif] border-none outline-none cursor-pointer"
+                style={{ appearance: 'none' }}
+              >
+                {dateRangeOptions.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2">
                 <ChevronDown className="w-[12px] h-[12px] text-black" />
-              </div>
+              </span>
             </div>
             
             {/* Status Filter */}
             <div className="relative">
-              <div className="bg-[#f0e4b3] h-[31px] w-[122px] rounded-[5px] flex items-center justify-between px-3 cursor-pointer">
-                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Status</span>
+              <select
+                value={status}
+                onChange={e => setStatus(e.target.value)}
+                className="bg-[#f0e4b3] h-[31px] w-[125px] rounded-[5px] px-3 pr-8 text-[12px] text-black font-['Inter:Regular',sans-serif] border-none outline-none cursor-pointer"
+                style={{ appearance: 'none' }}
+              >
+                {statusOptions.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2">
                 <ChevronDown className="w-[12px] h-[12px] text-black" />
-              </div>
+              </span>
             </div>
           </div>
         </div>
+
 
         {/* --- Data Table (FIXED LAYOUT) --- */}
         <div className="mx-[118px] bg-[#fffff2] rounded-t-[10px] overflow-hidden">
@@ -162,56 +211,62 @@ const AdminClients = () => {
             </div>
           </div>
 
-          {/* Table Rows */}
-          {filteredClients.map((client, idx) => (
-            <div
-              key={client.id ? `client-row-${client.id}` : `client-row-${idx}`}
-              className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[32px] gap-4 hover:bg-gray-50 cursor-pointer"
-              onClick={() => {
-                console.log('Row clicked, client object:', client);
-                console.log('Setting selectedClientId:', client.id);
-                setSelectedClientId(client.id);
-              }}
-            >
-              {/* Col 1: Checkbox */}
-              <div className="w-16 flex items-center" onClick={e => e.stopPropagation()}>
-                <input
-                  type="checkbox"
-                  checked={selectedClients.includes(client.id)}
-                  onChange={(e) => handleSelectClient(client.id, e.target.checked)}
-                  className="w-[12px] h-[12px] border border-[#888888] rounded-[1px]"
-                />
-              </div>
-              {/* Col 2: Registered User */}
-              <div className="flex-1 truncate">
-                <span className="font-['Inter:Bold',sans-serif] font-bold text-[12px] text-black">{client.name}</span>
-              </div>
-              {/* Col 3: Pets Owned */}
-              <div className="w-48">
-                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{client.pet_count}</span>
-              </div>
-              {/* Col 4: Email */}
-              <div className="flex-1 truncate">
-                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{client.email}</span>
-              </div>
-              {/* Col 5: Status */}
-              <div className="w-48 flex items-center">
-                <div className="bg-[#c2f0b3] h-[30px] w-auto px-3 rounded-[5px] flex items-center justify-center">
-                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Active</span>
+          {/* Table Rows or Empty State */}
+          {filteredClients.length === 0 ? (
+            <div className="h-[80px] flex items-center justify-center text-[#888888] text-[16px] font-['Inter:Regular',sans-serif]">
+              There are no clients found
+            </div>
+          ) : (
+            filteredClients.map((client, idx) => (
+              <div
+                key={client.id ? `client-row-${client.id}` : `client-row-${idx}`}
+                className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[32px] gap-4 hover:bg-gray-50 cursor-pointer"
+                onClick={() => {
+                  console.log('Row clicked, client object:', client);
+                  console.log('Setting selectedClientId:', client.id);
+                  setSelectedClientId(client.id);
+                }}
+              >
+                {/* Col 1: Checkbox */}
+                <div className="w-16 flex items-center" onClick={e => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={selectedClients.includes(client.id)}
+                    onChange={(e) => handleSelectClient(client.id, e.target.checked)}
+                    className="w-[12px] h-[12px] border border-[#888888] rounded-[1px]"
+                  />
+                </div>
+                {/* Col 2: Registered User */}
+                <div className="flex-1 truncate">
+                  <span className="font-['Inter:Bold',sans-serif] font-bold text-[12px] text-black">{client.name}</span>
+                </div>
+                {/* Col 3: Pets Owned */}
+                <div className="w-48">
+                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{client.pet_count}</span>
+                </div>
+                {/* Col 4: Email */}
+                <div className="flex-1 truncate">
+                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{client.email}</span>
+                </div>
+                {/* Col 5: Status */}
+                <div className="w-48 flex items-center">
+                  <div className={`h-[30px] w-auto px-3 rounded-[5px] flex items-center justify-center ${client.status?.trim().toLowerCase() === 'active' ? 'bg-[#c2f0b3]' : 'bg-[#f0b3b3]'}`}>
+                    <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{client.status}</span>
+                  </div>
+                </div>
+                {/* Col 6: Date Created */}
+                <div className="w-56">
+                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
+                    {new Date(client.date_created).toLocaleDateString('en-US', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </span>
                 </div>
               </div>
-              {/* Col 6: Date Created */}
-              <div className="w-56">
-                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
-                  {new Date(client.date_created).toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                </span>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* Pagination at the bottom */}

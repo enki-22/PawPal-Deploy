@@ -13,7 +13,7 @@ export default function LandingPage() {
         <div className="absolute h-[40px] right-[90px] top-[12px] w-[151.65px]" data-name="Container">
           <button
             className="absolute bg-[#7e57c2] h-[40px] left-[0.05px] rounded-[9999px] top-0 w-[99.65px] flex items-center justify-center"
-            onClick={() => navigate('/login')}
+            onClick={() => navigate('/petowner/login')}
             data-name="Button"
           >
             <img src="/login-signup.png" alt="login icon" className="ml-4 w-4 h-4" />
@@ -24,7 +24,7 @@ export default function LandingPage() {
         <div className="absolute bg-[#7e57c2] h-[40px] right-[27px] rounded-[9999px] top-[11px] w-[99.65px] flex items-center justify-center" data-name="Button">
           <button
             className="w-full h-full flex items-center justify-center rounded-[9999px]"
-            onClick={() => navigate('/register')}
+            onClick={() => navigate('/petowner/register')}
           >
             <img src="/login-signup.png" alt="signup icon" className="ml-4 w-4 h-4" />
             <span className="ml-2 text-white font-['Inter',sans-serif] text-[13.6px]">Sign Up</span>
@@ -105,7 +105,7 @@ export default function LandingPage() {
             <p className="text-[18px] text-[#181818] mb-7" style={{ fontFamily: 'Inter', fontWeight: 400 }}>
               Get instant answers to your pet care questions, check symptoms, and receive guidance on when to visit our clinic. PawPal is here to help you provide the best care for your furry friends.
             </p>
-            <button className="bg-[#7e57c2] text-white rounded-[8px] px-7 py-2 text-[15px] font-semibold shadow mb-6 hover:bg-[#815fb3] transition-colors" style={{ fontFamily: 'Inter', minWidth: 170 }}>ACCESS PAWPAL</button>
+            <button className="bg-[#7e57c2] text-white rounded-[8px] px-7 py-2 text-[15px] font-semibold shadow mb-6 hover:bg-[#815fb3] transition-colors" style={{ fontFamily: 'Inter', minWidth: 170 }} onClick={() => navigate('/petowner/login')}>ACCESS PAWPAL</button>
             <div className="text-[#666] text-[14px] font-bold" style={{ fontFamily: 'Inter', maxWidth: 420 }}>
               Already have an account? <span className="font-bold">Login</span> to access your pet&apos;s personalized care recommendations and history.<br />
               <span className="font-semibold">New users can sign up for free with your email address.</span>

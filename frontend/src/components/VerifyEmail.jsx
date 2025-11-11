@@ -77,7 +77,7 @@ export default function VerifyEmail() {
       setSuccess('');
       await authService.verifyOtp({ email, purpose: 'account_creation', code });
       setSuccess('Email verified successfully. Redirecting to login...');
-      setTimeout(() => navigate('/login'), 1200);
+  setTimeout(() => navigate('/petowner/login'), 1200);
     } catch (err) {
       const msg = err?.response?.data?.error || 'Verification failed';
       setError(msg);

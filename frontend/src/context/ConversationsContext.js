@@ -13,7 +13,7 @@ export const ConversationsProvider = ({ children }) => {
   // API Base URL
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
 
-  const fetchConversations = React.useCallback(async (force = false) => {
+  const fetchConversations = async (force = false) => {
     // Don't fetch if already loaded and not forcing refresh
     if (conversationsLoaded && !force) {
       return;
@@ -38,9 +38,9 @@ export const ConversationsProvider = ({ children }) => {
     } finally {
       setLoadingConversations(false);
     }
-  }, [API_BASE_URL, conversationsLoaded, token]);
+  };
 
-  const handlePinConversation = async (conversationId) => {
+  const handlePinConversation = async (conversationId, shouldPin) => {
     try {
       console.log('Attempting to toggle pin for conversation:', conversationId);
       const response = await axios.post(`${API_BASE_URL}/chatbot/conversations/${conversationId}/pin/`, {}, {
@@ -142,8 +142,7 @@ export const ConversationsProvider = ({ children }) => {
       setConversationsLoaded(false);
       setLoadingConversations(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, fetchConversations]);
+  }, [token]);
 
   const value = {
     conversations,

@@ -56,7 +56,7 @@ export default function CreateNewPassword() {
       setSuccess('');
       await authService.resetPassword({ email, code, new_password: password, confirm_password: confirm });
       setSuccess('Password updated. Redirecting to login...');
-      setTimeout(() => navigate('/login'), 1200);
+  setTimeout(() => navigate('/petowner/login'), 1200);
     } catch (err) {
       const msg = err?.response?.data?.error || 'Failed to reset password';
       setError(msg);

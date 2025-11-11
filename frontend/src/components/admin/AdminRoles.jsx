@@ -304,20 +304,32 @@ export default function AdminRoles() {
                 </div>
               </div>
               
-              {/* Role Filter */}
+              {/* Role Filter - functional dropdown */}
               <div className="relative">
-                <div className="bg-[#f0e4b3] h-[31px] w-[121px] rounded-[5px] flex items-center justify-between px-3 cursor-pointer hover:bg-[#e5d4a0] transition-colors">
-                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Role</span>
-                  <ChevronDown className="w-[12px] h-[12px] text-black" />
-                </div>
+                <select
+                  value={roleFilter}
+                  onChange={e => setRoleFilter(e.target.value)}
+                  className="bg-[#f0e4b3] h-[31px] w-[121px] rounded-[5px] px-3 text-[12px] text-black font-['Raleway',sans-serif] focus:outline-none"
+                  style={{ fontFamily: 'Raleway, sans-serif' }}
+                >
+                  <option value="all">All Roles</option>
+                  <option value="MASTER">Master Admin</option>
+                  <option value="VET">Veterinarian</option>
+                  <option value="DESK">Front Desk</option>
+                </select>
               </div>
-              
-              {/* Status Filter */}
+              {/* Status Filter - functional dropdown */}
               <div className="relative">
-                <div className="bg-[#f0e4b3] h-[31px] w-[122px] rounded-[5px] flex items-center justify-between px-3 cursor-pointer hover:bg-[#e5d4a0] transition-colors">
-                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">Status</span>
-                  <ChevronDown className="w-[12px] h-[12px] text-black" />
-                </div>
+                <select
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value)}
+                  className="bg-[#f0e4b3] h-[31px] w-[122px] rounded-[5px] px-3 text-[12px] text-black font-['Raleway',sans-serif] focus:outline-none"
+                  style={{ fontFamily: 'Raleway, sans-serif' }}
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
               </div>
             </div>
           </div>
@@ -359,8 +371,8 @@ export default function AdminRoles() {
 
           {/* Table Rows */}
           {admins.length === 0 ? (
-            <div className="bg-[#fffff2] h-[50px] flex items-center justify-center border-b border-[#888888]">
-              <span className="text-gray-500 font-['Inter:Regular',sans-serif] text-[12px]">No admin accounts found</span>
+            <div className="h-[80px] flex items-center justify-center text-[#888888] text-[16px] font-['Inter:Regular',sans-serif]">
+              No admin accounts found
             </div>
           ) : (
             admins.map((adminItem) => (

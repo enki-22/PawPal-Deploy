@@ -1,10 +1,10 @@
+import { BarChart, XAxis, YAxis, Bar, ResponsiveContainer } from 'recharts';
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import AdminTopNav from './AdminTopNav';
 
-import { BarChart, XAxis, YAxis, Bar, CartesianGrid } from 'recharts';
 import { ChevronDown } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -105,7 +105,6 @@ const AdminDashboard = () => {
 
   // Flagged cases data
   const [cases, setCases] = useState([]);
-
   useEffect(() => {
     // Fetch flagged cases from correct endpoint
     const fetchFlaggedCases = async () => {
@@ -140,11 +139,10 @@ const AdminDashboard = () => {
         const response = await adminAxios.get(`/admin/dashboard/charts?date_filter=${dateFilter}`);
         if (response.data.success && response.data.data) {
           const speciesBreakdown = response.data.data.species_breakdown || {};
-          // Convert to array format for chart
-          const speciesArray = Object.entries(speciesBreakdown).map(([name, value]) => ({
-            name,
-            value: value || 0
-          }));
+          // Convert to array format for chart and filter out species with value 0
+          const speciesArray = Object.entries(speciesBreakdown)
+            .map(([name, value]) => ({ name, value: value || 0 }))
+            .filter(species => species.value > 0);
           setSpeciesData(speciesArray);
         }
       } catch (error) {
@@ -162,7 +160,7 @@ const AdminDashboard = () => {
   // Latest SOAP reports
   const [latestSoapReports, setLatestSoapReports] = useState([]);
   // Announcements data
-  const [announcements, setAnnouncements] = useState([]);
+  // Announcements data (sync with AdminAnnouncements page)
 
   useEffect(() => {
     // Fetch symptoms data from dashboard/charts endpoint
@@ -191,20 +189,10 @@ const AdminDashboard = () => {
         setLatestSoapReports([]);
       }
     };
-    // Fetch announcements from dashboard/announcements endpoint
-    const fetchAnnouncements = async () => {
-      try {
-        const response = await adminAxios.get('/admin/dashboard/announcements');
-        setAnnouncements(Array.isArray(response.data.data) ? response.data.data : []);
-      } catch (error) {
-        console.error('Failed to fetch announcements:', error);
-        setAnnouncements([]);
-      }
-    };
     fetchSymptoms();
     fetchLatestSoapReports();
-    fetchAnnouncements();
   }, [adminAxios]);
+
 
   // ...existing code...
 
@@ -396,69 +384,87 @@ const AdminDashboard = () => {
                     <option value="All Time">All Time</option>
                   </select>
                 </div>
-                <BarChart
-                  width={300}
-                  height={200}
-                  data={speciesData}
-                  layout="vertical"
-                  margin={{ left: 60, right: 20, top: 10, bottom: 40 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e0e0e0" />
-                  <YAxis 
-                    type="category" 
-                    dataKey="name" 
-                    fontSize={14} 
-                    tick={{ fill: '#34113F', fontWeight: 700 }} 
-                    axisLine={false} 
-                    tickLine={false}
-                    width={50}
-                    label={{ value: 'Species', angle: -90, position: 'left', fontSize: 12, fontWeight: 700, offset: -50 }}
-                  />
-                  <XAxis 
-                    type="number" 
-                    domain={[0, 'dataMax']}
-                    fontSize={12} 
-                    tick={{ fill: '#000', fontWeight: 700 }} 
-                    axisLine={false} 
-                    tickLine={false}
-                    label={{ value: 'Percentage', position: 'bottom', fontSize: 12, fontWeight: 700 }}
-                  />
-                  <Bar 
-                    dataKey="value" 
-                    fill="#efe8be" 
-                    barSize={24} 
-                    radius={[0, 10, 10, 0]}
-                  />
-                </BarChart>
+                <div style={{ width: '100%', height: 250 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={speciesData}
+                      layout="vertical"
+                      margin={{ left: 60, right: 20, top: 10, bottom: 40 }}
+                    >
+                      {/* CartesianGrid removed */}
+                      <YAxis 
+                        type="category" 
+                        dataKey="name" 
+                        fontSize={14} 
+                        tick={{ fill: '#34113F', fontWeight: 700 }} 
+                        axisLine={true}
+                        tickLine={true}
+                        width={50}
+                        label={{ value: 'Species', angle: -90, position: 'left', fontSize: 12, fontWeight: 700, offset: 10 }}
+                      />
+                      <XAxis 
+                        type="number" 
+                        domain={[0, 'dataMax']}
+                        fontSize={12} 
+                        tick={{ fill: '#000', fontWeight: 700 }} 
+                        axisLine={true}
+                        tickLine={true}
+                        label={{ value: 'Percentage', position: 'bottom', fontSize: 12, fontWeight: 700 }}
+                      />
+                      <Bar 
+                        dataKey="value" 
+                        fill="#efe8be" 
+                        barSize={24} 
+                        radius={0}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
               {/* Most Common Symptoms */}
               <div className="bg-white rounded-[10px] p-[18px]">
-                <div className="font-['Raleway:Bold',sans-serif] mb-2">Most Common Symptoms</div>
-                <ul className="space-y-1">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-['Raleway:Bold',sans-serif] text-lg">Most Common Symptoms</span>
+                  <select
+                    value={soapFilter}
+                    onChange={e => setSoapFilter(e.target.value)}
+                    className="bg-[#efe8be] rounded-[5px] px-2 py-1 text-xs font-semibold text-[#57166B] border-none outline-none cursor-pointer"
+                    style={{ minWidth: 110 }}
+                  >
+                    <option value="Last 24 Hours">Last 24 Hours</option>
+                    <option value="Last 7 Days">Last 7 Days</option>
+                    <option value="Last Month">Last Month</option>
+                    <option value="All Time">All Time</option>
+                  </select>
+                </div>
+                <ul className="space-y-4">
                   {symptoms.map((s, i) => (
-                    <li key={i} className="flex justify-between text-sm">
-                      <span>{s.symptom}</span>
-                      <span className="font-bold text-[#57166B]">{s.count}</span>
+                    <li key={i} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="w-4 h-4 rounded-full" style={{ background: '#815FB3', display: 'inline-block' }} />
+                        <span className="text-base text-[#111111] font-normal">{s.symptom}</span>
+                      </div>
+                      <span className="font-bold text-base text-[#111111]">{s.count}</span>
                     </li>
                   ))}
                 </ul>
               </div>
               {/* Common Symptoms in Species */}
               <div className="bg-white rounded-[10px] p-[18px]">
-                <div className="font-['Raleway:Bold',sans-serif] mb-2">Common Symptoms in Species</div>
-                <ul className="space-y-1">
+                <div className="font-['Raleway:Bold',sans-serif] mb-4 text-lg">Common Symptoms in Species</div>
+                <div className="flex flex-col gap-3">
                   {Object.entries(symptomsBySpecies).map(([species, symptoms], i) => (
-                    <li key={i} className="flex justify-between text-sm">
-                      <span className="font-bold text-[#57166B]">{species}</span>
-                      <span>{Array.isArray(symptoms) ? symptoms.join(', ') : symptoms}</span>
-                    </li>
+                    <div key={i} className="grid grid-cols-2 items-center rounded-[10px] bg-[#f3eafd] px-4 py-3">
+                      <div className="font-bold text-[#34113F] text-base bg-white rounded-[6px] px-4 py-2 flex items-center justify-center mr-3">{species}</div>
+                      <div className="text-base text-[#34113F] bg-white rounded-[6px] px-4 py-2 flex items-center">{Array.isArray(symptoms) ? symptoms.join(', ') : symptoms}</div>
+                    </div>
                   ))}
-                </ul>
+                </div>
                 <button 
                   onClick={() => navigate('/admin/reports')}
-                  className="mt-2 w-full bg-[#efe8be] rounded-[5px] py-1 text-xs font-bold text-[#57166B] cursor-pointer hover:bg-[#e5dba8] transition-colors"
+                  className="mt-5 w-full bg-[#f0e4b3] rounded-[10px] py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.10)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] text-base tracking-[0.6px] cursor-pointer hover:bg-[#e8d9a0] transition-colors"
                 >
-                  View All Common Symptoms in Species
+                  View ALL Common Symptoms in Species
                 </button>
               </div>
               {/* Latest SOAP Report Generated */}
@@ -483,33 +489,6 @@ const AdminDashboard = () => {
                 </button>
               </div>
               {/* Announcement Management */}
-              <div className="bg-white rounded-[10px] p-[18px]">
-                <h3 className="font-['Raleway:Bold',sans-serif] text-center tracking-[0.8px] mb-[18px]">Announcement Management</h3>
-                <div className="space-y-[18px]">
-                  {announcements.map((announcement, index) => (
-                    <div key={index} className="space-y-2">
-                      <div className="flex items-start gap-3">
-                        <div className="size-[40px] flex-shrink-0 flex items-center justify-center bg-[#57166B] text-white text-xl rounded">
-                          📢
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-['Raleway:Bold',sans-serif] tracking-[0.75px] mb-2">{announcement.title}</h4>
-                          <p className="font-['Raleway:Light',sans-serif] tracking-[0.75px] mb-2">
-                            Valid until: {announcement.validity || (announcement.valid_until ? new Date(announcement.valid_until).toLocaleDateString() : 'Ongoing')}
-                          </p>
-                          <p className="font-['Raleway:Regular',sans-serif] tracking-[0.65px]">{announcement.description}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <button 
-                  onClick={() => navigate('/admin/announcements')}
-                  className="w-full bg-[#f0e4b3] rounded-[10px] py-2 mt-4 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px] cursor-pointer hover:bg-[#e8d9a0] transition-colors"
-                >
-                  View All Announcements
-                </button>
-              </div>
             </div>
           </div>
         </div>

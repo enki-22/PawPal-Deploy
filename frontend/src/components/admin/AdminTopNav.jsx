@@ -20,25 +20,28 @@ export default function AdminTopNav({ activePage = '' }) {
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-[#57166b] h-[80px] flex items-center justify-between px-[28px] z-50">
-      <div className="flex items-center gap-2">
-        <div className="w-[40px] h-[40px] relative">
-          <img src="/pat__1_-removebg-preview 3.png" alt="PAWPAL Logo" className="w-full h-full object-contain" />
+      {/* Logo + Nav group */}
+      <div className="flex items-center">
+        <div className="flex items-center gap-2">
+          <div className="w-[40px] h-[40px] relative">
+            <img src="/pat__1_-removebg-preview 3.png" alt="PAWPAL Logo" className="w-full h-full object-contain" />
+          </div>
+          <img src="/PAWPAL.png" alt="PAWPAL" className="h-[26.25px] ml-4 object-contain" />
         </div>
-  <img src="/PAWPAL.png" alt="PAWPAL" className="h-[26.25px] ml-4 object-contain" />
+  <nav className="flex items-center gap-x-10 ml-20">
+          {navLinks.map(link => (
+            <a
+              key={link.href}
+              href={link.href}
+              className={
+                `${activePage === link.label ? 'text-[#fff07b]' : 'text-white'} hover:text-[#fff07b] transition-colors font-['Raleway:SemiBold',sans-serif] text-[18px] tracking-[0.9px]`
+              }
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
       </div>
-      <nav className="flex items-center gap-[30px]">
-        {navLinks.map(link => (
-          <a
-            key={link.href}
-            href={link.href}
-            className={
-              `${activePage === link.label ? 'text-[#fff07b]' : 'text-white'} hover:text-[#fff07b] transition-colors font-['Raleway:SemiBold',sans-serif] text-[18px] tracking-[0.9px]`
-            }
-          >
-            {link.label}
-          </a>
-        ))}
-      </nav>
       <div className="flex items-center gap-3 relative">
         <div
           className="w-[40px] h-[40px] rounded-full overflow-hidden bg-white border-2 border-[#fff07b] cursor-pointer"

@@ -183,17 +183,8 @@ const PetProfile = () => {
         token={token}
       />
 
-      {/* Sidebar Container */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          height: '100vh',
-          zIndex: 50,
-          width: sidebarVisible ? 320 : 200,
-        }}
-      >
+      {/* Sidebar (sticky, stationary while content scrolls) */}
+      <div className="h-screen sticky top-0 flex-shrink-0 z-50">
         <Sidebar
           sidebarVisible={sidebarVisible}
           currentPage="pet-profile"
@@ -210,26 +201,9 @@ const PetProfile = () => {
       </div>
 
       {/* Main Content */}
-      <div
-        className="flex-1 flex flex-col"
-        style={{
-          marginLeft: sidebarVisible ? 320 : 200,
-          minHeight: '100vh',
-          transition: 'margin-left 0.3s cubic-bezier(.4,0,.2,1)',
-        }}
-      >
+      <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div
-          className="border-b p-4 flex items-center justify-between bg-[#F0F0F0]"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: sidebarVisible ? 320 : 200,
-            right: 0,
-            zIndex: 60,
-            paddingLeft: sidebarVisible ? 16 : 16,
-          }}
-        >
+        <div className="border-b p-4 flex items-center justify-between bg-[#F0F0F0]">
           <div className="flex items-center space-x-4">
             <button 
               onClick={() => navigate('/pet-health-records')}
@@ -250,7 +224,7 @@ const PetProfile = () => {
         </div>
 
         {/* Pet Navigation - UPDATED with larger icons */}
-        <div className="pt-20 px-6 pb-6">
+  <div className="pt-6 px-6 pb-6">
           <div className="flex items-center space-x-6">
             {/* Add Pet Button - LARGER */}
             <button 
@@ -1014,7 +988,7 @@ const PetProfile = () => {
           onClose={() => setShowLogoutModal(false)}
           onConfirm={() => {
             logout();
-            navigate('/login');
+            navigate('/petowner/login');
           }}
           title="Confirm Logout"
           message="Are you sure you want to logout?"

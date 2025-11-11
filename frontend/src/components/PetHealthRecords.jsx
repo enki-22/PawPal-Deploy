@@ -67,7 +67,7 @@ const PetHealthRecords = () => {
       // console.error('Error fetching pets:', error);
       if (error.response?.status === 401) {
         logout();
-        navigate('/login');
+  navigate('/petowner/login');
       }
       setPets([]);
     } finally {
@@ -104,7 +104,7 @@ const PetHealthRecords = () => {
     try {
       setLoading(true);
       await logout();
-      navigate('/login');
+  navigate('/petowner/login');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -129,49 +129,25 @@ const PetHealthRecords = () => {
     return emojis[animalType?.toLowerCase()] || '🐾';
   };
 
-  // Sidebar widths
-  const sidebarExpandedWidth = 320;
-  const sidebarMinimizedWidth = 200;
-
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: '#f0f1f1' }}>
-      {/* Left Sidebar - Fixed Position */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          height: '100vh',
-          zIndex: 50,
-          width: sidebarVisible ? sidebarExpandedWidth : sidebarMinimizedWidth,
-          transition: 'width 0.3s cubic-bezier(.4,0,.2,1)',
-        }}
-      >
-        <Sidebar
-          sidebarVisible={sidebarVisible}
-          currentPage="pet-health-records"
-          onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
-          conversations={conversations}
-          loadingConversations={loadingConversations}
-          onLoadConversation={handleLoadConversation}
-          onCreateNewConversation={handleCreateNewConversation}
-          onPinConversation={handlePinConversation}
-          onRenameConversation={handleRenameConversation}
-          onArchiveConversation={handleArchiveConversation}
-          onDeleteConversation={handleDeleteConversation}
-        />
-      </div>
+    <div className="min-h-screen bg-[#f0f1f1] flex">
+      {/* Sidebar - direct child, flex layout */}
+      <Sidebar
+        sidebarVisible={sidebarVisible}
+        currentPage="pet-health-records"
+        onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
+        conversations={conversations}
+        loadingConversations={loadingConversations}
+        onLoadConversation={handleLoadConversation}
+        onCreateNewConversation={handleCreateNewConversation}
+        onPinConversation={handlePinConversation}
+        onRenameConversation={handleRenameConversation}
+        onArchiveConversation={handleArchiveConversation}
+        onDeleteConversation={handleDeleteConversation}
+      />
 
-      {/* Main Content Area - marginLeft matches sidebar width */}
-      <div
-        className="flex-1 flex flex-col bg-white"
-        style={{
-          marginLeft: sidebarVisible ? sidebarExpandedWidth : sidebarMinimizedWidth,
-          transition: 'margin-left 0.3s cubic-bezier(.4,0,.2,1)',
-          height: '100vh',
-          overflow: 'hidden',
-        }}
-      >
+      {/* Main Content Area - flex-1 */}
+      <div className="flex-1 flex flex-col bg-white h-screen overflow-hidden">
         {/* Header */}
         <div className="bg-[#f0f1f1] border-b p-4 flex items-center justify-between">
           {/* Page Title */}
@@ -266,8 +242,7 @@ const PetHealthRecords = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 justify-items-center"
-               style={{ padding: '30px 0', minHeight: '300px' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 justify-items-center" style={{ padding: '30px 0', minHeight: '300px' }}>
             {loading ? (
               <div className="col-span-full flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3]"></div>
@@ -516,22 +491,21 @@ const PetHealthRecords = () => {
           </div>
         </div>
 
+        {/* Modals are outside the main layout */}
+        <AddPetModal
+          isOpen={showAddPetModal}
+          onClose={handleCloseModal}
+          onPetAdded={handlePetAdded}
+          token={token}
+        />
+
+        <LogoutModal
+          isOpen={showLogoutModal}
+          onClose={handleLogoutCancel}
+          onConfirm={handleLogoutConfirm}
+          loading={loading}
+        />
       </div>
-
-      {/* Modals are outside the main layout */}
-      <AddPetModal
-        isOpen={showAddPetModal}
-        onClose={handleCloseModal}
-        onPetAdded={handlePetAdded}
-        token={token}
-      />
-
-      <LogoutModal
-        isOpen={showLogoutModal}
-        onClose={handleLogoutCancel}
-        onConfirm={handleLogoutConfirm}
-        loading={loading}
-      />
     </div>
   );
 };

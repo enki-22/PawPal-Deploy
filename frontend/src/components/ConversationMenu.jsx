@@ -4,7 +4,6 @@ const ConversationMenu = ({
   conversation, 
   onPin, 
   onRename, 
-  onArchive, 
   onDelete,
   className = "",
   isRenaming = false,
@@ -14,7 +13,7 @@ const ConversationMenu = ({
   const [isOpen, setIsOpen] = useState(false);
   const [newTitle, setNewTitle] = useState(conversation.title);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
-  const [showingAbove, setShowingAbove] = useState(false);
+  // const [showingAbove, setShowingAbove] = useState(false); // Removed: unused variable
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -83,8 +82,9 @@ const ConversationMenu = ({
       
       // Determine if dropdown should appear above or below
       // Show above if: not enough space below AND there's enough space above
-      const shouldShowAbove = spaceBelow < dropdownHeight && spaceAbove >= dropdownHeight;
-      setShowingAbove(shouldShowAbove);
+  // Determine if dropdown should appear above or below
+  // Show above if: not enough space below AND there's enough space above
+  const showAbove = spaceBelow < dropdownHeight && spaceAbove >= dropdownHeight;
       
       // Calculate horizontal position (ensure it doesn't go off-screen)
       const dropdownWidth = 128; // min-w-32 = 128px
@@ -97,7 +97,7 @@ const ConversationMenu = ({
       
       // Calculate top position with bounds checking
       let topPosition;
-      if (shouldShowAbove) {
+      if (showAbove) {
         topPosition = Math.max(8, buttonRect.top + scrollTop - dropdownHeight - 4);
       } else {
         topPosition = buttonRect.bottom + scrollTop + 4;
@@ -129,29 +129,19 @@ const ConversationMenu = ({
     setIsOpen(false);
   };
 
-  const handleRenameSubmit = (e) => {
+  const handleRenameSubmit = React.useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
-    
     const trimmedTitle = newTitle.trim();
-    console.log('Rename submit triggered:', { 
-      newTitle: trimmedTitle, 
-      originalTitle: conversation.title, 
-      onRename,
-      conversationId: conversation.id 
-    });
-    
     // Only proceed if title has actually changed and is not empty
     if (trimmedTitle && trimmedTitle !== conversation.title && onRename) {
-      console.log('Calling onRename with:', conversation.id, trimmedTitle);
       onRename(conversation.id, trimmedTitle);
     }
-    
     // Always call cancel rename to exit rename mode
     if (onCancelRename) {
       onCancelRename();
     }
-  };
+  }, [newTitle, conversation.title, conversation.id, onRename, onCancelRename]);
 
   const handleRenameCancel = (e) => {
     e.stopPropagation();
@@ -161,11 +151,7 @@ const ConversationMenu = ({
     }
   };
 
-  const handleArchiveClick = (e) => {
-    e.stopPropagation();
-    onArchive(conversation.id);
-    setIsOpen(false);
-  };
+  // Removed: handleArchiveClick (unused)
 
   const handleDeleteClick = (e) => {
     e.stopPropagation();
@@ -185,19 +171,76 @@ const ConversationMenu = ({
     }
   };
 
+  useEffect(() => {
+    if (!isRenaming) return;
+    function handleOutsideClick(event) {
+      if (inputRef.current && !inputRef.current.contains(event.target)) {
+        handleRenameSubmit(event);
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [isRenaming, handleRenameSubmit]);
+
   if (isRenaming) {
     return (
-      <form onSubmit={handleRenameSubmit} className={`flex items-center ${className}`}>
+      <form onSubmit={handleRenameSubmit} className={`flex items-center ${className}`} style={{position: 'relative', width: '100%', background: '#EFE8BE', borderRadius: '10px', padding: '8px 12px 16px 12px', minWidth: 0}}>
         <input
           ref={inputRef}
           type="text"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="bg-transparent border-none outline-none text-sm flex-1 min-w-0 w-full text-inherit"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+            fontFamily: 'Raleway',
+            fontWeight: 800,
+            fontSize: 14,
+            color: '#34113F',
+            flex: 1,
+            minWidth: 0,
+            paddingRight: 32,
+            lineHeight: '16px',
+          }}
           maxLength={100}
           autoFocus
         />
+        {/* Check button to finish renaming */}
+        <button
+          type="submit"
+          style={{
+            position: 'absolute',
+            right: 12,
+            top: 8,
+            background: 'none',
+            border: 'none',
+            outline: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          title="Finish renaming"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#815FB3">
+            <path d="M20.285 6.709a1 1 0 0 0-1.414-1.418l-9.192 9.192-4.242-4.242a1 1 0 0 0-1.414 1.414l4.949 4.95a1 1 0 0 0 1.414 0l9.899-9.896z"/>
+          </svg>
+        </button>
+        {/* Line under input to indicate edit mode */}
+        <div style={{
+          position: 'absolute',
+          left: 12,
+          right: 12,
+          bottom: 8,
+          height: 2,
+          background: '#815FB3',
+          borderRadius: 2,
+        }} />
       </form>
     );
   }
@@ -216,71 +259,81 @@ const ConversationMenu = ({
       </button>
 
       {isOpen && (
-        <div 
-          ref={dropdownRef}
-          className={`fixed bg-white border border-gray-200 rounded-md shadow-lg py-1 z-[9999] min-w-32 ${
-            showingAbove ? 'shadow-xl' : 'shadow-lg'
-          }`}
-          style={{
-            top: `${dropdownPosition.top}px`,
-            right: `${dropdownPosition.right}px`
-          }}
-        >
-          {/* Pin/Unpin Option */}
-          <button
-            onClick={handlePinClick}
-            className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center space-x-2"
+        <>
+          <style>{`
+            .conversation-menu-btn {
+              display: flex; align-items: center; gap: 8px;
+              width: 100%; border: none; outline: none;
+              font-family: Raleway; font-weight: 800; font-size: 14px;
+              line-height: 16px; text-align: center; cursor: pointer;
+              padding-left: 12px; padding-right: 12px;
+              background: none; color: #34113F;
+              transition: background 0.15s, color 0.15s;
+            }
+            .conversation-menu-btn:hover, .conversation-menu-btn:active {
+              background: #815FB3 !important;
+              color: #fff !important;
+            }
+            .conversation-menu-btn svg {
+              margin-right: 8px;
+            }
+          `}</style>
+          <div 
+            ref={dropdownRef}
+            className="z-[9999]"
+            style={{
+              position: 'fixed',
+              top: `${dropdownPosition.top}px`,
+              right: `${dropdownPosition.right}px`,
+              width: '111px',
+              height: '92px',
+              background: '#EFE8BE',
+              borderRadius: '10px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              padding: 0,
+              overflow: 'hidden'
+            }}
           >
-            {conversation.is_pinned ? (
-              <>
-                <svg className="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-                <span>Unpin</span>
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                </svg>
-                <span>Pin</span>
-              </>
-            )}
-          </button>
+            {/* Rename Option */}
+            <button
+              onClick={handleRenameClick}
+              className="conversation-menu-btn"
+              style={{height: '33px'}}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M4 21h2.5l12.1-12.1c.4-.4.4-1 0-1.4l-2.1-2.1c-.4-.4-1-.4-1.4 0L4 17.5V21zm14.7-13.3c.4-.4.4-1 0-1.4l-2.1-2.1c-.4-.4-1-.4-1.4 0l-1.1 1.1 3.5 3.5 1.1-1.1z"/>
+              </svg>
+              Rename
+            </button>
 
-          {/* Rename Option */}
-          <button
-            onClick={handleRenameClick}
-            className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center space-x-2"
-          >
-            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            <span>Rename</span>
-          </button>
+            {/* Pin/Unpin Option */}
+            <button
+              onClick={handlePinClick}
+              className="conversation-menu-btn"
+              style={{height: '26px'}}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16 2c-.6 0-1 .4-1 1v2.1c-1.7.4-3 2-3 3.9v2.1l-5.3 5.3c-.4.4-.4 1 0 1.4l2.1 2.1c.4.4 1 .4 1.4 0l5.3-5.3h2.1c1.9 0 3.5-1.3 3.9-3V3c0-.6-.4-1-1-1h-2zm-1 7.1V5h2v4.1c-.3.7-1 1.2-1.7 1.2h-2.1l-5.3 5.3-1.4-1.4 5.3-5.3V5c0-.6.4-1 1-1h2c.6 0 1 .4 1 1v2.1c.7.3 1.2 1 1.2 1.7v2.1c0 .7-.5 1.4-1.2 1.7z"/>
+              </svg>
+              {conversation.is_pinned ? 'Unpin' : 'Pin'}
+            </button>
 
-          {/* Archive Option */}
-          <button
-            onClick={handleArchiveClick}
-            className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center space-x-2"
-          >
-            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8l6 6 6-6H5z" />
-            </svg>
-            <span>{conversation.is_archived ? 'Unarchive' : 'Archive'}</span>
-          </button>
-
-          {/* Delete Option */}
-          <button
-            onClick={handleDeleteClick}
-            className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 text-red-600 flex items-center space-x-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            <span>Delete</span>
-          </button>
-        </div>
+            {/* Delete Option */}
+            <button
+              onClick={handleDeleteClick}
+              className="conversation-menu-btn"
+              style={{height: '33px'}}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm3.5-9h1v6h-1v-6zm3 0h1v6h-1v-6zM18 4h-3.5l-1-1h-5l-1 1H6v2h12V4z"/>
+              </svg>
+              Delete
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
