@@ -1,8 +1,8 @@
 import React from 'react';
+import LandingPage from './components/LandingPage';
 import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import AIDiagnosis from './components/AIDiagnosis';
-import LandingPage from './components/LandingPage';
 import Chat from './components/Chat';
 import Login from './components/Login';
 import PetHealthRecords from './components/PetHealthRecords';
@@ -23,6 +23,7 @@ import AdminAnnouncements from './components/admin/AdminAnnouncements';
 import AdminProfile from './components/admin/AdminProfile';
 import AdminProfileSettings from './components/admin/AdminProfileSettings';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
+import AdminPetProfile from './components/admin/AdminPetProfile';
 
 import { AuthProvider } from './context/AuthContext';
 import { ConversationsProvider } from './context/ConversationsContext';
@@ -50,9 +51,9 @@ function AppWithFade() {
   return (
     <Routes location={location} key={location.pathname}>
       {/* Pet Owner Routes */}
-      <Route path="/login" element={<FadeWrapper><Login /></FadeWrapper>} />
-      <Route path="/register" element={<FadeWrapper><Login /></FadeWrapper>} />
-      <Route path="/register/step2" element={<FadeWrapper><RegisterStep2 /></FadeWrapper>} />
+      <Route path="petowner/login" element={<FadeWrapper><Login /></FadeWrapper>} />
+      <Route path="petowner/register" element={<FadeWrapper><Login /></FadeWrapper>} />
+      <Route path="petowner/register/step2" element={<FadeWrapper><RegisterStep2 /></FadeWrapper>} />
       <Route path="/verify-email" element={<FadeWrapper><VerifyEmail /></FadeWrapper>} />
       <Route 
         path="/ai-diagnosis" 
@@ -128,6 +129,14 @@ function AppWithFade() {
           </AdminProtectedRoute>
         } 
       />
+      <Route
+        path="/admin/pets/:petId"
+        element={
+          <AdminProtectedRoute>
+            <FadeWrapper><AdminPetProfile /></FadeWrapper>
+          </AdminProtectedRoute>
+        }
+      />
       <Route 
         path="/admin/roles" 
         element={
@@ -160,7 +169,7 @@ function AppWithFade() {
           </AdminProtectedRoute>
         } 
       />
-  {/* Default Routes */}
+      {/* Default Routes */}
   <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
   <Route path="/" element={<FadeWrapper><LandingPage /></FadeWrapper>} />
     </Routes>
