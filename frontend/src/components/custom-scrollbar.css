@@ -1,0 +1,41 @@
+/* Custom violet scrollbar for file list and sidebar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #4A0E4E transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #4A0E4E;
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6B217A;
+}
+
+/* Apply globally to all scrollbars */
+html, body, * {
+  scrollbar-width: thin;
+  scrollbar-color: #4A0E4E transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #4A0E4E;
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #6B217A;
+}

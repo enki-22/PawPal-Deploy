@@ -80,7 +80,7 @@ function AppWithFade() {
         } 
       />
       <Route 
-        path="/chat" 
+        path="/chat/:conversationId" 
         element={
           <ProtectedRoute>
             <FadeWrapper><Chat /></FadeWrapper>

@@ -6,6 +6,13 @@ import { useRegistration } from '../context/RegistrationContext';
 import Alert from './Alert';
 
 const RegisterStep1 = () => {
+  // Redirect to landing if all fields are empty (prevents browser back from step 2)
+  import { useEffect } from 'react';
+  useEffect(() => {
+    if (!formData.username && !formData.email && !formData.password1 && !formData.password2) {
+      navigate('/', { replace: true });
+    }
+  }, [formData, navigate]);
   const { registrationData, updateStep1 } = useRegistration();
   const [formData, setFormData] = useState(registrationData.step1);
   const [errors, setErrors] = useState({});

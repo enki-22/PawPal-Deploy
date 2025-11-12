@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useConversations } from '../context/ConversationsContext';
 import LogoutModal from './LogoutModal';
@@ -12,6 +12,8 @@ import Sidebar from './Sidebar';
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [currentConversationId, setCurrentConversationId] = useState(null);
+  // Get conversationId from URL
+  const { conversationId } = useParams();
   const [currentConversationTitle, setCurrentConversationTitle] = useState('New Chat');
   const [messageInput, setMessageInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -46,22 +48,6 @@ const Chat = () => {
 
   // API Base URL
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
-
-  // Load conversations on component mount
-  useEffect(() => {
-    fetchConversations();
-  }, [fetchConversations]);
-
-  // Auto-scroll to bottom when messages change
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-  };
 
   // Define loadConversation before useEffect to avoid ReferenceError
   const loadConversation = useCallback(async (conversationId) => {
@@ -100,20 +86,46 @@ const Chat = () => {
     }
   }, [API_BASE_URL, token]);
 
-  // Handle conversation loading when conversations change
+  // Load conversations on component mount
   useEffect(() => {
-    if (conversations && conversations.length > 0) {
-      // If no current conversation and conversations exist, load the most recent one
-      if (!currentConversationId) {
-        const mostRecent = conversations[0];
-        loadConversation(mostRecent.id);
-      }
-    } else if (conversations && conversations.length === 0) {
-      // No conversations exist, show mode selection
+    fetchConversations();
+    // Load conversation from URL if present
+    if (conversationId && conversationId !== 'new') {
+      loadConversation(conversationId);
+    } else {
+      setCurrentConversationId(null);
+      setCurrentConversationTitle('New Chat');
       setShowModeSelection(true);
       setMessages([]);
     }
-  }, [conversations, currentConversationId, loadConversation]);
+  }, [fetchConversations, conversationId, loadConversation]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  };
+
+  // ...existing code...
+
+  // Move useEffect that uses loadConversation below its definition
+  useEffect(() => {
+    fetchConversations();
+    // Load conversation from URL if present
+    if (conversationId && conversationId !== 'new') {
+      loadConversation(conversationId);
+    } else {
+      setCurrentConversationId(null);
+      setCurrentConversationTitle('New Chat');
+      setShowModeSelection(true);
+      setMessages([]);
+    }
+  }, [fetchConversations, conversationId, loadConversation]);
 
   const createNewConversation = async () => {
     try {

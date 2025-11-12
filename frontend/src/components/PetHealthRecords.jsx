@@ -117,18 +117,6 @@ const PetHealthRecords = () => {
     setShowLogoutModal(false);
   };
 
-  const getAnimalEmoji = (animalType) => {
-    const emojis = {
-      'cat': '🐱',
-      'dog': '🐕',
-      'hamster': '🐹',
-      'bird': '🐦',
-      'rabbit': '🐰',
-      'fish': '🐠'
-    };
-    return emojis[animalType?.toLowerCase()] || '🐾';
-  };
-
   return (
     <div className="min-h-screen bg-[#f0f1f1] flex">
       {/* Sidebar - direct child, flex layout */}
@@ -291,22 +279,24 @@ const PetHealthRecords = () => {
                         onError={(e) => {
                           console.error(`❌ Image failed to load for ${pet.name}:`);
                           e.target.style.display = 'none';
-                          e.target.parentNode.querySelector('.emoji-fallback').style.display = 'flex';
+                          e.target.parentNode.querySelector('.letter-fallback').style.display = 'flex';
                         }}
                       />
-                    ) : (
-                      console.log(`⚠️ No image URL for ${pet.name} (${pet.animal_type})`)
-                    )}
+                    ) : null}
                     
-                    {/* Emoji fallback */}
+                    {/* Letter fallback */}
                     <span 
-                      className="text-6xl emoji-fallback flex items-center justify-center absolute inset-0" 
+                      className="text-6xl letter-fallback flex items-center justify-center absolute inset-0" 
                       style={{ 
                         display: pet.image ? 'none' : 'flex',
-                        background: '#f8f9fa'
+                        background: '#f8f9fa',
+                        color: '#815FB3',
+                        fontWeight: 900,
+                        fontFamily: 'Raleway',
+                        fontSize: '96px'
                       }}
                     >
-                      {getAnimalEmoji(pet.animal_type)}
+                      {pet.name ? pet.name.charAt(0).toUpperCase() : ''}
                     </span>
 
                     {/* Gradient Overlay */}
@@ -326,10 +316,10 @@ const PetHealthRecords = () => {
                   <h3 
                     style={{
                       position: 'absolute',
-                      width: '92px',
-                      height: '23px',
+                      width: '180px', // Increased width to allow wrapping
+                      minHeight: '23px',
                       left: '14px',
-                      top: '170px',
+                      top: '160px', // Move higher to avoid overlap if wrapped
                       fontFamily: 'Raleway',
                       fontStyle: 'normal',
                       fontWeight: '800',
@@ -337,7 +327,10 @@ const PetHealthRecords = () => {
                       lineHeight: '25px',
                       display: 'flex',
                       alignItems: 'center',
-                      color: '#000000'
+                      color: '#000000',
+                      wordBreak: 'break-word',
+                      whiteSpace: 'normal',
+                      overflowWrap: 'break-word',
                     }}
                   >
                     {pet.name}, {pet.age}

@@ -1,10 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const AddVaccinationRecordModal = ({ isOpen, onClose, onSave }) => {
   const [vaccineType, setVaccineType] = useState('Rabies');
   const [administeredBy, setAdministeredBy] = useState('');
   const [dateAdministered, setDateAdministered] = useState('');
   const [nextDueDate, setNextDueDate] = useState('');
+
+  // Reset form fields when modal is opened
+  useEffect(() => {
+    if (isOpen) {
+      setVaccineType('Rabies');
+      setAdministeredBy('');
+      setDateAdministered('');
+      setNextDueDate('');
+    }
+  }, [isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

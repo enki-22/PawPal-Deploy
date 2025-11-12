@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 
 const MedicalRecordDetailsModal = ({ isOpen, onClose, record, onDelete, onSave }) => {
@@ -36,6 +34,35 @@ const MedicalRecordDetailsModal = ({ isOpen, onClose, record, onDelete, onSave }
     const baseClasses = "w-full border rounded px-3 py-2";
     if (isEditing) {
       const editClasses = `${baseClasses} border-gray-300`;
+      if (name === 'serviceType') {
+        return (
+          <select
+            name="serviceType"
+            id="serviceType"
+            value={value || 'Check-up'}
+            onChange={handleChange}
+            className={`${editClasses} h-11`}
+          >
+            <option>Check-up</option>
+            <option>Vaccination</option>
+            <option>Surgery</option>
+            <option>Emergency</option>
+            <option>Other</option>
+          </select>
+        );
+      }
+      if (name === 'date' || name === 'followUpDate') {
+        return (
+          <input
+            type="date"
+            name={name}
+            id={name}
+            value={value || ''}
+            onChange={handleChange}
+            className={`${editClasses} h-11`}
+          />
+        );
+      }
       return isTextArea ? (
         <textarea
           name={name} id={name} value={value || ''} onChange={handleChange}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import AdminTopNav from './AdminTopNav';
-import { ChevronDown, Search, ArrowUpDown, X } from 'lucide-react';
+import { ChevronDown, Search, X } from 'lucide-react';
 
 // Create New Admin Modal Component
 const CreateAdminModal = ({ isOpen, onClose, onSuccess, adminAxios }) => {
@@ -159,51 +159,58 @@ const CreateAdminModal = ({ isOpen, onClose, onSuccess, adminAxios }) => {
 };
 
 export default function AdminRoles() {
-  const [admins, setAdmins] = useState([]);
+
+  // Sorting state with neutral 'none' direction
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'none' });
+  const handleSort = (key) => {
+    setSortConfig(prev => {
+      if (prev.key === key) {
+        if (prev.direction === 'none') return { key, direction: 'asc' };
+        if (prev.direction === 'asc') return { key, direction: 'desc' };
+        return { key: null, direction: 'none' };
+      }
+      return { key, direction: 'asc' };
+    });
+  };
+
+  // State to hold the master list of admins
+  const [allAdmins, setAllAdmins] = useState([]);
+  // State to hold the displayed (filtered/sorted) admins
+  const [filteredAdmins, setFilteredAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedAdmins, setSelectedAdmins] = useState([]);
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { adminAxios, admin } = useAdminAuth();
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 8;
 
   // Check if current admin is Master Admin
   const isMasterAdmin = admin?.role === 'MASTER' || admin?.role === 'Master Admin';
 
+  // FetchAdmins now ONLY fetches data and saves it to the master list
   const fetchAdmins = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const params = {
-        search: searchTerm,
-        role: roleFilter,
-        status: statusFilter
-      };
-      const response = await adminAxios.get('/admin/roles', { params });
+      const response = await adminAxios.get('/admin/roles');
       if (response.data.success) {
-        setAdmins(response.data.results || []);
+        const results = response.data.results || [];
+        setAllAdmins(results);
+        setFilteredAdmins(results);
       } else {
         setError('Failed to load admin accounts');
       }
     } catch (err) {
       console.error('❌ AdminRoles fetch error:', err);
-      console.error('❌ Error response:', err.response);
-      console.error('❌ Error response data:', err.response?.data);
-      console.error('❌ Error response status:', err.response?.status);
-      
       if (err.response?.status === 403) {
         setError('Access denied. Only Master Admin can access this page.');
       } else if (err.response?.status === 401) {
         const errorData = err.response?.data || {};
         const errorMsg = typeof errorData.error === 'string' ? errorData.error : JSON.stringify(errorData.error);
-        const errorCode = errorData.code || 'UNKNOWN';
-        console.error(`❌ 401 Error: ${errorMsg} (code: ${errorCode})`);
-        console.error('❌ Full error response data:', JSON.stringify(errorData, null, 2));
-        if (errorData.debug_info) {
-          console.error('❌ Debug info:', errorData.debug_info);
-        }
         setError(`Authentication failed: ${errorMsg}. Please login again.`);
       } else {
         setError('Failed to load admin accounts. Please try again.');
@@ -211,30 +218,58 @@ export default function AdminRoles() {
     } finally {
       setLoading(false);
     }
-  }, [adminAxios, searchTerm, roleFilter, statusFilter]);
+  }, [adminAxios]);
 
+  // This useEffect runs ONCE to fetch data
   useEffect(() => {
     fetchAdmins();
   }, [fetchAdmins]);
 
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      setSelectedAdmins(admins.map(admin => admin.admin_id || admin.id));
-    } else {
-      setSelectedAdmins([]);
+  // NEW useEffect to handle all filtering and sorting locally
+  useEffect(() => {
+    let processedAdmins = [...allAdmins];
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      processedAdmins = processedAdmins.filter(
+        adminItem =>
+          adminItem.name?.toLowerCase().includes(term) ||
+          adminItem.email?.toLowerCase().includes(term)
+      );
     }
-  };
-
-  const handleSelectAdmin = (adminId, checked) => {
-    if (checked) {
-      setSelectedAdmins([...selectedAdmins, adminId]);
-    } else {
-      setSelectedAdmins(selectedAdmins.filter(id => id !== adminId));
+    if (roleFilter !== 'all') {
+      processedAdmins = processedAdmins.filter(adminItem => adminItem.role?.toLowerCase() === roleFilter.toLowerCase());
     }
-  };
+    if (statusFilter !== 'all') {
+      processedAdmins = processedAdmins.filter(adminItem => {
+        const status = (adminItem.status || (adminItem.is_active ? 'active' : 'inactive')).toLowerCase();
+        return status === statusFilter.toLowerCase();
+      });
+    }
+    if (sortConfig.key && sortConfig.direction !== 'none') {
+      processedAdmins.sort((a, b) => {
+        let aVal, bVal;
+        if (sortConfig.key === 'status') {
+          aVal = (a.status || (a.is_active ? 'active' : 'inactive')).toLowerCase();
+          bVal = (b.status || (b.is_active ? 'active' : 'inactive')).toLowerCase();
+        } else if (sortConfig.key === 'date_created') {
+          aVal = a.date_created || a.created_at;
+          bVal = b.date_created || b.created_at;
+        } else {
+          aVal = a[sortConfig.key] || '';
+          bVal = b[sortConfig.key] || '';
+        }
+        if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+        if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+  setFilteredAdmins(processedAdmins);
+  setCurrentPage(1); // Reset to first page on filter/sort change
+  }, [allAdmins, searchTerm, roleFilter, statusFilter, sortConfig.key, sortConfig.direction]);
 
   const handleAdminCreated = () => {
-    // Refresh the admin list after successful creation
     fetchAdmins();
   };
 
@@ -271,14 +306,12 @@ export default function AdminRoles() {
   return (
     <div className="min-h-screen bg-[#f0f0f0] relative">
       <AdminTopNav activePage="Admin Roles" />
-      
       {/* Main Content */}
       <div className="pt-[80px]">
         {/* Page Title and Controls */}
         <div className="px-[129px] pt-[28px] pb-0 bg-transparent">
           <div className="flex items-center justify-between w-full mb-2">
             <h1 className="font-['Raleway:Bold',sans-serif] font-bold text-[20px] text-black tracking-[1px]">Admin Roles</h1>
-            
             <div className="flex items-center gap-4">
               {/* Add Admin Button - Only visible to Master Admin */}
               {isMasterAdmin && (
@@ -289,7 +322,6 @@ export default function AdminRoles() {
                   + Add Admin
                 </button>
               )}
-              
               {/* Search Bar */}
               <div className="relative">
                 <div className="w-[465px] h-[31px] border border-[#888888] rounded-[5px] flex items-center px-3">
@@ -303,14 +335,13 @@ export default function AdminRoles() {
                   />
                 </div>
               </div>
-              
               {/* Role Filter - functional dropdown */}
               <div className="relative">
                 <select
                   value={roleFilter}
                   onChange={e => setRoleFilter(e.target.value)}
-                  className="bg-[#f0e4b3] h-[31px] w-[121px] rounded-[5px] px-3 text-[12px] text-black font-['Raleway',sans-serif] focus:outline-none"
-                  style={{ fontFamily: 'Raleway, sans-serif' }}
+                  className="bg-[#f0e4b3] h-[31px] w-[121px] rounded-[5px] px-3 text-[12px] text-black font-['Inter:Regular',sans-serif] focus:outline-none"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
                 >
                   <option value="all">All Roles</option>
                   <option value="MASTER">Master Admin</option>
@@ -323,8 +354,8 @@ export default function AdminRoles() {
                 <select
                   value={statusFilter}
                   onChange={e => setStatusFilter(e.target.value)}
-                  className="bg-[#f0e4b3] h-[31px] w-[122px] rounded-[5px] px-3 text-[12px] text-black font-['Raleway',sans-serif] focus:outline-none"
-                  style={{ fontFamily: 'Raleway, sans-serif' }}
+                  className="bg-[#f0e4b3] h-[31px] w-[122px] rounded-[5px] px-3 text-[12px] text-black font-['Inter:Regular',sans-serif] focus:outline-none"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
                 >
                   <option value="all">All Statuses</option>
                   <option value="active">Active</option>
@@ -334,106 +365,126 @@ export default function AdminRoles() {
             </div>
           </div>
         </div>
-
         {/* Data Table */}
         <div className="mx-[100px] bg-[#fffff2] rounded-t-[10px] overflow-hidden mt-[18px]">
           {/* Table Header */}
           <div className="bg-[#fffff2] h-[40px] border-b border-[#888888] flex items-center px-[31px]">
             <div className="flex items-center gap-4 flex-1">
-              <input
-                type="checkbox"
-                checked={selectedAdmins.length === admins.length && admins.length > 0}
-                onChange={(e) => handleSelectAll(e.target.checked)}
-                className="w-[12px] h-[12px] border border-[#888888] rounded-[1px]"
-              />
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort('name')}>
                 <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Registered User</span>
-                <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+                <img src="/fa6-solid_sort.png" alt="Sort" style={{ width: 10, height: 16, marginLeft: 4, transition: 'transform 0.2s',
+                  filter: sortConfig.key === 'name' && sortConfig.direction !== 'none' ? 'brightness(1.2)' : 'brightness(0.7)',
+                  transform:
+                    sortConfig.key !== 'name' || sortConfig.direction === 'none' ? 'rotate(0deg)' :
+                    sortConfig.direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)'
+                }} />
               </div>
             </div>
-            <div className="w-[250px] flex items-center gap-1">
+            <div className="w-[250px] flex items-center gap-1 cursor-pointer" onClick={() => handleSort('email')}>
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Email</span>
-              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+              <img src="/fa6-solid_sort.png" alt="Sort" style={{ width: 10, height: 16, marginLeft: 4, transition: 'transform 0.2s',
+                filter: sortConfig.key === 'email' && sortConfig.direction !== 'none' ? 'brightness(1.2)' : 'brightness(0.7)',
+                transform:
+                  sortConfig.key !== 'email' || sortConfig.direction === 'none' ? 'rotate(0deg)' :
+                  sortConfig.direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)'
+              }} />
             </div>
-            <div className="w-[200px] flex items-center gap-1">
+            <div className="w-[200px] flex items-center gap-1 cursor-pointer" onClick={() => handleSort('role')}>
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Role</span>
-              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+              <img src="/fa6-solid_sort.png" alt="Sort" style={{ width: 10, height: 16, marginLeft: 4, transition: 'transform 0.2s',
+                filter: sortConfig.key === 'role' && sortConfig.direction !== 'none' ? 'brightness(1.2)' : 'brightness(0.7)',
+                transform:
+                  sortConfig.key !== 'role' || sortConfig.direction === 'none' ? 'rotate(0deg)' :
+                  sortConfig.direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)'
+              }} />
             </div>
-            <div className="w-[150px] flex items-center gap-1">
+            <div className="w-[150px] flex items-center gap-1 cursor-pointer" onClick={() => handleSort('status')}>
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Account Status</span>
-              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+              <img src="/fa6-solid_sort.png" alt="Sort" style={{ width: 10, height: 16, marginLeft: 4, transition: 'transform 0.2s',
+                filter: sortConfig.key === 'status' && sortConfig.direction !== 'none' ? 'brightness(1.2)' : 'brightness(0.7)',
+                transform:
+                  sortConfig.key !== 'status' || sortConfig.direction === 'none' ? 'rotate(0deg)' :
+                  sortConfig.direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)'
+              }} />
             </div>
-            <div className="w-[200px] flex items-center gap-1">
+            <div className="w-[200px] flex items-center gap-1 cursor-pointer" onClick={() => handleSort('date_created')}>
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Date Account Created</span>
-              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+              <img src="/fa6-solid_sort.png" alt="Sort" style={{ width: 10, height: 16, marginLeft: 4, transition: 'transform 0.2s',
+                filter: sortConfig.key === 'date_created' && sortConfig.direction !== 'none' ? 'brightness(1.2)' : 'brightness(0.7)',
+                transform:
+                  sortConfig.key !== 'date_created' || sortConfig.direction === 'none' ? 'rotate(0deg)' :
+                  sortConfig.direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)'
+              }} />
             </div>
           </div>
-
-          {/* Table Rows */}
-          {admins.length === 0 ? (
+          {/* Table Rows - paginated */}
+          {filteredAdmins.length === 0 ? (
             <div className="h-[80px] flex items-center justify-center text-[#888888] text-[16px] font-['Inter:Regular',sans-serif]">
               No admin accounts found
             </div>
           ) : (
-            admins.map((adminItem) => (
-              <div 
-                key={adminItem.admin_id || adminItem.id} 
-                className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[31px] hover:bg-gray-50"
-              >
-                <div className="flex items-center gap-4 flex-1">
-                  <input
-                    type="checkbox"
-                    checked={selectedAdmins.includes(adminItem.admin_id || adminItem.id)}
-                    onChange={(e) => handleSelectAdmin(adminItem.admin_id || adminItem.id, e.target.checked)}
-                    className="w-[12px] h-[12px] border border-[#888888] rounded-[1px]"
-                  />
-                  <span className="font-['Inter:Bold',sans-serif] font-bold text-[12px] text-black">
-                    {adminItem.name}
-                  </span>
-                </div>
-                <div className="w-[250px]">
-                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{adminItem.email}</span>
-                </div>
-                <div className="w-[200px]">
-                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
-                    {adminItem.role_display || adminItem.role}
-                  </span>
-                </div>
-                <div className="w-[150px]">
-                  <div className={`inline-flex items-center px-2 py-1 rounded-[5px] ${
-                    adminItem.status === 'Active' || adminItem.is_active 
-                      ? 'bg-[#c2f0b3]' 
-                      : 'bg-[#ffb2a8]'
-                  }`}>
+            filteredAdmins
+              .slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
+              .map((adminItem) => (
+                <div 
+                  key={adminItem.admin_id || adminItem.id} 
+                  className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[31px] hover:bg-gray-50"
+                >
+                  <div className="flex items-center gap-4 flex-1">
+                    <span className="font-['Inter:Bold',sans-serif] font-bold text-[12px] text-black">
+                      {adminItem.name}
+                    </span>
+                  </div>
+                  <div className="w-[250px]">
+                    <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{adminItem.email}</span>
+                  </div>
+                  <div className="w-[200px]">
                     <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
-                      {adminItem.status || (adminItem.is_active ? 'Active' : 'Inactive')}
+                      {adminItem.role_display || adminItem.role}
+                    </span>
+                  </div>
+                  <div className="w-[150px]">
+                    <div className={`inline-flex items-center px-2 py-1 rounded-[5px] ${
+                      (adminItem.status || (adminItem.is_active ? 'Active' : 'Inactive')).toLowerCase() === 'active' 
+                        ? 'bg-[#c2f0b3]' 
+                        : 'bg-[#ffb2a8]'
+                    }`}>
+                      <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
+                        {adminItem.status || (adminItem.is_active ? 'Active' : 'Inactive')}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="w-[200px]">
+                    <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
+                      {new Date(adminItem.date_created || adminItem.created_at).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
-                <div className="w-[200px]">
-                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
-                    {new Date(adminItem.date_created || adminItem.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            ))
+              ))
           )}
         </div>
-
         {/* Pagination */}
         <div className="flex items-center justify-center gap-2 mt-12 pb-2">
-          <button className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black">
+          <button
+            className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
             <ChevronDown className="w-[11px] h-[21px] rotate-90" />
           </button>
           <div className="bg-[#815fb3] w-[27px] h-[27px] rounded-[5px] flex items-center justify-center">
-            <span className="font-['Inter:Regular',sans-serif] text-[12px] text-white">1</span>
+            <span className="font-['Inter:Regular',sans-serif] text-[12px] text-white">{currentPage}</span>
           </div>
-          <button className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black">
+          <span className="text-[#888888] text-[12px]">/ {Math.max(1, Math.ceil(filteredAdmins.length / rowsPerPage))}</span>
+          <button
+            className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black"
+            onClick={() => setCurrentPage((prev) => (prev < Math.ceil(filteredAdmins.length / rowsPerPage) ? prev + 1 : prev))}
+            disabled={currentPage >= Math.ceil(filteredAdmins.length / rowsPerPage)}
+          >
             <ChevronDown className="w-[11px] h-[21px] -rotate-90" />
           </button>
         </div>
       </div>
-
       {/* Create Admin Modal */}
       <CreateAdminModal
         isOpen={isModalOpen}

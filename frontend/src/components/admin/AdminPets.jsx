@@ -1,10 +1,26 @@
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import AdminTopNav from './AdminTopNav';
-import { ChevronDown, Search, ArrowUpDown } from 'lucide-react';
+import { ChevronDown, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const AdminPets = () => {
+  // Sorting state with neutral 'none' direction
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'none' });
+
+  // Sorting logic
+  const handleSort = (key) => {
+    setSortConfig(prev => {
+      if (prev.key === key) {
+        // Cycle: none -> asc -> desc -> none
+        if (prev.direction === 'none') return { key, direction: 'asc' };
+        if (prev.direction === 'asc') return { key, direction: 'desc' };
+        return { key: null, direction: 'none' };
+      }
+      return { key, direction: 'asc' };
+    });
+  };
+
   // Status filter options
   const statusOptions = ['All', 'Active', 'Deceased'];
   const [status, setStatus] = useState('All');
@@ -17,11 +33,14 @@ const AdminPets = () => {
   ];
   const [dateRange, setDateRange] = useState('All Time');
   const [filteredPets, setFilteredPets] = useState([]);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 8;
   const { adminAxios } = useAdminAuth();
   const [petsData, setPetsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPets, setSelectedPets] = useState([]);
+  // Removed selectedPets state (checkboxes no longer used)
   const navigate = useNavigate();
 
   const fetchPetsData = useCallback(async () => {
@@ -94,24 +113,24 @@ const AdminPets = () => {
         return pet.status?.trim().toLowerCase() === status.toLowerCase();
       });
     }
-    setFilteredPets(filtered);
-  }, [searchTerm, petsData, dateRange, status]);
-
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      setSelectedPets(petsData.map(pet => pet.id));
-    } else {
-      setSelectedPets([]);
+    // Apply sorting after all filters
+    let sorted = [...filtered];
+    if (sortConfig.key && sortConfig.direction !== 'none') {
+      sorted.sort((a, b) => {
+        let aVal = a[sortConfig.key] || '';
+        let bVal = b[sortConfig.key] || '';
+        if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+        if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
     }
-  };
+    setFilteredPets(sorted);
+  setCurrentPage(1); // Reset to first page on filter/sort change
+  }, [searchTerm, petsData, dateRange, status, sortConfig.key, sortConfig.direction]);
 
-  const handleSelectPet = (petId, checked) => {
-    if (checked) {
-      setSelectedPets([...selectedPets, petId]);
-    } else {
-      setSelectedPets(selectedPets.filter(id => id !== petId));
-    }
-  };
+  // Removed handleSelectAll and handleSelectPet (checkboxes no longer used)
 
   if (loading) {
     return (
@@ -192,109 +211,139 @@ const AdminPets = () => {
           {/* Table Header */}
           <div className="bg-[#fffff2] h-[40px] border-b border-[#888888] flex items-center px-[31px]">
             <div className="flex items-center gap-4 flex-1">
-              <input
-                type="checkbox"
-                checked={selectedPets.length === petsData.length && petsData.length > 0}
-                onChange={(e) => handleSelectAll(e.target.checked)}
-                className="w-[12px] h-[12px] border border-[#888888] rounded-[1px]"
-              />
+              {/* Removed checkbox from table header */}
             </div>
-            <div className="w-[216px] flex items-center gap-1">
+            <div className="w-[216px] flex items-center gap-1 cursor-pointer" onClick={() => handleSort('pet_name')}>
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Pet Name</span>
-              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+              <img src="/fa6-solid_sort.png" alt="Sort" style={{ width: 10, height: 16, marginLeft: 4, transition: 'transform 0.2s',
+                filter: sortConfig.key === 'pet_name' && sortConfig.direction !== 'none' ? 'brightness(1.2)' : 'brightness(0.7)',
+                transform:
+                  sortConfig.key !== 'pet_name' || sortConfig.direction === 'none' ? 'rotate(0deg)' :
+                  sortConfig.direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)'
+              }} />
             </div>
-            <div className="w-[190px] flex items-center gap-1">
+            <div className="w-[190px] flex items-center gap-1 cursor-pointer" onClick={() => handleSort('species')}>
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Species</span>
-              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+              <img src="/fa6-solid_sort.png" alt="Sort" style={{ width: 10, height: 16, marginLeft: 4, transition: 'transform 0.2s',
+                filter: sortConfig.key === 'species' && sortConfig.direction !== 'none' ? 'brightness(1.2)' : 'brightness(0.7)',
+                transform:
+                  sortConfig.key !== 'species' || sortConfig.direction === 'none' ? 'rotate(0deg)' :
+                  sortConfig.direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)'
+              }} />
             </div>
-            <div className="w-[215px] flex items-center gap-1">
+            <div className="w-[215px] flex items-center gap-1 cursor-pointer" onClick={() => handleSort('breed')}>
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Breed</span>
-              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+              <img src="/fa6-solid_sort.png" alt="Sort" style={{ width: 10, height: 16, marginLeft: 4, transition: 'transform 0.2s',
+                filter: sortConfig.key === 'breed' && sortConfig.direction !== 'none' ? 'brightness(1.2)' : 'brightness(0.7)',
+                transform:
+                  sortConfig.key !== 'breed' || sortConfig.direction === 'none' ? 'rotate(0deg)' :
+                  sortConfig.direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)'
+              }} />
             </div>
-            <div className="w-[216px] flex items-center gap-1">
+            <div className="w-[216px] flex items-center gap-1 cursor-pointer" onClick={() => handleSort('owner_name')}>
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">User</span>
-              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+              <img src="/fa6-solid_sort.png" alt="Sort" style={{ width: 10, height: 16, marginLeft: 4, transition: 'transform 0.2s',
+                filter: sortConfig.key === 'owner_name' && sortConfig.direction !== 'none' ? 'brightness(1.2)' : 'brightness(0.7)',
+                transform:
+                  sortConfig.key !== 'owner_name' || sortConfig.direction === 'none' ? 'rotate(0deg)' :
+                  sortConfig.direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)'
+              }} />
             </div>
-            <div className="w-[216px] flex items-center gap-1">
+            <div className="w-[216px] flex items-center gap-1 cursor-pointer" onClick={() => handleSort('status')}>
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Status</span>
-              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+              <img src="/fa6-solid_sort.png" alt="Sort" style={{ width: 10, height: 16, marginLeft: 4, transition: 'transform 0.2s',
+                filter: sortConfig.key === 'status' && sortConfig.direction !== 'none' ? 'brightness(1.2)' : 'brightness(0.7)',
+                transform:
+                  sortConfig.key !== 'status' || sortConfig.direction === 'none' ? 'rotate(0deg)' :
+                  sortConfig.direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)'
+              }} />
             </div>
-            <div className="w-[172px] flex items-center gap-1">
+            <div className="w-[172px] flex items-center gap-1 cursor-pointer" onClick={() => handleSort('date_registered')}>
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Registered Date</span>
-              <ArrowUpDown className="w-[10px] h-[16px] text-[#888888]" />
+              <img src="/fa6-solid_sort.png" alt="Sort" style={{ width: 10, height: 16, marginLeft: 4, transition: 'transform 0.2s',
+                filter: sortConfig.key === 'date_registered' && sortConfig.direction !== 'none' ? 'brightness(1.2)' : 'brightness(0.7)',
+                transform:
+                  sortConfig.key !== 'date_registered' || sortConfig.direction === 'none' ? 'rotate(0deg)' :
+                  sortConfig.direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)'
+              }} />
             </div>
           </div>
 
-          {/* Table Rows or Empty State */}
+          {/* Table Rows or Empty State - paginated */}
           {filteredPets.length === 0 ? (
             <div className="h-[80px] flex items-center justify-center text-[#888888] text-[16px] font-['Inter:Regular',sans-serif]">
               There are no pets found
             </div>
           ) : (
-            filteredPets.map((pet) => (
-              <div
-                key={pet.id}
-                className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[31px] hover:bg-gray-50 cursor-pointer"
-                onClick={() => handleRowClick(pet.id)}
-              >
-                <div className="flex items-center gap-4 flex-1">
-                  <input
-                    type="checkbox"
-                    checked={selectedPets.includes(pet.id)}
-                    onClick={e => e.stopPropagation()}
-                    onChange={(e) => handleSelectPet(pet.id, e.target.checked)}
-                    className="w-[12px] h-[12px] border border-[#888888] rounded-[1px]"
-                  />
-                </div>
-                <div className="w-[216px] flex items-center gap-3">
-                  <div className="w-[35px] h-[35px] rounded-full overflow-hidden">
-                    <img 
-                      src={pet.pet_image || "/pat-removebg-preview 2.png"} 
-                      alt={pet.pet_name} 
-                      className="w-full h-full object-cover" 
-                    />
+            filteredPets
+              .slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
+              .map((pet) => (
+                <div
+                  key={pet.id}
+                  className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[31px] hover:bg-gray-50 cursor-pointer"
+                  onClick={() => handleRowClick(pet.id)}
+                >
+                  <div className="flex items-center gap-4 flex-1">
+                    {/* Removed checkbox from table row */}
                   </div>
-                  <span className="font-['Inter:Bold',sans-serif] font-bold text-[12px] text-black">{pet.pet_name}</span>
-                </div>
-                <div className="w-[190px]">
-                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{pet.species}</span>
-                </div>
-                <div className="w-[215px]">
-                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{pet.breed}</span>
-                </div>
-                <div className="w-[216px]">
-                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{pet.owner_name}</span>
-                </div>
-                <div className="w-[216px]">
-                  <div className="bg-[#c2f0b3] h-[30px] w-[66px] rounded-[5px] flex items-center justify-center">
+                  <div className="w-[216px] flex items-center gap-3">
+                    <div className="w-[35px] h-[35px] rounded-full overflow-hidden">
+                      <img 
+                        src={pet.pet_image || "/pat-removebg-preview 2.png"} 
+                        alt={pet.pet_name} 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
+                    <span className="font-['Inter:Bold',sans-serif] font-bold text-[12px] text-black">{pet.pet_name}</span>
+                  </div>
+                  <div className="w-[190px]">
+                    <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{pet.species}</span>
+                  </div>
+                  <div className="w-[215px]">
+                    <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{pet.breed}</span>
+                  </div>
+                  <div className="w-[216px]">
+                    <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">{pet.owner_name}</span>
+                  </div>
+                  <div className="w-[216px]">
+                    <div className="bg-[#c2f0b3] h-[30px] w-[66px] rounded-[5px] flex items-center justify-center">
+                      <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
+                        {pet.status || (pet.is_active ? 'Active' : 'Inactive')}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="w-[172px]">
                     <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
-                      {pet.status || (pet.is_active ? 'Active' : 'Inactive')}
+                      {new Date(pet.date_registered).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })}
                     </span>
                   </div>
                 </div>
-                <div className="w-[172px]">
-                  <span className="font-['Inter:Regular',sans-serif] text-[12px] text-black">
-                    {new Date(pet.date_registered).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    })}
-                  </span>
-                </div>
-              </div>
-            ))
+              ))
           )}
         </div>
 
         {/* Pagination at the bottom */}
         <div className="flex items-center justify-center gap-2 mt-12 pb-2">
-          <button className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black">
+          <button
+            className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
             <ChevronDown className="w-[11px] h-[21px] rotate-90" />
           </button>
           <div className="bg-[#815fb3] w-[27px] h-[27px] rounded-[5px] flex items-center justify-center">
-            <span className="font-['Inter:Regular',sans-serif] text-[12px] text-white">1</span>
+            <span className="font-['Inter:Regular',sans-serif] text-[12px] text-white">{currentPage}</span>
           </div>
-          <button className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black">
+          <span className="text-[#888888] text-[12px]">/ {Math.max(1, Math.ceil(filteredPets.length / rowsPerPage))}</span>
+          <button
+            className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black"
+            onClick={() => setCurrentPage((prev) => (prev < Math.ceil(filteredPets.length / rowsPerPage) ? prev + 1 : prev))}
+            disabled={currentPage >= Math.ceil(filteredPets.length / rowsPerPage)}
+          >
             <ChevronDown className="w-[11px] h-[21px] -rotate-90" />
           </button>
         </div>

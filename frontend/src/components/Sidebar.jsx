@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // import { useAuth } from '../context/AuthContext';
 import ConversationMenu from './ConversationMenu';
+import './custom-scrollbar.css';
 
 const Sidebar = ({ 
   sidebarVisible = true, 
@@ -21,15 +22,12 @@ const Sidebar = ({
   onDeleteConversation = null
 }) => {
   const navigate = useNavigate();
-  // ...existing code...
   const [renamingConversationId, setRenamingConversationId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Ensure conversations is always an array
   const safeConversations = Array.isArray(conversations) ? conversations : [];
-
-
 
   const handleStartRename = (conversationId) => {
     setRenamingConversationId(conversationId);
@@ -50,7 +48,7 @@ const Sidebar = ({
     if (onLoadConversation) {
       onLoadConversation(conversationId);
     }
-    navigate('/chat');
+    navigate(`/chat/${conversationId}`);
   };
 
   const handleSearchBlur = () => {
@@ -89,7 +87,7 @@ const Sidebar = ({
       )
     }
   ];
-// ...existing code...
+
   return (
     <>
       <div className={`${
@@ -122,10 +120,10 @@ const Sidebar = ({
 
         {/* Expandable Content - Only visible when sidebar is expanded */}
         {sidebarVisible && (
-          <div className="px-4 flex-1 flex flex-col">
+          <div className="px-4 flex-1 flex flex-col custom-scrollbar">
             {/* New Chat Button */}
             <button 
-              onClick={currentPage === 'chat' && onCreateNewConversation ? onCreateNewConversation : () => navigate('/chat')}
+              onClick={currentPage === 'chat' && onCreateNewConversation ? onCreateNewConversation : () => navigate('/chat/new')}
               className="w-full bg-[#FFF4C9] text-black py-2 px-4 rounded-xl mb-5 text-[15px] font-extrabold shadow-md hover:shadow-lg transition-shadow duration-200" 
               style={{ fontFamily: 'Raleway' }}
             >
@@ -217,7 +215,7 @@ const Sidebar = ({
                               if (onLoadConversation) {
                                 onLoadConversation(conversation.id);
                               } else {
-                                navigate('/chat');
+                                navigate(`/chat/${conversation.id}`);
                               }
                             }}
                           >
@@ -295,7 +293,7 @@ const Sidebar = ({
                               if (onLoadConversation) {
                                 onLoadConversation(conversation.id);
                               } else {
-                                navigate('/chat');
+                                navigate(`/chat/${conversation.id}`);
                               }
                             }}
                           >

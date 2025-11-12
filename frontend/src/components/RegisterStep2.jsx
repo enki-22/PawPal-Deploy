@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
 import phLocations from '../data/ph_locations.json';
@@ -197,6 +197,9 @@ const PurpleCarousel = () => {
 
 // Register Step 2 Form Component
 const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) => {
+  // Custom dropdown state
+  const [provinceDropdownOpen, setProvinceDropdownOpen] = useState(false);
+  const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
   const { registrationData, updateStep2 } = useRegistration();
   const [formData, setFormData] = useState({
     ...registrationData.step2,
@@ -204,6 +207,16 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
     terms_agreement: false
   });
   const [errors, setErrors] = useState({});
+  // Timer state for error fade-out (track which error is fading)
+  const [fadeState, setFadeState] = useState({
+    phone_number: false,
+    province: false,
+    city: false,
+    clinic_agreement: false,
+    terms_agreement: false
+  });
+  // Unique key to force error bubble re-render
+  const [errorKey, setErrorKey] = useState(0);
 
   const handleChange = (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -247,12 +260,38 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      // Start fade-out for all errors
+      const fadeFields = {};
+      Object.keys(newErrors).forEach(field => {
+        fadeFields[field] = false;
+      });
+      setFadeState(prev => ({ ...prev, ...fadeFields }));
+      setErrorKey(prev => prev + 1); // force re-render
+      setTimeout(() => {
+        const fadeFields = {};
+        Object.keys(newErrors).forEach(field => {
+          fadeFields[field] = true;
+        });
+        setFadeState(prev => ({ ...prev, ...fadeFields }));
+      }, 2700);
+      setTimeout(() => {
+        setErrors(prev => {
+          const cleared = { ...prev };
+          Object.keys(newErrors).forEach(field => {
+            cleared[field] = undefined;
+          });
+          return cleared;
+        });
+        const resetFields = {};
+        Object.keys(newErrors).forEach(field => {
+          resetFields[field] = false;
+        });
+        setFadeState(prev => ({ ...prev, ...resetFields }));
+      }, 3000);
       return;
     }
     setErrors({});
-    
     updateStep2(formData);
-    
     try {
       await onSubmit(formData);
     } catch (err) {
@@ -283,6 +322,16 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
               transform: translateY(0) scale(1);
             }
           }
+          @keyframes errorFadeOut {
+            from {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+            to {
+              opacity: 0;
+              transform: translateY(-10px) scale(0.8);
+            }
+          }
         `}
       </style>
       <div 
@@ -304,19 +353,35 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
           <div style={{ textAlign: 'center', marginBottom: '1.276rem' }}>
             {/* Back Button */}
             <div style={{ textAlign: 'left', marginBottom: '1.05rem' }}>
-              <Link 
-                to="/register"
+              <button
+                type="button"
+                onClick={() => {
+                  // Use navigate with replace:true to prevent browser back to step 2
+                  const nav = window.history;
+                  if (typeof nav.pushState === 'function') {
+                    // fallback for react-router
+                    window.location.replace('/petowner/register');
+                  } else {
+                    // Use react-router navigate if available
+                    if (typeof window.navigate === 'function') {
+                      window.navigate('/petowner/register', { replace: true });
+                    }
+                  }
+                }}
                 style={{
                   fontFamily: 'Raleway',
                   fontWeight: 700,
                   fontSize: '19.2px',
                   color: '#34113F',
                   textDecoration: 'none',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  background: 'none',
+                  border: 'none',
+                  padding: 0
                 }}
               >
                 ← Back
-              </Link>
+              </button>
             </div>
 
             <h3 style={{
@@ -383,24 +448,27 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                     required
                   />
                   {errors.phone_number && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '100%',
-                      right: '0',
-                      background: '#ef4444',
-                      color: 'white',
-                      padding: '8px 12px',
-                      borderRadius: '12px',
-                      fontSize: '12px',
-                      fontFamily: 'Raleway',
-                      fontWeight: '500',
-                      whiteSpace: 'nowrap',
-                      boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
-                      zIndex: 1000,
-                      marginTop: '4px',
-                      transform: 'translateX(0)',
-                      animation: 'errorPop 0.3s ease-out'
-                    }}>
+                    <div
+                      key={errorKey + 1}
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        right: '0',
+                        background: '#ef4444',
+                        color: 'white',
+                        padding: '8px 12px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontFamily: 'Raleway',
+                        fontWeight: '500',
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                        zIndex: 1000,
+                        marginTop: '4px',
+                        transform: 'translateX(0)',
+                        animation: fadeState.phone_number ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
+                      }}
+                    >
                       {errors.phone_number}
                       <div style={{
                         position: 'absolute',
@@ -429,11 +497,9 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                   }}>
                     Province
                   </label>
-                  <div style={{ position: 'relative' }}>
-                    <select
-                      name="province"
-                      value={formData.province}
-                      onChange={handleChange}
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    <div
+                      tabIndex={0}
                       style={{
                         width: '100%',
                         minWidth: '186px',
@@ -442,39 +508,77 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                         color: 'white',
                         border: 'none',
                         borderRadius: '5px',
-                        outline: 'none',
+                        outline: provinceDropdownOpen ? '2px solid #34113F' : 'none',
                         fontFamily: 'Raleway',
                         fontSize: '19.2px',
                         boxSizing: 'border-box',
-                        maxHeight: '180px',
-                        overflowY: 'auto'
+                        cursor: 'pointer',
+                        position: 'relative',
+                        zIndex: 2
                       }}
-                      required
+                      onClick={() => setProvinceDropdownOpen(open => !open)}
+                      onBlur={() => setTimeout(() => setProvinceDropdownOpen(false), 150)}
                     >
-                      <option value="">Province</option>
-                      {provinces.map(province => (
-                        <option key={province} value={province}>{province}</option>
-                      ))}
-                    </select>
-                    {errors.province && (
+                      {formData.province || 'Province'}
+                      <span style={{ float: 'right', marginLeft: '8px' }}>▼</span>
+                    </div>
+                    {provinceDropdownOpen && (
                       <div style={{
                         position: 'absolute',
                         top: '100%',
-                        right: '0',
-                        background: '#ef4444',
+                        left: 0,
+                        width: '100%',
+                        background: '#815FB3',
                         color: 'white',
-                        padding: '8px 12px',
-                        borderRadius: '12px',
-                        fontSize: '12px',
-                        fontFamily: 'Raleway',
-                        fontWeight: '500',
-                        whiteSpace: 'nowrap',
-                        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
-                        zIndex: 1000,
-                        marginTop: '4px',
-                        transform: 'translateX(0)',
-                        animation: 'errorPop 0.3s ease-out'
+                        borderRadius: '0 0 5px 5px',
+                        boxShadow: '0 4px 12px rgba(129,95,179,0.15)',
+                        maxHeight: '180px',
+                        overflowY: 'auto',
+                        zIndex: 10
                       }}>
+                        <div
+                          style={{ padding: '0.425rem 0.5rem', cursor: 'pointer', fontFamily: 'Raleway', fontSize: '19.2px', color: '#FFF07B' }}
+                          onClick={() => {
+                            setFormData({ ...formData, province: '' });
+                            setProvinceDropdownOpen(false);
+                            handleChange({ target: { name: 'province', value: '' } });
+                          }}
+                        >Province</div>
+                        {provinces.map(province => (
+                          <div
+                            key={province}
+                            style={{ padding: '0.425rem 0.5rem', cursor: 'pointer', fontFamily: 'Raleway', fontSize: '19.2px', background: formData.province === province ? '#642A77' : 'none' }}
+                            onClick={() => {
+                              setFormData({ ...formData, province });
+                              setProvinceDropdownOpen(false);
+                              handleChange({ target: { name: 'province', value: province } });
+                            }}
+                          >{province}</div>
+                        ))}
+                      </div>
+                    )}
+                    {errors.province && (
+                      <div
+                        key={errorKey + 2}
+                        style={{
+                          position: 'absolute',
+                          top: '100%',
+                          right: '0',
+                          background: '#ef4444',
+                          color: 'white',
+                          padding: '8px 12px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontFamily: 'Raleway',
+                          fontWeight: '500',
+                          whiteSpace: 'nowrap',
+                          boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                          zIndex: 1000,
+                          marginTop: '4px',
+                          transform: 'translateX(0)',
+                          animation: fadeState.province ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
+                        }}
+                      >
                         {errors.province}
                         <div style={{
                           position: 'absolute',
@@ -502,11 +606,9 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                   }}>
                     City
                   </label>
-                  <div style={{ position: 'relative' }}>
-                    <select
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    <div
+                      tabIndex={0}
                       style={{
                         width: '100%',
                         minWidth: '186px',
@@ -515,38 +617,78 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                         color: 'white',
                         border: 'none',
                         borderRadius: '5px',
-                        outline: 'none',
+                        outline: cityDropdownOpen ? '2px solid #34113F' : 'none',
                         fontFamily: 'Raleway',
                         fontSize: '19.2px',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        cursor: formData.province ? 'pointer' : 'not-allowed',
+                        position: 'relative',
+                        zIndex: 2,
+                        opacity: formData.province ? 1 : 0.6
                       }}
-                      required
-                      disabled={!formData.province}
+                      onClick={() => formData.province && setCityDropdownOpen(open => !open)}
+                      onBlur={() => setTimeout(() => setCityDropdownOpen(false), 150)}
                     >
-                      <option value="">City</option>
-                      {cities.map(city => (
-                        <option key={city} value={city}>{city}</option>
-                      ))}
-                    </select>
-                    {errors.city && (
+                      {formData.city || 'City'}
+                      <span style={{ float: 'right', marginLeft: '8px' }}>▼</span>
+                    </div>
+                    {cityDropdownOpen && (
                       <div style={{
                         position: 'absolute',
                         top: '100%',
-                        right: '0',
-                        background: '#ef4444',
+                        left: 0,
+                        width: '100%',
+                        background: '#815FB3',
                         color: 'white',
-                        padding: '8px 12px',
-                        borderRadius: '12px',
-                        fontSize: '12px',
-                        fontFamily: 'Raleway',
-                        fontWeight: '500',
-                        whiteSpace: 'nowrap',
-                        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
-                        zIndex: 1000,
-                        marginTop: '4px',
-                        transform: 'translateX(0)',
-                        animation: 'errorPop 0.3s ease-out'
+                        borderRadius: '0 0 5px 5px',
+                        boxShadow: '0 4px 12px rgba(129,95,179,0.15)',
+                        maxHeight: '180px',
+                        overflowY: 'auto',
+                        zIndex: 10
                       }}>
+                        <div
+                          style={{ padding: '0.425rem 0.5rem', cursor: 'pointer', fontFamily: 'Raleway', fontSize: '19.2px', color: '#FFF07B' }}
+                          onClick={() => {
+                            setFormData({ ...formData, city: '' });
+                            setCityDropdownOpen(false);
+                            handleChange({ target: { name: 'city', value: '' } });
+                          }}
+                        >City</div>
+                        {cities.map(city => (
+                          <div
+                            key={city}
+                            style={{ padding: '0.425rem 0.5rem', cursor: 'pointer', fontFamily: 'Raleway', fontSize: '19.2px', background: formData.city === city ? '#642A77' : 'none' }}
+                            onClick={() => {
+                              setFormData({ ...formData, city });
+                              setCityDropdownOpen(false);
+                              handleChange({ target: { name: 'city', value: city } });
+                            }}
+                          >{city}</div>
+                        ))}
+                      </div>
+                    )}
+                    {errors.city && (
+                      <div
+                        key={errorKey + 3}
+                        style={{
+                          position: 'absolute',
+                          top: '100%',
+                          right: '0',
+                          background: '#ef4444',
+                          color: 'white',
+                          padding: '8px 12px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontFamily: 'Raleway',
+                          fontWeight: '500',
+                          whiteSpace: 'nowrap',
+                          boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                          zIndex: 1000,
+                          marginTop: '4px',
+                          transform: 'translateX(0)',
+                          animation: fadeState.city ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
+                        }}
+                      >
                         {errors.city}
                         <div style={{
                           position: 'absolute',
@@ -604,6 +746,42 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                         lineHeight: '1'
                       }}>✓</span>
                     )}
+                    {/* Error bubble for clinic_agreement */}
+                    {errors.clinic_agreement && (
+                      <div
+                        key={errorKey + 4}
+                        style={{
+                          position: 'absolute',
+                          left: '0',
+                          top: '110%',
+                          background: '#ef4444',
+                          color: 'white',
+                          padding: '8px 12px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontFamily: 'Raleway',
+                          fontWeight: '500',
+                          whiteSpace: 'nowrap',
+                          boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                          zIndex: 1000,
+                          marginTop: '4px',
+                          transform: 'translateX(0)',
+                          animation: fadeState.clinic_agreement ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
+                        }}
+                      >
+                        {errors.clinic_agreement}
+                        <div style={{
+                          position: 'absolute',
+                          top: '-4px',
+                          left: '16px',
+                          width: '0',
+                          height: '0',
+                          borderLeft: '4px solid transparent',
+                          borderRight: '4px solid transparent',
+                          borderBottom: '4px solid #ef4444'
+                        }}></div>
+                      </div>
+                    )}
                   </div>
                   <label 
                     htmlFor="clinic_agreement" 
@@ -611,7 +789,7 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                     style={{
                       fontFamily: 'Raleway',
                       fontSize: '16.8px',
-                      color: errors.clinic_agreement ? '#dc2626' : '#000000',
+                      color: '#000000',
                       lineHeight: '1.3',
                       cursor: 'pointer',
                       userSelect: 'none',
@@ -621,11 +799,6 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                     I confirm that I am a client of Southvalley Veterinary Clinic.
                   </label>
                 </div>
-                {errors.clinic_agreement && (
-                  <div style={{ color: '#dc2626', fontSize: '14px', marginLeft: '28px', marginTop: '-0.5rem' }}>
-                    {errors.clinic_agreement}
-                  </div>
-                )}
 
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.638rem', position: 'relative' }}>
                   <div style={{ position: 'relative', flexShrink: 0 }}>
@@ -665,6 +838,42 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                         lineHeight: '1'
                       }}>✓</span>
                     )}
+                    {/* Error bubble for terms_agreement */}
+                    {errors.terms_agreement && (
+                      <div
+                        key={errorKey + 5}
+                        style={{
+                          position: 'absolute',
+                          left: '0',
+                          top: '110%',
+                          background: '#ef4444',
+                          color: 'white',
+                          padding: '8px 12px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontFamily: 'Raleway',
+                          fontWeight: '500',
+                          whiteSpace: 'nowrap',
+                          boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                          zIndex: 1000,
+                          marginTop: '4px',
+                          transform: 'translateX(0)',
+                          animation: fadeState.terms_agreement ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
+                        }}
+                      >
+                        {errors.terms_agreement}
+                        <div style={{
+                          position: 'absolute',
+                          top: '-4px',
+                          left: '16px',
+                          width: '0',
+                          height: '0',
+                          borderLeft: '4px solid transparent',
+                          borderRight: '4px solid transparent',
+                          borderBottom: '4px solid #ef4444'
+                        }}></div>
+                      </div>
+                    )}
                   </div>
                   <label 
                     htmlFor="terms_agreement"
@@ -672,7 +881,7 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                     style={{
                       fontFamily: 'Raleway',
                       fontSize: '16.8px',
-                      color: errors.terms_agreement ? '#dc2626' : '#000000',
+                      color: '#000000',
                       lineHeight: '1.3',
                       cursor: 'pointer',
                       userSelect: 'none',
@@ -700,11 +909,6 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                     </span>{' '}of this website.
                   </label>
                 </div>
-                {errors.terms_agreement && (
-                  <div style={{ color: '#dc2626', fontSize: '14px', marginLeft: '28px', marginTop: '-0.5rem' }}>
-                    {errors.terms_agreement}
-                  </div>
-                )}
               </div>
             </div>
           </form>
@@ -751,7 +955,7 @@ const RegisterStep2 = () => {
   // Redirect if step 1 is not completed
   useEffect(() => {
     if (!registrationData.step1.username) {
-      navigate('/register', { replace: true });
+  navigate('/petowner/register', { replace: true });
     }
   }, [registrationData.step1.username, navigate]);
 
@@ -795,7 +999,7 @@ const RegisterStep2 = () => {
       setTimeout(() => {
         clearData();
         // Navigate to login page after successful registration (OTP verification temporarily disabled)
-        navigate('/login', { 
+        navigate('/petowner/login', { 
           state: { 
             message: 'Registration successful! You can now log in.' 
           },

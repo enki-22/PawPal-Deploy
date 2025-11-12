@@ -11,8 +11,15 @@ import { useAuth } from '../context/AuthContext';
 import useConversations from '../hooks/useConversations';
 import MedicalRecordDetailsModal from './MedicalRecordDetailsModal';
 import VaccinationRecordDetailsModal from './VaccinationRecordDetailsModal';
+import './custom-scrollbar.css';
 
 const PetProfile = () => {
+  // State for file size error modal
+  const [showFileSizeErrorModal, setShowFileSizeErrorModal] = useState(false);
+  const [fileSizeErrorMsg, setFileSizeErrorMsg] = useState('');
+  // State for delete confirmation modal
+  const [showDeleteFileModal, setShowDeleteFileModal] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState(null);
   const [showVaccinationRecordModal, setShowVaccinationRecordModal] = useState(false);
   const [showMedicalRecordModal, setShowMedicalRecordModal] = useState(false);
   const [pet, setPet] = useState(null);
@@ -23,9 +30,19 @@ const PetProfile = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [currentPetId, setCurrentPetId] = useState(null); // Add state for current pet ID
   const [showAddPetModal, setShowAddPetModal] = useState(false); // Modal state for AddPetModal
+  // Medical records state and search
   const [medicalRecords, setMedicalRecords] = useState(() => {
     const saved = localStorage.getItem('medicalRecords');
     return saved ? JSON.parse(saved) : [];
+  });
+  const [medicalSearch, setMedicalSearch] = useState("");
+  const filteredMedicalRecords = medicalRecords.filter(record => {
+    const query = medicalSearch.toLowerCase();
+    return (
+      record.serviceType?.toLowerCase().includes(query) ||
+      record.provider?.toLowerCase().includes(query) ||
+      record.date?.toLowerCase().includes(query)
+    );
   });
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -52,12 +69,34 @@ const PetProfile = () => {
     handleDeleteConversation,
   } = useConversations();
 
-  const mockFiles = [
-    // Temporarily empty to show empty state - uncomment below for data
-    // { id: 1, name: 'Blood Test - 060225.pdf', size: '225 kb' },
-    // { id: 2, name: 'Surgery - 082624.pdf', size: '225 kb' },
-    // { id: 3, name: 'Surgery - 082624.pdf', size: '225 kb' }
-  ];
+  // Files state for uploaded PDFs, persisted in localStorage
+  const [files, setFiles] = useState(() => {
+    const saved = localStorage.getItem('petProfileFiles');
+    if (saved) {
+      try {
+        const arr = JSON.parse(saved);
+        // Restore File objects from base64
+        return arr.map(f => {
+          if (f.fileData) {
+            const byteString = atob(f.fileData.split(',')[1]);
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+              ia[i] = byteString.charCodeAt(i);
+            }
+            const fileObj = new File([ab], f.name, { type: 'application/pdf' });
+            return { ...f, file: fileObj };
+          }
+          return f;
+        });
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+  const [showFileModal, setShowFileModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   // Fetch all pets
   const fetchAllPets = React.useCallback(async () => {
@@ -96,14 +135,6 @@ const PetProfile = () => {
     // Set initial current pet ID from URL parameter
     setCurrentPetId(parseInt(petId));
   }, [petId, token, fetchAllPets, fetchPetDetails]);
-
-  const getSpeciesEmoji = (species) => {
-    switch (species?.toLowerCase()) {
-      case 'dog': return '🐕';
-      case 'cat': return '🐱';
-      default: return '🐾';
-    }
-  };
 
   const handlePetSelect = (selectedPetId) => {
     if (selectedPetId !== currentPetId) {
@@ -144,6 +175,18 @@ const PetProfile = () => {
       setPetSwitchLoading(false);
     }
   };
+
+  // Vaccination records search state and filter
+  const [vaccinationSearch, setVaccinationSearch] = useState("");
+  const filteredVaccinationRecords = vaccinationRecords.filter(record => {
+    const query = vaccinationSearch.toLowerCase();
+    return (
+      record.vaccineType?.toLowerCase().includes(query) ||
+      record.administeredBy?.toLowerCase().includes(query) ||
+      record.dateAdministered?.toLowerCase().includes(query) ||
+      record.nextDueDate?.toLowerCase().includes(query)
+    );
+  });
 
   if (loading) {
     return (
@@ -281,8 +324,8 @@ const PetProfile = () => {
                     <div 
                       className="bg-gray-300 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
                       style={{
-                        width: '56px',  // Increased from 32px
-                        height: '56px'  // Increased from 32px
+                        width: '56px',
+                        height: '56px'
                       }}
                     >
                       {petItem.image_url || petItem.image ? (
@@ -292,8 +335,18 @@ const PetProfile = () => {
                           className="w-full h-full object-cover" 
                         />
                       ) : (
-                        <span style={{ fontSize: '28px' }}>  {/* Increased from 14px */}
-                          {getSpeciesEmoji(petItem.species)}
+                        <span style={{
+                          fontSize: '32px',
+                          fontWeight: 900,
+                          color: '#815FB3',
+                          fontFamily: 'Raleway',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '100%',
+                          height: '100%'
+                        }}>
+                          {petItem.name ? petItem.name.charAt(0).toUpperCase() : ''}
                         </span>
                       )}
                     </div>
@@ -352,11 +405,24 @@ const PetProfile = () => {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div 
-                      className="w-full h-full flex items-center justify-center text-6xl"
-                      style={{ backgroundColor: '#E5E7EB' }}
-                    >
-                      {getSpeciesEmoji(pet.species)}
+                    <div style={{ width: '80%', height: '80%', margin: '0 auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', position: 'relative' }}>
+                      <span style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '80%',
+                        height: '80%',
+                        fontSize: '96px',
+                        fontWeight: 900,
+                        color: '#815FB3',
+                        position: 'relative',
+                        top: '10%',
+                        fontFamily: 'Raleway',
+                        background: 'none',
+                        borderRadius: '50%'
+                      }}>
+                        {pet.name ? pet.name.charAt(0).toUpperCase() : ''}
+                      </span>
                     </div>
                   )}
                   
@@ -364,7 +430,7 @@ const PetProfile = () => {
                   <div 
                     className="absolute inset-0"
                     style={{
-                      background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)'
+                      background: 'linear-gradient(to top, rgba(153,144,74,0.7) 0%, rgba(204,192,98,0.3) 20%, rgba(245,233,184,0.0) 100%)'
                     }}
                   ></div>
                   
@@ -613,88 +679,259 @@ const PetProfile = () => {
 
               {/* Files Card - First Separate Card */}
               <div 
-                className="rounded-lg p-6"
+                className="rounded-lg p-6 flex flex-col"
                 style={{ 
                   background: '#FFFFF2',
-                  borderRadius: '10px'
+                  borderRadius: '10px',
+                  height: '320px'
                 }}
               >
-                <h3 
-                  className="mb-4"
-                  style={{ 
-                    fontFamily: 'Raleway',
-                    fontSize: '20px',
-                    fontWeight: 600,
-                    color: '#333333'
-                  }}
-                >
-                  Files
-                </h3>
-                
-                {mockFiles.length > 0 ? (
-                  <div className="space-y-3">
-                    {mockFiles.map((file) => (
-                      <div key={file.id} className="flex items-center justify-between py-3">
-                        <div className="flex items-center space-x-3">
-                          {/* Dark Purple File Icon */}
-                          <div className="w-6 h-6 flex items-center justify-center">
-                            <svg 
-                              className="w-6 h-6" 
-                              fill="#4A0E4E" 
-                              viewBox="0 0 24 24"
-                            >
-                              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-7-7z"/>
-                              <polyline points="13,2 13,9 20,9"/>
-                            </svg>
-                          </div>
-                          <span 
-                            style={{ 
-                              fontFamily: 'Raleway',
-                              fontSize: '14px',
-                              fontWeight: 500,
-                              color: '#333333'
-                            }}
-                          >
-                            {file.name}
-                          </span>
-                        </div>
-                        <span 
-                          style={{ 
+                {/* Header: Title and Add Button (fixed, non-scrolling) */}
+                <div className="flex items-center mb-4 justify-between">
+                  <h3 
+                    className="mb-0"
+                    style={{ 
+                      fontFamily: 'Raleway',
+                      fontSize: '20px',
+                      fontWeight: 600,
+                      color: '#333333'
+                    }}
+                  >
+                    Files
+                  </h3>
+                  {/* Add File Button - Same style as Medical/Vaccination Add */}
+                  <label htmlFor="file-upload" className="rounded text-center transition-colors hover:opacity-90 cursor-pointer" style={{ width: '50px', height: '27px', background: '#F5E9B8', boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)', borderRadius: '10px', border: 'none', fontFamily: 'Raleway', fontWeight: 800, fontSize: '12px', lineHeight: '14px', textAlign: 'center', letterSpacing: '0.05em', color: '#34113F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    Add
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept="application/pdf"
+                      style={{ display: 'none' }}
+                      onChange={e => {
+                        const file = e.target.files[0];
+                        const maxSize = 5 * 1024 * 1024; // 5MB
+                        if (file) {
+                          if (file.size > maxSize) {
+                            setFileSizeErrorMsg('File is too large. Maximum allowed size is 5MB.');
+                            setShowFileSizeErrorModal(true);
+                            e.target.value = '';
+                            return;
+                          }
+                          if (file.type === 'application/pdf') {
+                            // Convert file to base64 for localStorage
+                            const reader = new FileReader();
+                            reader.onload = function(ev) {
+                              const fileData = ev.target.result;
+                              setFiles(prev => {
+                                const newFiles = [...prev, { id: Date.now(), name: file.name, size: `${Math.round(file.size/1024)} kb`, file, fileData }];
+                                localStorage.setItem('petProfileFiles', JSON.stringify(newFiles));
+                                return newFiles;
+                              });
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }
+                        e.target.value = '';
+                      }}
+                    />
+                  </label>
+                  {/* File Size Error Modal - moved outside label/input for correct overlay and rendering */}
+                  {showFileSizeErrorModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                      <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full relative flex flex-col items-center">
+                        <h3 style={{ fontFamily: 'Raleway', fontSize: '20px', fontWeight: 700, color: '#34113F', marginBottom: '16px', textAlign: 'center' }}>
+                          File Upload Error
+                        </h3>
+                        <p style={{ fontFamily: 'Raleway', fontSize: '16px', color: '#333', marginBottom: '24px', textAlign: 'center' }}>
+                          {fileSizeErrorMsg}
+                        </p>
+                        <button
+                          onClick={() => setShowFileSizeErrorModal(false)}
+                          style={{
+                            background: '#F5E9B8',
+                            color: '#34113F',
                             fontFamily: 'Raleway',
-                            fontSize: '14px',
-                            fontWeight: 400,
-                            color: '#666666'
+                            fontWeight: 700,
+                            fontSize: '16px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            padding: '8px 24px',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+                            transition: 'opacity 0.2s',
                           }}
                         >
-                          {file.size}
-                        </span>
+                          OK
+                        </button>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="flex justify-center mb-4">
-                      <svg 
-                        className="w-12 h-12" 
-                        fill="#CCCCCC" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-7-7z"/>
-                        <polyline points="13,2 13,9 20,9"/>
-                      </svg>
                     </div>
-                    <p 
-                      style={{ 
-                        fontFamily: 'Raleway',
-                        fontSize: '14px',
-                        fontWeight: 400,
-                        color: '#999999'
-                      }}
-                    >
-                      There are no files yet.
+                  )}
+                </div>
+                {/* Scrollable file list area */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar" style={{ paddingRight: 0 }}>
+                  <div style={{ marginRight: 40 }}>
+                    {files.length > 0 ? (
+                      <div className="space-y-3">
+                        {files.map((file) => (
+                        <div
+                          key={file.id}
+                          className="flex items-center justify-between py-3 cursor-pointer group"
+                          style={{ position: 'relative' }}
+                          onClick={e => {
+                            // Only open modal if not clicking download/delete
+                            if (e.target.closest('.file-action-btn')) return;
+                            setSelectedFile(file);
+                            setShowFileModal(true);
+                          }}
+                        >
+                          <div className="flex items-center space-x-3">
+                            {/* File Icon - files.png */}
+                            <div className="w-6 h-6 flex items-center justify-center">
+                              <img src="/files.png" alt="File" style={{ width: '24px', height: '24px' }} />
+                            </div>
+                            <span style={{ fontFamily: 'Raleway', fontSize: '14px', fontWeight: 500, color: '#333333' }}>{file.name}</span>
+                          </div>
+                          <div style={{ minWidth: '70px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', position: 'relative' }}>
+                            {/* File size fades out on hover, buttons fade in */}
+                            <span
+                              className="transition-opacity duration-200 ease-in group-hover:opacity-0"
+                              style={{ fontFamily: 'Raleway', fontSize: '14px', fontWeight: 400, color: '#666666', position: 'absolute', right: 0 }}
+                            >
+                              {file.size}
+                            </span>
+                            <span
+                              className="file-action-btn transition-opacity duration-200 ease-in opacity-0 group-hover:opacity-100 flex items-center space-x-2"
+                              style={{ position: 'absolute', right: 0 }}
+                            >
+                              <button
+                                className="file-action-btn"
+                                style={{ background: 'none', border: 'none', padding: 0, marginRight: '8px', cursor: 'pointer' }}
+                                title="Download"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  const url = URL.createObjectURL(file.file);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = file.name;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  document.body.removeChild(a);
+                                  setTimeout(() => URL.revokeObjectURL(url), 1000);
+                                }}
+                              >
+                                <img src="/download.png" alt="Download" style={{ width: '20px', height: '20px' }} />
+                              </button>
+                              <button
+                                className="file-action-btn"
+                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                                title="Delete"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  setFileToDelete(file);
+                                  setShowDeleteFileModal(true);
+                                }}
+                              >
+                                <img src="/delete.png" alt="Delete" style={{ width: '24px', height: '24px' }} />
+                              </button>
+              {/* Delete File Confirmation Modal */}
+              {showDeleteFileModal && fileToDelete && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                  <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full relative flex flex-col items-center">
+                    <h3 style={{ fontFamily: 'Raleway', fontSize: '20px', fontWeight: 700, color: '#34113F', marginBottom: '16px', textAlign: 'center' }}>
+                      Delete File
+                    </h3>
+                    <p style={{ fontFamily: 'Raleway', fontSize: '16px', color: '#333', marginBottom: '24px', textAlign: 'center' }}>
+                      Are you sure you want to delete <span style={{ fontWeight: 600 }}>{fileToDelete.name}</span>? This action cannot be undone.
                     </p>
+                    <div className="flex space-x-4">
+                      <button
+                        onClick={() => {
+                          setShowDeleteFileModal(false);
+                          setFileToDelete(null);
+                        }}
+                        style={{
+                          background: '#F5E9B8',
+                          color: '#34113F',
+                          fontFamily: 'Raleway',
+                          fontWeight: 700,
+                          fontSize: '16px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          padding: '8px 24px',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+                          transition: 'opacity 0.2s',
+                        }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => {
+                          setFiles(prev => {
+                            const newFiles = prev.filter(f => f.id !== fileToDelete.id);
+                            localStorage.setItem('petProfileFiles', JSON.stringify(newFiles));
+                            return newFiles;
+                          });
+                          setShowDeleteFileModal(false);
+                          setFileToDelete(null);
+                        }}
+                        style={{
+                          background: '#E74C3C',
+                          color: '#fff',
+                          fontFamily: 'Raleway',
+                          fontWeight: 700,
+                          fontSize: '16px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          padding: '8px 24px',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+                          transition: 'opacity 0.2s',
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                )}
+                </div>
+              )}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="flex justify-center mb-4">
+                          <svg className="w-12 h-12" fill="#CCCCCC" viewBox="0 0 24 24">
+                            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-7-7z"/>
+                            <polyline points="13,2 13,9 20,9"/>
+                          </svg>
+                        </div>
+                        <p style={{ fontFamily: 'Raleway', fontSize: '14px', fontWeight: 400, color: '#999999' }}>There are no files yet.</p>
+                      </div>
+                    )}
+                  </div>
+                  {/* File Preview Modal */}
+                  {showFileModal && selectedFile && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                      <div className="bg-white rounded-lg shadow-lg p-8 max-w-5xl w-full relative" style={{ minWidth: '800px', minHeight: '700px' }}>
+                        <button
+                          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                          onClick={() => setShowFileModal(false)}
+                          style={{ fontSize: '24px', fontWeight: 700 }}
+                        >
+                          ×
+                        </button>
+                        <h4 style={{ fontFamily: 'Raleway', fontSize: '22px', fontWeight: 600, color: '#34113F', marginBottom: '20px' }}>{selectedFile.name}</h4>
+                        <iframe
+                          src={URL.createObjectURL(selectedFile.file)}
+                          title={selectedFile.name}
+                          width="100%"
+                          height="600px"
+                          style={{ border: '1px solid #ccc', borderRadius: '8px', minHeight: '600px' }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Download Medical Information Card - Second Separate Card */}
@@ -797,46 +1034,51 @@ const PetProfile = () => {
                   </div>
                   {/* Right side - Search Bar separated */}
                   <div className="ml-auto">
-                    {/* Search Bar - Shorter width to align with table */}
-                    <input
-                      type="text"
-                      placeholder="Search"
-                      className="px-3 py-1 rounded text-sm"
-                      style={{ 
-                        border: '1px solid #666666', // Added thicker border
-                        borderRadius: '5px',
-                        fontFamily: 'Raleway',
-                        fontStyle: 'normal',
-                        fontWeight: 500,
-                        fontSize: '12px',
-                        lineHeight: '14px',
-                        color: '#666666',
-                        backgroundColor: '#FFFFFF',
-                        width: '250px', // Reduced from 357px to fit page properly
-                        height: '25px',
-                        outline: 'none',
-                        boxSizing: 'border-box'
-                      }}
-                    />
+                    <div style={{ position: 'relative', width: '300px' }}>
+                      <img src="/Magnifying glass.png" alt="Search" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: '#666666', pointerEvents: 'none', zIndex: 2 }} />
+                      <input
+                        type="text"
+                        placeholder="Search"
+                        value={medicalSearch}
+                        onChange={e => setMedicalSearch(e.target.value)}
+                        className="px-3 py-1 rounded text-sm"
+                        style={{
+                          border: '1.5px solid #666666',
+                          borderRadius: '8px',
+                          fontFamily: 'Raleway',
+                          fontStyle: 'normal',
+                          fontWeight: 500,
+                          fontSize: '16px',
+                          lineHeight: '20px',
+                          color: '#666666',
+                          backgroundColor: '#FFFFFF',
+                          width: '100%',
+                          height: '38px',
+                          outline: 'none',
+                          boxSizing: 'border-box',
+                          paddingLeft: '40px', // space for icon
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
                 {/* Main Card - Only contains table */}
-                <div className="rounded-lg" style={{ background: '#FFFFF2', borderRadius: '10px' }}>
-                  <table className="min-w-full divide-y divide-gray-200" style={{ fontFamily: 'Raleway' }}>
+                <div className="rounded-lg" style={{ background: '#FFFFF2', borderRadius: '10px', height: '320px', overflowY: 'auto' }}>
+                  <table className="min-w-full divide-y divide-gray-200" style={{ fontFamily: 'Raleway', background: '#FFFFF2' }}>
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Type</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Provider</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Provided</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ background: '#FFFFF2' }}>Service Type</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ background: '#FFFFF2' }}>Service Provider</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ background: '#FFFFF2' }}>Date Provided</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {medicalRecords.length === 0 ? (
+                    <tbody className="bg-white divide-y divide-gray-200" style={{ background: '#FFFFF2' }}>
+                      {filteredMedicalRecords.length === 0 ? (
                         <tr>
                           <td colSpan={3} className="px-6 py-4 text-center text-gray-400">No medical records yet.</td>
                         </tr>
                       ) : (
-                        medicalRecords.map((record, idx) => (
+                        filteredMedicalRecords.map((record, idx) => (
                           <tr key={idx} className="cursor-pointer hover:bg-gray-100" onClick={() => { setSelectedRecord(idx); setShowDetailsModal(true); }}>
                             <td className="px-6 py-4 whitespace-nowrap">{record.serviceType}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{record.provider}</td>
@@ -851,7 +1093,7 @@ const PetProfile = () => {
 
               {/* Vaccination Records Section */}
               <div>
-                {/* Title, Add Button, and Search Bar - Same layout as Medical Records */}
+                {/* Title, Add Button, and Search Bar - Title and Button closer, Search separate */}
                 <div className="flex items-center mb-4">
                   {/* Left side - Title and Add Button closer together */}
                   <div className="flex items-center space-x-2">
@@ -909,53 +1151,54 @@ const PetProfile = () => {
                     />
                   </div>
                   
-                  {/* Right side - Search Bar separated */}
+                  {/* Right side - Search Bar with icon, wider */}
                   <div className="ml-auto">
-                    {/* Search Bar - Same style as Medical Records */}
-                    <input
-                      type="text"
-                      placeholder="Search"
-                      className="px-3 py-1 rounded text-sm"
-                      style={{ 
-                        border: '1px solid #666666',
-                        borderRadius: '5px',
-                        fontFamily: 'Raleway',
-                        fontStyle: 'normal',
-                        fontWeight: 500,
-                        fontSize: '12px',
-                        lineHeight: '14px',
-                        color: '#666666',
-                        backgroundColor: '#FFFFFF',
-                        width: '250px',
-                        height: '25px',
-                        outline: 'none',
-                        boxSizing: 'border-box'
-                      }}
-                    />
+                    <div style={{ position: 'relative', width: '250px' }}>
+                      <img src="/Magnifying glass.png" alt="Search" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: '#666666', pointerEvents: 'none', zIndex: 2 }} />
+                      <input
+                        type="text"
+                        placeholder="Search"
+                        value={vaccinationSearch}
+                        onChange={e => setVaccinationSearch(e.target.value)}
+                        className="px-3 py-1 rounded text-sm"
+                        style={{
+                          border: '1.5px solid #666666',
+                          borderRadius: '8px',
+                          fontFamily: 'Raleway',
+                          fontStyle: 'normal',
+                          fontWeight: 500,
+                          fontSize: '16px',
+                          lineHeight: '20px',
+                          color: '#666666',
+                          backgroundColor: '#FFFFFF',
+                          width: '100%',
+                          height: '38px',
+                          outline: 'none',
+                          boxSizing: 'border-box',
+                          paddingLeft: '40px', // space for icon
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-
                 {/* Main Card - Table of vaccination records */}
-                <div
-                  className="rounded-lg"
-                  style={{ background: '#FFFFF2', borderRadius: '10px' }}
-                >
-                  <table className="min-w-full divide-y divide-gray-200" style={{ fontFamily: 'Raleway' }}>
+                <div className="rounded-lg" style={{ background: '#FFFFF2', borderRadius: '10px', height: '320px', overflowY: 'auto' }}>
+                  <table className="min-w-full divide-y divide-gray-200" style={{ fontFamily: 'Raleway', background: '#FFFFF2' }}>
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vaccine</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Administered By</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Administered</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Due</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ background: '#FFFFF2' }}>Vaccine</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ background: '#FFFFF2' }}>Administered By</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ background: '#FFFFF2' }}>Date Administered</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ background: '#FFFFF2' }}>Next Due</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {vaccinationRecords.length === 0 ? (
+                    <tbody className="bg-white divide-y divide-gray-200" style={{ background: '#FFFFF2' }}>
+                      {filteredVaccinationRecords.length === 0 ? (
                         <tr>
                           <td colSpan={4} className="px-6 py-4 text-center text-gray-400">No vaccination records yet.</td>
                         </tr>
                       ) : (
-                        vaccinationRecords.map((record, idx) => (
+                        filteredVaccinationRecords.map((record, idx) => (
                           <tr
                             key={idx}
                             className="cursor-pointer hover:bg-gray-100"

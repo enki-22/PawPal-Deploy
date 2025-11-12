@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const AddMedicalRecordModal = ({ isOpen, onClose, onSave }) => {
   const [serviceType, setServiceType] = useState('Check-up');
@@ -8,6 +8,19 @@ const AddMedicalRecordModal = ({ isOpen, onClose, onSave }) => {
   const [diagnosis, setDiagnosis] = useState('');
   const [treatment, setTreatment] = useState('');
   const [notes, setNotes] = useState('');
+
+  // Reset form fields when modal is opened
+  useEffect(() => {
+    if (isOpen) {
+      setServiceType('Check-up');
+      setProvider('');
+      setDate('');
+      setFollowUpDate('');
+      setDiagnosis('');
+      setTreatment('');
+      setNotes('');
+    }
+  }, [isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

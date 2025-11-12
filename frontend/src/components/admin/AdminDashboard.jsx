@@ -219,7 +219,7 @@ const AdminDashboard = () => {
                           ? (e) => setSoapFilter(e.target.value)
                           : (e) => setConversationFilter(e.target.value)
                         }
-                        style={{background: 'transparent', border: 'none', fontFamily: 'Raleway', fontWeight: 400, fontSize: 11, color: '#000', outline: 'none', width: '110px', cursor: 'pointer'}}
+                        style={{background: 'transparent', border: 'none', fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11, color: '#000', outline: 'none', width: '110px', cursor: 'pointer'}}
                       >
                         <option value="Last 24 Hours">Last 24 Hours</option>
                         <option value="Last 7 Days">Last 7 Days</option>
@@ -375,8 +375,8 @@ const AdminDashboard = () => {
                   <select
                     value={speciesFilter}
                     onChange={e => setSpeciesFilter(e.target.value)}
-                    className="bg-[#efe8be] rounded-[5px] px-2 py-1 text-xs font-semibold text-[#57166B] border-none outline-none cursor-pointer"
-                    style={{ minWidth: 110 }}
+                    className="bg-[#efe8be] rounded-[5px] px-2 py-1 text-xs font-['Inter:Regular',sans-serif] text-[#57166B] border-none outline-none cursor-pointer"
+                    style={{ minWidth: 110, fontFamily: 'Inter, sans-serif' }}
                   >
                     <option value="Last 24 Hours">Last 24 Hours</option>
                     <option value="Last 7 Days">Last 7 Days</option>

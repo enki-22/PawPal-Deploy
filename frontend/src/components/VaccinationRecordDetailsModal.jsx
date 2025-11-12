@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 const VaccinationRecordDetailsModal = ({ isOpen, onClose, record, onDelete, onSave }) => {
@@ -39,6 +38,31 @@ const VaccinationRecordDetailsModal = ({ isOpen, onClose, record, onDelete, onSa
       className: "w-full border rounded px-3 py-2 border-gray-300",
     };
     if (isEditing) {
+      if (name === 'vaccineType') {
+        return (
+          <select {...commonProps}>
+            <option>Rabies</option>
+            <option>Distemper</option>
+            <option>Parvovirus</option>
+            <option>Adenovirus</option>
+            <option>Parainfluenza</option>
+            <option>Leptospirosis</option>
+            <option>Bordetella</option>
+            <option>Lyme Disease</option>
+            <option>Canine Influenza</option>
+            <option>Feline Leukemia</option>
+            <option>FVRCP</option>
+            <option>Panleukopenia</option>
+            <option>Calicivirus</option>
+            <option>Other</option>
+          </select>
+        );
+      }
+      if (name === 'dateAdministered' || name === 'nextDueDate') {
+        return (
+          <input type="date" {...commonProps} />
+        );
+      }
       return isTextArea ? (
         <textarea {...commonProps} rows={3} />
       ) : (
