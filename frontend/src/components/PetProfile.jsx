@@ -1,3 +1,4 @@
+import ExcelJS from 'exceljs';
 import React, { useEffect, useState } from 'react';
 import AddVaccinationRecordModal from './AddVaccinationRecordModal';
 import AddMedicalRecordModal from './AddMedicalRecordModal';
@@ -971,6 +972,124 @@ const PetProfile = () => {
                       fontWeight: 600,
                       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                       border: 'none'
+                    }}
+                    onClick={async () => {
+                      // PawPal colors
+                      const pawpalPurple = '815FB3';
+                      const pawpalBeige = 'FFFFF2';
+                      const white = 'FFFFFF';
+
+                      const workbook = new ExcelJS.Workbook();
+
+                      // Sheet 1: Medical Information
+                      const sheet1 = workbook.addWorksheet('Medical Information');
+                      sheet1.mergeCells('A1:B1');
+                      sheet1.getCell('A1').value = 'Medical Information';
+                      sheet1.getCell('A1').font = { bold: true, color: { argb: white }, size: 16, name: 'Raleway' };
+                      sheet1.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+                      sheet1.getCell('A1').fill = { type: 'gradient', gradient: 'angle', degree: 0, stops: [{ position: 0, color: { argb: pawpalPurple } }, { position: 1, color: { argb: pawpalBeige } }] };
+                      sheet1.getRow(1).height = 28;
+                      const petInfoRows = [
+                        ['Field', 'Value'],
+                        ['Name', pet.name],
+                        ['Sex', pet.sex],
+                        ['Age', typeof pet.age !== 'undefined' ? `${pet.age} years old` : 'N/A'],
+                        ['Species', pet.animal_type],
+                        ['Breed', pet.breed],
+                        ['Blood Type', pet.blood_type || (pet.medical_notes && pet.medical_notes.match(/Blood Type: ([^\n]+)/)?.[1]) || 'N/A'],
+                        ['Spayed/Neutered', typeof pet.spayed_neutered !== 'undefined' ? (pet.spayed_neutered ? 'Yes' : 'No') : (pet.medical_notes && pet.medical_notes.match(/Spayed\/Neutered: ([^\n]+)/)?.[1]) || 'N/A'],
+                        ['Allergies', pet.allergies || (pet.medical_notes && pet.medical_notes.match(/Allergies: ([^\n]+)/)?.[1]) || 'N/A'],
+                        ['Chronic Disease', pet.chronic_disease || (pet.medical_notes && pet.medical_notes.match(/Chronic Disease: ([^\n]+)/)?.[1]) || 'N/A'],
+                      ];
+                      sheet1.addRows(petInfoRows);
+                      sheet1.columns = [{ width: 20 }, { width: 40 }];
+                      // Style header row
+                      sheet1.getRow(2).font = { bold: true, color: { argb: white }, size: 13, name: 'Raleway' };
+                      sheet1.getRow(2).alignment = { horizontal: 'center', vertical: 'middle' };
+                      sheet1.getRow(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: pawpalPurple } };
+                      // Style data rows
+                      for (let r = 3; r <= petInfoRows.length + 1; ++r) {
+                        const row = sheet1.getRow(r);
+                        row.font = { name: 'Raleway', size: 12 };
+                        row.alignment = { horizontal: 'left', vertical: 'middle' };
+                        row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: r % 2 === 1 ? white : pawpalBeige } };
+                        row.border = {
+                          top: { style: 'thin', color: { argb: 'CCCCCC' } },
+                          bottom: { style: 'thin', color: { argb: 'CCCCCC' } },
+                          left: { style: 'thin', color: { argb: 'CCCCCC' } },
+                          right: { style: 'thin', color: { argb: 'CCCCCC' } }
+                        };
+                      }
+
+                      // Sheet 2: Medical Records
+                      const sheet2 = workbook.addWorksheet('Medical Records');
+                      sheet2.mergeCells('A1:C1');
+                      sheet2.getCell('A1').value = 'Medical Records';
+                      sheet2.getCell('A1').font = { bold: true, color: { argb: white }, size: 16, name: 'Raleway' };
+                      sheet2.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+                      sheet2.getCell('A1').fill = { type: 'gradient', gradient: 'angle', degree: 0, stops: [{ position: 0, color: { argb: pawpalPurple } }, { position: 1, color: { argb: pawpalBeige } }] };
+                      sheet2.getRow(1).height = 28;
+                      const medHeaders = ['Service Type', 'Service Provider', 'Date Provided'];
+                      sheet2.addRow(medHeaders);
+                      sheet2.columns = [{ width: 25 }, { width: 25 }, { width: 20 }];
+                      sheet2.getRow(2).font = { bold: true, color: { argb: white }, size: 13, name: 'Raleway' };
+                      sheet2.getRow(2).alignment = { horizontal: 'center', vertical: 'middle' };
+                      sheet2.getRow(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: pawpalPurple } };
+                      const medRows = medicalRecords.map(r => [r.serviceType, r.provider, r.date]);
+                      sheet2.addRows(medRows);
+                      for (let r = 3; r <= medRows.length + 2; ++r) {
+                        const row = sheet2.getRow(r);
+                        row.font = { name: 'Raleway', size: 12 };
+                        row.alignment = { horizontal: 'left', vertical: 'middle' };
+                        row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: r % 2 === 1 ? white : pawpalBeige } };
+                        row.border = {
+                          top: { style: 'thin', color: { argb: 'CCCCCC' } },
+                          bottom: { style: 'thin', color: { argb: 'CCCCCC' } },
+                          left: { style: 'thin', color: { argb: 'CCCCCC' } },
+                          right: { style: 'thin', color: { argb: 'CCCCCC' } }
+                        };
+                      }
+
+                      // Sheet 3: Vaccination Records
+                      const sheet3 = workbook.addWorksheet('Vaccination Records');
+                      sheet3.mergeCells('A1:D1');
+                      sheet3.getCell('A1').value = 'Vaccination Records';
+                      sheet3.getCell('A1').font = { bold: true, color: { argb: white }, size: 16, name: 'Raleway' };
+                      sheet3.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+                      sheet3.getCell('A1').fill = { type: 'gradient', gradient: 'angle', degree: 0, stops: [{ position: 0, color: { argb: pawpalPurple } }, { position: 1, color: { argb: pawpalBeige } }] };
+                      sheet3.getRow(1).height = 28;
+                      const vacHeaders = ['Vaccine', 'Administered By', 'Date Administered', 'Next Due'];
+                      sheet3.addRow(vacHeaders);
+                      sheet3.columns = [{ width: 20 }, { width: 25 }, { width: 20 }, { width: 20 }];
+                      sheet3.getRow(2).font = { bold: true, color: { argb: white }, size: 13, name: 'Raleway' };
+                      sheet3.getRow(2).alignment = { horizontal: 'center', vertical: 'middle' };
+                      sheet3.getRow(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: pawpalPurple } };
+                      const vacRows = vaccinationRecords.map(r => [r.vaccineType, r.administeredBy, r.dateAdministered, r.nextDueDate]);
+                      sheet3.addRows(vacRows);
+                      for (let r = 3; r <= vacRows.length + 2; ++r) {
+                        const row = sheet3.getRow(r);
+                        row.font = { name: 'Raleway', size: 12 };
+                        row.alignment = { horizontal: 'left', vertical: 'middle' };
+                        row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: r % 2 === 1 ? white : pawpalBeige } };
+                        row.border = {
+                          top: { style: 'thin', color: { argb: 'CCCCCC' } },
+                          bottom: { style: 'thin', color: { argb: 'CCCCCC' } },
+                          left: { style: 'thin', color: { argb: 'CCCCCC' } },
+                          right: { style: 'thin', color: { argb: 'CCCCCC' } }
+                        };
+                      }
+
+                      // Download
+                      const buffer = await workbook.xlsx.writeBuffer();
+                      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${pet.name || 'pet'}_profile.xlsx`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      window.URL.revokeObjectURL(url);
                     }}
                   >
                     Download
