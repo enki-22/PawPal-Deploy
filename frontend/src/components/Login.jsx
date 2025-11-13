@@ -1047,6 +1047,14 @@ const UnifiedAuth = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const successMessage = location.state?.message;
+  const { user } = useAuth();
+
+  // Redirect authenticated users away from login
+  useEffect(() => {
+    if (user && location.pathname === '/petowner/login') {
+      navigate('/chat/new', { replace: true });
+    }
+  }, [user, location, navigate]);
   
   // FIXED: Enhanced initial view detection
   const getInitialView = () => {
@@ -1145,14 +1153,13 @@ const UnifiedAuth = () => {
     setLoading(true);
     try {
       const result = await login({ 
-        email: formData.email, // Changed from username to email
+        email: formData.email,
         password: formData.password 
       });
       
       if (result.success) {
-        // Redirect to latest or new chat
-        const conversationId = result.latestConversationId || result.newConversationId || 'new';
-        navigate(`/chat/${conversationId}`);
+        // The useEffect hook will handle navigation after login.
+        // No redirect here.
       } else {
         throw new Error(result.error || 'Invalid credentials');
       }

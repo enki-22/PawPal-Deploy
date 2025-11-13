@@ -140,16 +140,18 @@ const PetProfile = () => {
     if (selectedPetId !== currentPetId) {
       // Update URL without page reload
       window.history.pushState(null, '', `/pet-profile/${selectedPetId}`);
-      
       // Update current pet ID state immediately for instant UI feedback
       setCurrentPetId(selectedPetId);
-      
       // Find the selected pet data from allPets and set it immediately
       const selectedPet = allPets.find(p => p.id === selectedPetId);
       if (selectedPet) {
         setPet(selectedPet);
+        // Clear records for new pet
+        setMedicalRecords([]);
+        setVaccinationRecords([]);
+        localStorage.setItem('medicalRecords', JSON.stringify([]));
+        localStorage.setItem('vaccinationRecords', JSON.stringify([]));
       }
-      
       // Fetch detailed pet data in background without showing loading state
       fetchPetDetailsByIdDirectly(selectedPetId);
     }
@@ -222,6 +224,11 @@ const PetProfile = () => {
         onPetAdded={() => {
           setShowAddPetModal(false);
           fetchAllPets();
+          // Clear records for new pet
+          setMedicalRecords([]);
+          setVaccinationRecords([]);
+          localStorage.setItem('medicalRecords', JSON.stringify([]));
+          localStorage.setItem('vaccinationRecords', JSON.stringify([]));
         }}
         token={token}
       />

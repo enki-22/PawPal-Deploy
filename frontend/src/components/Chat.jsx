@@ -1,41 +1,41 @@
 
+
 import axios from 'axios';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useConversations } from '../context/ConversationsContext';
 import LogoutModal from './LogoutModal';
-import PetSelectionModal from './PetSelectionModal'; // NEW IMPORT
+import PetSelectionModal from './PetSelectionModal';
 import ProfileButton from './ProfileButton';
 import Sidebar from './Sidebar';
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [currentConversationId, setCurrentConversationId] = useState(null);
-  // Get conversationId from URL
   const { conversationId } = useParams();
   const [currentConversationTitle, setCurrentConversationTitle] = useState('New Chat');
   const [messageInput, setMessageInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [imageMenuVisible, setImageMenuVisible] = useState(false);
-  const [chatMode, setChatMode] = useState(null); // 'general' or 'symptom_checker'
-  const [showModeSelection, setShowModeSelection] = useState(true);
+  const [chatMode, setChatMode] = useState(null); 
+  // Removed unused showModeSelection state
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   
-  // Pet Selection State Variables
   const [showPetSelection, setShowPetSelection] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
   const [currentPetContext, setCurrentPetContext] = useState(null);
   
   const chatContainerRef = useRef(null);
-  const fileInputRef = useRef(null);
-  const cameraInputRef = useRef(null);
   const navigate = useNavigate();
   const { user, token, logout } = useAuth();
+  // Redirect unauthenticated users to login page
+  useEffect(() => {
+    if (!user) {
+  window.location.replace('/petowner/login');
+    }
+  }, [user]);
 
-  // Use global conversations context
   const {
     conversations,
     loadingConversations,
@@ -46,10 +46,8 @@ const Chat = () => {
     handleDeleteConversation
   } = useConversations();
 
-  // API Base URL
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
 
-  // Define loadConversation before useEffect to avoid ReferenceError
   const loadConversation = useCallback(async (conversationId) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/chatbot/conversations/${conversationId}/`, {
@@ -57,13 +55,10 @@ const Chat = () => {
           'Authorization': token ? `Token ${token}` : '',
         }
       });
-
       if (response.data) {
         setCurrentConversationId(conversationId);
         setCurrentConversationTitle(response.data.conversation.title);
-        setShowModeSelection(false);
-       
-        // Convert messages to frontend format
+  // Show mode selection is now handled by chatMode and currentPetContext
         const formattedMessages = response.data.messages.map(msg => ({
           id: msg.id,
           content: msg.content,
@@ -71,34 +66,19 @@ const Chat = () => {
           sender: msg.sender,
           timestamp: msg.timestamp,
         }));
-       
         setMessages(formattedMessages);
-       
-        // Determine chat mode from conversation title
         if (response.data.conversation.title.includes('Symptom Check:')) {
           setChatMode('symptom_checker');
         } else if (response.data.conversation.title.includes('Pet Care:')) {
           setChatMode('general');
         }
+      } else {
+        setMessages([]);
       }
-    } catch (error) {
-      console.error('Error loading conversation:', error);
-    }
-  }, [API_BASE_URL, token]);
-
-  // Load conversations on component mount
-  useEffect(() => {
-    fetchConversations();
-    // Load conversation from URL if present
-    if (conversationId && conversationId !== 'new') {
-      loadConversation(conversationId);
-    } else {
-      setCurrentConversationId(null);
-      setCurrentConversationTitle('New Chat');
-      setShowModeSelection(true);
+    } catch (err) {
       setMessages([]);
     }
-  }, [fetchConversations, conversationId, loadConversation]);
+  }, [API_BASE_URL, token]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -111,42 +91,45 @@ const Chat = () => {
     }
   };
 
-  // ...existing code...
-
-  // Move useEffect that uses loadConversation below its definition
+  // --- THIS IS THE CORRECTED useEffect ---
+  // Load conversations on component mount or when conversationId changes
   useEffect(() => {
     fetchConversations();
-    // Load conversation from URL if present
+    
     if (conversationId && conversationId !== 'new') {
+      // Load an existing conversation
       loadConversation(conversationId);
     } else {
+      // This is a new chat
       setCurrentConversationId(null);
       setCurrentConversationTitle('New Chat');
-      setShowModeSelection(true);
+      // --- THIS IS THE FIX ---
+      // Set to false to show the chat input field with the welcome message
+  // Show mode selection is now handled by chatMode and currentPetContext
       setMessages([]);
+      setChatMode(null);
+      setCurrentPetContext(null);
     }
   }, [fetchConversations, conversationId, loadConversation]);
 
+
   const createNewConversation = async () => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/chatbot/conversations/new/`, {}, {
-        headers: {
-          'Authorization': token ? `Token ${token}` : '',
-        }
-      });
+      // We don't need to call the backend here, just reset the state
+      // and the URL navigation will trigger the useEffect above.
+      navigate('/chat/new');
+      
+      // Manually reset state as well for instant UI update
+      setCurrentConversationId(null);
+      setCurrentConversationTitle('New Chat');
+  // Show mode selection is now handled by chatMode and currentPetContext
+      setChatMode(null);
+      setMessages([]);
+      setCurrentPetContext(null); 
+      
+      // Fetch conversations to update sidebar
+      fetchConversations();
 
-      if (response.data && response.data.conversation) {
-        setCurrentConversationId(response.data.conversation.id);
-        setCurrentConversationTitle(response.data.conversation.title);
-        setShowModeSelection(true);
-        setChatMode(null);
-        setMessages([]);
-        setCurrentPetContext(null); // Clear pet context
-        setSelectedFile(null); // Clear selected file
-       
-        // Reload conversations to update sidebar
-        fetchConversations();
-      }
     } catch (error) {
       console.error('Error creating new conversation:', error);
     }
@@ -157,7 +140,6 @@ const Chat = () => {
   };
 
   const renameConversation = (conversationId, newTitle) => {
-    // Update current conversation title if it's the one being renamed
     if (conversationId === currentConversationId) {
       setCurrentConversationTitle(newTitle);
     }
@@ -165,70 +147,23 @@ const Chat = () => {
   };
 
   const archiveConversation = (conversationId) => {
-    // If archiving the current conversation, create a new one
     if (conversationId === currentConversationId) {
-      createNewConversation();
+      navigate('/chat/new'); // Navigate to new chat
     }
     handleArchiveConversation(conversationId);
   };
 
   const deleteConversation = (conversationId) => {
-    // If deleting the current conversation, create a new one
     if (conversationId === currentConversationId) {
-      createNewConversation();
+      navigate('/chat/new'); // Navigate to new chat
     }
     handleDeleteConversation(conversationId);
   };
 
-  // Image handling functions
-  const handleImageMenuToggle = () => {
-    setImageMenuVisible(!imageMenuVisible);
-  };
-
-  const handleTakePhoto = () => {
-    setImageMenuVisible(false);
-    if (cameraInputRef.current) {
-      cameraInputRef.current.click();
-    }
-  };
-
-  const handleAttachFile = () => {
-    setImageMenuVisible(false);
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleImageSelect = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      if (file.type.startsWith('image/')) {
-        setSelectedFile(file); // Store the file for sending
-        console.log('Selected image:', file);
-        
-        // Show a preview message
-        const imageMessage = {
-          id: Date.now() + Math.random(),
-          content: `📷 Image selected: ${file.name} (will be sent with next message)`,
-          isUser: true,
-          sender: 'You',
-          timestamp: new Date().toISOString(),
-        };
-        setMessages(prev => [...prev, imageMessage]);
-      } else {
-        alert('Please select an image file.');
-      }
-    }
-    event.target.value = '';
-  };
-
-  // NEW: Pet Selection Handler
   const handlePetSelected = (conversationData) => {
     setCurrentConversationId(conversationData.conversation_id);
     setCurrentPetContext(conversationData.pet_context);
     setCurrentConversationTitle(conversationData.conversation_title || 'New Chat');
-    
-    // Add the initial AI message
     const initialMessage = {
       id: Date.now(),
       content: conversationData.initial_message,
@@ -237,8 +172,7 @@ const Chat = () => {
       timestamp: new Date().toISOString(),
     };
     setMessages([initialMessage]);
-    
-    // Reload conversations to update sidebar
+    // Update sidebar only, do not navigate
     fetchConversations();
   };
 
@@ -265,7 +199,7 @@ const Chat = () => {
               className="w-72 h-72 object-contain"
             />
           </div>
-         
+          
           {/* Quick action buttons - stacked vertically */}
           <div className="flex flex-col gap-4 w-full max-w-xl">
             <div
@@ -292,7 +226,7 @@ const Chat = () => {
                 Learn about typical behaviors, habits, diet, and health patterns specific to your pet&apos;s breed, age, and species. Perfect for new pet parents or anyone looking to better understand what&apos;s considered &ldquo;normal&rdquo; for their furry companion.
               </p>
             </div>
-           
+            
             <div
               onClick={() => selectMode('symptom_checker')}
               className="bg-[#FFF4C9] rounded-2xl p-6 cursor-pointer hover:bg-[#fff0b3] transition-colors w-full min-h-[130px]"
@@ -317,88 +251,49 @@ const Chat = () => {
     </div>
   );
 
-  // UPDATED: Select Mode Function - Now shows pet selection
   const selectMode = (mode) => {
-    setChatMode(mode);
-    setShowModeSelection(false);
-    setShowPetSelection(true); // Show pet selection instead of starting chat immediately
+  setChatMode(mode);
+  setShowPetSelection(true);
   };
 
-  // UPDATED: Handle Submit Function with Image Support
-// Replace your handleSubmit function with this:
+  // Simplified handleSubmit: no image logic
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const message = messageInput.trim();
+    if (!message || loading) return;
+    
+    // Always allow sending, default to general mode and no pet context
+    const usedChatMode = chatMode || 'general';
+    const usedPetContext = currentPetContext || null;
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  
-  const message = messageInput.trim();
-  if (!message || loading) return;
-  
-  // Add user message to UI immediately
-  const userMessage = {
-    id: Date.now() + Math.random(),
-    content: message,
-    isUser: true,
-    sender: 'You',
-    timestamp: new Date().toISOString(),
-  };
-  setMessages(prev => [...prev, userMessage]);
-  setMessageInput('');
-  setLoading(true);
-
-  try {
-    // Check if this is symptom checker with image
-    if (chatMode === 'symptom_checker' && selectedFile) {
-      // Use FormData for image upload to the symptom checker endpoint
-      const formData = new FormData();
-      formData.append('conversation_id', currentConversationId);
-      formData.append('pet_id', currentPetContext?.id || '');
-      formData.append('symptoms', message);
-      formData.append('image', selectedFile);
-
-      const response = await axios.post(
-        `${API_BASE_URL}/chatbot/analyze-symptom-with-image/`, // Different endpoint for images
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': token ? `Token ${token}` : '',
-          },
-          timeout: 60000, // 1 minute timeout for image processing
-        }
-      );
-
-      if (response.data && response.data.ai_response) {
-        const aiMessage = {
-          id: Date.now() + Math.random(),
-          content: response.data.ai_response,
-          isUser: false,
-          sender: 'PawPal',
-          timestamp: new Date().toISOString(),
-        };
-        setMessages(prev => [...prev, aiMessage]);
-        
-        // Clear selected file
-        setSelectedFile(null);
-      }
-    } else {
-      // Regular chat without image
+    const userMessage = {
+      id: Date.now() + Math.random(),
+      content: message,
+      isUser: true,
+      sender: 'You',
+      timestamp: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, userMessage]);
+    setMessageInput('');
+    setLoading(true);
+    
+    try {
       const response = await axios.post(
         `${API_BASE_URL}/chatbot/chat/`,
         {
           message: message,
           conversation_id: currentConversationId,
-          chat_mode: chatMode,
-          pet_context: currentPetContext
+          chat_mode: usedChatMode,
+          pet_context: usedPetContext
         },
         {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': token ? `Token ${token}` : '',
           },
-          timeout: 30000, // 30 second timeout
+          timeout: 30000,
         }
       );
-
       if (response.data && response.data.response) {
         const aiMessage = {
           id: Date.now() + Math.random(),
@@ -408,8 +303,6 @@ const handleSubmit = async (e) => {
           timestamp: new Date().toISOString(),
         };
         setMessages(prev => [...prev, aiMessage]);
-        
-        // Update conversation info
         if (response.data.conversation_id) {
           setCurrentConversationId(response.data.conversation_id);
         }
@@ -417,24 +310,21 @@ const handleSubmit = async (e) => {
           setCurrentConversationTitle(response.data.conversation_title);
         }
       }
+      fetchConversations();
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMessage = {
+        id: Date.now() + Math.random(),
+        content: 'Sorry, there was an error processing your message. Please try again.',
+        isUser: false,
+        sender: 'PawPal',
+        timestamp: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
     }
-    
-    // Reload conversations to update sidebar
-    fetchConversations();
-  } catch (error) {
-    console.error('Error:', error);
-    const errorMessage = {
-      id: Date.now() + Math.random(),
-      content: 'Sorry, there was an error processing your message. Please try again.',
-      isUser: false,
-      sender: 'PawPal',
-      timestamp: new Date().toISOString(),
-    };
-    setMessages(prev => [...prev, errorMessage]);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   // Handle logout and dropdown functionality
   useEffect(() => {
@@ -442,16 +332,12 @@ const handleSubmit = async (e) => {
       if (dropdownVisible && !event.target.closest('.dropdown-container')) {
         setDropdownVisible(false);
       }
-      if (imageMenuVisible && !event.target.closest('.image-menu-container')) {
-        setImageMenuVisible(false);
-      }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [dropdownVisible, imageMenuVisible]);
+  }, [dropdownVisible]);
 
   // Logout modal handlers
   const handleLogoutClick = () => {
@@ -512,282 +398,154 @@ const handleSubmit = async (e) => {
           </div>
         </div>
 
-        {/* Chat Messages Area - Conditional */}
+        {/* --- MAIN RENDER LOGIC --- */}
+        {/* This container holds both messages and the input field */}
         <div className="flex-1 flex flex-col min-h-0 bg-[#F0F0F0]">
-          {showModeSelection ? (
-            <ModeSelection />
-          ) : (
-            <>
-              {/* Messages Container */}
-              <div
-                ref={chatContainerRef}
-                className="flex-1 overflow-y-auto p-6 space-y-4 w-full scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400"
-                style={{
-                  scrollbarWidth: 'thin',
-                  scrollbarColor: '#9CA3AF #F0F0F0'
-                }}
-              >
-                <div className="max-w-4xl mx-auto w-full">
-                  {/* Welcome Message - Show only when no user messages */}
-                  {messages.length === 0 && (
-                    <div className="flex flex-col items-center justify-center h-full text-center px-6">
-                      <div className="mb-6">
-                        <h1 className="text-[40px] font-bold text-gray-900 mb-3" style={{ fontFamily: 'Raleway' }}>
-                          Hello, {user?.username || 'User'}!
-                        </h1>
-                        <p className="text-[16px] text-gray-600" style={{ fontFamily: 'Raleway' }}>
-                          How can I assist you and your furry friend today?
-                        </p>
-                      </div>
-                     
-                      {/* Main content area with illustration and cards side by side */}
-                      <div className="flex flex-col lg:flex-row items-start justify-center gap-8 max-w-6xl w-full">
-                        {/* Illustration */}
-                        <div className="flex-shrink-0">
-                          <img
-                            src="/amico.png"
-                            alt="AI Assistant Illustration"
-                            className="w-72 h-72 object-contain"
-                          />
-                        </div>
-                       
-                        {/* Quick action buttons - stacked vertically */}
-                        <div className="flex flex-col gap-4 w-full max-w-xl">
-                          <div
-                            onClick={() => selectMode('general')}
-                            className="rounded-2xl p-6 cursor-pointer w-full min-h-[130px]"
-                            style={{ backgroundColor: '#DCCEF1' }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#c9b8e8'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#DCCEF1'}
-                          >
-                            <div className="flex items-center space-x-3 mb-3">
-                              <div className="w-9 h-9 rounded-full flex items-center justify-center">
-                                <img
-                                  src="/Frame.png"
-                                  alt="Frame icon"
-                                  className="w-5 h-5"
-                                  style={{ filter: 'brightness(0) saturate(100%) invert(59%) sepia(23%) saturate(4832%) hue-rotate(278deg) brightness(96%) contrast(90%)' }}
-                                />
-                              </div>
-                              <span className="text-[16px] font-bold" style={{ fontFamily: 'Raleway', color: '#000000' }}>
-                                What&apos;s normal for my pet?
-                              </span>
-                            </div>
-                            <p className="text-[13px] leading-relaxed text-gray-700" style={{ fontFamily: 'Raleway' }}>
-                              Learn about typical behaviors, habits, diet, and health patterns specific to your pet&apos;s breed, age, and species. Perfect for new pet parents or anyone looking to better understand what&apos;s considered &ldquo;normal&rdquo; for their furry companion.
-                            </p>
-                          </div>
-                         
-                          <div 
-                            onClick={() => selectMode('symptom_checker')}
-                            className="bg-[#FFF4C9] rounded-2xl p-6 cursor-pointer hover:bg-[#fff0b3] transition-colors w-full min-h-[130px]"
-                          >
-                            <div className="flex items-center space-x-3 mb-3">
-                              <div className="w-9 h-9 bg-yellow-200 rounded-full flex items-center justify-center">
-                                <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                                </svg>
-                              </div>
-                              <span className="text-[16px] font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
-                                Symptom Checker
-                              </span>
-                            </div>
-                            <p className="text-[13px] text-gray-700 leading-relaxed" style={{ fontFamily: 'Raleway' }}>
-                              Not sure if your pet&apos;s symptoms are serious? Use our AI-powered Symptom Checker to get insights into possible causes based on current signs and behaviors. While not a replacement for a vet, it&apos;s a helpful first step.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
 
-                  {/* Mode indicator */}
-                  {chatMode && messages.length > 0 && (
-                    <div className="flex justify-center mb-4">
-                      <div className={`px-4 py-2 rounded-full text-sm font-medium ${
-                        chatMode === 'general'
-                          ? 'bg-pink-100 text-pink-700'
-                          : 'bg-yellow-100 text-yellow-700'
-                      }`} style={{ fontFamily: 'Raleway' }}>
-                        {chatMode === 'general' ? '🐾 General Pet Health' : '🔍 Symptom Checker'}
-                      </div>
-                    </div>
-                  )}
+          {/* Messages Container */}
+          <div
+            ref={chatContainerRef}
+            className="flex-1 overflow-y-auto p-6 space-y-4 w-full scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#9CA3AF #F0F0F0'
+            }}
+          >
+            <div className="max-w-4xl mx-auto w-full">
+              {/* --- WELCOME/MODE SELECTION LOGIC ---
+                This now renders *inside* the scrolling area
+                It shows if:
+                1. It's a new chat (no conversationId or 'new')
+                2. No messages have been sent (messages.length === 0)
+                3. No pet has been selected yet (!currentPetContext)
+              */}
+              {(conversationId === 'new' || !conversationId) && messages.length === 0 && !currentPetContext && (
+                <ModeSelection />
+              )}
 
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                          message.isUser
-                            ? 'bg-[#815FB3] text-white'
-                            : 'bg-gray-100 text-gray-900'
-                        }`}
-                      >
-                        <p className="text-[14px] leading-relaxed" style={{ fontFamily: 'Raleway' }}>
-                          {message.content}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                  {loading && (
-                    <div className="flex justify-start">
-                      <div className="bg-gray-100 text-gray-900 px-4 py-2 rounded-lg">
-                        <p className="text-[14px] animate-pulse" style={{ fontFamily: 'Raleway' }}>
-                          Typing...
-                        </p>
-                      </div>
-                    </div>
-                  )}
+              {/* Mode indicator */}
+              {chatMode && messages.length > 0 && (
+                <div className="flex justify-center mb-4">
+                  <div className={`px-4 py-2 rounded-full text-sm font-medium ${
+                    chatMode === 'general'
+                      ? 'bg-pink-100 text-pink-700'
+                      : 'bg-yellow-100 text-yellow-700'
+                  }`} style={{ fontFamily: 'Raleway' }}>
+                    {chatMode === 'general' ? '🐾 General Pet Health' : '🔍 Symptom Checker'}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Fixed Input Area */}
-              <div className="p-6 border-t bg-[#F0F0F0] flex-shrink-0">
-                <div className="max-w-4xl mx-auto">
-                  {/* UPDATED: Enhanced input area with pet context and file indicators */}
-                  <div className="flex items-center justify-between mb-3">
-                    <button
-                      onClick={() => {
-                        setShowModeSelection(true);
+              {/* Render Messages */}
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                      message.isUser
+                        ? 'bg-[#815FB3] text-white'
+                        : 'bg-gray-100 text-gray-900'
+                    }`}
+                  >
+                    <p className="text-[14px] leading-relaxed" style={{ fontFamily: 'Raleway' }}>
+                      {message.content}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              {loading && (
+                <div className="flex justify-start">
+                  <div className="bg-gray-100 text-gray-900 px-4 py-2 rounded-lg">
+                    <p className="text-[14px] animate-pulse" style={{ fontFamily: 'Raleway' }}>
+                      Typing...
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Fixed Input Area - Now always visible */}
+          <div className="p-6 border-t bg-[#F0F0F0] flex-shrink-0">
+            <div className="max-w-4xl mx-auto">
+              
+              {/* This section is only shown if a pet is selected */}
+              {currentPetContext && (
+                <div className="flex items-center justify-between mb-3">
+                  <button
+                    onClick={() => {
                         setChatMode(null);
                         setMessages([]);
                         setCurrentConversationTitle('New Chat');
-                        setCurrentPetContext(null); // Clear pet context
-                        setSelectedFile(null); // Clear selected file
+                        setCurrentPetContext(null);
+                        navigate('/chat/new'); // Go back to new chat URL
                       }}
-                      className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
-                      style={{ fontFamily: 'Raleway' }}
-                    >
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                      </svg>
-                      Change Mode
-                    </button>
-                    
-                    {/* Show selected file */}
-                    {selectedFile && (
-                      <div className="flex items-center space-x-2 text-sm text-green-600">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                        </svg>
-                        <span>{selectedFile.name}</span>
-                        <button
-                          onClick={() => setSelectedFile(null)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    )}
-                    
-                    {/* Show current pet context */}
-                    {currentPetContext && (
-                      <div className="text-sm text-blue-600">
-                        🐾 {currentPetContext.name} ({currentPetContext.species})
-                      </div>
-                    )}
+                    className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
+                    style={{ fontFamily: 'Raleway' }}
+                  >
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Change Mode
+                  </button>
+                  
+                  <div className="text-sm text-blue-600">
+                    🐾 {currentPetContext.name} ({currentPetContext.species})
                   </div>
-                 
-                  <form onSubmit={handleSubmit} className="relative">
-                    <input
-                      type="text"
-                      value={messageInput}
-                      onChange={(e) => setMessageInput(e.target.value)}
-                      placeholder={chatMode === 'general' ? "Ask about your pet's health..." : "Describe your pet's symptoms..."}
-                      className="w-full px-6 py-5 pr-32 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#815FB3] text-[18px] bg-[#E4DEED] font-medium"
-                      style={{ fontFamily: 'Raleway' }}
-                      disabled={loading}
-                      required
-                    />
-                    <div className="absolute right-5 top-1/2 transform -translate-y-1/2 flex items-center space-x-5">
-                      <div className="relative image-menu-container">
-                        <button
-                          type="button"
-                          onClick={handleImageMenuToggle}
-                          className="p-0 bg-transparent hover:opacity-70 transition-opacity"
-                        >
-                          <img
-                            src="/material-symbols_image.png"
-                            alt="Attach image"
-                            className="w-8 h-8"
-                          />
-                        </button>
-                        
-                        {/* Image Menu Dropdown */}
-                        {imageMenuVisible && (
-                          <div className="absolute bottom-full right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[150px]">
-                            <button
-                              onClick={handleTakePhoto}
-                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
-                              style={{ fontFamily: 'Raleway' }}
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89L8.34 4.66A2 2 0 0110.07 4h3.86a2 2 0 011.664.89L16.34 6.11A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                              </svg>
-                              <span>Take Photo</span>
-                            </button>
-                            <button
-                              onClick={handleAttachFile}
-                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
-                              style={{ fontFamily: 'Raleway' }}
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                              </svg>
-                              <span>Attach File</span>
-                            </button>
-                          </div>
-                        )}
-                        
-                        {/* Hidden file inputs */}
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageSelect(e, false)}
-                          className="hidden"
-                        />
-                        <input
-                          ref={cameraInputRef}
-                          type="file"
-                          accept="image/*"
-                          capture="environment"
-                          onChange={(e) => handleImageSelect(e, true)}
-                          className="hidden"
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        disabled={loading || !messageInput.trim()}
-                        className="p-0 bg-transparent hover:opacity-70 transition-opacity disabled:opacity-30"
-                      >
-                        <img
-                          src="/Vector.png"
-                          alt="Send message"
-                          className="w-8 h-8"
-                        />
-                      </button>
-                    </div>
-                  </form>
-                 
-                  <p className="text-[14px] text-gray-500 mt-3 text-center" style={{ fontFamily: 'Raleway' }}>
-                    PawPal is an AI-powered assistant designed to provide guidance on pet health and care. It does not replace professional veterinary consultation.
-                  </p>
                 </div>
-              </div>
-            </>
-          )}
+              )}
+              
+              <form onSubmit={handleSubmit} className="relative">
+                <input
+                  type="text"
+                  value={messageInput}
+                  onChange={(e) => setMessageInput(e.target.value)}
+                  placeholder={
+                    chatMode === 'general' || !chatMode
+                      ? "Ask about your pet's health..."
+                      : "Describe your pet's symptoms..."
+                  }
+                  className="w-full px-6 py-5 pr-16 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#815FB3] text-[18px] bg-[#E4DEED] font-medium"
+                  style={{ fontFamily: 'Raleway' }}
+                  disabled={loading}
+                  required
+                />
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center">
+                  <button
+                    type="submit"
+                    disabled={loading || !messageInput.trim()}
+                    className="p-0 bg-transparent hover:opacity-70 transition-opacity disabled:opacity-30"
+                  >
+                    <img
+                      src="/Vector.png"
+                      alt="Send message"
+                      className="w-8 h-8"
+                    />
+                  </button>
+                </div>
+              </form>
+              
+              <p className="text-[14px] text-gray-500 mt-3 text-center" style={{ fontFamily: 'Raleway' }}>
+                PawPal is an AI-powered assistant designed to provide guidance on pet health and care. It does not replace professional veterinary consultation.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* NEW: Pet Selection Modal */}
       <PetSelectionModal
         isOpen={showPetSelection}
-        onClose={() => setShowPetSelection(false)}
+        onClose={() => {
+          setShowPetSelection(false);
+          // If they close the modal without picking a pet, and it's a new chat,
+          // go back to the mode selection screen by resetting chatMode
+          if (!currentConversationId && messages.length === 0) {
+            setChatMode(null);
+          }
+        }}
         onSelectPet={handlePetSelected}
         conversationType={chatMode}
       />

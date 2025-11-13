@@ -47,10 +47,22 @@ const AIDiagnosis = () => {
   const fetchDiagnoses = useCallback(async (page = 1) => {
     try {
       setLoading(true);
+      // Map frontend values to backend API values
+      const dateRangeMap = {
+        '': 'all_time',
+        'last_24_hours': 'today',
+        'last_7_days': 'last_7_days',
+        'last_30_days': 'last_30_days'
+      };
+      const apiDateRange = dateRangeMap[filters.dateRange] || 'all_time';
+
       const params = new URLSearchParams({
         page: page.toString(),
         page_size: '10',
-        ...filters
+        search: filters.search,
+        severity: filters.severity,
+        species: filters.species,
+        dateRange: apiDateRange // Use mapped value for API
       });
 
       const response = await axios.get(
@@ -69,7 +81,7 @@ const AIDiagnosis = () => {
       console.error('Error fetching diagnoses:', error);
       if (error.response?.status === 401) {
         logout();
-        navigate('/login');
+  navigate('/petowner/login');
       }
       setDiagnoses([]);
     } finally {
@@ -176,7 +188,7 @@ const AIDiagnosis = () => {
                 value={filters.severity}
                 onChange={(e) => handleFilterChange('severity', e.target.value)}
               >
-                <option value="">Severity</option>
+                <option value="">All Severity</option>
                 <option value="low">Low</option>
                 <option value="moderate">Moderate</option>
                 <option value="high">High</option>
@@ -190,7 +202,7 @@ const AIDiagnosis = () => {
                 value={filters.species}
                 onChange={(e) => handleFilterChange('species', e.target.value)}
               >
-                <option value="">Species</option>
+                <option value="">All Animals</option>
                 <option value="dog">Dog</option>
                 <option value="cat">Cat</option>
                 <option value="bird">Bird</option>
@@ -206,11 +218,10 @@ const AIDiagnosis = () => {
                 value={filters.dateRange}
                 onChange={(e) => handleFilterChange('dateRange', e.target.value)}
               >
-                <option value="">Date Range</option>
-                <option value="today">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-                <option value="year">This Year</option>
+                <option value="">All Time</option>
+                <option value="last_24_hours">Last 24 hours</option>
+                <option value="last_7_days">Last 1 week</option>
+                <option value="last_30_days">Last month</option>
               </select>
             </div>
           </div>
@@ -221,27 +232,38 @@ const AIDiagnosis = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3]" />
             </div>
           ) : (
-            diagnoses.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500" style={{ fontFamily: 'Raleway' }}>
-                  No diagnoses found. Start a conversation with the AI to get diagnoses.
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-[#fffde7] rounded-xl shadow border text-[15px]" style={{ fontFamily: 'Raleway' }}>
-                  <thead>
-                    <tr className="bg-[#fffde7] text-gray-700">
-                      <th className="px-4 py-3 text-left font-semibold">Pet Name</th>
-                      <th className="px-4 py-3 text-left font-semibold">Animal</th>
-                      <th className="px-4 py-3 text-left font-semibold">Breed</th>
-                      <th className="px-4 py-3 text-left font-semibold">Severity</th>
-                      <th className="px-4 py-3 text-left font-semibold">Case ID</th>
-                      <th className="px-4 py-3 text-left font-semibold">Date Generated</th>
+            <div className="overflow-x-auto">
+              <table
+                className="min-w-full bg-[#fffde7] rounded-xl shadow border text-[15px]"
+                style={{ fontFamily: 'Raleway', tableLayout: 'fixed' }}
+              >
+                <colgroup>
+                  <col style={{ width: '18%' }} />
+                  <col style={{ width: '14%' }} />
+                  <col style={{ width: '14%' }} />
+                  <col style={{ width: '14%' }} />
+                  <col style={{ width: '14%' }} />
+                  <col style={{ width: '26%' }} />
+                </colgroup>
+                <thead>
+                  <tr className="bg-[#fffde7] text-gray-700">
+                    <th className="px-4 py-3 text-left font-semibold">Pet Name</th>
+                    <th className="px-4 py-3 text-left font-semibold">Animal</th>
+                    <th className="px-4 py-3 text-left font-semibold">Breed</th>
+                    <th className="px-4 py-3 text-left font-semibold">Severity</th>
+                    <th className="px-4 py-3 text-left font-semibold">Case ID</th>
+                    <th className="px-4 py-3 text-left font-semibold">Date Generated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {diagnoses.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-8 text-center text-gray-400" style={{ fontFamily: 'Raleway', fontSize: '16px' }}>
+                        There are no data yet.
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {diagnoses.map((diagnosis) => (
+                  ) : (
+                    diagnoses.map((diagnosis) => (
                       <tr
                         key={diagnosis.id}
                         className="border-b last:border-b-0 hover:bg-[#f7f6fa] cursor-pointer"
@@ -263,11 +285,11 @@ const AIDiagnosis = () => {
                         <td className="px-4 py-3 font-mono text-sm text-gray-700">{diagnosis.case_id || '-'}</td>
                         <td className="px-4 py-3">{diagnosis.created_at ? new Date(diagnosis.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           )}
 
           {/* Pagination */}

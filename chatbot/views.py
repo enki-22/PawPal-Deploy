@@ -1727,10 +1727,10 @@ def get_user_pets(request):
             pet_data = {
                 'id': pet.id,
                 'name': pet.name,
-                'species': getattr(pet, 'species', 'Unknown'),
+                'species': pet.get_animal_type_display() if hasattr(pet, 'get_animal_type_display') else getattr(pet, 'animal_type', 'Unknown').capitalize(),
                 'breed': getattr(pet, 'breed', 'Unknown'),
                 'age': getattr(pet, 'age', 0),
-                'photo': pet.photo.url if hasattr(pet, 'photo') and pet.photo else None,
+                'photo': pet.image.url if hasattr(pet, 'image') and pet.image else None,
             }
             
             # Add medical info carefully

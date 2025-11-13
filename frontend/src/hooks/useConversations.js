@@ -8,7 +8,7 @@ const useConversations = () => {
 
   const handleLoadConversation = (conversationId) => {
     // Navigate to chat page with the selected conversation
-    navigate(`/chat?conversation=${conversationId}`);
+  navigate(`/chat/${conversationId}`);
   };
 
   const handleCreateNewConversation = () => {

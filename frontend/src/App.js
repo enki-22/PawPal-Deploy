@@ -50,7 +50,9 @@ function AppWithFade() {
   const location = useLocation();
   return (
     <Routes location={location} key={location.pathname}>
-      {/* Pet Owner Routes */}
+  {/* Pet Owner Routes */}
+  {/* Redirect legacy /login to /petowner/login */}
+  <Route path="/login" element={<Navigate to="/petowner/login" replace />} />
       <Route path="petowner/login" element={<FadeWrapper><Login /></FadeWrapper>} />
       <Route path="petowner/register" element={<FadeWrapper><Login /></FadeWrapper>} />
       <Route path="petowner/register/step2" element={<FadeWrapper><RegisterStep2 /></FadeWrapper>} />
@@ -172,6 +174,7 @@ function AppWithFade() {
       {/* Default Routes */}
   <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
   <Route path="/" element={<FadeWrapper><LandingPage /></FadeWrapper>} />
+  {/* /login route removed, use /petowner/login only */}
     </Routes>
   );
 }

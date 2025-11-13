@@ -1,8 +1,17 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  // Auth redirect logic
+  const { user } = require('../context/AuthContext');
+  // Redirect on mount
+  React.useEffect(() => {
+    if (user) {
+      navigate('/chat/new', { replace: true });
+    }
+  }, [user, navigate]);
 
 
   // --- NEW ANIMATION VARIANTS ---

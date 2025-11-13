@@ -99,15 +99,22 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4" style={{ fontFamily: 'Raleway' }}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center animate-fade-in" style={{ zIndex: 70 }}>
+      <div className="relative w-[544px] min-h-[220px] bg-white rounded-2xl animate-scale-in"
+           style={{
+             boxShadow: '0px 20px 24px -4px rgba(10, 13, 18, 0.1), 0px 8px 8px -4px rgba(10, 13, 18, 0.04)',
+             padding: '32px 32px 24px 32px',
+             display: 'flex',
+             flexDirection: 'column',
+             alignItems: 'center',
+           }}>
+  <h2 className="w-full text-[22px] font-bold text-center mb-2" style={{ fontFamily: 'Raleway', color: '#181D27' }}>
           {conversationType === 'general' ? 'General Pet Healthcare' : 'Symptom Checker'}
         </h2>
-        <p className="text-gray-600 mb-6" style={{ fontFamily: 'Raleway' }}>
+  <p className="text-gray-700 mb-6 text-center" style={{ fontFamily: 'Raleway', fontSize: '16px', color: '#535862' }}>
           {conversationType === 'general' 
-            ? "Want to check what&apos;s normal for your pet? Let&apos;s start with: Do you want to check for an existing pet or add a new one?"
-            : "Let&apos;s analyze your pet&apos;s symptoms. Do you want to check an existing pet or add a new one?"
+            ? "Want to check what's normal for your pet? Let's start with: Do you want to check for an existing pet or add a new one?"
+            : "Let's analyze your pet's symptoms. Do you want to check an existing pet or add a new one?"
           }
         </p>
         {/* Error Display */}
@@ -123,63 +130,83 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
           </div>
         )}
         {!selectedOption && (
-          <div className="space-y-3">
+          <div className="flex flex-col gap-4 w-full">
             <button
               onClick={() => setSelectedOption('existing')}
-              className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              style={{ fontFamily: 'Raleway' }}
+              className="w-full py-3 rounded-lg font-semibold text-lg transition-colors hover:brightness-90 hover:shadow-md"
+              style={{ backgroundColor: '#815FB3', color: '#fff', fontFamily: 'Raleway', fontWeight: 600 }}
             >
               Existing Pet
             </button>
             <button
               onClick={() => setSelectedOption('new')}
-              className="w-full p-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-              style={{ fontFamily: 'Raleway' }}
+              className="w-full py-3 rounded-lg font-semibold text-lg transition-colors hover:brightness-90 hover:shadow-md"
+              style={{ backgroundColor: '#F0E4B3', color: '#34113F', fontFamily: 'Raleway', fontWeight: 600 }}
             >
               Add New Pet
             </button>
           </div>
         )}
         {selectedOption === 'existing' && (
-          <div className="space-y-3">
-            <h3 className="font-semibold" style={{ fontFamily: 'Raleway' }}>Select your pet:</h3>
+          <div className="w-full min-h-[180px] bg-white rounded-2xl p-6 flex flex-col items-center" style={{ boxShadow: '0px 8px 16px -4px rgba(10,13,18,0.08)', marginTop: '12px' }}>
+            <h3 className="w-full text-lg font-bold text-center mb-2" style={{ fontFamily: 'Raleway', color: '#181D27' }}>Select your pet:</h3>
             {loading ? (
-              <div className="text-center py-4" style={{ fontFamily: 'Raleway' }}>
+              <div className="text-center py-4 w-full" style={{ fontFamily: 'Raleway', color: '#535862' }}>
                 Loading pets...
               </div>
             ) : pets.length > 0 ? (
-              <div className="space-y-2 max-h-60 overflow-y-auto">
+              <div className="space-y-2 max-h-60 overflow-y-auto w-full">
                 {pets.map(pet => (
                   <button
                     key={pet.id}
                     onClick={() => handleStartConversation(pet.id, false)}
-                    className="w-full p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
-                    style={{ fontFamily: 'Raleway' }}
+                    className="w-full p-3 rounded-lg font-semibold text-base transition-colors flex items-center gap-4 border border-gray-200 hover:brightness-90 hover:shadow-md hover:bg-[#ede7f6]"
+                    style={{ backgroundColor: '#F6F4FA', color: '#181D27', fontFamily: 'Raleway', fontWeight: 500, textAlign: 'left' }}
                   >
-                    <div className="flex items-center space-x-3">
-                      {pet.photo && (
-                        <img 
-                          src={pet.photo} 
+                    <div className="w-14 h-14 rounded-lg overflow-hidden border border-gray-300 mr-3 flex items-center justify-center bg-gray-100" style={{ minWidth: '56px', minHeight: '56px' }}>
+                      {pet.photo ? (
+                        <img
+                          src={pet.photo}
                           alt={pet.name}
-                          className="w-12 h-12 rounded-full object-cover"
+                          className="w-full h-full object-cover"
+                          style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={e => {
+                            e.target.style.display = 'none';
+                            if (e.target.nextSibling) {
+                              e.target.nextSibling.style.display = 'flex';
+                            }
+                          }}
                         />
-                      )}
-                      <div>
-                        <div className="font-medium">{pet.name}</div>
-                        <div className="text-sm text-gray-500">
-                          {pet.breed} • {pet.species} • {pet.age} years old
-                        </div>
+                      ) : null}
+                      <span
+                        className="w-full h-full text-3xl letter-fallback flex items-center justify-center"
+                        style={{
+                          display: pet.photo ? 'none' : 'flex',
+                          background: '#E9E6F2',
+                          color: '#815FB3',
+                          fontWeight: 700,
+                          fontFamily: 'Raleway'
+                        }}
+                      >
+                        {pet.name && typeof pet.name === 'string' ? pet.name.charAt(0).toUpperCase() : '?'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col justify-center" style={{ textAlign: 'left' }}>
+                      <div className="font-medium text-[#34113F] text-left" style={{ textAlign: 'left' }}>{pet.name}</div>
+                      <div className="text-sm text-gray-500 text-left" style={{ textAlign: 'left' }}>
+                        {pet.species} • {pet.breed} • {pet.age} years old
                       </div>
                     </div>
                   </button>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-4 text-gray-500" style={{ fontFamily: 'Raleway' }}>
+              <div className="text-center py-4 text-gray-500 w-full" style={{ fontFamily: 'Raleway' }}>
                 <p>No pets found.</p>
                 <button
                   onClick={handleAddNewPet}
-                  className="mt-2 text-blue-500 hover:text-blue-700 underline"
+                  className="mt-2 text-[#815FB3] hover:text-[#34113F] underline font-semibold"
+                  style={{ fontFamily: 'Raleway', fontWeight: 600 }}
                 >
                   Would you like to add a pet first?
                 </button>
@@ -187,33 +214,31 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
             )}
             <button
               onClick={() => setSelectedOption(null)}
-              className="w-full p-2 text-gray-500 hover:text-gray-700"
-              style={{ fontFamily: 'Raleway' }}
+              className="w-full mt-4 p-2 text-gray-500 hover:text-gray-700 border-t pt-4 font-bold transition-colors hover:brightness-90 hover:shadow-md"
+              style={{ fontFamily: 'Raleway', fontWeight: 700 }}
             >
               ← Back
             </button>
           </div>
         )}
         {selectedOption === 'new' && (
-          <div className="space-y-4">
-            <div className="text-center">
-              <p className="text-gray-600 mb-4" style={{ fontFamily: 'Raleway' }}>
+          <div className="w-full min-h-[180px] bg-white rounded-2xl p-6 flex flex-col items-center" style={{ boxShadow: '0px 8px 16px -4px rgba(10,13,18,0.08)', marginTop: '12px' }}>
+            <div className="w-full text-center">
+              <p className="text-gray-700 mb-4 text-base" style={{ fontFamily: 'Raleway', color: '#535862' }}>
                 Let&apos;s add your new pet&apos;s information first so I can provide better assistance.
               </p>
-              {/* Option 1: Redirect to Pet Health Records */}
-              <div className="space-y-3">
+              <div className="space-y-3 w-full">
                 <button
                   onClick={handleAddNewPet}
-                  className="w-full p-4 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                  style={{ fontFamily: 'Raleway' }}
+                  className="w-full py-3 rounded-lg font-semibold text-lg transition-colors hover:brightness-90 hover:shadow-md"
+                  style={{ backgroundColor: '#F0E4B3', color: '#34113F', fontFamily: 'Raleway', fontWeight: 600 }}
                 >
-                  📋 Add Pet Details First
+                  Add Pet Details First
                   <div className="text-sm mt-1 opacity-90">
                     Go to Pet Health Records to add your pet&apos;s information
                   </div>
                 </button>
-                {/* Option 2: Continue without details */}
-                <div className="relative">
+                <div className="relative w-full">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-300" />
                   </div>
@@ -223,11 +248,11 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
                 </div>
                 <button
                   onClick={() => handleStartConversation(null, true)}
-                  className="w-full p-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                  style={{ fontFamily: 'Raleway' }}
+                  className="w-full py-3 rounded-lg font-semibold text-base transition-colors hover:brightness-90 hover:shadow-md"
+                  style={{ backgroundColor: '#815FB3', color: '#fff', fontFamily: 'Raleway', fontWeight: 600 }}
                 >
-                  💬 Continue Without Details
-                  <div className="text-sm mt-1 opacity-75">
+                  Continue Without Details
+                  <div className="text-sm mt-1 opacity-75" style={{ color: '#fff' }}>
                     Start chatting now, add details later
                   </div>
                 </button>
@@ -235,8 +260,8 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
             </div>
             <button
               onClick={() => setSelectedOption(null)}
-              className="w-full p-2 text-gray-500 hover:text-gray-700"
-              style={{ fontFamily: 'Raleway' }}
+              className="w-full mt-4 p-2 text-gray-500 hover:text-gray-700 border-t pt-4 font-semibold transition-colors hover:brightness-90 hover:shadow-md"
+              style={{ fontFamily: 'Raleway', fontWeight: 600 }}
             >
               ← Back
             </button>
@@ -244,8 +269,8 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
         )}
         <button
           onClick={onClose}
-          className="w-full mt-6 p-2 text-gray-500 hover:text-gray-700 border-t pt-4"
-          style={{ fontFamily: 'Raleway' }}
+          className="w-full mt-6 p-2 text-gray-500 hover:text-gray-700 border-t pt-4 transition-colors hover:brightness-90 hover:shadow-md"
+          style={{ fontFamily: 'Raleway', fontWeight: 600 }}
         >
           Cancel
         </button>

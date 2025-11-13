@@ -180,7 +180,7 @@ const PetHealthRecords = () => {
                 value=""
                 onChange={(e) => handleFilterChange('name', e.target.value)}
               >
-                <option value="">Pet Name</option>
+                <option value="">All Pets</option>
                 {pets.map(pet => (
                   <option key={pet.id} value={pet.name}>{pet.name}</option>
                 ))}
@@ -193,7 +193,7 @@ const PetHealthRecords = () => {
                 value={filters.animal_type}
                 onChange={(e) => handleFilterChange('animal_type', e.target.value)}
               >
-                <option value="">Animal Type</option>
+                <option value="">All Animals</option>
                 <option value="cat">Cat</option>
                 <option value="dog">Dog</option>
                 <option value="hamster">Hamster</option>
@@ -209,7 +209,7 @@ const PetHealthRecords = () => {
                 value={filters.sex}
                 onChange={(e) => handleFilterChange('sex', e.target.value)}
               >
-                <option value="">Sex</option>
+                <option value="">All Sex</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
               </select>
@@ -221,7 +221,7 @@ const PetHealthRecords = () => {
                 value={filters.age}
                 onChange={(e) => handleFilterChange('age', e.target.value)}
               >
-                <option value="">Age</option>
+                <option value="">All Age</option>
                 <option value="0-1">0-1 year</option>
                 <option value="1-3">1-3 years</option>
                 <option value="3-7">3-7 years</option>

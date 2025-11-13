@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import DeleteConversationModal from './DeleteConversationModal';
 
 const ConversationMenu = ({ 
   conversation, 
@@ -13,6 +14,8 @@ const ConversationMenu = ({
   const [isOpen, setIsOpen] = useState(false);
   const [newTitle, setNewTitle] = useState(conversation.title);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   // const [showingAbove, setShowingAbove] = useState(false); // Removed: unused variable
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
@@ -155,12 +158,17 @@ const ConversationMenu = ({
 
   const handleDeleteClick = (e) => {
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this conversation? This action cannot be undone.')) {
-      if (onDelete) {
-        onDelete(conversation.id);
-      }
-    }
+    setShowDeleteModal(true);
     setIsOpen(false);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setDeleteLoading(true);
+    if (onDelete) {
+      await onDelete(conversation.id);
+    }
+    setDeleteLoading(false);
+    setShowDeleteModal(false);
   };
 
   const handleKeyDown = (e) => {
@@ -246,96 +254,105 @@ const ConversationMenu = ({
   }
 
   return (
-    <div ref={menuRef} className={`relative ${className}`}>
-      <button
-        ref={buttonRef}
-        onClick={handleMenuClick}
-        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 rounded flex items-center justify-center"
-        title="More options"
-      >
-        <svg className="w-3 h-3 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-        </svg>
-      </button>
+    <>
+      <div ref={menuRef} className={`relative ${className}`}>
+        <button
+          ref={buttonRef}
+          onClick={handleMenuClick}
+          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 rounded flex items-center justify-center"
+          title="More options"
+        >
+          <svg className="w-3 h-3 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+          </svg>
+        </button>
 
-      {isOpen && (
-        <>
-          <style>{`
-            .conversation-menu-btn {
-              display: flex; align-items: center; gap: 8px;
-              width: 100%; border: none; outline: none;
-              font-family: Raleway; font-weight: 800; font-size: 14px;
-              line-height: 16px; text-align: center; cursor: pointer;
-              padding-left: 12px; padding-right: 12px;
-              background: none; color: #34113F;
-              transition: background 0.15s, color 0.15s;
-            }
-            .conversation-menu-btn:hover, .conversation-menu-btn:active {
-              background: #815FB3 !important;
-              color: #fff !important;
-            }
-            .conversation-menu-btn svg {
-              margin-right: 8px;
-            }
-          `}</style>
-          <div 
-            ref={dropdownRef}
-            className="z-[9999]"
-            style={{
-              position: 'fixed',
-              top: `${dropdownPosition.top}px`,
-              right: `${dropdownPosition.right}px`,
-              width: '111px',
-              height: '92px',
-              background: '#EFE8BE',
-              borderRadius: '10px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              padding: 0,
-              overflow: 'hidden'
-            }}
-          >
-            {/* Rename Option */}
-            <button
-              onClick={handleRenameClick}
-              className="conversation-menu-btn"
-              style={{height: '33px'}}
+        {isOpen && (
+          <>
+            <style>{`
+              .conversation-menu-btn {
+                display: flex; align-items: center; gap: 8px;
+                width: 100%; border: none; outline: none;
+                font-family: Raleway; font-weight: 800; font-size: 14px;
+                line-height: 16px; text-align: center; cursor: pointer;
+                padding-left: 12px; padding-right: 12px;
+                background: none; color: #34113F;
+                transition: background 0.15s, color 0.15s;
+              }
+              .conversation-menu-btn:hover, .conversation-menu-btn:active {
+                background: #815FB3 !important;
+                color: #fff !important;
+              }
+              .conversation-menu-btn svg {
+                margin-right: 8px;
+              }
+            `}</style>
+            <div 
+              ref={dropdownRef}
+              className="z-[9999]"
+              style={{
+                position: 'fixed',
+                top: `${dropdownPosition.top}px`,
+                right: `${dropdownPosition.right}px`,
+                width: '111px',
+                height: '92px',
+                background: '#EFE8BE',
+                borderRadius: '10px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                padding: 0,
+                overflow: 'hidden'
+              }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M4 21h2.5l12.1-12.1c.4-.4.4-1 0-1.4l-2.1-2.1c-.4-.4-1-.4-1.4 0L4 17.5V21zm14.7-13.3c.4-.4.4-1 0-1.4l-2.1-2.1c-.4-.4-1-.4-1.4 0l-1.1 1.1 3.5 3.5 1.1-1.1z"/>
-              </svg>
-              Rename
-            </button>
+              {/* Rename Option */}
+              <button
+                onClick={handleRenameClick}
+                className="conversation-menu-btn"
+                style={{height: '33px'}}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M4 21h2.5l12.1-12.1c.4-.4.4-1 0-1.4l-2.1-2.1c-.4-.4-1-.4-1.4 0L4 17.5V21zm14.7-13.3c.4-.4.4-1 0-1.4l-2.1-2.1c-.4-.4-1-.4-1.4 0l-1.1 1.1 3.5 3.5 1.1-1.1z"/>
+                </svg>
+                Rename
+              </button>
 
-            {/* Pin/Unpin Option */}
-            <button
-              onClick={handlePinClick}
-              className="conversation-menu-btn"
-              style={{height: '26px'}}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M16 2c-.6 0-1 .4-1 1v2.1c-1.7.4-3 2-3 3.9v2.1l-5.3 5.3c-.4.4-.4 1 0 1.4l2.1 2.1c.4.4 1 .4 1.4 0l5.3-5.3h2.1c1.9 0 3.5-1.3 3.9-3V3c0-.6-.4-1-1-1h-2zm-1 7.1V5h2v4.1c-.3.7-1 1.2-1.7 1.2h-2.1l-5.3 5.3-1.4-1.4 5.3-5.3V5c0-.6.4-1 1-1h2c.6 0 1 .4 1 1v2.1c.7.3 1.2 1 1.2 1.7v2.1c0 .7-.5 1.4-1.2 1.7z"/>
-              </svg>
-              {conversation.is_pinned ? 'Unpin' : 'Pin'}
-            </button>
+              {/* Pin/Unpin Option */}
+              <button
+                onClick={handlePinClick}
+                className="conversation-menu-btn"
+                style={{height: '26px'}}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 2c-.6 0-1 .4-1 1v2.1c-1.7.4-3 2-3 3.9v2.1l-5.3 5.3c-.4.4-.4 1 0 1.4l2.1 2.1c.4.4 1 .4 1.4 0l5.3-5.3h2.1c1.9 0 3.5-1.3 3.9-3V3c0-.6-.4-1-1-1h-2zm-1 7.1V5h2v4.1c-.3.7-1 1.2-1.7 1.2h-2.1l-5.3 5.3-1.4-1.4 5.3-5.3V5c0-.6.4-1 1-1h2c.6 0 1 .4 1 1v2.1c.7.3 1.2 1 1.2 1.7v2.1c0 .7-.5 1.4-1.2 1.7z"/>
+                </svg>
+                {conversation.is_pinned ? 'Unpin' : 'Pin'}
+              </button>
 
-            {/* Delete Option */}
-            <button
-              onClick={handleDeleteClick}
-              className="conversation-menu-btn"
-              style={{height: '33px'}}
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm3.5-9h1v6h-1v-6zm3 0h1v6h-1v-6zM18 4h-3.5l-1-1h-5l-1 1H6v2h12V4z"/>
-              </svg>
-              Delete
-            </button>
-          </div>
-        </>
-      )}
-    </div>
+              {/* Delete Option */}
+              <button
+                onClick={handleDeleteClick}
+                className="conversation-menu-btn"
+                style={{height: '33px'}}
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm3.5-9h1v6h-1v-6zm3 0h1v6h-1v-6zM18 4h-3.5l-1-1h-5l-1 1H6v2h12V4z"/>
+                </svg>
+                Delete
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+      {/* Delete Confirmation Modal */}
+      <DeleteConversationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteConfirm}
+        loading={deleteLoading}
+      />
+    </>
   );
 };
 
