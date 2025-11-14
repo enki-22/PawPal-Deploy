@@ -1,0 +1,1569 @@
+species,disease,symptoms,urgency,contagious,source
+dog,Canine distemper,"My dog has running nose and watery eyes to fever, vomiting, diarrhea, seizures and even paralysis, also coughing, discharge, seizures, fever.",severe,yes,real
+dog,Canine distemper,"My dog has been coughing, discharge, seizures, fever and running nose and watery eyes to fever, vomiting, diarrhea, seizures and even paralysis.",severe,yes,synthetic
+dog,Canine distemper,"I noticed my dog has coughing, discharge, seizures, fever.",severe,yes,synthetic
+dog,Canine distemper,"My dog keeps running nose and watery eyes to fever, vomiting, diarrhea, seizures and even paralysis.",severe,yes,synthetic
+dog,Canine distemper,"I'm worried, my dog has coughing, discharge, seizures, fever.",severe,yes,synthetic
+dog,Canine distemper,"My dog has been running nose and watery eyes to fever, vomiting, diarrhea, seizures and even paralysis and coughing, discharge, seizures, fever.",severe,yes,synthetic
+dog,Canine distemper,"My dog has been coughing, discharge, seizures, fever and running nose and watery eyes to fever, vomiting, diarrhea, seizures and even paralysis.",severe,yes,synthetic
+dog,Canine distemper,"My dog keeps running nose and watery eyes to fever, vomiting, diarrhea, seizures and even paralysis.",severe,yes,synthetic
+dog,Canine distemper,"My dog has been coughing, discharge, seizures, fever and running nose and watery eyes to fever, vomiting, diarrhea, seizures and even paralysis.",severe,yes,synthetic
+dog,Canine distemper,"My dog has running nose and watery eyes to fever, vomiting, diarrhea, seizures and even paralysis, also coughing, discharge, seizures, fever.",severe,yes,synthetic
+dog,Canine distemper,"My dog won't stop running nose and watery eyes to fever, vomiting, diarrhea, seizures and even paralysis.",severe,yes,synthetic
+dog,Canine distemper,"My dog is running nose and watery eyes to fever, vomiting, diarrhea, seizures and even paralysis with coughing, discharge, seizures, fever.",severe,yes,synthetic
+dog,Canine distemper,"My dog shows running nose and watery eyes to fever, vomiting, diarrhea, seizures and even paralysis and coughing, discharge, seizures, fever.",severe,yes,synthetic
+dog,Canine distemper,"My dog seems sick with coughing, discharge, seizures, fever.",severe,yes,synthetic
+dog,Canine influenza,"My dog has coughing, sneezing, lethargy.",moderate,yes,real
+dog,Canine influenza,"My dog keeps coughing, sneezing, lethargy.",moderate,yes,synthetic
+dog,Canine influenza,"I noticed my dog has coughing, sneezing, lethargy.",moderate,yes,synthetic
+dog,Canine influenza,"My dog keeps coughing, sneezing, lethargy.",moderate,yes,synthetic
+dog,Canine influenza,"I'm worried, my dog has coughing, sneezing, lethargy.",moderate,yes,synthetic
+dog,Canine influenza,"My dog seems sick with coughing, sneezing, lethargy.",moderate,yes,synthetic
+dog,Canine influenza,"My dog has coughing, sneezing, lethargy.",moderate,yes,synthetic
+dog,Canine influenza,"My dog keeps coughing, sneezing, lethargy.",moderate,yes,synthetic
+dog,Canine influenza,"My dog won't stop coughing, sneezing, lethargy.",moderate,yes,synthetic
+dog,Canine influenza,"I noticed my dog has coughing, sneezing, lethargy.",moderate,yes,synthetic
+dog,Canine influenza,"My dog won't stop coughing, sneezing, lethargy.",moderate,yes,synthetic
+dog,Canine influenza,"My dog has been coughing, sneezing, lethargy.",moderate,yes,synthetic
+dog,Canine influenza,"My dog has coughing, sneezing, lethargy.",moderate,yes,synthetic
+dog,Canine influenza,"My dog seems sick with coughing, sneezing, lethargy.",moderate,yes,synthetic
+dog,Canine parvovirus,"My dog has vomiting, diarrhea, lethargy.",severe,yes,real
+dog,Canine parvovirus,"My dog keeps vomiting, diarrhea, lethargy.",severe,yes,synthetic
+dog,Canine parvovirus,"I noticed my dog has vomiting, diarrhea, lethargy.",severe,yes,synthetic
+dog,Canine parvovirus,"My dog keeps vomiting, diarrhea, lethargy.",severe,yes,synthetic
+dog,Canine parvovirus,"I'm worried, my dog has vomiting, diarrhea, lethargy.",severe,yes,synthetic
+dog,Canine parvovirus,"My dog seems sick with vomiting, diarrhea, lethargy.",severe,yes,synthetic
+dog,Canine parvovirus,"My dog has vomiting, diarrhea, lethargy.",severe,yes,synthetic
+dog,Canine parvovirus,"My dog keeps vomiting, diarrhea, lethargy.",severe,yes,synthetic
+dog,Canine parvovirus,"My dog won't stop vomiting, diarrhea, lethargy.",severe,yes,synthetic
+dog,Canine parvovirus,"I noticed my dog has vomiting, diarrhea, lethargy.",severe,yes,synthetic
+dog,Canine parvovirus,"My dog won't stop vomiting, diarrhea, lethargy.",severe,yes,synthetic
+dog,Canine parvovirus,"My dog has been vomiting, diarrhea, lethargy.",severe,yes,synthetic
+dog,Canine parvovirus,"My dog has vomiting, diarrhea, lethargy.",severe,yes,synthetic
+dog,Canine parvovirus,"My dog seems sick with vomiting, diarrhea, lethargy.",severe,yes,synthetic
+dog,Fleas,"My dog has chewing at their skin, also frequent itching.",mild,yes,real
+dog,Fleas,"My dog has been red, irritated skin and chewing at their skin.",mild,yes,synthetic
+dog,Fleas,"I'm worried, my dog has visible fleas or flea dirt.",mild,yes,synthetic
+dog,Fleas,My dog keeps chewing at their skin.,mild,yes,synthetic
+dog,Fleas,"I'm worried, my dog has red, irritated skin.",mild,yes,synthetic
+dog,Fleas,"My dog shows tiny skin bumps, red, irritated skin, and visible fleas or flea dirt.",mild,yes,synthetic
+dog,Fleas,"My dog shows frequent itching, visible fleas or flea dirt, and tiny skin bumps.",mild,yes,synthetic
+dog,Fleas,My dog keeps tiny skin bumps.,mild,yes,synthetic
+dog,Fleas,My dog has been frequent itching with chewing at their skin and tiny skin bumps.,mild,yes,synthetic
+dog,Fleas,"My dog has chewing at their skin, also tiny skin bumps.",mild,yes,synthetic
+dog,Fleas,My dog won't stop tiny skin bumps.,mild,yes,synthetic
+dog,Fleas,"My dog is tiny skin bumps with red, irritated skin.",mild,yes,synthetic
+dog,Fleas,"My dog has tiny skin bumps, frequent itching, and red, irritated skin.",mild,yes,synthetic
+dog,Fleas,My dog seems sick with visible fleas or flea dirt.,mild,yes,synthetic
+dog,Heartworms,"My dog has excessive panting, also coughing, fatigue, exercise intolerance — still visible symptoms.",severe,no,real
+dog,Heartworms,My dog has been collapse and excessive panting.,severe,no,synthetic
+dog,Heartworms,My dog has been ascites.,severe,no,synthetic
+dog,Heartworms,My dog keeps excessive panting.,severe,no,synthetic
+dog,Heartworms,"I'm worried, my dog has collapse.",severe,no,synthetic
+dog,Heartworms,"My dog shows difficulty breathing, collapse, and ascites.",severe,no,synthetic
+dog,Heartworms,"My dog shows lethargy, coughing, fatigue, exercise intolerance — still visible symptoms, and difficulty breathing.",severe,no,synthetic
+dog,Heartworms,My dog keeps difficulty breathing.,severe,no,synthetic
+dog,Heartworms,"My dog has been coughing, fatigue, exercise intolerance — still visible symptoms with heart failure and difficulty breathing.",severe,no,synthetic
+dog,Heartworms,"My dog has heart failure, also weight loss.",severe,no,synthetic
+dog,Heartworms,My dog won't stop weight loss.,severe,no,synthetic
+dog,Heartworms,My dog is difficulty breathing with sudden death.,severe,no,synthetic
+dog,Heartworms,"My dog has weight loss, coughing, fatigue, exercise intolerance — still visible symptoms, and sudden death.",severe,no,synthetic
+dog,Heartworms,My dog seems sick with collapse.,severe,no,synthetic
+dog,Kennel cough,"My dog has sneezing, also coughing, gagging.",moderate,yes,real
+dog,Kennel cough,My dog has been gagging or retching and sneezing.,moderate,yes,synthetic
+dog,Kennel cough,"I'm worried, my dog has decreased energy.",moderate,yes,synthetic
+dog,Kennel cough,My dog keeps sneezing.,moderate,yes,synthetic
+dog,Kennel cough,My dog seems sick with vomiting.,moderate,yes,synthetic
+dog,Kennel cough,"My dog has runny nose or eyes, gagging or retching, and vomiting.",moderate,yes,synthetic
+dog,Kennel cough,"My dog has coughing, gagging, vomiting , and runny nose or eyes.",moderate,yes,synthetic
+dog,Kennel cough,My dog keeps runny nose or eyes.,moderate,yes,synthetic
+dog,Kennel cough,"My dog has been coughing, gagging with sneezing and runny nose or eyes.",moderate,yes,synthetic
+dog,Kennel cough,"My dog has sneezing, also runny nose or eyes.",moderate,yes,synthetic
+dog,Kennel cough,My dog won't stop runny nose or eyes.,moderate,yes,synthetic
+dog,Kennel cough,My dog is runny nose or eyes with gagging or retching.,moderate,yes,synthetic
+dog,Kennel cough,"My dog has runny nose or eyes, coughing, gagging, and sneezing.",moderate,yes,synthetic
+dog,Kennel cough,My dog seems sick with decreased energy.,moderate,yes,synthetic
+dog,Rabies,"My dog has difficulty breathing, also behavioral change, aggression, paralysis.",severe,yes,real
+dog,Rabies,My dog has been decreased energy and difficulty breathing.,severe,yes,synthetic
+dog,Rabies,My dog has been abnormal behaviour.,severe,yes,synthetic
+dog,Rabies,My dog keeps difficulty breathing.,severe,yes,synthetic
+dog,Rabies,"I'm worried, my dog has decreased energy.",severe,yes,synthetic
+dog,Rabies,"My dog shows seizures, decreased energy, and abnormal behaviour.",severe,yes,synthetic
+dog,Rabies,"My dog shows fever, behavioral change, aggression, paralysis, and seizures.",severe,yes,synthetic
+dog,Rabies,My dog keeps seizures.,severe,yes,synthetic
+dog,Rabies,"My dog has been behavioral change, aggression, paralysis with hypersalivation and seizures.",severe,yes,synthetic
+dog,Rabies,"My dog has hypersalivation, also weakness or paralysis of the legs.",severe,yes,synthetic
+dog,Rabies,My dog won't stop weakness or paralysis of the legs.,severe,yes,synthetic
+dog,Rabies,My dog is seizures with decreased appetite.,severe,yes,synthetic
+dog,Rabies,"My dog has weakness or paralysis of the legs, behavioral change, aggression, paralysis, and decreased appetite.",severe,yes,synthetic
+dog,Rabies,My dog seems sick with decreased energy.,severe,yes,synthetic
+dog,Obesity,"My dog has being unable to feel the ribs, also visible weight gain.",mild,no,real
+dog,Obesity,My dog has been less energy than usual and being unable to feel the ribs.,mild,no,synthetic
+dog,Obesity,"I'm worried, my dog has waistline not visible.",mild,no,synthetic
+dog,Obesity,My dog keeps being unable to feel the ribs.,mild,no,synthetic
+dog,Obesity,"I'm worried, my dog has less energy than usual.",mild,no,synthetic
+dog,Obesity,"My dog shows decreased exercise tolerance, less energy than usual, and waistline not visible.",mild,no,synthetic
+dog,Obesity,"My dog shows visible weight gain, waistline not visible, and decreased exercise tolerance.",mild,no,synthetic
+dog,Obesity,My dog keeps decreased exercise tolerance.,mild,no,synthetic
+dog,Obesity,My dog has been visible weight gain with being unable to feel the ribs and decreased exercise tolerance.,mild,no,synthetic
+dog,Obesity,"My dog has being unable to feel the ribs, also decreased exercise tolerance.",mild,no,synthetic
+dog,Obesity,My dog won't stop decreased exercise tolerance.,mild,no,synthetic
+dog,Obesity,My dog is decreased exercise tolerance with less energy than usual.,mild,no,synthetic
+dog,Obesity,"My dog has decreased exercise tolerance, visible weight gain, and less energy than usual.",mild,no,synthetic
+dog,Obesity,My dog seems sick with waistline not visible.,mild,no,synthetic
+dog,Diabetes,"My dog has cataracts, also increased thirst.",moderate,no,real
+dog,Diabetes,My dog has been increased appetite and cataracts.,moderate,no,synthetic
+dog,Diabetes,"I'm worried, my dog has seizure.",moderate,no,synthetic
+dog,Diabetes,My dog keeps cataracts.,moderate,no,synthetic
+dog,Diabetes,"I'm worried, my dog has increased appetite.",moderate,no,synthetic
+dog,Diabetes,"My dog has dehydration, increased appetite, and diabetic neuropathy.",moderate,no,synthetic
+dog,Diabetes,"My dog has increased urination, increased thirst, and lethargy.",moderate,no,synthetic
+dog,Diabetes,My dog keeps dehydration.,moderate,no,synthetic
+dog,Diabetes,"My dog shows increased thirst, vision getting worse, and poor coat and poor skin quality.",moderate,no,synthetic
+dog,Diabetes,"My dog has vision getting worse, also lethargy.",moderate,no,synthetic
+dog,Diabetes,My dog won't stop lethargy.,moderate,no,synthetic
+dog,Diabetes,My dog is dehydration with weight loss.,moderate,no,synthetic
+dog,Diabetes,"My dog has lethargy, increased thirst, and vision getting worse.",moderate,no,synthetic
+dog,Diabetes,My dog seems sick with seizure.,moderate,no,synthetic
+dog,Cataracts,My dog has rubbing face/head along the furniture and bulging of dog’s eye globe.,mild,no,real
+dog,Cataracts,My dog has been bumping into objects when walking and bulging of dog’s eye globe.,mild,no,synthetic
+dog,Cataracts,"I'm worried, my dog has squinting.",mild,no,synthetic
+dog,Cataracts,My dog keeps bulging of dog’s eye globe.,mild,no,synthetic
+dog,Cataracts,My dog seems sick with pawing the eye.,mild,no,synthetic
+dog,Cataracts,"My dog has inflammation of the eye or red eye, bumping into objects when walking, and rubbing face/head along the furniture.",mild,no,synthetic
+dog,Cataracts,"My dog has cloudy eyes, rubbing face/head along the furniture, and inflammation of the eye or red eye.",mild,no,synthetic
+dog,Cataracts,My dog keeps inflammation of the eye or red eye.,mild,no,synthetic
+dog,Cataracts,"My dog shows cloudy eyes, bulging of dog’s eye globe, and squinting.",mild,no,synthetic
+dog,Cataracts,"My dog has bulging of dog’s eye globe, also inflammation of the eye or red eye.",mild,no,synthetic
+dog,Cataracts,My dog won't stop inflammation of the eye or red eye.,mild,no,synthetic
+dog,Cataracts,My dog is inflammation of the eye or red eye with bumping into objects when walking.,mild,no,synthetic
+dog,Cataracts,"My dog has inflammation of the eye or red eye, cloudy eyes, and bulging of dog’s eye globe.",mild,no,synthetic
+dog,Cataracts,My dog seems sick with squinting.,mild,no,synthetic
+dog,Arthritis,My dog has joint swelling and slowing down.,mild,no,real
+dog,Arthritis,My dog has been limping or lameness and slowing down.,mild,no,synthetic
+dog,Arthritis,"I'm worried, my dog has irritability or grumpiness.",mild,no,synthetic
+dog,Arthritis,My dog keeps slowing down.,mild,no,synthetic
+dog,Arthritis,My dog seems sick with muscle loss.,mild,no,synthetic
+dog,Arthritis,"My dog has difficulty with movement, limping or lameness, and joint swelling.",mild,no,synthetic
+dog,Arthritis,"My dog has limping, stiffness, joint swelling, and difficulty with movement.",mild,no,synthetic
+dog,Arthritis,My dog keeps difficulty with movement.,mild,no,synthetic
+dog,Arthritis,"My dog shows limping, stiffness, slowing down, and irritability or grumpiness.",mild,no,synthetic
+dog,Arthritis,"My dog has slowing down, also difficulty with movement.",mild,no,synthetic
+dog,Arthritis,My dog won't stop difficulty with movement.,mild,no,synthetic
+dog,Arthritis,My dog is difficulty with movement with limping or lameness.,mild,no,synthetic
+dog,Arthritis,"My dog has difficulty with movement, limping, stiffness, and slowing down.",mild,no,synthetic
+dog,Arthritis,My dog seems sick with irritability or grumpiness.,mild,no,synthetic
+dog,Ear infections,"My dog has head tilt, also scratching ears, head shaking, discharge.",moderate,no,real
+dog,Ear infections,My dog has been odor and head tilt.,moderate,no,synthetic
+dog,Ear infections,My dog has been swelling of the ear flap.,moderate,no,synthetic
+dog,Ear infections,My dog keeps head tilt.,moderate,no,synthetic
+dog,Ear infections,"I'm worried, my dog has odor.",moderate,no,synthetic
+dog,Ear infections,"My dog shows pain upon contact with ears, odor, and swelling of the ear flap.",moderate,no,synthetic
+dog,Ear infections,"My dog shows redness of ears, scratching ears, head shaking, discharge, and pain upon contact with ears.",moderate,no,synthetic
+dog,Ear infections,My dog keeps pain upon contact with ears.,moderate,no,synthetic
+dog,Ear infections,"My dog has been scratching ears, head shaking, discharge with scabs or crusting around the ear flap and pain upon contact with ears.",moderate,no,synthetic
+dog,Ear infections,"My dog has scabs or crusting around the ear flap, also shaking of the head.",moderate,no,synthetic
+dog,Ear infections,My dog won't stop shaking of the head.,moderate,no,synthetic
+dog,Ear infections,My dog is pain upon contact with ears with itching/scratching at ears.,moderate,no,synthetic
+dog,Ear infections,"My dog has shaking of the head, scratching ears, head shaking, discharge, and itching/scratching at ears.",moderate,no,synthetic
+dog,Ear infections,My dog seems sick with odor.,moderate,no,synthetic
+dog,Diarrhea,"My dog has frequent vomiting, also visible stool change.",moderate,no,real
+dog,Diarrhea,My dog has been loose or watery stool and frequent vomiting.,moderate,no,synthetic
+dog,Diarrhea,"I'm worried, my dog has lethargy and weakness.",moderate,no,synthetic
+dog,Diarrhea,My dog keeps frequent vomiting.,moderate,no,synthetic
+dog,Diarrhea,"I'm worried, my dog has loose or watery stool.",moderate,no,synthetic
+dog,Diarrhea,"My dog shows increased pooping frequency, loose or watery stool, and lethargy and weakness.",moderate,no,synthetic
+dog,Diarrhea,"My dog shows visible stool change, lethargy and weakness, and increased pooping frequency.",moderate,no,synthetic
+dog,Diarrhea,My dog keeps increased pooping frequency.,moderate,no,synthetic
+dog,Diarrhea,My dog has been visible stool change with frequent vomiting and increased pooping frequency.,moderate,no,synthetic
+dog,Diarrhea,"My dog has frequent vomiting, also increased pooping frequency.",moderate,no,synthetic
+dog,Diarrhea,My dog won't stop increased pooping frequency.,moderate,no,synthetic
+dog,Diarrhea,My dog is increased pooping frequency with loose or watery stool.,moderate,no,synthetic
+dog,Diarrhea,"My dog has increased pooping frequency, visible stool change, and loose or watery stool.",moderate,no,synthetic
+dog,Diarrhea,My dog seems sick with lethargy and weakness.,moderate,no,synthetic
+cat,Broken bones,"My cat has broken bone protruding from the skin, also limping, swelling.",severe,no,real
+cat,Broken bones,My cat has been pain and joint swelling.,severe,no,synthetic
+cat,Broken bones,I noticed my cat has joint swelling.,severe,no,synthetic
+cat,Broken bones,My cat keeps broken bone protruding from the skin.,severe,no,synthetic
+cat,Broken bones,"I'm worried, my cat has pain.",severe,no,synthetic
+cat,Broken bones,My cat has been abnormal conformation  of the affected limb with broken bone protruding from the skin and lameness.,severe,no,synthetic
+cat,Broken bones,"My cat shows lameness, limping, swelling, and abnormal conformation  of the affected limb.",severe,no,synthetic
+cat,Broken bones,My cat keeps abnormal conformation  of the affected limb.,severe,no,synthetic
+cat,Broken bones,"My cat has been limping, swelling with joint swelling and abnormal conformation  of the affected limb.",severe,no,synthetic
+cat,Broken bones,"My cat has swelling or bruising of the limb/body part, also pain.",severe,no,synthetic
+cat,Broken bones,My cat won't stop crepitus.,severe,no,synthetic
+cat,Broken bones,My cat is abnormal conformation  of the affected limb with lameness.,severe,no,synthetic
+cat,Broken bones,"My cat shows crepitus, broken bone protruding from the skin, and limping, swelling.",severe,no,synthetic
+cat,Broken bones,My cat seems sick with pain.,severe,no,synthetic
+cat,Chronic Kidney Disease,My cat has changes in behavior and muscle wasting.,severe,no,real
+cat,Chronic Kidney Disease,My cat has been changes in frequency of urination or inability to urinate and muscle wasting.,severe,no,synthetic
+cat,Chronic Kidney Disease,"I'm worried, my cat has urinary accidents.",severe,no,synthetic
+cat,Chronic Kidney Disease,My cat keeps muscle wasting.,severe,no,synthetic
+cat,Chronic Kidney Disease,My cat seems sick with constipation.,severe,no,synthetic
+cat,Chronic Kidney Disease,My cat has been foul breath with changes in behavior and changes in frequency of urination or inability to urinate.,severe,no,synthetic
+cat,Chronic Kidney Disease,"My cat shows increased thirst, weight loss, vomiting, drinking/urinating more, and constipation.",severe,no,synthetic
+cat,Chronic Kidney Disease,My cat keeps foul breath.,severe,no,synthetic
+cat,Chronic Kidney Disease,"My cat has been weight loss, vomiting, drinking/urinating more with decreased appetite and nausea and edema.",severe,no,synthetic
+cat,Chronic Kidney Disease,"My cat has decreased appetite and nausea, also sores in the mouth.",severe,no,synthetic
+cat,Chronic Kidney Disease,My cat won't stop sores in the mouth.,severe,no,synthetic
+cat,Chronic Kidney Disease,My cat is foul breath with dehydration.,severe,no,synthetic
+cat,Chronic Kidney Disease,"My cat shows sores in the mouth, changes in behavior, and weight loss, vomiting, drinking/urinating more.",severe,no,synthetic
+cat,Chronic Kidney Disease,My cat seems sick with urinary accidents.,severe,no,synthetic
+cat,Cat Acne,"My cat has scabs and crusts, also chin blackheads, bumps.",mild,no,real
+cat,Cat Acne,My cat has been redness or swelling and scabs and crusts.,mild,no,synthetic
+cat,Cat Acne,"I'm worried, my cat has pain around the chin.",mild,no,synthetic
+cat,Cat Acne,My cat keeps scabs and crusts.,mild,no,synthetic
+cat,Cat Acne,"I'm worried, my cat has redness or swelling.",mild,no,synthetic
+cat,Cat Acne,"My cat shows bumps and pustules, redness or swelling, and pain around the chin.",mild,no,synthetic
+cat,Cat Acne,"My cat shows chin blackheads, bumps, pain around the chin, and bumps and pustules.",mild,no,synthetic
+cat,Cat Acne,My cat keeps bumps and pustules.,mild,no,synthetic
+cat,Cat Acne,"My cat has been chin blackheads, bumps with scabs and crusts and bumps and pustules.",mild,no,synthetic
+cat,Cat Acne,"My cat has scabs and crusts, also bumps and pustules.",mild,no,synthetic
+cat,Cat Acne,My cat won't stop bumps and pustules.,mild,no,synthetic
+cat,Cat Acne,My cat is bumps and pustules with redness or swelling.,mild,no,synthetic
+cat,Cat Acne,"My cat has bumps and pustules, chin blackheads, bumps, and redness or swelling.",mild,no,synthetic
+cat,Cat Acne,My cat seems sick with pain around the chin.,mild,no,synthetic
+cat,Diabetes,"My cat has muscle wasting, also increased thirst, weight loss.",moderate,no,real
+cat,Diabetes,My cat has been urinating outside the litter box and muscle wasting.,moderate,no,synthetic
+cat,Diabetes,"I'm worried, my cat has plantigrade stance.",moderate,no,synthetic
+cat,Diabetes,My cat keeps muscle wasting.,moderate,no,synthetic
+cat,Diabetes,"I'm worried, my cat has urinating outside the litter box.",moderate,no,synthetic
+cat,Diabetes,"My cat has lethargy or weakness, urinating outside the litter box, and plantigrade stance.",moderate,no,synthetic
+cat,Diabetes,"My cat has increase in frequency and volume of urination, increased thirst, weight loss, and vomiting.",moderate,no,synthetic
+cat,Diabetes,My cat keeps lethargy or weakness.,moderate,no,synthetic
+cat,Diabetes,"My cat has been increased thirst, weight loss with poor coat quality and vomiting.",moderate,no,synthetic
+cat,Diabetes,"My cat has poor coat quality, also vomiting.",moderate,no,synthetic
+cat,Diabetes,My cat won't stop vomiting.,moderate,no,synthetic
+cat,Diabetes,"My cat is lethargy or weakness with increased appetite initially, then decreased appetite.",moderate,no,synthetic
+cat,Diabetes,"My cat has vomiting, increased thirst, weight loss, and poor coat quality.",moderate,no,synthetic
+cat,Diabetes,My cat seems sick with plantigrade stance.,moderate,no,synthetic
+cat,Eosinophilic Granuloma Complex,"My cat has excessive licking and scratching, also skin lesions.",moderate,no,real
+cat,Eosinophilic Granuloma Complex,My cat has been skin lesions and excessive licking and scratching.,moderate,no,synthetic
+cat,Eosinophilic Granuloma Complex,I noticed my cat has skin lesions.,moderate,no,synthetic
+cat,Eosinophilic Granuloma Complex,My cat keeps excessive licking and scratching.,moderate,no,synthetic
+cat,Eosinophilic Granuloma Complex,"I'm worried, my cat has skin lesions.",moderate,no,synthetic
+cat,Eosinophilic Granuloma Complex,My cat has been excessive licking and scratching and skin lesions.,moderate,no,synthetic
+cat,Eosinophilic Granuloma Complex,My cat has been skin lesions and excessive licking and scratching.,moderate,no,synthetic
+cat,Eosinophilic Granuloma Complex,My cat keeps excessive licking and scratching.,moderate,no,synthetic
+cat,Eosinophilic Granuloma Complex,My cat has been skin lesions and excessive licking and scratching.,moderate,no,synthetic
+cat,Eosinophilic Granuloma Complex,"My cat has excessive licking and scratching, also skin lesions.",moderate,no,synthetic
+cat,Eosinophilic Granuloma Complex,My cat won't stop excessive licking and scratching.,moderate,no,synthetic
+cat,Eosinophilic Granuloma Complex,My cat is excessive licking and scratching with skin lesions.,moderate,no,synthetic
+cat,Eosinophilic Granuloma Complex,My cat shows excessive licking and scratching and skin lesions.,moderate,no,synthetic
+cat,Eosinophilic Granuloma Complex,My cat seems sick with skin lesions.,moderate,no,synthetic
+cat,Feline Immunodeficiency Virus,"My cat has neurologic problems like weakness, seizures, or odd behaviors and redness or sores in the mouth.",severe,yes,real
+cat,Feline Immunodeficiency Virus,My cat has been fever and redness or sores in the mouth.,severe,yes,synthetic
+cat,Feline Immunodeficiency Virus,"I'm worried, my cat has eye inflammation  and drainage.",severe,yes,synthetic
+cat,Feline Immunodeficiency Virus,My cat keeps redness or sores in the mouth.,severe,yes,synthetic
+cat,Feline Immunodeficiency Virus,My cat seems sick with difficulty breathing.,severe,yes,synthetic
+cat,Feline Immunodeficiency Virus,"My cat has poor appetite, fever, and neurologic problems like weakness, seizures, or odd behaviors.",severe,yes,synthetic
+cat,Feline Immunodeficiency Virus,"My cat has fiv infections are divided into three phases that can have very different symptoms:, weight loss, poor coat, oral infections, and enlarged lymph nodes.",severe,yes,synthetic
+cat,Feline Immunodeficiency Virus,My cat keeps poor appetite.,severe,yes,synthetic
+cat,Feline Immunodeficiency Virus,"My cat has been weight loss, poor coat, oral infections with vomiting and coughing or sneezing.",severe,yes,synthetic
+cat,Feline Immunodeficiency Virus,"My cat has vomiting, also enlarged lymph nodes.",severe,yes,synthetic
+cat,Feline Immunodeficiency Virus,My cat won't stop enlarged lymph nodes.,severe,yes,synthetic
+cat,Feline Immunodeficiency Virus,My cat is poor appetite with lethargy.,severe,yes,synthetic
+cat,Feline Immunodeficiency Virus,"My cat has enlarged lymph nodes, weight loss, poor coat, oral infections, and vomiting.",severe,yes,synthetic
+cat,Feline Immunodeficiency Virus,My cat seems sick with eye inflammation  and drainage.,severe,yes,synthetic
+cat,Feline Infectious Peritonitis,"My cat has incoordination, also swollen abdomen, fever, lethargy.",severe,yes,real
+cat,Feline Infectious Peritonitis,My cat has been bluish gums and yellow discoloration of the skin.,severe,yes,synthetic
+cat,Feline Infectious Peritonitis,I noticed my cat has eye redness.,severe,yes,synthetic
+cat,Feline Infectious Peritonitis,My cat keeps incoordination.,severe,yes,synthetic
+cat,Feline Infectious Peritonitis,"I'm worried, my cat has bluish gums.",severe,yes,synthetic
+cat,Feline Infectious Peritonitis,My cat has been squinting with seizures and increased heart rate.,severe,yes,synthetic
+cat,Feline Infectious Peritonitis,"My cat shows difficulty breathing, swollen abdomen, fever, lethargy, and blindness.",severe,yes,synthetic
+cat,Feline Infectious Peritonitis,My cat keeps blindness.,severe,yes,synthetic
+cat,Feline Infectious Peritonitis,"My cat has been swollen abdomen, fever, lethargy with eye redness and squinting.",severe,yes,synthetic
+cat,Feline Infectious Peritonitis,"My cat has walking in circles, also bluish gums.",severe,yes,synthetic
+cat,Feline Infectious Peritonitis,My cat won't stop bleeding in the eyes.,severe,yes,synthetic
+cat,Feline Infectious Peritonitis,My cat is squinting with difficulty breathing.,severe,yes,synthetic
+cat,Feline Infectious Peritonitis,"My cat has bleeding in the eyes, walking in circles, and seizures.",severe,yes,synthetic
+cat,Feline Infectious Peritonitis,My cat seems sick with enlarged lymph nodes.,severe,yes,synthetic
+cat,Feline Leukemia Virus,"My cat has chronic skin, eye, respiratory, or urinary tract infections and inflamed gums and mouth.",severe,yes,real
+cat,Feline Leukemia Virus,My cat has been decreased appetite and inflamed gums and mouth.,severe,yes,synthetic
+cat,Feline Leukemia Virus,"I'm worried, my cat has enlarged lymph nodes.",severe,yes,synthetic
+cat,Feline Leukemia Virus,My cat keeps inflamed gums and mouth.,severe,yes,synthetic
+cat,Feline Leukemia Virus,My cat seems sick with chronic diarrhea.,severe,yes,synthetic
+cat,Feline Leukemia Virus,"My cat has unthrifty coat, decreased appetite, and chronic skin, eye, respiratory, or urinary tract infections.",severe,yes,synthetic
+cat,Feline Leukemia Virus,"My cat has pale gums, weight loss, fever, chronic skin, eye, respiratory, or urinary tract infections, and unthrifty coat.",severe,yes,synthetic
+cat,Feline Leukemia Virus,My cat keeps unthrifty coat.,severe,yes,synthetic
+cat,Feline Leukemia Virus,"My cat shows pale gums, weight loss, fever, inflamed gums and mouth, and enlarged lymph nodes.",severe,yes,synthetic
+cat,Feline Leukemia Virus,"My cat has inflamed gums and mouth, also unthrifty coat.",severe,yes,synthetic
+cat,Feline Leukemia Virus,My cat won't stop unthrifty coat.,severe,yes,synthetic
+cat,Feline Leukemia Virus,My cat is unthrifty coat with decreased appetite.,severe,yes,synthetic
+cat,Feline Leukemia Virus,"My cat has unthrifty coat, pale gums, weight loss, fever, and inflamed gums and mouth.",severe,yes,synthetic
+cat,Feline Leukemia Virus,My cat seems sick with enlarged lymph nodes.,severe,yes,synthetic
+cat,Feline Lower Urinary Tract Disease,"My cat has vocalizing while urinating, also straining to urinate, blood in urine.",moderate,no,real
+cat,Feline Lower Urinary Tract Disease,My cat has been cat urinating outside litterbox or could just be inappropriate urination and vocalizing while urinating.,moderate,no,synthetic
+cat,Feline Lower Urinary Tract Disease,I noticed my cat has cat urinating outside litterbox or could just be inappropriate urination.,moderate,no,synthetic
+cat,Feline Lower Urinary Tract Disease,My cat keeps vocalizing while urinating.,moderate,no,synthetic
+cat,Feline Lower Urinary Tract Disease,"I'm worried, my cat has cat urinating outside litterbox or could just be inappropriate urination.",moderate,no,synthetic
+cat,Feline Lower Urinary Tract Disease,"My cat has frequent urination, straining to urinate, blood in urine, and cat urinating outside litterbox or could just be inappropriate urination.",moderate,no,synthetic
+cat,Feline Lower Urinary Tract Disease,"My cat has straining to urinate, blood in urine, vocalizing while urinating, and cat urinating outside litterbox or could just be inappropriate urination.",moderate,no,synthetic
+cat,Feline Lower Urinary Tract Disease,My cat keeps frequent urination.,moderate,no,synthetic
+cat,Feline Lower Urinary Tract Disease,"My cat has been straining to urinate, blood in urine with cat urinating outside litterbox or could just be inappropriate urination and frequent urination.",moderate,no,synthetic
+cat,Feline Lower Urinary Tract Disease,"My cat has vocalizing while urinating, also cat urinating outside litterbox or could just be inappropriate urination.",moderate,no,synthetic
+cat,Feline Lower Urinary Tract Disease,My cat won't stop frequent urination.,moderate,no,synthetic
+cat,Feline Lower Urinary Tract Disease,"My cat is frequent urination with straining to urinate, blood in urine.",moderate,no,synthetic
+cat,Feline Lower Urinary Tract Disease,"My cat has frequent urination, straining to urinate, blood in urine, and cat urinating outside litterbox or could just be inappropriate urination.",moderate,no,synthetic
+cat,Feline Lower Urinary Tract Disease,My cat seems sick with cat urinating outside litterbox or could just be inappropriate urination.,moderate,no,synthetic
+cat,Feline Panleukopenia Virus,"My cat has fever, also vomiting, lethargy, diarrhea.",severe,yes,real
+cat,Feline Panleukopenia Virus,My cat has been painful abdomen and fever.,severe,yes,synthetic
+cat,Feline Panleukopenia Virus,"I'm worried, my cat has bruising of the skin or gums.",severe,yes,synthetic
+cat,Feline Panleukopenia Virus,My cat keeps fever.,severe,yes,synthetic
+cat,Feline Panleukopenia Virus,My cat seems sick with poor body coordination.,severe,yes,synthetic
+cat,Feline Panleukopenia Virus,"My cat has rough or unkempt hair coat, painful abdomen, and poor body coordination.",severe,yes,synthetic
+cat,Feline Panleukopenia Virus,"My cat has depression, vomiting, lethargy, diarrhea, and weight loss.",severe,yes,synthetic
+cat,Feline Panleukopenia Virus,My cat keeps rough or unkempt hair coat.,severe,yes,synthetic
+cat,Feline Panleukopenia Virus,"My cat shows vomiting, lethargy, diarrhea, decreased to absent appetite, and collapse.",severe,yes,synthetic
+cat,Feline Panleukopenia Virus,"My cat has decreased to absent appetite, also weight loss.",severe,yes,synthetic
+cat,Feline Panleukopenia Virus,My cat won't stop weight loss.,severe,yes,synthetic
+cat,Feline Panleukopenia Virus,My cat is rough or unkempt hair coat with dehydration.,severe,yes,synthetic
+cat,Feline Panleukopenia Virus,"My cat has weight loss, vomiting, lethargy, diarrhea, and decreased to absent appetite.",severe,yes,synthetic
+cat,Feline Panleukopenia Virus,My cat seems sick with bruising of the skin or gums.,severe,yes,synthetic
+cat,Fleas,My cat has itchy skin and excessive licking.,mild,yes,real
+cat,Fleas,My cat has been shaking the head and excessive licking.,mild,yes,synthetic
+cat,Fleas,"I'm worried, my cat has overgrooming.",mild,yes,synthetic
+cat,Fleas,My cat keeps excessive licking.,mild,yes,synthetic
+cat,Fleas,My cat seems sick with hair loss.,mild,yes,synthetic
+cat,Fleas,"My cat has scratching the ears, shaking the head, and itchy skin.",mild,yes,synthetic
+cat,Fleas,"My cat has visible parasites, itching, itchy skin, and scratching the ears.",mild,yes,synthetic
+cat,Fleas,My cat keeps scratching the ears.,mild,yes,synthetic
+cat,Fleas,"My cat shows visible parasites, itching, excessive licking, and overgrooming.",mild,yes,synthetic
+cat,Fleas,"My cat has excessive licking, also scratching the ears.",mild,yes,synthetic
+cat,Fleas,My cat won't stop scratching the ears.,mild,yes,synthetic
+cat,Fleas,My cat is scratching the ears with shaking the head.,mild,yes,synthetic
+cat,Fleas,"My cat has scratching the ears, visible parasites, itching, and excessive licking.",mild,yes,synthetic
+cat,Fleas,My cat seems sick with overgrooming.,mild,yes,synthetic
+cat,Hyperthyroidism,My cat has aggression and drinking more than usual.,moderate,no,real
+cat,Hyperthyroidism,My cat has been unkempt appearance and drinking more than usual.,moderate,no,synthetic
+cat,Hyperthyroidism,"I'm worried, my cat has difficulty breathing.",moderate,no,synthetic
+cat,Hyperthyroidism,My cat keeps drinking more than usual.,moderate,no,synthetic
+cat,Hyperthyroidism,My cat seems sick with hyperactivity/restlessness.,moderate,no,synthetic
+cat,Hyperthyroidism,My cat has been diarrhea with aggression and unkempt appearance.,moderate,no,synthetic
+cat,Hyperthyroidism,"My cat shows increased appetite, weight loss, hyperactivity, and hyperactivity/restlessness.",moderate,no,synthetic
+cat,Hyperthyroidism,My cat keeps diarrhea.,moderate,no,synthetic
+cat,Hyperthyroidism,"My cat has been weight loss, hyperactivity with peeing more than usual and heart murmur; rapid heart rate; an abnormal heartbeat known as a “gallop rhythm”.",moderate,no,synthetic
+cat,Hyperthyroidism,"My cat has peeing more than usual, also vomiting.",moderate,no,synthetic
+cat,Hyperthyroidism,My cat won't stop vomiting.,moderate,no,synthetic
+cat,Hyperthyroidism,My cat is diarrhea with poor body condition.,moderate,no,synthetic
+cat,Hyperthyroidism,"My cat shows vomiting, aggression, and weight loss, hyperactivity.",moderate,no,synthetic
+cat,Hyperthyroidism,My cat seems sick with difficulty breathing.,moderate,no,synthetic
+cat,Inflammatory Bowel Disease,My cat has distressed coat hair and abdominal pain.,moderate,no,real
+cat,Inflammatory Bowel Disease,My cat has been fatigue and abdominal pain.,moderate,no,synthetic
+cat,Inflammatory Bowel Disease,"I'm worried, my cat has rumbling and gurgling abdominal sounds.",moderate,no,synthetic
+cat,Inflammatory Bowel Disease,My cat keeps abdominal pain.,moderate,no,synthetic
+cat,Inflammatory Bowel Disease,My cat seems sick with bright red blood in the stool.,moderate,no,synthetic
+cat,Inflammatory Bowel Disease,"My cat has chronic intermittent vomiting, fatigue, and distressed coat hair.",moderate,no,synthetic
+cat,Inflammatory Bowel Disease,"My cat has vomiting, diarrhea, weight loss, distressed coat hair, and chronic intermittent vomiting.",moderate,no,synthetic
+cat,Inflammatory Bowel Disease,My cat keeps chronic intermittent vomiting.,moderate,no,synthetic
+cat,Inflammatory Bowel Disease,"My cat shows vomiting, diarrhea, weight loss, abdominal pain, and rumbling and gurgling abdominal sounds.",moderate,no,synthetic
+cat,Inflammatory Bowel Disease,"My cat has abdominal pain, also chronic intermittent vomiting.",moderate,no,synthetic
+cat,Inflammatory Bowel Disease,My cat won't stop chronic intermittent vomiting.,moderate,no,synthetic
+cat,Inflammatory Bowel Disease,My cat is chronic intermittent vomiting with fatigue.,moderate,no,synthetic
+cat,Inflammatory Bowel Disease,"My cat has chronic intermittent vomiting, vomiting, diarrhea, weight loss, and abdominal pain.",moderate,no,synthetic
+cat,Inflammatory Bowel Disease,My cat seems sick with rumbling and gurgling abdominal sounds.,moderate,no,synthetic
+cat,Intestinal Parasites,"My cat has pale mucous membranes, also worms in stool, diarrhea.",moderate,yes,real
+cat,Intestinal Parasites,My cat has been coughing and pale mucous membranes.,moderate,yes,synthetic
+cat,Intestinal Parasites,My cat has been anemia.,moderate,yes,synthetic
+cat,Intestinal Parasites,My cat keeps pale mucous membranes.,moderate,yes,synthetic
+cat,Intestinal Parasites,"I'm worried, my cat has coughing.",moderate,yes,synthetic
+cat,Intestinal Parasites,"My cat shows loss of appetite, coughing, and anemia.",moderate,yes,synthetic
+cat,Intestinal Parasites,"My cat shows dull coat, worms in stool, diarrhea, and loss of appetite.",moderate,yes,synthetic
+cat,Intestinal Parasites,My cat keeps loss of appetite.,moderate,yes,synthetic
+cat,Intestinal Parasites,"My cat has been worms in stool, diarrhea with potbellied appearance and loss of appetite.",moderate,yes,synthetic
+cat,Intestinal Parasites,"My cat has potbellied appearance, also mucousy or bloody feces.",moderate,yes,synthetic
+cat,Intestinal Parasites,My cat won't stop mucousy or bloody feces.,moderate,yes,synthetic
+cat,Intestinal Parasites,My cat is loss of appetite with vomiting.,moderate,yes,synthetic
+cat,Intestinal Parasites,"My cat has mucousy or bloody feces, worms in stool, diarrhea, and vomiting.",moderate,yes,synthetic
+cat,Intestinal Parasites,My cat seems sick with coughing.,moderate,yes,synthetic
+cat,Mammary Tumors,"My cat has discharge, also palpable lumps.",severe,no,real
+cat,Mammary Tumors,"My cat has been lump or swelling along the cat’s mammary chain, may be soft or firm and discharge.",severe,no,synthetic
+cat,Mammary Tumors,"I noticed my cat has lump or swelling along the cat’s mammary chain, may be soft or firm.",severe,no,synthetic
+cat,Mammary Tumors,My cat keeps discharge.,severe,no,synthetic
+cat,Mammary Tumors,"I'm worried, my cat has lump or swelling along the cat’s mammary chain, may be soft or firm.",severe,no,synthetic
+cat,Mammary Tumors,"My cat has ulceration  on the glands, palpable lumps, and lump or swelling along the cat’s mammary chain, may be soft or firm.",severe,no,synthetic
+cat,Mammary Tumors,"My cat has palpable lumps, discharge, and lump or swelling along the cat’s mammary chain, may be soft or firm.",severe,no,synthetic
+cat,Mammary Tumors,My cat keeps ulceration  on the glands.,severe,no,synthetic
+cat,Mammary Tumors,"My cat has been palpable lumps with lump or swelling along the cat’s mammary chain, may be soft or firm and ulceration  on the glands.",severe,no,synthetic
+cat,Mammary Tumors,"My cat has discharge, also lump or swelling along the cat’s mammary chain, may be soft or firm.",severe,no,synthetic
+cat,Mammary Tumors,My cat won't stop ulceration  on the glands.,severe,no,synthetic
+cat,Mammary Tumors,My cat is ulceration  on the glands with palpable lumps.,severe,no,synthetic
+cat,Mammary Tumors,"My cat has ulceration  on the glands, palpable lumps, and lump or swelling along the cat’s mammary chain, may be soft or firm.",severe,no,synthetic
+cat,Mammary Tumors,"My cat seems sick with lump or swelling along the cat’s mammary chain, may be soft or firm.",severe,no,synthetic
+cat,Mast Cell Tumor,"My cat has poor appetite, also skin mass, swelling.",severe,no,real
+cat,Mast Cell Tumor,My cat has been excessive itchiness and associated hair loss and poor appetite.,severe,no,synthetic
+cat,Mast Cell Tumor,"My cat has been black or tarry stool, indicating digested blood.",severe,no,synthetic
+cat,Mast Cell Tumor,My cat keeps poor appetite.,severe,no,synthetic
+cat,Mast Cell Tumor,"I'm worried, my cat has excessive itchiness and associated hair loss.",severe,no,synthetic
+cat,Mast Cell Tumor,"My cat shows weight loss, excessive itchiness and associated hair loss, and black or tarry stool, indicating digested blood.",severe,no,synthetic
+cat,Mast Cell Tumor,"My cat shows small lumps  that feel very firm within the skin, skin mass, swelling, and weight loss.",severe,no,synthetic
+cat,Mast Cell Tumor,My cat keeps weight loss.,severe,no,synthetic
+cat,Mast Cell Tumor,"My cat has been skin mass, swelling with fresh blood in the stool and weight loss.",severe,no,synthetic
+cat,Mast Cell Tumor,"My cat has fresh blood in the stool, also vomiting.",severe,no,synthetic
+cat,Mast Cell Tumor,My cat won't stop vomiting.,severe,no,synthetic
+cat,Mast Cell Tumor,My cat is weight loss with ulceration.,severe,no,synthetic
+cat,Mast Cell Tumor,"My cat has vomiting, skin mass, swelling, and ulceration.",severe,no,synthetic
+cat,Mast Cell Tumor,My cat seems sick with excessive itchiness and associated hair loss.,severe,no,synthetic
+cat,Obesity,"My cat has collar keeps getting tighter, also visible.",mild,no,real
+cat,Obesity,My cat has been sitting or lying down more and showing an unwillingness to get up and move around and inability for pet parent to feel rib bones or hip bones.,mild,no,synthetic
+cat,Obesity,I noticed my cat has inability for pet parent to feel rib bones or hip bones.,mild,no,synthetic
+cat,Obesity,My cat keeps collar keeps getting tighter.,mild,no,synthetic
+cat,Obesity,"I'm worried, my cat has sitting or lying down more and showing an unwillingness to get up and move around.",mild,no,synthetic
+cat,Obesity,"My cat has been dirty, messy, unkempt hair coat with collar keeps getting tighter and difficulty jumping or climbing stairs.",mild,no,synthetic
+cat,Obesity,"My cat shows difficulty jumping or climbing stairs, visible, and dirty, messy, unkempt hair coat.",mild,no,synthetic
+cat,Obesity,"My cat keeps dirty, messy, unkempt hair coat.",mild,no,synthetic
+cat,Obesity,"My cat has been visible with inability for pet parent to feel rib bones or hip bones and dirty, messy, unkempt hair coat.",mild,no,synthetic
+cat,Obesity,"My cat has less frequent bowel movements and/or more passing of gas, also sitting or lying down more and showing an unwillingness to get up and move around.",mild,no,synthetic
+cat,Obesity,"My cat won't stop looking down from above, your cat’s back appears flat and/or your cat’s profile looks rectangular.",mild,no,synthetic
+cat,Obesity,"My cat is dirty, messy, unkempt hair coat with difficulty jumping or climbing stairs.",mild,no,synthetic
+cat,Obesity,"My cat shows looking down from above, your cat’s back appears flat and/or your cat’s profile looks rectangular, collar keeps getting tighter, and visible.",mild,no,synthetic
+cat,Obesity,My cat seems sick with sitting or lying down more and showing an unwillingness to get up and move around.,mild,no,synthetic
+cat,Osteoarthritis,"My cat has hesitant to jump or play, also limping, stiffness.",mild,no,real
+cat,Osteoarthritis,My cat has been swollen joints and hesitant to jump or play.,mild,no,synthetic
+cat,Osteoarthritis,"I'm worried, my cat has decreased energy.",mild,no,synthetic
+cat,Osteoarthritis,My cat keeps hesitant to jump or play.,mild,no,synthetic
+cat,Osteoarthritis,"I'm worried, my cat has swollen joints.",mild,no,synthetic
+cat,Osteoarthritis,"My cat shows muscle wasting, swollen joints, and decreased energy.",mild,no,synthetic
+cat,Osteoarthritis,"My cat shows limping, stiffness, decreased energy, and muscle wasting.",mild,no,synthetic
+cat,Osteoarthritis,My cat keeps muscle wasting.,mild,no,synthetic
+cat,Osteoarthritis,"My cat has been limping, stiffness with hesitant to jump or play and muscle wasting.",mild,no,synthetic
+cat,Osteoarthritis,"My cat has hesitant to jump or play, also muscle wasting.",mild,no,synthetic
+cat,Osteoarthritis,My cat won't stop muscle wasting.,mild,no,synthetic
+cat,Osteoarthritis,My cat is muscle wasting with swollen joints.,mild,no,synthetic
+cat,Osteoarthritis,"My cat has muscle wasting, limping, stiffness, and swollen joints.",mild,no,synthetic
+cat,Osteoarthritis,My cat seems sick with decreased energy.,mild,no,synthetic
+cat,Pancreatitis,"My cat has diarrhea or soft stool, also vomiting, abdominal pain.",moderate,no,real
+cat,Pancreatitis,My cat has been weight loss and diarrhea or soft stool.,moderate,no,synthetic
+cat,Pancreatitis,"I'm worried, my cat has signs may be infrequent and not easily noticeable.",moderate,no,synthetic
+cat,Pancreatitis,My cat keeps diarrhea or soft stool.,moderate,no,synthetic
+cat,Pancreatitis,"I'm worried, my cat has weight loss.",moderate,no,synthetic
+cat,Pancreatitis,"My cat shows decreased appetite, weight loss, and signs may be infrequent and not easily noticeable.",moderate,no,synthetic
+cat,Pancreatitis,"My cat shows vomiting, abdominal pain, signs may be infrequent and not easily noticeable., and decreased appetite.",moderate,no,synthetic
+cat,Pancreatitis,My cat keeps decreased appetite.,moderate,no,synthetic
+cat,Pancreatitis,"My cat has been vomiting, abdominal pain with diarrhea or soft stool and decreased appetite.",moderate,no,synthetic
+cat,Pancreatitis,"My cat has diarrhea or soft stool, also decreased appetite.",moderate,no,synthetic
+cat,Pancreatitis,My cat won't stop decreased appetite.,moderate,no,synthetic
+cat,Pancreatitis,My cat is decreased appetite with weight loss.,moderate,no,synthetic
+cat,Pancreatitis,"My cat has decreased appetite, vomiting, abdominal pain, and weight loss.",moderate,no,synthetic
+cat,Pancreatitis,My cat seems sick with signs may be infrequent and not easily noticeable.,moderate,no,synthetic
+cat,Periodontal Disease,"My cat has teeth chattering, also bad breath, gum redness.",mild,no,real
+cat,Periodontal Disease,My cat has been tooth loss and decreased appetite or anorexia.,mild,no,synthetic
+cat,Periodontal Disease,I noticed my cat has decreased appetite or anorexia.,mild,no,synthetic
+cat,Periodontal Disease,My cat keeps teeth chattering.,mild,no,synthetic
+cat,Periodontal Disease,"I'm worried, my cat has tooth loss.",mild,no,synthetic
+cat,Periodontal Disease,My cat has been exposed tooth roots with teeth chattering and loose teeth.,mild,no,synthetic
+cat,Periodontal Disease,"My cat shows loose teeth, bad breath, gum redness, and exposed tooth roots.",mild,no,synthetic
+cat,Periodontal Disease,My cat keeps exposed tooth roots.,mild,no,synthetic
+cat,Periodontal Disease,"My cat has been bad breath, gum redness with decreased appetite or anorexia and exposed tooth roots.",mild,no,synthetic
+cat,Periodontal Disease,"My cat has tooth resorption, also tooth loss.",mild,no,synthetic
+cat,Periodontal Disease,My cat won't stop gum recession.,mild,no,synthetic
+cat,Periodontal Disease,My cat is exposed tooth roots with loose teeth.,mild,no,synthetic
+cat,Periodontal Disease,"My cat shows gum recession, teeth chattering, and bad breath, gum redness.",mild,no,synthetic
+cat,Periodontal Disease,My cat seems sick with tooth loss.,mild,no,synthetic
+cat,Gingivitis,"My cat has dropping food, also red, swollen gums.",mild,no,real
+cat,Gingivitis,My cat has been plaque on the teeth and dropping food.,mild,no,synthetic
+cat,Gingivitis,"I'm worried, my cat has turning head excessively while eating.",mild,no,synthetic
+cat,Gingivitis,My cat keeps dropping food.,mild,no,synthetic
+cat,Gingivitis,"I'm worried, my cat has plaque on the teeth.",mild,no,synthetic
+cat,Gingivitis,"My cat has drooling, plaque on the teeth, and turning head excessively while eating.",mild,no,synthetic
+cat,Gingivitis,"My cat has bad breath, red, swollen gums, and painful mouth, which may present as a cat pawing or rubbing their mouth/face.",mild,no,synthetic
+cat,Gingivitis,My cat keeps drooling.,mild,no,synthetic
+cat,Gingivitis,"My cat has been red, swollen gums with bleeding gums and painful mouth, which may present as a cat pawing or rubbing their mouth/face.",mild,no,synthetic
+cat,Gingivitis,"My cat has bleeding gums, also painful mouth, which may present as a cat pawing or rubbing their mouth/face.",mild,no,synthetic
+cat,Gingivitis,"My cat won't stop painful mouth, which may present as a cat pawing or rubbing their mouth/face.",mild,no,synthetic
+cat,Gingivitis,My cat is drooling with varying degrees of tarter buildup.,mild,no,synthetic
+cat,Gingivitis,"My cat has painful mouth, which may present as a cat pawing or rubbing their mouth/face, red, swollen gums, and bleeding gums.",mild,no,synthetic
+cat,Gingivitis,My cat seems sick with turning head excessively while eating.,mild,no,synthetic
+cat,Pyometra,"My cat has distended  or tender abdomen, also vaginal discharge, lethargy, swelling abdomen.",severe,no,real
+cat,Pyometra,My cat has been fever and distended  or tender abdomen.,severe,no,synthetic
+cat,Pyometra,"I'm worried, my cat has increased respiratory rate.",severe,no,synthetic
+cat,Pyometra,My cat keeps distended  or tender abdomen.,severe,no,synthetic
+cat,Pyometra,"I'm worried, my cat has fever.",severe,no,synthetic
+cat,Pyometra,"My cat has dehydration, fever, and unkempt haircoat.",severe,no,synthetic
+cat,Pyometra,"My cat has decreased appetite, vaginal discharge, lethargy, swelling abdomen, and increased thirst and urination.",severe,no,synthetic
+cat,Pyometra,My cat keeps dehydration.,severe,no,synthetic
+cat,Pyometra,"My cat shows vaginal discharge, lethargy, swelling abdomen, vomiting and diarrhea, and increased heart rate.",severe,no,synthetic
+cat,Pyometra,"My cat has vomiting and diarrhea, also increased thirst and urination.",severe,no,synthetic
+cat,Pyometra,My cat won't stop increased thirst and urination.,severe,no,synthetic
+cat,Pyometra,My cat is dehydration with weight change.,severe,no,synthetic
+cat,Pyometra,"My cat has increased thirst and urination, vaginal discharge, lethargy, swelling abdomen, and vomiting and diarrhea.",severe,no,synthetic
+cat,Pyometra,My cat seems sick with increased respiratory rate.,severe,no,synthetic
+cat,Squamous Cell Carcinoma,"My cat has lack of appetite, also visible skin or oral lesion.",severe,no,real
+cat,Squamous Cell Carcinoma,My cat has been small white growth under the tongue and lack of appetite.,severe,no,synthetic
+cat,Squamous Cell Carcinoma,My cat has been weight loss.,severe,no,synthetic
+cat,Squamous Cell Carcinoma,My cat keeps lack of appetite.,severe,no,synthetic
+cat,Squamous Cell Carcinoma,"I'm worried, my cat has small white growth under the tongue.",severe,no,synthetic
+cat,Squamous Cell Carcinoma,"My cat shows difficulty chewing and eating, small white growth under the tongue, and weight loss.",severe,no,synthetic
+cat,Squamous Cell Carcinoma,"My cat shows drooling, visible skin or oral lesion, and difficulty chewing and eating.",severe,no,synthetic
+cat,Squamous Cell Carcinoma,My cat keeps difficulty chewing and eating.,severe,no,synthetic
+cat,Squamous Cell Carcinoma,My cat has been visible skin or oral lesion with blood coming from the mouth and difficulty chewing and eating.,severe,no,synthetic
+cat,Squamous Cell Carcinoma,"My cat has blood coming from the mouth, also bad breath.",severe,no,synthetic
+cat,Squamous Cell Carcinoma,My cat won't stop bad breath.,severe,no,synthetic
+cat,Squamous Cell Carcinoma,My cat is difficulty chewing and eating with loose teeth.,severe,no,synthetic
+cat,Squamous Cell Carcinoma,"My cat has bad breath, visible skin or oral lesion, and loose teeth.",severe,no,synthetic
+cat,Squamous Cell Carcinoma,My cat seems sick with small white growth under the tongue.,severe,no,synthetic
+cat,Upper Respiratory Infection,My cat has difficulty breathing and decreased or absent appetite.,moderate,yes,real
+cat,Upper Respiratory Infection,My cat has been conjunctivitis and decreased or absent appetite.,moderate,yes,synthetic
+cat,Upper Respiratory Infection,"I'm worried, my cat has fever.",moderate,yes,synthetic
+cat,Upper Respiratory Infection,My cat keeps decreased or absent appetite.,moderate,yes,synthetic
+cat,Upper Respiratory Infection,My cat seems sick with lymph node swelling.,moderate,yes,synthetic
+cat,Upper Respiratory Infection,"My cat has nasal congestion, conjunctivitis, and difficulty breathing.",moderate,yes,synthetic
+cat,Upper Respiratory Infection,"My cat has drainage from the eyes, sneezing, nasal discharge, and nasal drainage or crust.",moderate,yes,synthetic
+cat,Upper Respiratory Infection,My cat keeps nasal congestion.,moderate,yes,synthetic
+cat,Upper Respiratory Infection,"My cat has been sneezing, nasal discharge with cough and ulcers in the mouth.",moderate,yes,synthetic
+cat,Upper Respiratory Infection,"My cat has cough, also nasal drainage or crust.",moderate,yes,synthetic
+cat,Upper Respiratory Infection,My cat won't stop nasal drainage or crust.,moderate,yes,synthetic
+cat,Upper Respiratory Infection,My cat is nasal congestion with squinting.,moderate,yes,synthetic
+cat,Upper Respiratory Infection,"My cat has nasal drainage or crust, sneezing, nasal discharge, and cough.",moderate,yes,synthetic
+cat,Upper Respiratory Infection,My cat seems sick with fever.,moderate,yes,synthetic
+rabbit,Urethral Obstruction,"My rabbit has licking the genital area, also straining, meowing in pain.",severe,no,real
+rabbit,Urethral Obstruction,My rabbit has been urgency to urinate and licking the genital area.,severe,no,synthetic
+rabbit,Urethral Obstruction,"I'm worried, my rabbit has decreased appetite.",severe,no,synthetic
+rabbit,Urethral Obstruction,My rabbit keeps licking the genital area.,severe,no,synthetic
+rabbit,Urethral Obstruction,"I'm worried, my rabbit has urgency to urinate.",severe,no,synthetic
+rabbit,Urethral Obstruction,"My rabbit has urinating outside the litter box, urgency to urinate, and decreased appetite.",severe,no,synthetic
+rabbit,Urethral Obstruction,"My rabbit has bloody urine, straining, meowing in pain, and straining to urinate.",severe,no,synthetic
+rabbit,Urethral Obstruction,My rabbit keeps urinating outside the litter box.,severe,no,synthetic
+rabbit,Urethral Obstruction,"My rabbit has been straining, meowing in pain with vocalization  as if in pain or distress and straining to urinate.",severe,no,synthetic
+rabbit,Urethral Obstruction,"My rabbit has vocalization  as if in pain or distress, also straining to urinate.",severe,no,synthetic
+rabbit,Urethral Obstruction,My rabbit won't stop straining to urinate.,severe,no,synthetic
+rabbit,Urethral Obstruction,My rabbit is urinating outside the litter box with urinating smaller amounts more often.,severe,no,synthetic
+rabbit,Urethral Obstruction,"My rabbit has straining to urinate, straining, meowing in pain, and vocalization  as if in pain or distress.",severe,no,synthetic
+rabbit,Urethral Obstruction,My rabbit seems sick with decreased appetite.,severe,no,synthetic
+rabbit,Overgrown teeth,My rabbit has tooth grinding and dropping food.,moderate,no,real
+rabbit,Overgrown teeth,My rabbit has been reduced appetite and dropping food.,moderate,no,synthetic
+rabbit,Overgrown teeth,"I'm worried, my rabbit has watery eyes.",moderate,no,synthetic
+rabbit,Overgrown teeth,My rabbit keeps dropping food.,moderate,no,synthetic
+rabbit,Overgrown teeth,My rabbit seems sick with facial or jaw swelling.,moderate,no,synthetic
+rabbit,Overgrown teeth,"My rabbit has weight loss, reduced appetite, and tooth grinding.",moderate,no,synthetic
+rabbit,Overgrown teeth,"My rabbit has drooling, facial wetness, eating difficulty, tooth grinding, and weight loss.",moderate,no,synthetic
+rabbit,Overgrown teeth,My rabbit keeps weight loss.,moderate,no,synthetic
+rabbit,Overgrown teeth,"My rabbit shows drooling, facial wetness, eating difficulty, dropping food, and watery eyes.",moderate,no,synthetic
+rabbit,Overgrown teeth,"My rabbit has dropping food, also weight loss.",moderate,no,synthetic
+rabbit,Overgrown teeth,My rabbit won't stop weight loss.,moderate,no,synthetic
+rabbit,Overgrown teeth,My rabbit is weight loss with reduced appetite.,moderate,no,synthetic
+rabbit,Overgrown teeth,"My rabbit has weight loss, drooling, facial wetness, eating difficulty, and dropping food.",moderate,no,synthetic
+rabbit,Overgrown teeth,My rabbit seems sick with watery eyes.,moderate,no,synthetic
+rabbit,Hairballs,"My rabbit has lethargy, also loss of appetite, small droppings.",moderate,no,real
+rabbit,Hairballs,My rabbit has been decreased fluid intake and lethargy.,moderate,no,synthetic
+rabbit,Hairballs,"My rabbit has been abnormal vocalization – teeth grinding, thumping, and whimpering can indicate pain.",moderate,no,synthetic
+rabbit,Hairballs,My rabbit keeps lethargy.,moderate,no,synthetic
+rabbit,Hairballs,"I'm worried, my rabbit has decreased fluid intake.",moderate,no,synthetic
+rabbit,Hairballs,"My rabbit shows inconsistent stool consistency – alternating between dry and firm and soft or watery, decreased fluid intake, and abnormal vocalization – teeth grinding, thumping, and whimpering can indicate pain.",moderate,no,synthetic
+rabbit,Hairballs,"My rabbit shows decreased or absent appetite, loss of appetite, small droppings, and inconsistent stool consistency – alternating between dry and firm and soft or watery.",moderate,no,synthetic
+rabbit,Hairballs,My rabbit keeps inconsistent stool consistency – alternating between dry and firm and soft or watery.,moderate,no,synthetic
+rabbit,Hairballs,"My rabbit has been loss of appetite, small droppings with abdominal distention – stomach looks enlarged and inconsistent stool consistency – alternating between dry and firm and soft or watery.",moderate,no,synthetic
+rabbit,Hairballs,"My rabbit has abdominal distention – stomach looks enlarged, also small and/or oddly shaped fecal pellets – “string of pearls” feces  is quite common.",moderate,no,synthetic
+rabbit,Hairballs,My rabbit won't stop small and/or oddly shaped fecal pellets – “string of pearls” feces  is quite common.,moderate,no,synthetic
+rabbit,Hairballs,My rabbit is inconsistent stool consistency – alternating between dry and firm and soft or watery with decreased fecal output.,moderate,no,synthetic
+rabbit,Hairballs,"My rabbit has small and/or oddly shaped fecal pellets – “string of pearls” feces  is quite common, loss of appetite, small droppings, and decreased fecal output.",moderate,no,synthetic
+rabbit,Hairballs,My rabbit seems sick with decreased fluid intake.,moderate,no,synthetic
+rabbit,Snuffles,My rabbit has reproductive difficulties and head tilt.,moderate,yes,real
+rabbit,Snuffles,My rabbit has been decreased appetite or anorexia and head tilt.,moderate,yes,synthetic
+rabbit,Snuffles,"I'm worried, my rabbit has difficulty breathing.",moderate,yes,synthetic
+rabbit,Snuffles,My rabbit keeps head tilt.,moderate,yes,synthetic
+rabbit,Snuffles,My rabbit seems sick with eye infection.,moderate,yes,synthetic
+rabbit,Snuffles,My rabbit has been conjunctivitis with reproductive difficulties and decreased appetite or anorexia.,moderate,yes,synthetic
+rabbit,Snuffles,"My rabbit shows dried nasal discharge on the nostrils, neck, and/or paws, nasal discharge, sneezing, and eye infection.",moderate,yes,synthetic
+rabbit,Snuffles,My rabbit keeps conjunctivitis.,moderate,yes,synthetic
+rabbit,Snuffles,"My rabbit has been nasal discharge, sneezing with ear infection and lameness.",moderate,yes,synthetic
+rabbit,Snuffles,"My rabbit has ear infection, also lethargy.",moderate,yes,synthetic
+rabbit,Snuffles,My rabbit won't stop lethargy.,moderate,yes,synthetic
+rabbit,Snuffles,My rabbit is conjunctivitis with weight loss.,moderate,yes,synthetic
+rabbit,Snuffles,"My rabbit shows lethargy, reproductive difficulties, and nasal discharge, sneezing.",moderate,yes,synthetic
+rabbit,Snuffles,My rabbit seems sick with difficulty breathing.,moderate,yes,synthetic
+rabbit,Myxomatosis,My rabbit has septicemia within 10-14 days of infection and lethargy.,severe,yes,real
+rabbit,Myxomatosis,My rabbit has been white eye and nasal discharge and lethargy.,severe,yes,synthetic
+rabbit,Myxomatosis,"I'm worried, my rabbit has skin hemorrhage.",severe,yes,synthetic
+rabbit,Myxomatosis,My rabbit keeps lethargy.,severe,yes,synthetic
+rabbit,Myxomatosis,"My rabbit seems sick with secondary bacterial infections, pneumonia.",severe,yes,synthetic
+rabbit,Myxomatosis,My rabbit has been fever with septicemia within 10-14 days of infection and white eye and nasal discharge.,severe,yes,synthetic
+rabbit,Myxomatosis,"My rabbit shows swelling and redness of eyelids and ear margins, and genitals, swelling, eye/nose discharge, and secondary bacterial infections, pneumonia.",severe,yes,synthetic
+rabbit,Myxomatosis,My rabbit keeps fever.,severe,yes,synthetic
+rabbit,Myxomatosis,"My rabbit has been swelling, eye/nose discharge with anorexia and seizures.",severe,yes,synthetic
+rabbit,Myxomatosis,"My rabbit has anorexia, also purple/blue spots on the skin.",severe,yes,synthetic
+rabbit,Myxomatosis,My rabbit won't stop purple/blue spots on the skin.,severe,yes,synthetic
+rabbit,Myxomatosis,My rabbit is fever with ear droop.,severe,yes,synthetic
+rabbit,Myxomatosis,"My rabbit shows purple/blue spots on the skin, septicemia within 10-14 days of infection, and swelling, eye/nose discharge.",severe,yes,synthetic
+rabbit,Myxomatosis,My rabbit seems sick with skin hemorrhage.,severe,yes,synthetic
+rabbit,Ear mites,"My rabbit has neck, also intense itching.",mild,yes,real
+rabbit,Ear mites,My rabbit has been head shaking and dewlap.,mild,yes,synthetic
+rabbit,Ear mites,My rabbit has been feet.,mild,yes,synthetic
+rabbit,Ear mites,My rabbit keeps neck.,mild,yes,synthetic
+rabbit,Ear mites,"I'm worried, my rabbit has head shaking.",mild,yes,synthetic
+rabbit,Ear mites,"My rabbit has decreased appetite, head shaking, and perineal regions—the area under the tail, including external genitals and anus.",mild,yes,synthetic
+rabbit,Ear mites,"My rabbit has ear drooping, scratching, crusty ears, and restlessness.",mild,yes,synthetic
+rabbit,Ear mites,My rabbit keeps face.,mild,yes,synthetic
+rabbit,Ear mites,"My rabbit shows scratching, crusty ears, limbs, and feet.",mild,yes,synthetic
+rabbit,Ear mites,"My rabbit has trunk, also lethargy.",mild,yes,synthetic
+rabbit,Ear mites,My rabbit won't stop lethargy.,mild,yes,synthetic
+rabbit,Ear mites,My rabbit is decreased appetite with reddish-brown ear discharge and crusting.,mild,yes,synthetic
+rabbit,Ear mites,"My rabbit has lethargy, intense itching, and limbs.",mild,yes,synthetic
+rabbit,Ear mites,"My rabbit seems sick with perineal regions—the area under the tail, including external genitals and anus.",mild,yes,synthetic
+rabbit,Fleas,"My rabbit has pale mucous membranes, increased heart rate, also visible parasites, scratching.",mild,yes,real
+rabbit,Fleas,"My rabbit has been excessive scratching, licking and visible bite marks or evidence of fleas.",mild,yes,synthetic
+rabbit,Fleas,I noticed my rabbit has visible bite marks or evidence of fleas.,mild,yes,synthetic
+rabbit,Fleas,"My rabbit keeps pale mucous membranes, increased heart rate.",mild,yes,synthetic
+rabbit,Fleas,"I'm worried, my rabbit has excessive scratching, licking.",mild,yes,synthetic
+rabbit,Fleas,"My rabbit has been scaling on the skin with pale mucous membranes, increased heart rate and self- biting or chewing.",mild,yes,synthetic
+rabbit,Fleas,"My rabbit shows self- biting or chewing, visible parasites, scratching, and scaling on the skin.",mild,yes,synthetic
+rabbit,Fleas,My rabbit keeps scaling on the skin.,mild,yes,synthetic
+rabbit,Fleas,"My rabbit has been visible parasites, scratching with visible bite marks or evidence of fleas and scaling on the skin.",mild,yes,synthetic
+rabbit,Fleas,"My rabbit has secondary bacterial infections, also excessive scratching, licking.",mild,yes,synthetic
+rabbit,Fleas,My rabbit won't stop hair loss.,mild,yes,synthetic
+rabbit,Fleas,My rabbit is scaling on the skin with self- biting or chewing.,mild,yes,synthetic
+rabbit,Fleas,"My rabbit shows hair loss, pale mucous membranes, increased heart rate, and visible parasites, scratching.",mild,yes,synthetic
+rabbit,Fleas,"My rabbit seems sick with excessive scratching, licking.",mild,yes,synthetic
+rabbit,Sore hocks,My rabbit has sores on feet.,moderate,no,real
+rabbit,Sore hocks,My rabbit keeps sores on feet.,moderate,no,synthetic
+rabbit,Sore hocks,I noticed my rabbit has sores on feet.,moderate,no,synthetic
+rabbit,Sore hocks,My rabbit keeps sores on feet.,moderate,no,synthetic
+rabbit,Sore hocks,"I'm worried, my rabbit has sores on feet.",moderate,no,synthetic
+rabbit,Sore hocks,My rabbit seems sick with sores on feet.,moderate,no,synthetic
+rabbit,Sore hocks,My rabbit has sores on feet.,moderate,no,synthetic
+rabbit,Sore hocks,My rabbit keeps sores on feet.,moderate,no,synthetic
+rabbit,Sore hocks,My rabbit won't stop sores on feet.,moderate,no,synthetic
+rabbit,Sore hocks,I noticed my rabbit has sores on feet.,moderate,no,synthetic
+rabbit,Sore hocks,My rabbit won't stop sores on feet.,moderate,no,synthetic
+rabbit,Sore hocks,My rabbit has been sores on feet.,moderate,no,synthetic
+rabbit,Sore hocks,My rabbit has sores on feet.,moderate,no,synthetic
+rabbit,Sore hocks,My rabbit seems sick with sores on feet.,moderate,no,synthetic
+rabbit,Flystrike,"My rabbit has presence of fly larvae, also maggots, skin wounds.",severe,no,real
+rabbit,Flystrike,My rabbit has been decreased appetite and decreased grooming.,severe,no,synthetic
+rabbit,Flystrike,I noticed my rabbit has decreased grooming.,severe,no,synthetic
+rabbit,Flystrike,My rabbit keeps presence of fly larvae.,severe,no,synthetic
+rabbit,Flystrike,"I'm worried, my rabbit has decreased appetite.",severe,no,synthetic
+rabbit,Flystrike,My rabbit has been infected wounds with presence of fly larvae and lethargy.,severe,no,synthetic
+rabbit,Flystrike,"My rabbit shows lethargy, maggots, skin wounds, and infected wounds.",severe,no,synthetic
+rabbit,Flystrike,My rabbit keeps infected wounds.,severe,no,synthetic
+rabbit,Flystrike,"My rabbit has been maggots, skin wounds with decreased grooming and infected wounds.",severe,no,synthetic
+rabbit,Flystrike,"My rabbit has red, swollen, or ulcerated skin, also decreased appetite.",severe,no,synthetic
+rabbit,Flystrike,My rabbit won't stop foul odor.,severe,no,synthetic
+rabbit,Flystrike,My rabbit is infected wounds with lethargy.,severe,no,synthetic
+rabbit,Flystrike,"My rabbit shows foul odor, presence of fly larvae, and maggots, skin wounds.",severe,no,synthetic
+rabbit,Flystrike,My rabbit seems sick with decreased appetite.,severe,no,synthetic
+rabbit,Breathing difficulties,"My rabbit has reduced appetite, also wheezing, labored breathing.",severe,no,real
+rabbit,Breathing difficulties,My rabbit has been fast or shallow breathing and reduced appetite.,severe,no,synthetic
+rabbit,Breathing difficulties,"I'm worried, my rabbit has blue-tinted lips or tongue.",severe,no,synthetic
+rabbit,Breathing difficulties,My rabbit keeps reduced appetite.,severe,no,synthetic
+rabbit,Breathing difficulties,"I'm worried, my rabbit has fast or shallow breathing.",severe,no,synthetic
+rabbit,Breathing difficulties,"My rabbit has changes in behavior, fast or shallow breathing, and head-tilting or upward-pointing head.",severe,no,synthetic
+rabbit,Breathing difficulties,"My rabbit has noisy or labored breathing, wheezing, labored breathing, and sneezing.",severe,no,synthetic
+rabbit,Breathing difficulties,My rabbit keeps changes in behavior.,severe,no,synthetic
+rabbit,Breathing difficulties,"My rabbit shows wheezing, labored breathing, stained fur, and open-mouth breathing.",severe,no,synthetic
+rabbit,Breathing difficulties,"My rabbit has stained fur, also sneezing.",severe,no,synthetic
+rabbit,Breathing difficulties,My rabbit won't stop sneezing.,severe,no,synthetic
+rabbit,Breathing difficulties,My rabbit is changes in behavior with nasal and eye discharge.,severe,no,synthetic
+rabbit,Breathing difficulties,"My rabbit has sneezing, wheezing, labored breathing, and stained fur.",severe,no,synthetic
+rabbit,Breathing difficulties,My rabbit seems sick with blue-tinted lips or tongue.,severe,no,synthetic
+rabbit,Gastrointestinal stasis,"My rabbit has abdominal pain when touched, also no droppings, lethargy.",severe,no,real
+rabbit,Gastrointestinal stasis,My rabbit has been reduced or no fecal output and abdominal pain when touched.,severe,no,synthetic
+rabbit,Gastrointestinal stasis,My rabbit has been low body temperature.,severe,no,synthetic
+rabbit,Gastrointestinal stasis,My rabbit keeps abdominal pain when touched.,severe,no,synthetic
+rabbit,Gastrointestinal stasis,"I'm worried, my rabbit has reduced or no fecal output.",severe,no,synthetic
+rabbit,Gastrointestinal stasis,"My rabbit shows diarrhea, reduced or no fecal output, and low body temperature.",severe,no,synthetic
+rabbit,Gastrointestinal stasis,"My rabbit shows decreased or no appetite, no droppings, lethargy, and diarrhea.",severe,no,synthetic
+rabbit,Gastrointestinal stasis,My rabbit keeps diarrhea.,severe,no,synthetic
+rabbit,Gastrointestinal stasis,"My rabbit has been no droppings, lethargy with hunched posture and diarrhea.",severe,no,synthetic
+rabbit,Gastrointestinal stasis,"My rabbit has hunched posture, also bloating.",severe,no,synthetic
+rabbit,Gastrointestinal stasis,My rabbit won't stop bloating.,severe,no,synthetic
+rabbit,Gastrointestinal stasis,"My rabbit is diarrhea with grinding teeth, or bruxism.",severe,no,synthetic
+rabbit,Gastrointestinal stasis,"My rabbit has bloating, no droppings, lethargy, and grinding teeth, or bruxism.",severe,no,synthetic
+rabbit,Gastrointestinal stasis,My rabbit seems sick with reduced or no fecal output.,severe,no,synthetic
+rabbit,Conjunctivitis,"My rabbit has swelling in eye, also red, runny eyes.",mild,no,real
+rabbit,Conjunctivitis,My rabbit has been redness in eye and swelling in eye.,mild,no,synthetic
+rabbit,Conjunctivitis,"I'm worried, my rabbit has squinting/closed eyes.",mild,no,synthetic
+rabbit,Conjunctivitis,My rabbit keeps swelling in eye.,mild,no,synthetic
+rabbit,Conjunctivitis,My rabbit seems sick with third eyelid.,mild,no,synthetic
+rabbit,Conjunctivitis,"My rabbit has discharge in eye, redness in eye, and third eyelid.",mild,no,synthetic
+rabbit,Conjunctivitis,"My rabbit has red, runny eyes, third eyelid, and discharge in eye.",mild,no,synthetic
+rabbit,Conjunctivitis,My rabbit keeps discharge in eye.,mild,no,synthetic
+rabbit,Conjunctivitis,"My rabbit has been red, runny eyes with swelling in eye and discharge in eye.",mild,no,synthetic
+rabbit,Conjunctivitis,"My rabbit has swelling in eye, also discharge in eye.",mild,no,synthetic
+rabbit,Conjunctivitis,My rabbit won't stop discharge in eye.,mild,no,synthetic
+rabbit,Conjunctivitis,My rabbit is discharge in eye with redness in eye.,mild,no,synthetic
+rabbit,Conjunctivitis,"My rabbit has discharge in eye, red, runny eyes, and swelling in eye.",mild,no,synthetic
+rabbit,Conjunctivitis,My rabbit seems sick with squinting/closed eyes.,mild,no,synthetic
+rabbit,Corneal ulceration,My rabbit has pawing or rubbing and redness and swelling.,moderate,no,real
+rabbit,Corneal ulceration,My rabbit has been squinting and blinking and redness and swelling.,moderate,no,synthetic
+rabbit,Corneal ulceration,"I'm worried, my rabbit has cloudiness.",moderate,no,synthetic
+rabbit,Corneal ulceration,My rabbit keeps redness and swelling.,moderate,no,synthetic
+rabbit,Corneal ulceration,My rabbit seems sick with light sensitivity.,moderate,no,synthetic
+rabbit,Corneal ulceration,"My rabbit has eye discharge, squinting and blinking, and pawing or rubbing.",moderate,no,synthetic
+rabbit,Corneal ulceration,"My rabbit has cloudy eye, squinting, pawing or rubbing, and eye discharge.",moderate,no,synthetic
+rabbit,Corneal ulceration,My rabbit keeps eye discharge.,moderate,no,synthetic
+rabbit,Corneal ulceration,"My rabbit shows cloudy eye, squinting, redness and swelling, and cloudiness.",moderate,no,synthetic
+rabbit,Corneal ulceration,"My rabbit has redness and swelling, also eye discharge.",moderate,no,synthetic
+rabbit,Corneal ulceration,My rabbit won't stop eye discharge.,moderate,no,synthetic
+rabbit,Corneal ulceration,My rabbit is eye discharge with squinting and blinking.,moderate,no,synthetic
+rabbit,Corneal ulceration,"My rabbit has eye discharge, cloudy eye, squinting, and redness and swelling.",moderate,no,synthetic
+rabbit,Corneal ulceration,My rabbit seems sick with cloudiness.,moderate,no,synthetic
+rabbit,Otitis media/interna,"My rabbit has discharge from ears, dry eyes, throat infection and lean or roll toward the affected side.",moderate,no,real
+rabbit,Otitis media/interna,"My rabbit has been sudden loss of balance, dizziness and lean or roll toward the affected side.",moderate,no,synthetic
+rabbit,Otitis media/interna,"I'm worried, my rabbit has anorexia or teeth grinding due to nausea.",moderate,no,synthetic
+rabbit,Otitis media/interna,My rabbit keeps lean or roll toward the affected side.,moderate,no,synthetic
+rabbit,Otitis media/interna,"My rabbit seems sick with reluctance to move, digging at the cage floor.",moderate,no,synthetic
+rabbit,Otitis media/interna,"My rabbit has head tilting to one side, sudden loss of balance, dizziness, and discharge from ears, dry eyes, throat infection.",moderate,no,synthetic
+rabbit,Otitis media/interna,"My rabbit has head tilt, balance issues, discharge from ears, dry eyes, throat infection, and head tilting to one side.",moderate,no,synthetic
+rabbit,Otitis media/interna,My rabbit keeps head tilting to one side.,moderate,no,synthetic
+rabbit,Otitis media/interna,"My rabbit shows head tilt, balance issues, lean or roll toward the affected side, and anorexia or teeth grinding due to nausea.",moderate,no,synthetic
+rabbit,Otitis media/interna,"My rabbit has lean or roll toward the affected side, also head tilting to one side.",moderate,no,synthetic
+rabbit,Otitis media/interna,My rabbit won't stop head tilting to one side.,moderate,no,synthetic
+rabbit,Otitis media/interna,"My rabbit is head tilting to one side with sudden loss of balance, dizziness.",moderate,no,synthetic
+rabbit,Otitis media/interna,"My rabbit has head tilting to one side, head tilt, balance issues, and lean or roll toward the affected side.",moderate,no,synthetic
+rabbit,Otitis media/interna,My rabbit seems sick with anorexia or teeth grinding due to nausea.,moderate,no,synthetic
+rabbit,Splay leg,"My rabbit has a wiggling or flopping motion is used to move around., also limb deformity, difficulty walking.",moderate,no,real
+rabbit,Splay leg,"My rabbit has been legs splayed out to the side, often at a 45 to 90-degree angle. and a wiggling or flopping motion is used to move around.",moderate,no,synthetic
+rabbit,Splay leg,"I'm worried, my rabbit has difficulty balancing, which can cause them to topple over.",moderate,no,synthetic
+rabbit,Splay leg,My rabbit keeps a wiggling or flopping motion is used to move around.,moderate,no,synthetic
+rabbit,Splay leg,"I'm worried, my rabbit has legs splayed out to the side, often at a 45 to 90-degree angle.",moderate,no,synthetic
+rabbit,Splay leg,"My rabbit shows inability to stand or hop properly; the rabbit may flop or drag itself., legs splayed out to the side, often at a 45 to 90-degree angle., and difficulty balancing, which can cause them to topple over.",moderate,no,synthetic
+rabbit,Splay leg,"My rabbit shows limb deformity, difficulty walking, difficulty balancing, which can cause them to topple over., and inability to stand or hop properly; the rabbit may flop or drag itself.",moderate,no,synthetic
+rabbit,Splay leg,My rabbit keeps inability to stand or hop properly; the rabbit may flop or drag itself.,moderate,no,synthetic
+rabbit,Splay leg,"My rabbit has been limb deformity, difficulty walking with a wiggling or flopping motion is used to move around. and inability to stand or hop properly; the rabbit may flop or drag itself.",moderate,no,synthetic
+rabbit,Splay leg,"My rabbit has a wiggling or flopping motion is used to move around., also inability to stand or hop properly; the rabbit may flop or drag itself.",moderate,no,synthetic
+rabbit,Splay leg,My rabbit won't stop inability to stand or hop properly; the rabbit may flop or drag itself.,moderate,no,synthetic
+rabbit,Splay leg,"My rabbit is inability to stand or hop properly; the rabbit may flop or drag itself. with legs splayed out to the side, often at a 45 to 90-degree angle.",moderate,no,synthetic
+rabbit,Splay leg,"My rabbit has inability to stand or hop properly; the rabbit may flop or drag itself., limb deformity, difficulty walking, and legs splayed out to the side, often at a 45 to 90-degree angle.",moderate,no,synthetic
+rabbit,Splay leg,"My rabbit seems sick with difficulty balancing, which can cause them to topple over.",moderate,no,synthetic
+rabbit,Rhinitis,"My rabbit has bleeding nose, which may suggest a bacterial infection in the teeth or mouth and slobbering or excessive saliva.",moderate,yes,real
+rabbit,Rhinitis,My rabbit has been reduced airflow and slobbering or excessive saliva.,moderate,yes,synthetic
+rabbit,Rhinitis,"I'm worried, my rabbit has dental disease.",moderate,yes,synthetic
+rabbit,Rhinitis,My rabbit keeps slobbering or excessive saliva.,moderate,yes,synthetic
+rabbit,Rhinitis,My rabbit seems sick with discharge from the eyes or other orifices.,moderate,yes,synthetic
+rabbit,Rhinitis,"My rabbit has lack of appetite, reduced airflow, and bleeding nose, which may suggest a bacterial infection in the teeth or mouth.",moderate,yes,synthetic
+rabbit,Rhinitis,"My rabbit has runny nose, sneezing, bleeding nose, which may suggest a bacterial infection in the teeth or mouth, and lack of appetite.",moderate,yes,synthetic
+rabbit,Rhinitis,My rabbit keeps lack of appetite.,moderate,yes,synthetic
+rabbit,Rhinitis,"My rabbit shows runny nose, sneezing, slobbering or excessive saliva, and dental disease.",moderate,yes,synthetic
+rabbit,Rhinitis,"My rabbit has slobbering or excessive saliva, also lack of appetite.",moderate,yes,synthetic
+rabbit,Rhinitis,My rabbit won't stop lack of appetite.,moderate,yes,synthetic
+rabbit,Rhinitis,My rabbit is lack of appetite with reduced airflow.,moderate,yes,synthetic
+rabbit,Rhinitis,"My rabbit has lack of appetite, runny nose, sneezing, and slobbering or excessive saliva.",moderate,yes,synthetic
+rabbit,Rhinitis,My rabbit seems sick with dental disease.,moderate,yes,synthetic
+rabbit,Pneumonia,My rabbit has coughing is not usually a symptom seen in rabbits and excessive salivation.,severe,yes,real
+rabbit,Pneumonia,My rabbit has been weight loss and excessive salivation.,severe,yes,synthetic
+rabbit,Pneumonia,"I'm worried, my rabbit has eye discharge.",severe,yes,synthetic
+rabbit,Pneumonia,My rabbit keeps excessive salivation.,severe,yes,synthetic
+rabbit,Pneumonia,My rabbit seems sick with difficulty breathing.,severe,yes,synthetic
+rabbit,Pneumonia,"My rabbit has sneezing, weight loss, and coughing is not usually a symptom seen in rabbits.",severe,yes,synthetic
+rabbit,Pneumonia,"My rabbit has anorexia, labored breathing, and fever.",severe,yes,synthetic
+rabbit,Pneumonia,My rabbit keeps sneezing.,severe,yes,synthetic
+rabbit,Pneumonia,My rabbit has been labored breathing with exercise intolerance and facial abscesses.,severe,yes,synthetic
+rabbit,Pneumonia,"My rabbit has exercise intolerance, also fever.",severe,yes,synthetic
+rabbit,Pneumonia,My rabbit won't stop fever.,severe,yes,synthetic
+rabbit,Pneumonia,My rabbit is sneezing with lethargy.,severe,yes,synthetic
+rabbit,Pneumonia,"My rabbit has fever, labored breathing, and exercise intolerance.",severe,yes,synthetic
+rabbit,Pneumonia,My rabbit seems sick with eye discharge.,severe,yes,synthetic
+rabbit,Hutch burn,"My rabbit has skin lesions, also red, irritated genital area from urine scald.",mild,no,real
+rabbit,Hutch burn,My rabbit has been fur loss and wet or matted fur.,mild,no,synthetic
+rabbit,Hutch burn,I noticed my rabbit has wet or matted fur.,mild,no,synthetic
+rabbit,Hutch burn,My rabbit keeps skin lesions.,mild,no,synthetic
+rabbit,Hutch burn,"I'm worried, my rabbit has fur loss.",mild,no,synthetic
+rabbit,Hutch burn,My rabbit has been bleeding with skin lesions and inflamed and red skin.,mild,no,synthetic
+rabbit,Hutch burn,"My rabbit shows inflamed and red skin, red, irritated genital area from urine scald, and bleeding.",mild,no,synthetic
+rabbit,Hutch burn,My rabbit keeps bleeding.,mild,no,synthetic
+rabbit,Hutch burn,"My rabbit has been red, irritated genital area from urine scald with wet or matted fur and bleeding.",mild,no,synthetic
+rabbit,Hutch burn,"My rabbit has itching, also fur loss.",mild,no,synthetic
+rabbit,Hutch burn,My rabbit won't stop brownish crust.,mild,no,synthetic
+rabbit,Hutch burn,My rabbit is bleeding with inflamed and red skin.,mild,no,synthetic
+rabbit,Hutch burn,"My rabbit shows brownish crust, skin lesions, and red, irritated genital area from urine scald.",mild,no,synthetic
+rabbit,Hutch burn,My rabbit seems sick with fur loss.,mild,no,synthetic
+rabbit,Wet dewlap,"My rabbit has odor, also wet fur under chin, skin infection.",mild,no,real
+rabbit,Wet dewlap,My rabbit has been damp or matted fur and odor.,mild,no,synthetic
+rabbit,Wet dewlap,I noticed my rabbit has damp or matted fur.,mild,no,synthetic
+rabbit,Wet dewlap,My rabbit keeps odor.,mild,no,synthetic
+rabbit,Wet dewlap,"I'm worried, my rabbit has damp or matted fur.",mild,no,synthetic
+rabbit,Wet dewlap,"My rabbit has skin irritation, wet fur under chin, skin infection, and damp or matted fur.",mild,no,synthetic
+rabbit,Wet dewlap,"My rabbit has wet fur under chin, skin infection, odor, and damp or matted fur.",mild,no,synthetic
+rabbit,Wet dewlap,My rabbit keeps skin irritation.,mild,no,synthetic
+rabbit,Wet dewlap,"My rabbit has been wet fur under chin, skin infection with damp or matted fur and skin irritation.",mild,no,synthetic
+rabbit,Wet dewlap,"My rabbit has odor, also damp or matted fur.",mild,no,synthetic
+rabbit,Wet dewlap,My rabbit won't stop skin irritation.,mild,no,synthetic
+rabbit,Wet dewlap,"My rabbit is skin irritation with wet fur under chin, skin infection.",mild,no,synthetic
+rabbit,Wet dewlap,"My rabbit has skin irritation, wet fur under chin, skin infection, and damp or matted fur.",mild,no,synthetic
+rabbit,Wet dewlap,My rabbit seems sick with damp or matted fur.,mild,no,synthetic
+hamster,Ringworm,"My hamster has scaly or crusty skin, also circular bald patches.",mild,yes,real
+hamster,Ringworm,"My hamster has been bald patches often on the head, neck, chest, or forelegs and scaly or crusty skin.",mild,yes,synthetic
+hamster,Ringworm,"I'm worried, my hamster has a thickening of the skin, especially on the underside  area.",mild,yes,synthetic
+hamster,Ringworm,My hamster keeps scaly or crusty skin.,mild,yes,synthetic
+hamster,Ringworm,My hamster seems sick with a red rash which is often circular in appearance.,mild,yes,synthetic
+hamster,Ringworm,"My hamster has dry, flaky skin that looks like dandruff, bald patches often on the head, neck, chest, or forelegs, and a red rash which is often circular in appearance.",mild,yes,synthetic
+hamster,Ringworm,"My hamster has circular bald patches, a red rash which is often circular in appearance, and dry, flaky skin that looks like dandruff.",mild,yes,synthetic
+hamster,Ringworm,"My hamster keeps dry, flaky skin that looks like dandruff.",mild,yes,synthetic
+hamster,Ringworm,"My hamster has been circular bald patches with scaly or crusty skin and dry, flaky skin that looks like dandruff.",mild,yes,synthetic
+hamster,Ringworm,"My hamster has scaly or crusty skin, also dry, flaky skin that looks like dandruff.",mild,yes,synthetic
+hamster,Ringworm,"My hamster won't stop dry, flaky skin that looks like dandruff.",mild,yes,synthetic
+hamster,Ringworm,"My hamster is dry, flaky skin that looks like dandruff with bald patches often on the head, neck, chest, or forelegs.",mild,yes,synthetic
+hamster,Ringworm,"My hamster has dry, flaky skin that looks like dandruff, circular bald patches, and scaly or crusty skin.",mild,yes,synthetic
+hamster,Ringworm,"My hamster seems sick with a thickening of the skin, especially on the underside  area.",mild,yes,synthetic
+hamster,Diarrhea,"My hamster has loss of appetite, also wet tail.",moderate,no,real
+hamster,Diarrhea,My hamster has been soiled bottom and tail and loss of appetite.,moderate,no,synthetic
+hamster,Diarrhea,"I'm worried, my hamster has hunched posture.",moderate,no,synthetic
+hamster,Diarrhea,My hamster keeps loss of appetite.,moderate,no,synthetic
+hamster,Diarrhea,My hamster seems sick with sunken eyes and skin that doesn't snap back when gently pinched.,moderate,no,synthetic
+hamster,Diarrhea,"My hamster has lethargy, soiled bottom and tail, and sunken eyes and skin that doesn't snap back when gently pinched.",moderate,no,synthetic
+hamster,Diarrhea,"My hamster has wet tail, sunken eyes and skin that doesn't snap back when gently pinched, and lethargy.",moderate,no,synthetic
+hamster,Diarrhea,My hamster keeps lethargy.,moderate,no,synthetic
+hamster,Diarrhea,My hamster has been wet tail with loss of appetite and lethargy.,moderate,no,synthetic
+hamster,Diarrhea,"My hamster has loss of appetite, also lethargy.",moderate,no,synthetic
+hamster,Diarrhea,My hamster won't stop lethargy.,moderate,no,synthetic
+hamster,Diarrhea,My hamster is lethargy with soiled bottom and tail.,moderate,no,synthetic
+hamster,Diarrhea,"My hamster has lethargy, wet tail, and loss of appetite.",moderate,no,synthetic
+hamster,Diarrhea,My hamster seems sick with hunched posture.,moderate,no,synthetic
+hamster,Constipation,"My hamster has hard, dry feces, often small in volume, also straining, no droppings.",moderate,no,real
+hamster,Constipation,"My hamster has been abdominal pain and hard, dry feces, often small in volume.",moderate,no,synthetic
+hamster,Constipation,"I'm worried, my hamster has worms in feces.",moderate,no,synthetic
+hamster,Constipation,"My hamster keeps hard, dry feces, often small in volume.",moderate,no,synthetic
+hamster,Constipation,"I'm worried, my hamster has abdominal pain.",moderate,no,synthetic
+hamster,Constipation,"My hamster shows straining to defecate, abdominal pain, and worms in feces.",moderate,no,synthetic
+hamster,Constipation,"My hamster shows straining, no droppings, worms in feces, and straining to defecate.",moderate,no,synthetic
+hamster,Constipation,My hamster keeps straining to defecate.,moderate,no,synthetic
+hamster,Constipation,"My hamster has been straining, no droppings with hard, dry feces, often small in volume and straining to defecate.",moderate,no,synthetic
+hamster,Constipation,"My hamster has hard, dry feces, often small in volume, also straining to defecate.",moderate,no,synthetic
+hamster,Constipation,My hamster won't stop straining to defecate.,moderate,no,synthetic
+hamster,Constipation,My hamster is straining to defecate with abdominal pain.,moderate,no,synthetic
+hamster,Constipation,"My hamster has straining to defecate, straining, no droppings, and abdominal pain.",moderate,no,synthetic
+hamster,Constipation,My hamster seems sick with worms in feces.,moderate,no,synthetic
+hamster,Conjunctivitis,"My hamster has conjunctival chemosis, also red or swollen eyes.",mild,no,real
+hamster,Conjunctivitis,My hamster has been repeated pawing at face and clear to thick white discharge.,mild,no,synthetic
+hamster,Conjunctivitis,I noticed my hamster has clear to thick white discharge.,mild,no,synthetic
+hamster,Conjunctivitis,My hamster keeps conjunctival chemosis.,mild,no,synthetic
+hamster,Conjunctivitis,"I'm worried, my hamster has repeated pawing at face.",mild,no,synthetic
+hamster,Conjunctivitis,My hamster has been blinking or holding eyes closed more often. with conjunctival chemosis and reddening of mucous membrane inside eyelids.,mild,no,synthetic
+hamster,Conjunctivitis,"My hamster shows reddening of mucous membrane inside eyelids, red or swollen eyes, and blinking or holding eyes closed more often.",mild,no,synthetic
+hamster,Conjunctivitis,My hamster keeps blinking or holding eyes closed more often.,mild,no,synthetic
+hamster,Conjunctivitis,My hamster has been red or swollen eyes with clear to thick white discharge and blinking or holding eyes closed more often.,mild,no,synthetic
+hamster,Conjunctivitis,"My hamster has keratoconjunctivitis or inflammation of the conjunctiva and the cornea, also repeated pawing at face.",mild,no,synthetic
+hamster,Conjunctivitis,My hamster won't stop symptoms can be in one eye or both eyes.,mild,no,synthetic
+hamster,Conjunctivitis,My hamster is blinking or holding eyes closed more often. with reddening of mucous membrane inside eyelids.,mild,no,synthetic
+hamster,Conjunctivitis,"My hamster shows symptoms can be in one eye or both eyes., conjunctival chemosis, and red or swollen eyes.",mild,no,synthetic
+hamster,Conjunctivitis,My hamster seems sick with repeated pawing at face.,mild,no,synthetic
+hamster,Protrusion of the eyeball,"My hamster has cloudiness or discoloration, also bulging eyes.",severe,no,real
+hamster,Protrusion of the eyeball,My hamster has been discharge or tears and cloudiness or discoloration.,severe,no,synthetic
+hamster,Protrusion of the eyeball,My hamster has been reduced appetite or weight loss.,severe,no,synthetic
+hamster,Protrusion of the eyeball,My hamster keeps cloudiness or discoloration.,severe,no,synthetic
+hamster,Protrusion of the eyeball,"I'm worried, my hamster has discharge or tears.",severe,no,synthetic
+hamster,Protrusion of the eyeball,"My hamster shows squinting or sealed eyes, discharge or tears, and reduced appetite or weight loss.",severe,no,synthetic
+hamster,Protrusion of the eyeball,"My hamster shows visible bulging or protrusion, bulging eyes, and squinting or sealed eyes.",severe,no,synthetic
+hamster,Protrusion of the eyeball,My hamster keeps squinting or sealed eyes.,severe,no,synthetic
+hamster,Protrusion of the eyeball,My hamster has been bulging eyes with behavioral changes and squinting or sealed eyes.,severe,no,synthetic
+hamster,Protrusion of the eyeball,"My hamster has behavioral changes, also crusting.",severe,no,synthetic
+hamster,Protrusion of the eyeball,My hamster won't stop crusting.,severe,no,synthetic
+hamster,Protrusion of the eyeball,My hamster is squinting or sealed eyes with redness and swelling.,severe,no,synthetic
+hamster,Protrusion of the eyeball,"My hamster has crusting, bulging eyes, and redness and swelling.",severe,no,synthetic
+hamster,Protrusion of the eyeball,My hamster seems sick with discharge or tears.,severe,no,synthetic
+hamster,Pneumonia,My hamster has mucus discharge from the nose and eyes and loss of appetite and subsequent weight loss.,severe,yes,real
+hamster,Pneumonia,My hamster has been fever and loss of appetite and subsequent weight loss.,severe,yes,synthetic
+hamster,Pneumonia,"I'm worried, my hamster has constant sneezing and/or coughing.",severe,yes,synthetic
+hamster,Pneumonia,My hamster keeps loss of appetite and subsequent weight loss.,severe,yes,synthetic
+hamster,Pneumonia,My hamster seems sick with respiratory distress.,severe,yes,synthetic
+hamster,Pneumonia,"My hamster has dull and depressed appearance, fever, and mucus discharge from the nose and eyes.",severe,yes,synthetic
+hamster,Pneumonia,"My hamster has labored breathing, discharge, mucus discharge from the nose and eyes, and dull and depressed appearance.",severe,yes,synthetic
+hamster,Pneumonia,My hamster keeps dull and depressed appearance.,severe,yes,synthetic
+hamster,Pneumonia,"My hamster shows labored breathing, discharge, loss of appetite and subsequent weight loss, and constant sneezing and/or coughing.",severe,yes,synthetic
+hamster,Pneumonia,"My hamster has loss of appetite and subsequent weight loss, also dull and depressed appearance.",severe,yes,synthetic
+hamster,Pneumonia,My hamster won't stop dull and depressed appearance.,severe,yes,synthetic
+hamster,Pneumonia,My hamster is dull and depressed appearance with fever.,severe,yes,synthetic
+hamster,Pneumonia,"My hamster has dull and depressed appearance, labored breathing, discharge, and loss of appetite and subsequent weight loss.",severe,yes,synthetic
+hamster,Pneumonia,My hamster seems sick with constant sneezing and/or coughing.,severe,yes,synthetic
+hamster,Milk gland infection,My hamster has mammary gland may also discharge pus or mucus and hamster exhibits pain when the gland is touched.,moderate,no,real
+hamster,Milk gland infection,My hamster has been enlarged mammary gland and hamster exhibits pain when the gland is touched.,moderate,no,synthetic
+hamster,Milk gland infection,"I'm worried, my hamster has mammary gland may appear bluish in color.",moderate,no,synthetic
+hamster,Milk gland infection,My hamster keeps hamster exhibits pain when the gland is touched.,moderate,no,synthetic
+hamster,Milk gland infection,My hamster seems sick with milk discharge may be thick or bloody and clotted.,moderate,no,synthetic
+hamster,Milk gland infection,"My hamster has mammary gland are warm, firm to touch, enlarged mammary gland, and mammary gland may also discharge pus or mucus.",moderate,no,synthetic
+hamster,Milk gland infection,"My hamster has swollen mammary area, mammary gland may also discharge pus or mucus, and mammary gland are warm, firm to touch.",moderate,no,synthetic
+hamster,Milk gland infection,"My hamster keeps mammary gland are warm, firm to touch.",moderate,no,synthetic
+hamster,Milk gland infection,"My hamster shows swollen mammary area, hamster exhibits pain when the gland is touched, and mammary gland may appear bluish in color.",moderate,no,synthetic
+hamster,Milk gland infection,"My hamster has hamster exhibits pain when the gland is touched, also mammary gland are warm, firm to touch.",moderate,no,synthetic
+hamster,Milk gland infection,"My hamster won't stop mammary gland are warm, firm to touch.",moderate,no,synthetic
+hamster,Milk gland infection,"My hamster is mammary gland are warm, firm to touch with enlarged mammary gland.",moderate,no,synthetic
+hamster,Milk gland infection,"My hamster has mammary gland are warm, firm to touch, swollen mammary area, and hamster exhibits pain when the gland is touched.",moderate,no,synthetic
+hamster,Milk gland infection,My hamster seems sick with mammary gland may appear bluish in color.,moderate,no,synthetic
+hamster,Skin abscesses,"My hamster has a hamster's cheeks and lymph nodes around the neck may even be swollen if the infection is severe, also swelling, pus.",moderate,no,real
+hamster,Skin abscesses,My hamster has been skin abscesses are often located around the hamster's head and a hamster's cheeks and lymph nodes around the neck may even be swollen if the infection is severe.,moderate,no,synthetic
+hamster,Skin abscesses,"I'm worried, my hamster has if the abscess ruptures, pus may ooze out and soil the surrounding hair.",moderate,no,synthetic
+hamster,Skin abscesses,My hamster keeps a hamster's cheeks and lymph nodes around the neck may even be swollen if the infection is severe.,moderate,no,synthetic
+hamster,Skin abscesses,"I'm worried, my hamster has skin abscesses are often located around the hamster's head.",moderate,no,synthetic
+hamster,Skin abscesses,"My hamster shows if the abscess has ripened then it pits when pressure is applied, skin abscesses are often located around the hamster's head, and if the abscess ruptures, pus may ooze out and soil the surrounding hair.",moderate,no,synthetic
+hamster,Skin abscesses,"My hamster shows swelling, pus, if the abscess ruptures, pus may ooze out and soil the surrounding hair., and if the abscess has ripened then it pits when pressure is applied.",moderate,no,synthetic
+hamster,Skin abscesses,My hamster keeps if the abscess has ripened then it pits when pressure is applied.,moderate,no,synthetic
+hamster,Skin abscesses,"My hamster has been swelling, pus with a hamster's cheeks and lymph nodes around the neck may even be swollen if the infection is severe and if the abscess has ripened then it pits when pressure is applied.",moderate,no,synthetic
+hamster,Skin abscesses,"My hamster has a hamster's cheeks and lymph nodes around the neck may even be swollen if the infection is severe, also if the abscess has ripened then it pits when pressure is applied.",moderate,no,synthetic
+hamster,Skin abscesses,My hamster won't stop if the abscess has ripened then it pits when pressure is applied.,moderate,no,synthetic
+hamster,Skin abscesses,My hamster is if the abscess has ripened then it pits when pressure is applied with skin abscesses are often located around the hamster's head.,moderate,no,synthetic
+hamster,Skin abscesses,"My hamster has if the abscess has ripened then it pits when pressure is applied, swelling, pus, and skin abscesses are often located around the hamster's head.",moderate,no,synthetic
+hamster,Skin abscesses,"My hamster seems sick with if the abscess ruptures, pus may ooze out and soil the surrounding hair.",moderate,no,synthetic
+hamster,Hair loss / alopecia,My hamster has lethargy and patches of short hair.,moderate,no,real
+hamster,Hair loss / alopecia,My hamster has been thinning hair and patches of short hair.,moderate,no,synthetic
+hamster,Hair loss / alopecia,"I'm worried, my hamster has scabbing.",moderate,no,synthetic
+hamster,Hair loss / alopecia,My hamster keeps patches of short hair.,moderate,no,synthetic
+hamster,Hair loss / alopecia,My hamster seems sick with dandruff.,moderate,no,synthetic
+hamster,Hair loss / alopecia,"My hamster has patches of hair loss, thinning hair, and lethargy.",moderate,no,synthetic
+hamster,Hair loss / alopecia,"My hamster has bald patches, lethargy, and patches of hair loss.",moderate,no,synthetic
+hamster,Hair loss / alopecia,My hamster keeps patches of hair loss.,moderate,no,synthetic
+hamster,Hair loss / alopecia,"My hamster shows bald patches, patches of short hair, and scabbing.",moderate,no,synthetic
+hamster,Hair loss / alopecia,"My hamster has patches of short hair, also patches of hair loss.",moderate,no,synthetic
+hamster,Hair loss / alopecia,My hamster won't stop patches of hair loss.,moderate,no,synthetic
+hamster,Hair loss / alopecia,My hamster is patches of hair loss with thinning hair.,moderate,no,synthetic
+hamster,Hair loss / alopecia,"My hamster has patches of hair loss, bald patches, and patches of short hair.",moderate,no,synthetic
+hamster,Hair loss / alopecia,My hamster seems sick with scabbing.,moderate,no,synthetic
+bird,Skin and fur mites,My bird has head shaking and scabbing.,mild,yes,real
+bird,Skin and fur mites,My bird has been hair loss in the absence of itching or hair loss with itching and scabbing.,mild,yes,synthetic
+bird,Skin and fur mites,"I'm worried, my bird has lesions along the back, hindlimbs, or belly.",mild,yes,synthetic
+bird,Skin and fur mites,My bird keeps scabbing.,mild,yes,synthetic
+bird,Skin and fur mites,My bird seems sick with hair loss and scratching around the ears.,mild,yes,synthetic
+bird,Skin and fur mites,"My bird has scaling/dandruff, hair loss in the absence of itching or hair loss with itching, and head shaking.",mild,yes,synthetic
+bird,Skin and fur mites,"My bird has itching, redness, head shaking, and scaling/dandruff.",mild,yes,synthetic
+bird,Skin and fur mites,My bird keeps scaling/dandruff.,mild,yes,synthetic
+bird,Skin and fur mites,"My bird shows itching, redness, scabbing, and lesions along the back, hindlimbs, or belly.",mild,yes,synthetic
+bird,Skin and fur mites,"My bird has scabbing, also scaling/dandruff.",mild,yes,synthetic
+bird,Skin and fur mites,My bird won't stop scaling/dandruff.,mild,yes,synthetic
+bird,Skin and fur mites,My bird is scaling/dandruff with hair loss in the absence of itching or hair loss with itching.,mild,yes,synthetic
+bird,Skin and fur mites,"My bird has scaling/dandruff, itching, redness, and scabbing.",mild,yes,synthetic
+bird,Skin and fur mites,"My bird seems sick with lesions along the back, hindlimbs, or belly.",mild,yes,synthetic
+bird,Avian Gastric Yeast,"My bird has excessive food intake followed by loss of appetite, also vomiting, weight loss, undigested seeds.",moderate,no,real
+bird,Avian Gastric Yeast,My bird has been continuous loss of weight and excessive food intake followed by loss of appetite.,moderate,no,synthetic
+bird,Avian Gastric Yeast,"I'm worried, my bird has undigested seeds or pellets  in the droppings.",moderate,no,synthetic
+bird,Avian Gastric Yeast,My bird keeps excessive food intake followed by loss of appetite.,moderate,no,synthetic
+bird,Avian Gastric Yeast,"I'm worried, my bird has continuous loss of weight.",moderate,no,synthetic
+bird,Avian Gastric Yeast,"My bird shows regurgitation of food, continuous loss of weight, and undigested seeds or pellets  in the droppings.",moderate,no,synthetic
+bird,Avian Gastric Yeast,"My bird shows vomiting, weight loss, undigested seeds, undigested seeds or pellets  in the droppings, and regurgitation of food.",moderate,no,synthetic
+bird,Avian Gastric Yeast,My bird keeps regurgitation of food.,moderate,no,synthetic
+bird,Avian Gastric Yeast,"My bird has been vomiting, weight loss, undigested seeds with excessive food intake followed by loss of appetite and regurgitation of food.",moderate,no,synthetic
+bird,Avian Gastric Yeast,"My bird has excessive food intake followed by loss of appetite, also regurgitation of food.",moderate,no,synthetic
+bird,Avian Gastric Yeast,My bird won't stop regurgitation of food.,moderate,no,synthetic
+bird,Avian Gastric Yeast,My bird is regurgitation of food with continuous loss of weight.,moderate,no,synthetic
+bird,Avian Gastric Yeast,"My bird has regurgitation of food, vomiting, weight loss, undigested seeds, and continuous loss of weight.",moderate,no,synthetic
+bird,Avian Gastric Yeast,My bird seems sick with undigested seeds or pellets  in the droppings.,moderate,no,synthetic
+bird,Candidiasis,"My bird has difficulty swallowing, also white patches in mouth, regurgitation.",moderate,yes,real
+bird,Candidiasis,My bird has been lack of appetite and difficulty swallowing.,moderate,yes,synthetic
+bird,Candidiasis,"My bird has been difficulty breathing, including open-mouth breathing.",moderate,yes,synthetic
+bird,Candidiasis,My bird keeps difficulty swallowing.,moderate,yes,synthetic
+bird,Candidiasis,"I'm worried, my bird has lack of appetite.",moderate,yes,synthetic
+bird,Candidiasis,"My bird shows regurgitation of food after eating, lack of appetite, and difficulty breathing, including open-mouth breathing.",moderate,yes,synthetic
+bird,Candidiasis,"My bird shows lethargy, white patches in mouth, regurgitation, and regurgitation of food after eating.",moderate,yes,synthetic
+bird,Candidiasis,My bird keeps regurgitation of food after eating.,moderate,yes,synthetic
+bird,Candidiasis,"My bird has been white patches in mouth, regurgitation with thickened crop and regurgitation of food after eating.",moderate,yes,synthetic
+bird,Candidiasis,"My bird has thickened crop, also slow growth/development in young birds.",moderate,yes,synthetic
+bird,Candidiasis,My bird won't stop slow growth/development in young birds.,moderate,yes,synthetic
+bird,Candidiasis,My bird is regurgitation of food after eating with ruffled feathers.,moderate,yes,synthetic
+bird,Candidiasis,"My bird has slow growth/development in young birds, white patches in mouth, regurgitation, and ruffled feathers.",moderate,yes,synthetic
+bird,Candidiasis,My bird seems sick with lack of appetite.,moderate,yes,synthetic
+bird,Pacheco’s Disease,"My bird has nasal discharge, also sudden death but can show lethargy, green droppings.",moderate,no,real
+bird,Pacheco’s Disease,My bird has been depression and nasal discharge.,moderate,no,synthetic
+bird,Pacheco’s Disease,"I'm worried, my bird has papillomas on the oral or cloacal mucosa/tissue, as well as internal.",moderate,no,synthetic
+bird,Pacheco’s Disease,My bird keeps nasal discharge.,moderate,no,synthetic
+bird,Pacheco’s Disease,"I'm worried, my bird has depression.",moderate,no,synthetic
+bird,Pacheco’s Disease,"My bird has eye discharge/runny eyes, depression, and papillomas on the oral or cloacal mucosa/tissue, as well as internal.",moderate,no,synthetic
+bird,Pacheco’s Disease,"My bird has yellow, watery urates, sudden death but can show lethargy, green droppings, and ruffled feathers.",moderate,no,synthetic
+bird,Pacheco’s Disease,My bird keeps eye discharge/runny eyes.,moderate,no,synthetic
+bird,Pacheco’s Disease,"My bird has been sudden death but can show lethargy, green droppings with green feces and ruffled feathers.",moderate,no,synthetic
+bird,Pacheco’s Disease,"My bird has green feces, also ruffled feathers.",moderate,no,synthetic
+bird,Pacheco’s Disease,My bird won't stop ruffled feathers.,moderate,no,synthetic
+bird,Pacheco’s Disease,My bird is eye discharge/runny eyes with not eating.,moderate,no,synthetic
+bird,Pacheco’s Disease,"My bird has ruffled feathers, sudden death but can show lethargy, green droppings, and green feces.",moderate,no,synthetic
+bird,Pacheco’s Disease,"My bird seems sick with papillomas on the oral or cloacal mucosa/tissue, as well as internal.",moderate,no,synthetic
+bird,Giardiasis,My bird has increased vocalization in the infected bird and weight loss.,moderate,yes,real
+bird,Giardiasis,My bird has been malnutrition and weight loss.,moderate,yes,synthetic
+bird,Giardiasis,"I'm worried, my bird has feather plucking.",moderate,yes,synthetic
+bird,Giardiasis,My bird keeps weight loss.,moderate,yes,synthetic
+bird,Giardiasis,My bird seems sick with excessive pecking of the skin.,moderate,yes,synthetic
+bird,Giardiasis,"My bird has faulty absorption of nutrients, malnutrition, and increased vocalization in the infected bird.",moderate,yes,synthetic
+bird,Giardiasis,"My bird has itching, feather picking, diarrhea, increased vocalization in the infected bird, and faulty absorption of nutrients.",moderate,yes,synthetic
+bird,Giardiasis,My bird keeps faulty absorption of nutrients.,moderate,yes,synthetic
+bird,Giardiasis,"My bird shows itching, feather picking, diarrhea, weight loss, and feather plucking.",moderate,yes,synthetic
+bird,Giardiasis,"My bird has weight loss, also faulty absorption of nutrients.",moderate,yes,synthetic
+bird,Giardiasis,My bird won't stop faulty absorption of nutrients.,moderate,yes,synthetic
+bird,Giardiasis,My bird is faulty absorption of nutrients with malnutrition.,moderate,yes,synthetic
+bird,Giardiasis,"My bird has faulty absorption of nutrients, itching, feather picking, diarrhea, and weight loss.",moderate,yes,synthetic
+bird,Giardiasis,My bird seems sick with feather plucking.,moderate,yes,synthetic
+bird,Trichomoniasis,"My bird has pale yellow or whitish-yellow lesions  in the lining of the mouth throat, crop, and esophagus., also mouth lesions, drooling.",moderate,yes,real
+bird,Trichomoniasis,"My bird has been mouth lesions, drooling and pale yellow or whitish-yellow lesions  in the lining of the mouth throat, crop, and esophagus.",moderate,yes,synthetic
+bird,Trichomoniasis,"I'm worried, my bird has other symptoms commonly displayed are increased saliva production and throwing up undigested food .",moderate,yes,synthetic
+bird,Trichomoniasis,"My bird keeps pale yellow or whitish-yellow lesions  in the lining of the mouth throat, crop, and esophagus.",moderate,yes,synthetic
+bird,Trichomoniasis,My bird seems sick with other symptoms commonly displayed are increased saliva production and throwing up undigested food .,moderate,yes,synthetic
+bird,Trichomoniasis,"My bird has pale yellow or whitish-yellow lesions  in the lining of the mouth throat, crop, and esophagus., mouth lesions, drooling, and other symptoms commonly displayed are increased saliva production and throwing up undigested food .",moderate,yes,synthetic
+bird,Trichomoniasis,"My bird has mouth lesions, drooling, other symptoms commonly displayed are increased saliva production and throwing up undigested food ., and pale yellow or whitish-yellow lesions  in the lining of the mouth throat, crop, and esophagus.",moderate,yes,synthetic
+bird,Trichomoniasis,"My bird keeps pale yellow or whitish-yellow lesions  in the lining of the mouth throat, crop, and esophagus.",moderate,yes,synthetic
+bird,Trichomoniasis,"My bird has been mouth lesions, drooling with pale yellow or whitish-yellow lesions  in the lining of the mouth throat, crop, and esophagus. and other symptoms commonly displayed are increased saliva production and throwing up undigested food .",moderate,yes,synthetic
+bird,Trichomoniasis,"My bird has pale yellow or whitish-yellow lesions  in the lining of the mouth throat, crop, and esophagus., also other symptoms commonly displayed are increased saliva production and throwing up undigested food .",moderate,yes,synthetic
+bird,Trichomoniasis,"My bird won't stop pale yellow or whitish-yellow lesions  in the lining of the mouth throat, crop, and esophagus.",moderate,yes,synthetic
+bird,Trichomoniasis,"My bird is pale yellow or whitish-yellow lesions  in the lining of the mouth throat, crop, and esophagus. with mouth lesions, drooling.",moderate,yes,synthetic
+bird,Trichomoniasis,"My bird has pale yellow or whitish-yellow lesions  in the lining of the mouth throat, crop, and esophagus., mouth lesions, drooling, and other symptoms commonly displayed are increased saliva production and throwing up undigested food .",moderate,yes,synthetic
+bird,Trichomoniasis,My bird seems sick with other symptoms commonly displayed are increased saliva production and throwing up undigested food .,moderate,yes,synthetic
+bird,Roundworms / Tapeworms,"My bird has weight loss, diarrhea.",moderate,no,real
+bird,Roundworms / Tapeworms,"My bird keeps weight loss, diarrhea.",moderate,no,synthetic
+bird,Roundworms / Tapeworms,"I noticed my bird has weight loss, diarrhea.",moderate,no,synthetic
+bird,Roundworms / Tapeworms,"My bird keeps weight loss, diarrhea.",moderate,no,synthetic
+bird,Roundworms / Tapeworms,"I'm worried, my bird has weight loss, diarrhea.",moderate,no,synthetic
+bird,Roundworms / Tapeworms,"My bird seems sick with weight loss, diarrhea.",moderate,no,synthetic
+bird,Roundworms / Tapeworms,"My bird has weight loss, diarrhea.",moderate,no,synthetic
+bird,Roundworms / Tapeworms,"My bird keeps weight loss, diarrhea.",moderate,no,synthetic
+bird,Roundworms / Tapeworms,"My bird won't stop weight loss, diarrhea.",moderate,no,synthetic
+bird,Roundworms / Tapeworms,"I noticed my bird has weight loss, diarrhea.",moderate,no,synthetic
+bird,Roundworms / Tapeworms,"My bird won't stop weight loss, diarrhea.",moderate,no,synthetic
+bird,Roundworms / Tapeworms,"My bird has been weight loss, diarrhea.",moderate,no,synthetic
+bird,Roundworms / Tapeworms,"My bird has weight loss, diarrhea.",moderate,no,synthetic
+bird,Roundworms / Tapeworms,"My bird seems sick with weight loss, diarrhea.",moderate,no,synthetic
+bird,Conjunctivitis,"My bird has glassy eyes, also red eyes, discharge.",mild,no,real
+bird,Conjunctivitis,My bird has been eye redness and glassy eyes.,mild,no,synthetic
+bird,Conjunctivitis,"I'm worried, my bird has rubbing the eye.",mild,no,synthetic
+bird,Conjunctivitis,My bird keeps glassy eyes.,mild,no,synthetic
+bird,Conjunctivitis,My bird seems sick with lethargy.,mild,no,synthetic
+bird,Conjunctivitis,"My bird has cloudy eyes, eye redness, and lethargy.",mild,no,synthetic
+bird,Conjunctivitis,"My bird has discharge—thick, white, or tan in color that can become crusted, red eyes, discharge, and blinking and squinting.",mild,no,synthetic
+bird,Conjunctivitis,My bird keeps cloudy eyes.,mild,no,synthetic
+bird,Conjunctivitis,"My bird shows red eyes, discharge, rapid head movements, and scratching at the eye.",mild,no,synthetic
+bird,Conjunctivitis,"My bird has rapid head movements, also blinking and squinting.",mild,no,synthetic
+bird,Conjunctivitis,My bird won't stop blinking and squinting.,mild,no,synthetic
+bird,Conjunctivitis,My bird is cloudy eyes with swelling of the eye and head.,mild,no,synthetic
+bird,Conjunctivitis,"My bird has blinking and squinting, red eyes, discharge, and rapid head movements.",mild,no,synthetic
+bird,Conjunctivitis,My bird seems sick with rubbing the eye.,mild,no,synthetic
+bird,Cataract,"My bird has feather damage: excessive rubbing can lead to feather displacement over the eye., also cloudy eye.",mild,no,real
+bird,Cataract,"My bird has been squinting, tearing, or rubbing the eye and feather damage: excessive rubbing can lead to feather displacement over the eye.",mild,no,synthetic
+bird,Cataract,"I noticed my bird has squinting, tearing, or rubbing the eye.",mild,no,synthetic
+bird,Cataract,My bird keeps feather damage: excessive rubbing can lead to feather displacement over the eye.,mild,no,synthetic
+bird,Cataract,"I'm worried, my bird has squinting, tearing, or rubbing the eye.",mild,no,synthetic
+bird,Cataract,"My bird has light sensitivity the bird may react negatively to bright lights., cloudy eye, and squinting, tearing, or rubbing the eye.",mild,no,synthetic
+bird,Cataract,"My bird has cloudy eye, feather damage: excessive rubbing can lead to feather displacement over the eye., and squinting, tearing, or rubbing the eye.",mild,no,synthetic
+bird,Cataract,My bird keeps light sensitivity the bird may react negatively to bright lights.,mild,no,synthetic
+bird,Cataract,"My bird has been cloudy eye with squinting, tearing, or rubbing the eye and light sensitivity the bird may react negatively to bright lights.",mild,no,synthetic
+bird,Cataract,"My bird has feather damage: excessive rubbing can lead to feather displacement over the eye., also squinting, tearing, or rubbing the eye.",mild,no,synthetic
+bird,Cataract,My bird won't stop light sensitivity the bird may react negatively to bright lights.,mild,no,synthetic
+bird,Cataract,My bird is light sensitivity the bird may react negatively to bright lights. with cloudy eye.,mild,no,synthetic
+bird,Cataract,"My bird has light sensitivity the bird may react negatively to bright lights., cloudy eye, and squinting, tearing, or rubbing the eye.",mild,no,synthetic
+bird,Cataract,"My bird seems sick with squinting, tearing, or rubbing the eye.",mild,no,synthetic
+bird,Fractures,My bird has inability to fly and inability to move a limb.,severe,no,real
+bird,Fractures,My bird has been drooping wing a wing that hangs lower than the other is a classic sign of a broken wing. and inability to move a limb.,severe,no,synthetic
+bird,Fractures,"I'm worried, my bird has local swelling.",severe,no,synthetic
+bird,Fractures,My bird keeps inability to move a limb.,severe,no,synthetic
+bird,Fractures,"My bird seems sick with wing droop"" or slight droop.",severe,no,synthetic
+bird,Fractures,"My bird has abnormal limb position a leg or wing may be held at an unusual angle., drooping wing a wing that hangs lower than the other is a classic sign of a broken wing., and inability to fly.",severe,no,synthetic
+bird,Fractures,"My bird has limping, drooping wing, inability to fly, and abnormal limb position a leg or wing may be held at an unusual angle.",severe,no,synthetic
+bird,Fractures,My bird keeps abnormal limb position a leg or wing may be held at an unusual angle.,severe,no,synthetic
+bird,Fractures,"My bird shows limping, drooping wing, inability to move a limb, and local swelling.",severe,no,synthetic
+bird,Fractures,"My bird has inability to move a limb, also abnormal limb position a leg or wing may be held at an unusual angle.",severe,no,synthetic
+bird,Fractures,My bird won't stop abnormal limb position a leg or wing may be held at an unusual angle.,severe,no,synthetic
+bird,Fractures,My bird is abnormal limb position a leg or wing may be held at an unusual angle. with drooping wing a wing that hangs lower than the other is a classic sign of a broken wing.,severe,no,synthetic
+bird,Fractures,"My bird has abnormal limb position a leg or wing may be held at an unusual angle., limping, drooping wing, and inability to move a limb.",severe,no,synthetic
+bird,Fractures,My bird seems sick with local swelling.,severe,no,synthetic
+bird,Gout,"My bird has makes noise when walking due to discomfort, also swollen joints, white deposits.",moderate,no,real
+bird,Gout,"My bird has been the joints become swollen, red, tender swell, and warm to touch. and makes noise when walking due to discomfort.",moderate,no,synthetic
+bird,Gout,"I'm worried, my bird has can also be dehydrated.",moderate,no,synthetic
+bird,Gout,My bird keeps makes noise when walking due to discomfort.,moderate,no,synthetic
+bird,Gout,My bird seems sick with greenish diarrhea.,moderate,no,synthetic
+bird,Gout,"My bird has bird prefers to sit on  flat surface instead of perching, the joints become swollen, red, tender swell, and warm to touch., and greenish diarrhea.",moderate,no,synthetic
+bird,Gout,"My bird has swollen joints, white deposits, greenish diarrhea, and bird prefers to sit on  flat surface instead of perching.",moderate,no,synthetic
+bird,Gout,My bird keeps bird prefers to sit on  flat surface instead of perching.,moderate,no,synthetic
+bird,Gout,"My bird has been swollen joints, white deposits with makes noise when walking due to discomfort and bird prefers to sit on  flat surface instead of perching.",moderate,no,synthetic
+bird,Gout,"My bird has makes noise when walking due to discomfort, also bird prefers to sit on  flat surface instead of perching.",moderate,no,synthetic
+bird,Gout,My bird won't stop bird prefers to sit on  flat surface instead of perching.,moderate,no,synthetic
+bird,Gout,"My bird is bird prefers to sit on  flat surface instead of perching with the joints become swollen, red, tender swell, and warm to touch.",moderate,no,synthetic
+bird,Gout,"My bird has bird prefers to sit on  flat surface instead of perching, swollen joints, white deposits, and makes noise when walking due to discomfort.",moderate,no,synthetic
+bird,Gout,My bird seems sick with can also be dehydrated.,moderate,no,synthetic
+bird,Aspergillosis,"My bird has bone changes or misshaping of the upper respiratory tract, also lack of appetite.",severe,no,real
+bird,Aspergillosis,"My bird has been airsacculitis and severe, possibly permanent respiratory damage.",severe,no,synthetic
+bird,Aspergillosis,My bird has been loss of coordination.,severe,no,synthetic
+bird,Aspergillosis,My bird keeps bone changes or misshaping of the upper respiratory tract.,severe,no,synthetic
+bird,Aspergillosis,"I'm worried, my bird has airsacculitis.",severe,no,synthetic
+bird,Aspergillosis,"My bird has difficulty breathing, airsacculitis, and paralysis.",severe,no,synthetic
+bird,Aspergillosis,"My bird has sudden death if untreated, labored breathing, wheezing, and depression.",severe,no,synthetic
+bird,Aspergillosis,My bird keeps symptoms appear only after long infection.,severe,no,synthetic
+bird,Aspergillosis,"My bird has been labored breathing, wheezing with tremors and weakness.",severe,no,synthetic
+bird,Aspergillosis,"My bird has spread of infection to other organs and systems, also weakness.",severe,no,synthetic
+bird,Aspergillosis,My bird won't stop weakness.,severe,no,synthetic
+bird,Aspergillosis,My bird is difficulty breathing with nodules in lungs.,severe,no,synthetic
+bird,Aspergillosis,"My bird has weakness, lack of appetite, and tremors.",severe,no,synthetic
+bird,Aspergillosis,My bird seems sick with lungs and air sacs congested with white mucus.,severe,no,synthetic
+bird,Avian Influenza,My bird has huddling or drooping posture and loss of appetite.,severe,yes,real
+bird,Avian Influenza,My bird has been labored or open-mouth breathing and loss of appetite.,severe,yes,synthetic
+bird,Avian Influenza,"I'm worried, my bird has soft-shelled or misshapen eggs.",severe,yes,synthetic
+bird,Avian Influenza,My bird keeps loss of appetite.,severe,yes,synthetic
+bird,Avian Influenza,My bird seems sick with reluctance to move or fly.,severe,yes,synthetic
+bird,Avian Influenza,My bird has been gurgling or wheezing sounds with huddling or drooping posture and labored or open-mouth breathing.,severe,yes,synthetic
+bird,Avian Influenza,"My bird shows coughing or sneezing, nasal discharge, lethargy, and reluctance to move or fly.",severe,yes,synthetic
+bird,Avian Influenza,My bird keeps gurgling or wheezing sounds.,severe,yes,synthetic
+bird,Avian Influenza,"My bird has been nasal discharge, lethargy with diarrhea or watery droppings and lethargy or weakness.",severe,yes,synthetic
+bird,Avian Influenza,"My bird has diarrhea or watery droppings, also swelling around the eyes, head, or neck.",severe,yes,synthetic
+bird,Avian Influenza,"My bird won't stop swelling around the eyes, head, or neck.",severe,yes,synthetic
+bird,Avian Influenza,My bird is gurgling or wheezing sounds with nasal discharge or runny nose.,severe,yes,synthetic
+bird,Avian Influenza,"My bird shows swelling around the eyes, head, or neck, huddling or drooping posture, and nasal discharge, lethargy.",severe,yes,synthetic
+bird,Avian Influenza,My bird seems sick with soft-shelled or misshapen eggs.,severe,yes,synthetic
+bird,Newcastle Disease,"My bird has twisting of the neck, also appetite loss.",severe,yes,real
+bird,Newcastle Disease,My bird has been nasal discharge and paralysis of legs or wings.,severe,yes,synthetic
+bird,Newcastle Disease,My bird has been sudden death.,severe,yes,synthetic
+bird,Newcastle Disease,My bird keeps twisting of the neck.,severe,yes,synthetic
+bird,Newcastle Disease,"I'm worried, my bird has nasal discharge.",severe,yes,synthetic
+bird,Newcastle Disease,"My bird shows head bobbing, nasal discharge, and jerky, involuntary movements.",severe,yes,synthetic
+bird,Newcastle Disease,"My bird shows sneezing, twisted neck, paralysis, and jerky, involuntary movements.",severe,yes,synthetic
+bird,Newcastle Disease,"My bird keeps jerky, involuntary movements.",severe,yes,synthetic
+bird,Newcastle Disease,"My bird has been twisted neck, paralysis with dilation of pupils and head bobbing.",severe,yes,synthetic
+bird,Newcastle Disease,"My bird has unnatural head position, also spasms.",severe,yes,synthetic
+bird,Newcastle Disease,My bird won't stop spasms.,severe,yes,synthetic
+bird,Newcastle Disease,My bird is head bobbing with breathing problems.,severe,yes,synthetic
+bird,Newcastle Disease,"My bird has spasms, appetite loss, and diarrhea.",severe,yes,synthetic
+bird,Newcastle Disease,My bird seems sick with eye discharge.,severe,yes,synthetic
+bird,Air sac mites / gapeworms,"My bird has excessive salivation, also open-mouth breathing, tail bobbing.",moderate,no,real
+bird,Air sac mites / gapeworms,My bird has been breathing problems and excessive salivation.,moderate,no,synthetic
+bird,Air sac mites / gapeworms,I noticed my bird has breathing problems.,moderate,no,synthetic
+bird,Air sac mites / gapeworms,My bird keeps excessive salivation.,moderate,no,synthetic
+bird,Air sac mites / gapeworms,"I'm worried, my bird has breathing problems.",moderate,no,synthetic
+bird,Air sac mites / gapeworms,"My bird has bobbing of the tail, open-mouth breathing, tail bobbing, and breathing problems.",moderate,no,synthetic
+bird,Air sac mites / gapeworms,"My bird has open-mouth breathing, tail bobbing, excessive salivation, and breathing problems.",moderate,no,synthetic
+bird,Air sac mites / gapeworms,My bird keeps bobbing of the tail.,moderate,no,synthetic
+bird,Air sac mites / gapeworms,"My bird has been open-mouth breathing, tail bobbing with breathing problems and bobbing of the tail.",moderate,no,synthetic
+bird,Air sac mites / gapeworms,"My bird has excessive salivation, also breathing problems.",moderate,no,synthetic
+bird,Air sac mites / gapeworms,My bird won't stop bobbing of the tail.,moderate,no,synthetic
+bird,Air sac mites / gapeworms,"My bird is bobbing of the tail with open-mouth breathing, tail bobbing.",moderate,no,synthetic
+bird,Air sac mites / gapeworms,"My bird has bobbing of the tail, open-mouth breathing, tail bobbing, and breathing problems.",moderate,no,synthetic
+bird,Air sac mites / gapeworms,My bird seems sick with breathing problems.,moderate,no,synthetic
+bird,Cloacal prolapse,"My bird has signs of discomfort or distress when eliminating, also tissue protruding from vent.",severe,no,real
+bird,Cloacal prolapse,"My bird has been exposure of intestines, cloaca, or uterus and signs of discomfort or distress when eliminating.",severe,no,synthetic
+bird,Cloacal prolapse,"I'm worried, my bird has severe cases can cause stretching and dilation of the vent.",severe,no,synthetic
+bird,Cloacal prolapse,My bird keeps signs of discomfort or distress when eliminating.,severe,no,synthetic
+bird,Cloacal prolapse,My bird seems sick with can be worsened by behavioral causes like misplaced sexual attachment to humans.,severe,no,synthetic
+bird,Cloacal prolapse,"My bird has frequent or prolonged attempts to pass droppings, exposure of intestines, cloaca, or uterus, and can be worsened by behavioral causes like misplaced sexual attachment to humans.",severe,no,synthetic
+bird,Cloacal prolapse,"My bird has visible protrusion of inner cloacal tissues from the vent, tissue protruding from vent, and straining during defecation or egg-laying.",severe,no,synthetic
+bird,Cloacal prolapse,My bird keeps frequent or prolonged attempts to pass droppings.,severe,no,synthetic
+bird,Cloacal prolapse,"My bird shows tissue protruding from vent, holding in feces for long periods of time, and crying or vocalizing.",severe,no,synthetic
+bird,Cloacal prolapse,"My bird has holding in feces for long periods of time, also straining during defecation or egg-laying.",severe,no,synthetic
+bird,Cloacal prolapse,My bird won't stop straining during defecation or egg-laying.,severe,no,synthetic
+bird,Cloacal prolapse,My bird is frequent or prolonged attempts to pass droppings with swelling or redness around the vent area.,severe,no,synthetic
+bird,Cloacal prolapse,"My bird has straining during defecation or egg-laying, tissue protruding from vent, and holding in feces for long periods of time.",severe,no,synthetic
+bird,Cloacal prolapse,My bird seems sick with severe cases can cause stretching and dilation of the vent.,severe,no,synthetic
+bird,Egg binding,My bird has sudden death in untreated or prolonged cases and wide-legged stance.,severe,no,real
+bird,Egg binding,My bird has been reduced or no vocalizations and wide-legged stance.,severe,no,synthetic
+bird,Egg binding,"I'm worried, my bird has difficulty or refusal to perch.",severe,no,synthetic
+bird,Egg binding,My bird keeps wide-legged stance.,severe,no,synthetic
+bird,Egg binding,My bird seems sick with paralysis in severe cases.,severe,no,synthetic
+bird,Egg binding,My bird has been cloacal prolapse with sudden death in untreated or prolonged cases and reduced or no vocalizations.,severe,no,synthetic
+bird,Egg binding,"My bird shows fluffed-up feathers, straining, swollen abdomen, and paralysis in severe cases.",severe,no,synthetic
+bird,Egg binding,My bird keeps cloacal prolapse.,severe,no,synthetic
+bird,Egg binding,"My bird has been straining, swollen abdomen with tail wagging or bobbing and weakness or lameness.",severe,no,synthetic
+bird,Egg binding,"My bird has tail wagging or bobbing, also swollen or distended abdomen.",severe,no,synthetic
+bird,Egg binding,My bird won't stop swollen or distended abdomen.,severe,no,synthetic
+bird,Egg binding,My bird is cloacal prolapse with straining or frequent attempts to lay an egg.,severe,no,synthetic
+bird,Egg binding,"My bird shows swollen or distended abdomen, sudden death in untreated or prolonged cases, and straining, swollen abdomen.",severe,no,synthetic
+bird,Egg binding,My bird seems sick with difficulty or refusal to perch.,severe,no,synthetic
+bird,Feather cysts,"My bird has discomfort: birds with feather cysts may exhibit signs of discomfort,, also lump under skin.",mild,no,real
+bird,Feather cysts,"My bird has been lump under skin and discomfort: birds with feather cysts may exhibit signs of discomfort,.",mild,no,synthetic
+bird,Feather cysts,"I'm worried, my bird has localized redness: inflamed or irritated skin surrounding the cyst may appear red or inflamed.",mild,no,synthetic
+bird,Feather cysts,"My bird keeps discomfort: birds with feather cysts may exhibit signs of discomfort,.",mild,no,synthetic
+bird,Feather cysts,My bird seems sick with localized redness: inflamed or irritated skin surrounding the cyst may appear red or inflamed.,mild,no,synthetic
+bird,Feather cysts,"My bird has discomfort: birds with feather cysts may exhibit signs of discomfort,, lump under skin, and localized redness: inflamed or irritated skin surrounding the cyst may appear red or inflamed.",mild,no,synthetic
+bird,Feather cysts,"My bird has lump under skin, localized redness: inflamed or irritated skin surrounding the cyst may appear red or inflamed., and discomfort: birds with feather cysts may exhibit signs of discomfort,.",mild,no,synthetic
+bird,Feather cysts,"My bird keeps discomfort: birds with feather cysts may exhibit signs of discomfort,.",mild,no,synthetic
+bird,Feather cysts,"My bird has been lump under skin with discomfort: birds with feather cysts may exhibit signs of discomfort, and localized redness: inflamed or irritated skin surrounding the cyst may appear red or inflamed.",mild,no,synthetic
+bird,Feather cysts,"My bird has discomfort: birds with feather cysts may exhibit signs of discomfort,, also localized redness: inflamed or irritated skin surrounding the cyst may appear red or inflamed.",mild,no,synthetic
+bird,Feather cysts,"My bird won't stop discomfort: birds with feather cysts may exhibit signs of discomfort,.",mild,no,synthetic
+bird,Feather cysts,"My bird is discomfort: birds with feather cysts may exhibit signs of discomfort, with lump under skin.",mild,no,synthetic
+bird,Feather cysts,"My bird has discomfort: birds with feather cysts may exhibit signs of discomfort,, lump under skin, and localized redness: inflamed or irritated skin surrounding the cyst may appear red or inflamed.",mild,no,synthetic
+bird,Feather cysts,My bird seems sick with localized redness: inflamed or irritated skin surrounding the cyst may appear red or inflamed.,mild,no,synthetic
+bird,Bumblefoot,"My bird has changes in behavior, also swelling on feet.",moderate,no,real
+bird,Bumblefoot,My bird has been lesions or sores and changes in behavior.,moderate,no,synthetic
+bird,Bumblefoot,"I'm worried, my bird has loss of appetite.",moderate,no,synthetic
+bird,Bumblefoot,My bird keeps changes in behavior.,moderate,no,synthetic
+bird,Bumblefoot,My bird seems sick with abnormal foot appearance.,moderate,no,synthetic
+bird,Bumblefoot,"My bird has lameness or difficulty walking, lesions or sores, and abnormal foot appearance.",moderate,no,synthetic
+bird,Bumblefoot,"My bird has swelling on feet, abnormal foot appearance, and lameness or difficulty walking.",moderate,no,synthetic
+bird,Bumblefoot,My bird keeps lameness or difficulty walking.,moderate,no,synthetic
+bird,Bumblefoot,My bird has been swelling on feet with changes in behavior and lameness or difficulty walking.,moderate,no,synthetic
+bird,Bumblefoot,"My bird has changes in behavior, also lameness or difficulty walking.",moderate,no,synthetic
+bird,Bumblefoot,My bird won't stop lameness or difficulty walking.,moderate,no,synthetic
+bird,Bumblefoot,My bird is lameness or difficulty walking with lesions or sores.,moderate,no,synthetic
+bird,Bumblefoot,"My bird has lameness or difficulty walking, swelling on feet, and changes in behavior.",moderate,no,synthetic
+bird,Bumblefoot,My bird seems sick with loss of appetite.,moderate,no,synthetic
+bird,Ringworm,"My bird has red, crusty or scaling skin around the affected area., also bald patches.",mild,yes,real
+bird,Ringworm,"My bird has been bald patches and red, crusty or scaling skin around the affected area.",mild,yes,synthetic
+bird,Ringworm,"I'm worried, my bird has feathers adjacent to the affected area may appear brittle, broken or discoloured.",mild,yes,synthetic
+bird,Ringworm,"My bird keeps red, crusty or scaling skin around the affected area.",mild,yes,synthetic
+bird,Ringworm,"My bird seems sick with feathers adjacent to the affected area may appear brittle, broken or discoloured.",mild,yes,synthetic
+bird,Ringworm,"My bird has red, crusty or scaling skin around the affected area., bald patches, and feathers adjacent to the affected area may appear brittle, broken or discoloured.",mild,yes,synthetic
+bird,Ringworm,"My bird has bald patches, feathers adjacent to the affected area may appear brittle, broken or discoloured., and red, crusty or scaling skin around the affected area.",mild,yes,synthetic
+bird,Ringworm,"My bird keeps red, crusty or scaling skin around the affected area.",mild,yes,synthetic
+bird,Ringworm,"My bird has been bald patches with red, crusty or scaling skin around the affected area. and feathers adjacent to the affected area may appear brittle, broken or discoloured.",mild,yes,synthetic
+bird,Ringworm,"My bird has red, crusty or scaling skin around the affected area., also feathers adjacent to the affected area may appear brittle, broken or discoloured.",mild,yes,synthetic
+bird,Ringworm,"My bird won't stop red, crusty or scaling skin around the affected area.",mild,yes,synthetic
+bird,Ringworm,"My bird is red, crusty or scaling skin around the affected area. with bald patches.",mild,yes,synthetic
+bird,Ringworm,"My bird has red, crusty or scaling skin around the affected area., bald patches, and feathers adjacent to the affected area may appear brittle, broken or discoloured.",mild,yes,synthetic
+bird,Ringworm,"My bird seems sick with feathers adjacent to the affected area may appear brittle, broken or discoloured.",mild,yes,synthetic
+bird,Scaly face / tassel foot / feather mites,"My bird has pale appearance or signs of anemia, also visible scaling, itching.",moderate,no,real
+bird,Scaly face / tassel foot / feather mites,My bird has been loss of feathers near affected areas and eye deformities in severe cases.,moderate,no,synthetic
+bird,Scaly face / tassel foot / feather mites,I noticed my bird has white crusts on legs and toes.,moderate,no,synthetic
+bird,Scaly face / tassel foot / feather mites,My bird keeps pale appearance or signs of anemia.,moderate,no,synthetic
+bird,Scaly face / tassel foot / feather mites,"I'm worried, my bird has loss of feathers near affected areas.",moderate,no,synthetic
+bird,Scaly face / tassel foot / feather mites,My bird has been no itching observed with increased activity or discomfort at night and crusting around nostrils.,moderate,no,synthetic
+bird,Scaly face / tassel foot / feather mites,"My bird shows crusting around eyes, visible scaling, itching, and restlessness or agitation throughout the day.",moderate,no,synthetic
+bird,Scaly face / tassel foot / feather mites,My bird keeps restlessness or agitation throughout the day.,moderate,no,synthetic
+bird,Scaly face / tassel foot / feather mites,"My bird has been visible scaling, itching with white crusts on legs and toes and no itching observed.",moderate,no,synthetic
+bird,Scaly face / tassel foot / feather mites,"My bird has weakness or lethargy, also loss of feathers near affected areas.",moderate,no,synthetic
+bird,Scaly face / tassel foot / feather mites,My bird won't stop feather loss around leg areas.,moderate,no,synthetic
+bird,Scaly face / tassel foot / feather mites,My bird is no itching observed with crusting around eyes.,moderate,no,synthetic
+bird,Scaly face / tassel foot / feather mites,"My bird has feather loss around leg areas, weakness or lethargy, and increased activity or discomfort at night.",moderate,no,synthetic
+bird,Scaly face / tassel foot / feather mites,My bird seems sick with beak deformities or crooked beak.,moderate,no,synthetic
+bird,Psittacine Beak and Feather Disease,"My bird has nails: brittle and malformed, also feather loss, beak deformities.",severe,yes,real
+bird,Psittacine Beak and Feather Disease,"My bird has been skin: scarring, scaly, thickened, moist skin, skin infections, loss of temperature control and nails: brittle and malformed.",severe,yes,synthetic
+bird,Psittacine Beak and Feather Disease,"I'm worried, my bird has internal organs: immune system failure including the thymus, bursa of fabricius, and bone marrow.",severe,yes,synthetic
+bird,Psittacine Beak and Feather Disease,My bird keeps nails: brittle and malformed.,severe,yes,synthetic
+bird,Psittacine Beak and Feather Disease,"I'm worried, my bird has skin: scarring, scaly, thickened, moist skin, skin infections, loss of temperature control.",severe,yes,synthetic
+bird,Psittacine Beak and Feather Disease,"My bird shows beak: initially glossy then dull, brittle, and malformed, skin: scarring, scaly, thickened, moist skin, skin infections, loss of temperature control, and internal organs: immune system failure including the thymus, bursa of fabricius, and bone marrow.",severe,yes,synthetic
+bird,Psittacine Beak and Feather Disease,"My bird shows feather loss, beak deformities, internal organs: immune system failure including the thymus, bursa of fabricius, and bone marrow, and beak: initially glossy then dull, brittle, and malformed.",severe,yes,synthetic
+bird,Psittacine Beak and Feather Disease,"My bird keeps beak: initially glossy then dull, brittle, and malformed.",severe,yes,synthetic
+bird,Psittacine Beak and Feather Disease,"My bird has been feather loss, beak deformities with nails: brittle and malformed and beak: initially glossy then dull, brittle, and malformed.",severe,yes,synthetic
+bird,Psittacine Beak and Feather Disease,"My bird has nails: brittle and malformed, also beak: initially glossy then dull, brittle, and malformed.",severe,yes,synthetic
+bird,Psittacine Beak and Feather Disease,"My bird won't stop beak: initially glossy then dull, brittle, and malformed.",severe,yes,synthetic
+bird,Psittacine Beak and Feather Disease,"My bird is beak: initially glossy then dull, brittle, and malformed with skin: scarring, scaly, thickened, moist skin, skin infections, loss of temperature control.",severe,yes,synthetic
+bird,Psittacine Beak and Feather Disease,"My bird has beak: initially glossy then dull, brittle, and malformed, feather loss, beak deformities, and skin: scarring, scaly, thickened, moist skin, skin infections, loss of temperature control.",severe,yes,synthetic
+bird,Psittacine Beak and Feather Disease,"My bird seems sick with internal organs: immune system failure including the thymus, bursa of fabricius, and bone marrow.",severe,yes,synthetic
+turtle,Heavy metal poisoning,"My turtle has loss of coordination, also ataxia, weakness, vomiting.",severe,no,real
+turtle,Heavy metal poisoning,My turtle has been regurgitation of water or food and loss of coordination.,severe,no,synthetic
+turtle,Heavy metal poisoning,"I'm worried, my turtle has sudden death in severe cases.",severe,no,synthetic
+turtle,Heavy metal poisoning,My turtle keeps loss of coordination.,severe,no,synthetic
+turtle,Heavy metal poisoning,"I'm worried, my turtle has regurgitation of water or food.",severe,no,synthetic
+turtle,Heavy metal poisoning,"My turtle has tremors or shaking, regurgitation of water or food, and sudden death in severe cases.",severe,no,synthetic
+turtle,Heavy metal poisoning,"My turtle has excessive thirst, ataxia, weakness, vomiting, and lethargy or listlessness.",severe,no,synthetic
+turtle,Heavy metal poisoning,My turtle keeps tremors or shaking.,severe,no,synthetic
+turtle,Heavy metal poisoning,"My turtle has been ataxia, weakness, vomiting with seizures and lethargy or listlessness.",severe,no,synthetic
+turtle,Heavy metal poisoning,"My turtle has seizures, also lethargy or listlessness.",severe,no,synthetic
+turtle,Heavy metal poisoning,My turtle won't stop lethargy or listlessness.,severe,no,synthetic
+turtle,Heavy metal poisoning,My turtle is tremors or shaking with weakness or difficulty moving.,severe,no,synthetic
+turtle,Heavy metal poisoning,"My turtle has lethargy or listlessness, ataxia, weakness, vomiting, and seizures.",severe,no,synthetic
+turtle,Heavy metal poisoning,My turtle seems sick with sudden death in severe cases.,severe,no,synthetic
+turtle,Septicemia,"My turtle has respiratory distress, also reddened skin or plastron.",severe,no,real
+turtle,Septicemia,"My turtle has been pink flushing on skin, especially between scutes and respiratory distress.",severe,no,synthetic
+turtle,Septicemia,"I'm worried, my turtle has red spots on legs and skin.",severe,no,synthetic
+turtle,Septicemia,My turtle keeps respiratory distress.,severe,no,synthetic
+turtle,Septicemia,"I'm worried, my turtle has pink flushing on skin, especially between scutes.",severe,no,synthetic
+turtle,Septicemia,"My turtle has decreased appetite or anorexia, pink flushing on skin, especially between scutes, and red spots on legs and skin.",severe,no,synthetic
+turtle,Septicemia,"My turtle has pink or red discoloration of the plastron, reddened skin or plastron, and lethargy.",severe,no,synthetic
+turtle,Septicemia,My turtle keeps decreased appetite or anorexia.,severe,no,synthetic
+turtle,Septicemia,My turtle has been reddened skin or plastron with convulsions and lethargy.,severe,no,synthetic
+turtle,Septicemia,"My turtle has convulsions, also lethargy.",severe,no,synthetic
+turtle,Septicemia,My turtle won't stop lethargy.,severe,no,synthetic
+turtle,Septicemia,My turtle is decreased appetite or anorexia with red or purple spots  on the ventrum/belly.,severe,no,synthetic
+turtle,Septicemia,"My turtle has lethargy, reddened skin or plastron, and convulsions.",severe,no,synthetic
+turtle,Septicemia,My turtle seems sick with red spots on legs and skin.,severe,no,synthetic
+turtle,Infectious stomatitis,"My turtle has decreased appetite or anorexia, also mouth rot, swelling, pus.",moderate,yes,real
+turtle,Infectious stomatitis,"My turtle has been swollen, red, and inflamed gums and decreased appetite or anorexia.",moderate,yes,synthetic
+turtle,Infectious stomatitis,"I'm worried, my turtle has swelling of the jaw.",moderate,yes,synthetic
+turtle,Infectious stomatitis,My turtle keeps decreased appetite or anorexia.,moderate,yes,synthetic
+turtle,Infectious stomatitis,"I'm worried, my turtle has swollen, red, and inflamed gums.",moderate,yes,synthetic
+turtle,Infectious stomatitis,"My turtle has foul or sour odor from the mouth, swollen, red, and inflamed gums, and pain when eating or difficulty eating.",moderate,yes,synthetic
+turtle,Infectious stomatitis,"My turtle has small red spots  in the oral cavity, mouth rot, swelling, pus, and mucus or thick discharge in the mouth.",moderate,yes,synthetic
+turtle,Infectious stomatitis,My turtle keeps foul or sour odor from the mouth.,moderate,yes,synthetic
+turtle,Infectious stomatitis,"My turtle shows mouth rot, swelling, pus, open-mouth breathing, and disfigurement of the head.",moderate,yes,synthetic
+turtle,Infectious stomatitis,"My turtle has open-mouth breathing, also mucus or thick discharge in the mouth.",moderate,yes,synthetic
+turtle,Infectious stomatitis,My turtle won't stop mucus or thick discharge in the mouth.,moderate,yes,synthetic
+turtle,Infectious stomatitis,My turtle is foul or sour odor from the mouth with thick white or yellowish caseous material  along dental arcades.,moderate,yes,synthetic
+turtle,Infectious stomatitis,"My turtle has mucus or thick discharge in the mouth, mouth rot, swelling, pus, and open-mouth breathing.",moderate,yes,synthetic
+turtle,Infectious stomatitis,My turtle seems sick with swelling of the jaw.,moderate,yes,synthetic
+turtle,Eye abscesses / conjunctivitis,My turtle has nasal discharge and eye that protrudes or bulges.,moderate,no,real
+turtle,Eye abscesses / conjunctivitis,My turtle has been eyes swollen shut and eye that protrudes or bulges.,moderate,no,synthetic
+turtle,Eye abscesses / conjunctivitis,"I'm worried, my turtle has blood in or around the eye.",moderate,no,synthetic
+turtle,Eye abscesses / conjunctivitis,My turtle keeps eye that protrudes or bulges.,moderate,no,synthetic
+turtle,Eye abscesses / conjunctivitis,My turtle seems sick with visible dents or scratches on eye surface.,moderate,no,synthetic
+turtle,Eye abscesses / conjunctivitis,My turtle has been redness of conjunctiva and surrounding tissues with nasal discharge and eyes swollen shut.,moderate,no,synthetic
+turtle,Eye abscesses / conjunctivitis,"My turtle shows swollen eyelids, swelling, discharge, and visible dents or scratches on eye surface.",moderate,no,synthetic
+turtle,Eye abscesses / conjunctivitis,My turtle keeps redness of conjunctiva and surrounding tissues.,moderate,no,synthetic
+turtle,Eye abscesses / conjunctivitis,"My turtle has been swelling, discharge with pawing or rubbing at the eyes and hard lump or swelling near or behind the eye.",moderate,no,synthetic
+turtle,Eye abscesses / conjunctivitis,"My turtle has pawing or rubbing at the eyes, also eye discharge.",moderate,no,synthetic
+turtle,Eye abscesses / conjunctivitis,My turtle won't stop eye discharge.,moderate,no,synthetic
+turtle,Eye abscesses / conjunctivitis,My turtle is redness of conjunctiva and surrounding tissues with cloudy eyes.,moderate,no,synthetic
+turtle,Eye abscesses / conjunctivitis,"My turtle shows eye discharge, nasal discharge, and swelling, discharge.",moderate,no,synthetic
+turtle,Eye abscesses / conjunctivitis,My turtle seems sick with blood in or around the eye.,moderate,no,synthetic
+turtle,Ear infections,"My turtle has sensitivity around the ears, also swollen ear area.",moderate,no,real
+turtle,Ear infections,My turtle has been bulging tympanic membrane and sensitivity around the ears.,moderate,no,synthetic
+turtle,Ear infections,"I'm worried, my turtle has lethargy.",moderate,no,synthetic
+turtle,Ear infections,My turtle keeps sensitivity around the ears.,moderate,no,synthetic
+turtle,Ear infections,"I'm worried, my turtle has bulging tympanic membrane.",moderate,no,synthetic
+turtle,Ear infections,"My turtle has head shaking, bulging tympanic membrane, and lethargy.",moderate,no,synthetic
+turtle,Ear infections,"My turtle has large swelling on the side of the head, just behind the eye, swollen ear area, and pain when mouth is opened.",moderate,no,synthetic
+turtle,Ear infections,My turtle keeps head shaking.,moderate,no,synthetic
+turtle,Ear infections,My turtle has been swollen ear area with discharge from ears and pain when mouth is opened.,moderate,no,synthetic
+turtle,Ear infections,"My turtle has discharge from ears, also pain when mouth is opened.",moderate,no,synthetic
+turtle,Ear infections,My turtle won't stop pain when mouth is opened.,moderate,no,synthetic
+turtle,Ear infections,My turtle is head shaking with lump on the side of the head.,moderate,no,synthetic
+turtle,Ear infections,"My turtle has pain when mouth is opened, swollen ear area, and discharge from ears.",moderate,no,synthetic
+turtle,Ear infections,My turtle seems sick with lethargy.,moderate,no,synthetic
+turtle,Abnormal beak growth,"My turtle has beak deformities, also visible deformity.",mild,no,real
+turtle,Abnormal beak growth,My turtle has been overgrown beak and beak deformities.,mild,no,synthetic
+turtle,Abnormal beak growth,"I'm worried, my turtle has difficulty eating.",mild,no,synthetic
+turtle,Abnormal beak growth,My turtle keeps beak deformities.,mild,no,synthetic
+turtle,Abnormal beak growth,"I'm worried, my turtle has overgrown beak.",mild,no,synthetic
+turtle,Abnormal beak growth,"My turtle shows misshapen or crooked beak, overgrown beak, and difficulty eating.",mild,no,synthetic
+turtle,Abnormal beak growth,"My turtle shows visible deformity, difficulty eating, and misshapen or crooked beak.",mild,no,synthetic
+turtle,Abnormal beak growth,My turtle keeps misshapen or crooked beak.,mild,no,synthetic
+turtle,Abnormal beak growth,My turtle has been visible deformity with beak deformities and misshapen or crooked beak.,mild,no,synthetic
+turtle,Abnormal beak growth,"My turtle has beak deformities, also misshapen or crooked beak.",mild,no,synthetic
+turtle,Abnormal beak growth,My turtle won't stop misshapen or crooked beak.,mild,no,synthetic
+turtle,Abnormal beak growth,My turtle is misshapen or crooked beak with overgrown beak.,mild,no,synthetic
+turtle,Abnormal beak growth,"My turtle has misshapen or crooked beak, visible deformity, and overgrown beak.",mild,no,synthetic
+turtle,Abnormal beak growth,My turtle seems sick with difficulty eating.,mild,no,synthetic
+turtle,Stargazing,"My turtle has loss of coordination, also abnormal head posture.",severe,no,real
+turtle,Stargazing,My turtle has been head tilted upward toward the sky and loss of coordination.,severe,no,synthetic
+turtle,Stargazing,"I'm worried, my turtle has inability to right themselves when placed on their back.",severe,no,synthetic
+turtle,Stargazing,My turtle keeps loss of coordination.,severe,no,synthetic
+turtle,Stargazing,My turtle seems sick with neurological signs.,severe,no,synthetic
+turtle,Stargazing,"My turtle has abnormal head positioning, head tilted upward toward the sky, and neurological signs.",severe,no,synthetic
+turtle,Stargazing,"My turtle has abnormal head posture, neurological signs, and abnormal head positioning.",severe,no,synthetic
+turtle,Stargazing,My turtle keeps abnormal head positioning.,severe,no,synthetic
+turtle,Stargazing,My turtle has been abnormal head posture with loss of coordination and abnormal head positioning.,severe,no,synthetic
+turtle,Stargazing,"My turtle has loss of coordination, also abnormal head positioning.",severe,no,synthetic
+turtle,Stargazing,My turtle won't stop abnormal head positioning.,severe,no,synthetic
+turtle,Stargazing,My turtle is abnormal head positioning with head tilted upward toward the sky.,severe,no,synthetic
+turtle,Stargazing,"My turtle has abnormal head positioning, abnormal head posture, and loss of coordination.",severe,no,synthetic
+turtle,Stargazing,My turtle seems sick with inability to right themselves when placed on their back.,severe,no,synthetic
+turtle,Pneumonia,"My turtle has gaping, also gasping for breath.",severe,yes,real
+turtle,Pneumonia,My turtle has been nasal discharge and tilting to one side while swimming.,severe,yes,synthetic
+turtle,Pneumonia,My turtle has been conjunctivitis or ocular discharge.,severe,yes,synthetic
+turtle,Pneumonia,My turtle keeps gaping.,severe,yes,synthetic
+turtle,Pneumonia,"I'm worried, my turtle has nasal discharge.",severe,yes,synthetic
+turtle,Pneumonia,"My turtle shows lethargy, nasal discharge, and loss of appetite.",severe,yes,synthetic
+turtle,Pneumonia,"My turtle shows increased respiratory rate, open-mouth breathing, nasal bubbles, and loss of appetite.",severe,yes,synthetic
+turtle,Pneumonia,My turtle keeps loss of appetite.,severe,yes,synthetic
+turtle,Pneumonia,"My turtle has been open-mouth breathing, nasal bubbles with pale or swollen gills and lethargy.",severe,yes,synthetic
+turtle,Pneumonia,"My turtle has coughing, also dyspnea.",severe,yes,synthetic
+turtle,Pneumonia,My turtle won't stop dyspnea.,severe,yes,synthetic
+turtle,Pneumonia,My turtle is lethargy with excess mucus in mouth.,severe,yes,synthetic
+turtle,Pneumonia,"My turtle has dyspnea, gasping for breath, and wheezing or clicking sounds when breathing.",severe,yes,synthetic
+turtle,Pneumonia,"My turtle seems sick with bubbles in mouth, nose, or eyes.",severe,yes,synthetic
+turtle,Dystocia,"My turtle has restlessness, also egg retention, swollen body.",severe,no,real
+turtle,Dystocia,My turtle has been loss of appetite and lethargy.,severe,no,synthetic
+turtle,Dystocia,I noticed my turtle has lethargy.,severe,no,synthetic
+turtle,Dystocia,My turtle keeps restlessness.,severe,no,synthetic
+turtle,Dystocia,"I'm worried, my turtle has loss of appetite.",severe,no,synthetic
+turtle,Dystocia,My turtle has been wide-legged stance with restlessness and swollen or distended abdomen.,severe,no,synthetic
+turtle,Dystocia,"My turtle shows swollen or distended abdomen, egg retention, swollen body, and wide-legged stance.",severe,no,synthetic
+turtle,Dystocia,My turtle keeps wide-legged stance.,severe,no,synthetic
+turtle,Dystocia,"My turtle has been egg retention, swollen body with lethargy and wide-legged stance.",severe,no,synthetic
+turtle,Dystocia,"My turtle has weight loss despite swollen appearance, also loss of appetite.",severe,no,synthetic
+turtle,Dystocia,My turtle won't stop straining.,severe,no,synthetic
+turtle,Dystocia,My turtle is wide-legged stance with swollen or distended abdomen.,severe,no,synthetic
+turtle,Dystocia,"My turtle shows straining, restlessness, and egg retention, swollen body.",severe,no,synthetic
+turtle,Dystocia,My turtle seems sick with loss of appetite.,severe,no,synthetic
+turtle,Vent prolapse,My turtle has hemopurulent discharge and swelling around vent.,severe,no,real
+turtle,Vent prolapse,My turtle has been visible tissue or organs protruding from the cloaca/vent and swelling around vent.,severe,no,synthetic
+turtle,Vent prolapse,"I'm worried, my turtle has straining.",severe,no,synthetic
+turtle,Vent prolapse,My turtle keeps swelling around vent.,severe,no,synthetic
+turtle,Vent prolapse,My turtle seems sick with edema.,severe,no,synthetic
+turtle,Vent prolapse,"My turtle has redness around vent area, visible tissue or organs protruding from the cloaca/vent, and hemopurulent discharge.",severe,no,synthetic
+turtle,Vent prolapse,"My turtle has tissue protruding, hemopurulent discharge, and redness around vent area.",severe,no,synthetic
+turtle,Vent prolapse,My turtle keeps redness around vent area.,severe,no,synthetic
+turtle,Vent prolapse,"My turtle shows tissue protruding, swelling around vent, and straining.",severe,no,synthetic
+turtle,Vent prolapse,"My turtle has swelling around vent, also redness around vent area.",severe,no,synthetic
+turtle,Vent prolapse,My turtle won't stop redness around vent area.,severe,no,synthetic
+turtle,Vent prolapse,My turtle is redness around vent area with visible tissue or organs protruding from the cloaca/vent.,severe,no,synthetic
+turtle,Vent prolapse,"My turtle has redness around vent area, tissue protruding, and swelling around vent.",severe,no,synthetic
+turtle,Vent prolapse,My turtle seems sick with straining.,severe,no,synthetic
+turtle,Abscesses,"My turtle has ruptured abscess with pus discharge, also lumps, swelling.",moderate,no,real
+turtle,Abscesses,My turtle has been tumor-like lumps and swelling anywhere on body.,moderate,no,synthetic
+turtle,Abscesses,I noticed my turtle has swelling anywhere on body.,moderate,no,synthetic
+turtle,Abscesses,My turtle keeps ruptured abscess with pus discharge.,moderate,no,synthetic
+turtle,Abscesses,"I'm worried, my turtle has tumor-like lumps.",moderate,no,synthetic
+turtle,Abscesses,"My turtle has been pus-filled lumps with ruptured abscess with pus discharge and hard, firm swelling or nodules under the skin.",moderate,no,synthetic
+turtle,Abscesses,"My turtle shows hard, firm swelling or nodules under the skin, lumps, swelling, and pus-filled lumps.",moderate,no,synthetic
+turtle,Abscesses,My turtle keeps pus-filled lumps.,moderate,no,synthetic
+turtle,Abscesses,"My turtle has been lumps, swelling with swelling anywhere on body and pus-filled lumps.",moderate,no,synthetic
+turtle,Abscesses,"My turtle has pain when area is touched, also tumor-like lumps.",moderate,no,synthetic
+turtle,Abscesses,My turtle won't stop red and sensitive skin over abscess.,moderate,no,synthetic
+turtle,Abscesses,"My turtle is pus-filled lumps with hard, firm swelling or nodules under the skin.",moderate,no,synthetic
+turtle,Abscesses,"My turtle shows red and sensitive skin over abscess, ruptured abscess with pus discharge, and lumps, swelling.",moderate,no,synthetic
+turtle,Abscesses,My turtle seems sick with tumor-like lumps.,moderate,no,synthetic
+turtle,Dysecdysis,"My turtle has constriction of limbs from retained shed, also retained skin.",mild,no,real
+turtle,Dysecdysis,My turtle has been patches of old skin that haven't shed and constriction of limbs from retained shed.,mild,no,synthetic
+turtle,Dysecdysis,"I'm worried, my turtle has dull or patchy appearance.",mild,no,synthetic
+turtle,Dysecdysis,My turtle keeps constriction of limbs from retained shed.,mild,no,synthetic
+turtle,Dysecdysis,My turtle seems sick with difficulty shedding.,mild,no,synthetic
+turtle,Dysecdysis,"My turtle has skin stuck on body, tail, or toes, patches of old skin that haven't shed, and difficulty shedding.",mild,no,synthetic
+turtle,Dysecdysis,"My turtle has retained skin, difficulty shedding, and skin stuck on body, tail, or toes.",mild,no,synthetic
+turtle,Dysecdysis,"My turtle keeps skin stuck on body, tail, or toes.",mild,no,synthetic
+turtle,Dysecdysis,"My turtle has been retained skin with constriction of limbs from retained shed and skin stuck on body, tail, or toes.",mild,no,synthetic
+turtle,Dysecdysis,"My turtle has constriction of limbs from retained shed, also skin stuck on body, tail, or toes.",mild,no,synthetic
+turtle,Dysecdysis,"My turtle won't stop skin stuck on body, tail, or toes.",mild,no,synthetic
+turtle,Dysecdysis,"My turtle is skin stuck on body, tail, or toes with patches of old skin that haven't shed.",mild,no,synthetic
+turtle,Dysecdysis,"My turtle has skin stuck on body, tail, or toes, retained skin, and constriction of limbs from retained shed.",mild,no,synthetic
+turtle,Dysecdysis,My turtle seems sick with dull or patchy appearance.,mild,no,synthetic
+turtle,Skin parasites,"My turtle has lethargy, also mites, ticks visible.",mild,yes,real
+turtle,Skin parasites,"My turtle has been mites visible as tiny dots, especially around eyes, under scales and ticks embedded in skin.",mild,yes,synthetic
+turtle,Skin parasites,I noticed my turtle has ticks embedded in skin.,mild,yes,synthetic
+turtle,Skin parasites,My turtle keeps lethargy.,mild,yes,synthetic
+turtle,Skin parasites,"I'm worried, my turtle has mites visible as tiny dots, especially around eyes, under scales.",mild,yes,synthetic
+turtle,Skin parasites,My turtle has been restlessness with lethargy and visible small parasites on skin.,mild,yes,synthetic
+turtle,Skin parasites,"My turtle shows visible small parasites on skin, mites, ticks visible, and restlessness.",mild,yes,synthetic
+turtle,Skin parasites,My turtle keeps restlessness.,mild,yes,synthetic
+turtle,Skin parasites,"My turtle has been mites, ticks visible with ticks embedded in skin and restlessness.",mild,yes,synthetic
+turtle,Skin parasites,"My turtle has pale appearance, also mites visible as tiny dots, especially around eyes, under scales.",mild,yes,synthetic
+turtle,Skin parasites,My turtle won't stop excessive scratching or rubbing.,mild,yes,synthetic
+turtle,Skin parasites,My turtle is restlessness with visible small parasites on skin.,mild,yes,synthetic
+turtle,Skin parasites,"My turtle shows excessive scratching or rubbing, lethargy, and mites, ticks visible.",mild,yes,synthetic
+turtle,Skin parasites,"My turtle seems sick with mites visible as tiny dots, especially around eyes, under scales.",mild,yes,synthetic
+fish,Scale rot / blister disease,"My fish has pus-filled bumps, also ulcers, blisters.",moderate,no,real
+fish,Scale rot / blister disease,My fish has been fluid-filled blisters or pustules and pus-filled bumps.,moderate,no,synthetic
+fish,Scale rot / blister disease,"I'm worried, my fish has brown or black discoloration of scales.",moderate,no,synthetic
+fish,Scale rot / blister disease,My fish keeps pus-filled bumps.,moderate,no,synthetic
+fish,Scale rot / blister disease,"I'm worried, my fish has fluid-filled blisters or pustules.",moderate,no,synthetic
+fish,Scale rot / blister disease,"My fish has bleeding into scales, fluid-filled blisters or pustules, and brown or black discoloration of scales.",moderate,no,synthetic
+fish,Scale rot / blister disease,"My fish has reddening of the skin or scales, ulcers, blisters, and areas of dead skin.",moderate,no,synthetic
+fish,Scale rot / blister disease,My fish keeps bleeding into scales.,moderate,no,synthetic
+fish,Scale rot / blister disease,"My fish has been ulcers, blisters with skin discharge and areas of dead skin.",moderate,no,synthetic
+fish,Scale rot / blister disease,"My fish has skin discharge, also areas of dead skin.",moderate,no,synthetic
+fish,Scale rot / blister disease,My fish won't stop areas of dead skin.,moderate,no,synthetic
+fish,Scale rot / blister disease,My fish is bleeding into scales with ulcers or open sores on skin.,moderate,no,synthetic
+fish,Scale rot / blister disease,"My fish has areas of dead skin, ulcers, blisters, and skin discharge.",moderate,no,synthetic
+fish,Scale rot / blister disease,My fish seems sick with brown or black discoloration of scales.,moderate,no,synthetic
+fish,Papilloma,"My fish has raised masses on skin, also visible lumps.",mild,yes,real
+fish,Papilloma,My fish has been visible lumps and raised masses on skin.,mild,yes,synthetic
+fish,Papilloma,"I'm worried, my fish has tumor-like growths.",mild,yes,synthetic
+fish,Papilloma,My fish keeps raised masses on skin.,mild,yes,synthetic
+fish,Papilloma,My fish seems sick with tumor-like growths.,mild,yes,synthetic
+fish,Papilloma,"My fish has raised masses on skin, visible lumps, and tumor-like growths.",mild,yes,synthetic
+fish,Papilloma,"My fish has visible lumps, tumor-like growths, and raised masses on skin.",mild,yes,synthetic
+fish,Papilloma,My fish keeps raised masses on skin.,mild,yes,synthetic
+fish,Papilloma,My fish has been visible lumps with raised masses on skin and tumor-like growths.,mild,yes,synthetic
+fish,Papilloma,"My fish has raised masses on skin, also tumor-like growths.",mild,yes,synthetic
+fish,Papilloma,My fish won't stop raised masses on skin.,mild,yes,synthetic
+fish,Papilloma,My fish is raised masses on skin with visible lumps.,mild,yes,synthetic
+fish,Papilloma,"My fish has raised masses on skin, visible lumps, and tumor-like growths.",mild,yes,synthetic
+fish,Papilloma,My fish seems sick with tumor-like growths.,mild,yes,synthetic
+fish,Lymphocystis,"My fish has nodular masses on fins, skin, or mouth, also white cauliflower-like growths.",mild,yes,real
+fish,Lymphocystis,"My fish has been white or cream-colored growths and nodular masses on fins, skin, or mouth.",mild,yes,synthetic
+fish,Lymphocystis,"I'm worried, my fish has wart-like lesions.",mild,yes,synthetic
+fish,Lymphocystis,"My fish keeps nodular masses on fins, skin, or mouth.",mild,yes,synthetic
+fish,Lymphocystis,"I'm worried, my fish has white or cream-colored growths.",mild,yes,synthetic
+fish,Lymphocystis,"My fish shows cauliflower-like appearance, white or cream-colored growths, and wart-like lesions.",mild,yes,synthetic
+fish,Lymphocystis,"My fish shows white cauliflower-like growths, wart-like lesions, and cauliflower-like appearance.",mild,yes,synthetic
+fish,Lymphocystis,My fish keeps cauliflower-like appearance.,mild,yes,synthetic
+fish,Lymphocystis,"My fish has been white cauliflower-like growths with nodular masses on fins, skin, or mouth and cauliflower-like appearance.",mild,yes,synthetic
+fish,Lymphocystis,"My fish has nodular masses on fins, skin, or mouth, also cauliflower-like appearance.",mild,yes,synthetic
+fish,Lymphocystis,My fish won't stop cauliflower-like appearance.,mild,yes,synthetic
+fish,Lymphocystis,My fish is cauliflower-like appearance with white or cream-colored growths.,mild,yes,synthetic
+fish,Lymphocystis,"My fish has cauliflower-like appearance, white cauliflower-like growths, and white or cream-colored growths.",mild,yes,synthetic
+fish,Lymphocystis,My fish seems sick with wart-like lesions.,mild,yes,synthetic
+fish,Fin Rot,My fish has milky appearance at fin margins and redness at base of fins.,moderate,yes,real
+fish,Fin Rot,"My fish has been ragged, frayed, or tattered fins and redness at base of fins.",moderate,yes,synthetic
+fish,Fin Rot,"I'm worried, my fish has white edges on fins.",moderate,yes,synthetic
+fish,Fin Rot,My fish keeps redness at base of fins.,moderate,yes,synthetic
+fish,Fin Rot,My fish seems sick with fins progressively shortening.,moderate,yes,synthetic
+fish,Fin Rot,"My fish has fin edges appear torn or disintegrating, ragged, frayed, or tattered fins, and milky appearance at fin margins.",moderate,yes,synthetic
+fish,Fin Rot,"My fish has frayed fins, milky appearance at fin margins, and fin edges appear torn or disintegrating.",moderate,yes,synthetic
+fish,Fin Rot,My fish keeps fin edges appear torn or disintegrating.,moderate,yes,synthetic
+fish,Fin Rot,"My fish shows frayed fins, redness at base of fins, and white edges on fins.",moderate,yes,synthetic
+fish,Fin Rot,"My fish has redness at base of fins, also fin edges appear torn or disintegrating.",moderate,yes,synthetic
+fish,Fin Rot,My fish won't stop fin edges appear torn or disintegrating.,moderate,yes,synthetic
+fish,Fin Rot,"My fish is fin edges appear torn or disintegrating with ragged, frayed, or tattered fins.",moderate,yes,synthetic
+fish,Fin Rot,"My fish has fin edges appear torn or disintegrating, frayed fins, and redness at base of fins.",moderate,yes,synthetic
+fish,Fin Rot,My fish seems sick with white edges on fins.,moderate,yes,synthetic
+fish,Ich,"My fish has clamped fins, also white spots.",moderate,yes,real
+fish,Ich,My fish has been scratching or rubbing against objects and clamped fins.,moderate,yes,synthetic
+fish,Ich,"I'm worried, my fish has scale damage or bruising from scratching.",moderate,yes,synthetic
+fish,Ich,My fish keeps clamped fins.,moderate,yes,synthetic
+fish,Ich,"I'm worried, my fish has scratching or rubbing against objects.",moderate,yes,synthetic
+fish,Ich,"My fish has loss of appetite, scratching or rubbing against objects, and pale gills.",moderate,yes,synthetic
+fish,Ich,"My fish has spots appear raised, white spots, and lethargy.",moderate,yes,synthetic
+fish,Ich,My fish keeps loss of appetite.,moderate,yes,synthetic
+fish,Ich,"My fish shows white spots, rapid or labored breathing, and gasping at the surface.",moderate,yes,synthetic
+fish,Ich,"My fish has rapid or labored breathing, also lethargy.",moderate,yes,synthetic
+fish,Ich,My fish won't stop lethargy.,moderate,yes,synthetic
+fish,Ich,My fish is loss of appetite with increased mucus production.,moderate,yes,synthetic
+fish,Ich,"My fish has lethargy, white spots, and rapid or labored breathing.",moderate,yes,synthetic
+fish,Ich,My fish seems sick with scale damage or bruising from scratching.,moderate,yes,synthetic
+fish,Fungus,My fish has loss of appetite and patches that look like cotton balls.,moderate,yes,real
+fish,Fungus,"My fish has been white, gray, or tan cotton-like growths and patches that look like cotton balls.",moderate,yes,synthetic
+fish,Fungus,"I'm worried, my fish has may start on wounds or damaged areas.",moderate,yes,synthetic
+fish,Fungus,My fish keeps patches that look like cotton balls.,moderate,yes,synthetic
+fish,Fungus,My fish seems sick with lethargy.,moderate,yes,synthetic
+fish,Fungus,"My fish has fluffy or fuzzy patches on skin, fins, or mouth, white, gray, or tan cotton-like growths, and loss of appetite.",moderate,yes,synthetic
+fish,Fungus,"My fish has cotton-like patches, loss of appetite, and fluffy or fuzzy patches on skin, fins, or mouth.",moderate,yes,synthetic
+fish,Fungus,"My fish keeps fluffy or fuzzy patches on skin, fins, or mouth.",moderate,yes,synthetic
+fish,Fungus,"My fish shows cotton-like patches, patches that look like cotton balls, and may start on wounds or damaged areas.",moderate,yes,synthetic
+fish,Fungus,"My fish has patches that look like cotton balls, also fluffy or fuzzy patches on skin, fins, or mouth.",moderate,yes,synthetic
+fish,Fungus,"My fish won't stop fluffy or fuzzy patches on skin, fins, or mouth.",moderate,yes,synthetic
+fish,Fungus,"My fish is fluffy or fuzzy patches on skin, fins, or mouth with white, gray, or tan cotton-like growths.",moderate,yes,synthetic
+fish,Fungus,"My fish has fluffy or fuzzy patches on skin, fins, or mouth, cotton-like patches, and patches that look like cotton balls.",moderate,yes,synthetic
+fish,Fungus,My fish seems sick with may start on wounds or damaged areas.,moderate,yes,synthetic
+fish,Popeye / Exophthalmia,My fish has possible discharge and cloudy eyes.,moderate,no,real
+fish,Popeye / Exophthalmia,My fish has been one or both eyes protruding or bulging and cloudy eyes.,moderate,no,synthetic
+fish,Popeye / Exophthalmia,"I'm worried, my fish has eye appears to stick out from socket.",moderate,no,synthetic
+fish,Popeye / Exophthalmia,My fish keeps cloudy eyes.,moderate,no,synthetic
+fish,Popeye / Exophthalmia,My fish seems sick with redness around eyes.,moderate,no,synthetic
+fish,Popeye / Exophthalmia,"My fish has swelling behind the eye, one or both eyes protruding or bulging, and possible discharge.",moderate,no,synthetic
+fish,Popeye / Exophthalmia,"My fish has bulging eyes, possible discharge, and swelling behind the eye.",moderate,no,synthetic
+fish,Popeye / Exophthalmia,My fish keeps swelling behind the eye.,moderate,no,synthetic
+fish,Popeye / Exophthalmia,"My fish shows bulging eyes, cloudy eyes, and eye appears to stick out from socket.",moderate,no,synthetic
+fish,Popeye / Exophthalmia,"My fish has cloudy eyes, also swelling behind the eye.",moderate,no,synthetic
+fish,Popeye / Exophthalmia,My fish won't stop swelling behind the eye.,moderate,no,synthetic
+fish,Popeye / Exophthalmia,My fish is swelling behind the eye with one or both eyes protruding or bulging.,moderate,no,synthetic
+fish,Popeye / Exophthalmia,"My fish has swelling behind the eye, bulging eyes, and cloudy eyes.",moderate,no,synthetic
+fish,Popeye / Exophthalmia,My fish seems sick with eye appears to stick out from socket.,moderate,no,synthetic
+fish,Skin and Gill Flukes,"My fish has excess mucus on skin or gills, also rubbing, rapid breathing.",moderate,yes,real
+fish,Skin and Gill Flukes,My fish has been flashing and excess mucus on skin or gills.,moderate,yes,synthetic
+fish,Skin and Gill Flukes,"I'm worried, my fish has lethargy.",moderate,yes,synthetic
+fish,Skin and Gill Flukes,My fish keeps excess mucus on skin or gills.,moderate,yes,synthetic
+fish,Skin and Gill Flukes,My fish seems sick with skin appears cloudy or hazy.,moderate,yes,synthetic
+fish,Skin and Gill Flukes,"My fish has gasping at surface, flashing, and skin appears cloudy or hazy.",moderate,yes,synthetic
+fish,Skin and Gill Flukes,"My fish has rubbing or scraping against objects, rubbing, rapid breathing, and labored breathing.",moderate,yes,synthetic
+fish,Skin and Gill Flukes,My fish keeps gasping at surface.,moderate,yes,synthetic
+fish,Skin and Gill Flukes,"My fish shows rubbing, rapid breathing, pale or swollen gills, and clamped fins.",moderate,yes,synthetic
+fish,Skin and Gill Flukes,"My fish has pale or swollen gills, also labored breathing.",moderate,yes,synthetic
+fish,Skin and Gill Flukes,My fish won't stop labored breathing.,moderate,yes,synthetic
+fish,Skin and Gill Flukes,My fish is gasping at surface with rapid gill movements.,moderate,yes,synthetic
+fish,Skin and Gill Flukes,"My fish has labored breathing, rubbing, rapid breathing, and pale or swollen gills.",moderate,yes,synthetic
+fish,Skin and Gill Flukes,My fish seems sick with lethargy.,moderate,yes,synthetic
+fish,Lernaea,"My fish has flashing, also anchor worms visible.",moderate,yes,real
+fish,Lernaea,"My fish has been worm-like structures protruding from skin and red, inflamed areas where parasites attach.",moderate,yes,synthetic
+fish,Lernaea,"I noticed my fish has red, inflamed areas where parasites attach.",moderate,yes,synthetic
+fish,Lernaea,My fish keeps flashing.,moderate,yes,synthetic
+fish,Lernaea,"I'm worried, my fish has worm-like structures protruding from skin.",moderate,yes,synthetic
+fish,Lernaea,My fish has been scratching or rubbing with flashing and visible thread-like parasites attached to body.,moderate,yes,synthetic
+fish,Lernaea,"My fish shows visible thread-like parasites attached to body, anchor worms visible, and scratching or rubbing.",moderate,yes,synthetic
+fish,Lernaea,My fish keeps scratching or rubbing.,moderate,yes,synthetic
+fish,Lernaea,"My fish has been anchor worms visible with red, inflamed areas where parasites attach and scratching or rubbing.",moderate,yes,synthetic
+fish,Lernaea,"My fish has lethargy, also worm-like structures protruding from skin.",moderate,yes,synthetic
+fish,Lernaea,My fish won't stop open sores or ulcers at attachment sites.,moderate,yes,synthetic
+fish,Lernaea,My fish is scratching or rubbing with visible thread-like parasites attached to body.,moderate,yes,synthetic
+fish,Lernaea,"My fish shows open sores or ulcers at attachment sites, flashing, and anchor worms visible.",moderate,yes,synthetic
+fish,Lernaea,My fish seems sick with worm-like structures protruding from skin.,moderate,yes,synthetic
+fish,Swim Bladder Disease,"My fish has struggling to swim normally, also abnormal floating or sinking.",moderate,no,real
+fish,Swim Bladder Disease,My fish has been floating at the surface uncontrollably and struggling to swim normally.,moderate,no,synthetic
+fish,Swim Bladder Disease,My fish has been distended or swollen belly.,moderate,no,synthetic
+fish,Swim Bladder Disease,My fish keeps struggling to swim normally.,moderate,no,synthetic
+fish,Swim Bladder Disease,"I'm worried, my fish has floating at the surface uncontrollably.",moderate,no,synthetic
+fish,Swim Bladder Disease,"My fish shows difficulty maintaining position in water, floating at the surface uncontrollably, and distended or swollen belly.",moderate,no,synthetic
+fish,Swim Bladder Disease,"My fish shows swimming upside down, abnormal floating or sinking, and difficulty maintaining position in water.",moderate,no,synthetic
+fish,Swim Bladder Disease,My fish keeps difficulty maintaining position in water.,moderate,no,synthetic
+fish,Swim Bladder Disease,My fish has been abnormal floating or sinking with loss of balance and difficulty maintaining position in water.,moderate,no,synthetic
+fish,Swim Bladder Disease,"My fish has loss of balance, also swimming on side or at an angle.",moderate,no,synthetic
+fish,Swim Bladder Disease,My fish won't stop swimming on side or at an angle.,moderate,no,synthetic
+fish,Swim Bladder Disease,My fish is difficulty maintaining position in water with sinking to the bottom.,moderate,no,synthetic
+fish,Swim Bladder Disease,"My fish has swimming on side or at an angle, abnormal floating or sinking, and sinking to the bottom.",moderate,no,synthetic
+fish,Swim Bladder Disease,My fish seems sick with floating at the surface uncontrollably.,moderate,no,synthetic
+fish,Vitamin C Deficiency,"My fish has fin erosion, also spine curvature, lethargy.",moderate,no,real
+fish,Vitamin C Deficiency,My fish has been deformed body shape and loss of appetite.,moderate,no,synthetic
+fish,Vitamin C Deficiency,I noticed my fish has loss of appetite.,moderate,no,synthetic
+fish,Vitamin C Deficiency,My fish keeps fin erosion.,moderate,no,synthetic
+fish,Vitamin C Deficiency,"I'm worried, my fish has deformed body shape.",moderate,no,synthetic
+fish,Vitamin C Deficiency,My fish has been poor growth with fin erosion and curved or bent spine.,moderate,no,synthetic
+fish,Vitamin C Deficiency,"My fish shows curved or bent spine, spine curvature, lethargy, and poor growth.",moderate,no,synthetic
+fish,Vitamin C Deficiency,My fish keeps poor growth.,moderate,no,synthetic
+fish,Vitamin C Deficiency,"My fish has been spine curvature, lethargy with loss of appetite and poor growth.",moderate,no,synthetic
+fish,Vitamin C Deficiency,"My fish has hemorrhaging under skin, also deformed body shape.",moderate,no,synthetic
+fish,Vitamin C Deficiency,My fish won't stop darkening of skin color.,moderate,no,synthetic
+fish,Vitamin C Deficiency,My fish is poor growth with curved or bent spine.,moderate,no,synthetic
+fish,Vitamin C Deficiency,"My fish shows darkening of skin color, fin erosion, and spine curvature, lethargy.",moderate,no,synthetic
+fish,Vitamin C Deficiency,My fish seems sick with deformed body shape.,moderate,no,synthetic
+fish,Egg Retention,"My fish has hiding behavior, also swollen abdomen.",severe,no,real
+fish,Egg Retention,My fish has been visible lump in belly area and lethargy.,severe,no,synthetic
+fish,Egg Retention,I noticed my fish has lethargy.,severe,no,synthetic
+fish,Egg Retention,My fish keeps hiding behavior.,severe,no,synthetic
+fish,Egg Retention,"I'm worried, my fish has visible lump in belly area.",severe,no,synthetic
+fish,Egg Retention,My fish has been difficulty swimming with hiding behavior and swollen or distended abdomen.,severe,no,synthetic
+fish,Egg Retention,"My fish shows swollen or distended abdomen, swollen abdomen, and difficulty swimming.",severe,no,synthetic
+fish,Egg Retention,My fish keeps difficulty swimming.,severe,no,synthetic
+fish,Egg Retention,My fish has been swollen abdomen with lethargy and difficulty swimming.,severe,no,synthetic
+fish,Egg Retention,"My fish has straining, also visible lump in belly area.",severe,no,synthetic
+fish,Egg Retention,My fish won't stop loss of appetite.,severe,no,synthetic
+fish,Egg Retention,My fish is difficulty swimming with swollen or distended abdomen.,severe,no,synthetic
+fish,Egg Retention,"My fish shows loss of appetite, hiding behavior, and swollen abdomen.",severe,no,synthetic
+fish,Egg Retention,My fish seems sick with visible lump in belly area.,severe,no,synthetic

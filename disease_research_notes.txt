@@ -1,0 +1,3194 @@
+Disease: [Leptospirosis]
+Species: [Dog]
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source:PetMD
+   URL: https://www.petmd.com/dog/conditions/infectious-parasitic/leptospirosis-dogs
+•	   Symptoms extracted:
+•	 Lethargy 
+•	Decreased appetite and eventual weight loss 
+•	Vomiting 
+•	Diarrhea 
+•	Fever 
+•	Pain 
+•	Edema 
+•	Bruising 
+•	Bleeding from the gums 
+•	Blood in the urine, stool, or nose 
+•	Muscle pain, stiffness, and reluctance to move 
+•	Jaundice, characterized by yellowing of the eyes, gums, or skin 
+•	Increased drinking and urinating 
+•	Oral ulcers and bad breath 
+•	Difficulty breathing and coughing 
+•	Uveitis, often manifesting as cloudy or red eyes with squinting 
+•	Dehydration 
+•	Sudden miscarriage (in pregnant dogs) 
+
+
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	 Lethargy 
+•	Decreased appetite and eventual weight loss 
+•	Vomiting 
+•	Diarrhea 
+•	Fever 
+•	Pain 
+•	Edema 
+•	Bruising 
+•	Bleeding from the gums 
+•	Blood in the urine, stool, or nose 
+•	Muscle pain, stiffness, and reluctance to move 
+•	Jaundice, characterized by yellowing of the eyes, gums, or skin 
+•	Increased drinking and urinating 
+•	Oral ulcers and bad breath 
+•	Difficulty breathing and coughing 
+•	Uveitis, often manifesting as cloudy or red eyes with squinting 
+•	Dehydration 
+•	Sudden miscarriage (in pregnant dogs)
+Urgency: high
+Contagious: Zoonotic
+
+
+Disease: Giarda
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD	
+   URL: https://www.petmd.com/dog/conditions/infectious-parasitic/giardia-dogs
+   Symptoms extracted: 
+•	Foul-smelling, green-tinged diarrhea
+•	Lethargic / low energy
+•	Loss of appetite / not eating
+•	Abdominal discomfort or bloating
+•	Weight loss / losing body condition
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Foul-smelling, green-tinged diarrhea
+•	Lethargic / low energy
+•	Loss of appetite / not eating
+•	Abdominal discomfort or bloating
+•	Weight loss / losing body condition
+Urgency: Medium
+Contagious: Zoonotic
+
+
+
+
+
+Disease: Tapeworms
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/infectious-parasitic/tapeworms-dogs-what-tapeworms-are-and-how-get-rid-them
+   Symptoms extracted: 
+•	Scooting the rear end along the ground
+•	Licking or biting at the tail or anal area
+•	Visible worm segments in stool or stuck in fur near the anus (rice-like or seed-like segments)
+•	Weight loss / losing body condition (in heavy infestations)
+•	Vomiting entire tapeworms (rare, severe cases)
+•	Possible intestinal blockage (rare, severe cases)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Scooting the rear end along the ground
+•	Licking or biting at the tail or anal area
+•	Visible worm segments in stool or stuck in fur near the anus (rice-like or seed-like segments)
+•	Weight loss / losing body condition (in heavy infestations)
+•	Vomiting entire tapeworms (rare, severe cases)
+•	Possible intestinal blockage (rare, severe cases)
+Urgency: Medium
+Contagious: Zoonotic
+
+Disease: Whipworms
+Species: Dog
+Status: [ ] Missing / [ ] Have but needs enrichment
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/infectious-parasitic/c_multi_trichuriasis
+   Symptoms extracted: 
+•	Diarrhea, sometimes with bright red blood or mucus
+•	Weight loss / losing body condition
+•	Dehydration / dry gums and sunken eyes
+•	Anemia / pale gums and low energy
+•	Electrolyte imbalances (high potassium, low sodium) causing weakness or lethargy
+•	Occasional visible small thread-like worms in stool (rare)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Diarrhea, sometimes with bright red blood or mucus
+•	Weight loss / losing body condition
+•	Dehydration / dry gums and sunken eyes
+•	Anemia / pale gums and low energy
+•	Electrolyte imbalances (high potassium, low sodium) causing weakness or lethargy
+•	Occasional visible small thread-like worms in stool (rare)
+Urgency: Medium
+Contagious: Zoonotic
+
+
+Disease: Canine Enteric Coronavirus
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/digestive/c_dg_canine_coronavirus_infection
+   Symptoms extracted: 
+•	Diarrhea, sometimes bloody
+•	Vomiting / frequent regurgitation
+•	Loss of appetite / not eating
+•	Abdominal pain / bloating or tenderness
+•	Lethargic / very low energy
+•	Dehydration / dry gums and sunken eyes
+•	Feverish / high body temperature
+•	Seizures (in severe cases)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Diarrhea, sometimes bloody
+•	Vomiting / frequent regurgitation
+•	Loss of appetite / not eating
+•	Abdominal pain / bloating or tenderness
+•	Lethargic / very low energy
+•	Dehydration / dry gums and sunken eyes
+•	Feverish / high body temperature
+•	Seizures (in severe cases)
+Urgency: Medium
+Contagious: Yes
+
+
+Disease: Canine respiratory coronavirus
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/digestive/c_dg_canine_coronavirus_infection
+   Symptoms extracted: 
+•	Persistent coughing
+•	Frequent sneezing
+•	Labored or difficulty breathing
+•	Watery or pus-like eye discharge
+•	Runny or congested nose (nasal discharge)
+•	Gagging or regurgitating after coughing
+•	Feverish / high body temperature
+•	Lethargic / very low energy
+•	Loss of appetite / not eating
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Persistent coughing
+•	Frequent sneezing
+•	Labored or difficulty breathing
+•	Watery or pus-like eye discharge
+•	Runny or congested nose (nasal discharge)
+•	Gagging or regurgitating after coughing
+•	Feverish / high body temperature
+•	Lethargic / very low energy
+•	Loss of appetite / not eating
+Urgency: Medium
+Contagious: Yes
+
+
+Disease: Infectious Canine Hepatitis
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: merckvetmanual
+   URL: https://www.merckvetmanual.com/infectious-diseases/infectious-canine-hepatitis/infectious-canine-hepatitis#Etiology-and-Pathogenesis_v3276651
+   Symptoms extracted: 
+•	Lethargy / unusually low energy
+•	Increased thirst / drinking more water than usual
+•	Loss of appetite / not eating (anorexia)
+•	Red or inflamed eyes / conjunctivitis
+•	Watery discharge from eyes and nose (serous oculonasal discharge)
+•	Cloudy or bluish eyes (corneal clouding / “blue eye”)
+•	Abdominal pain / tenderness
+•	Vomiting, sometimes with blood (hematemesis)
+•	Small red or purple spots on oral mucosa (petechiae)
+•	Enlarged tonsils
+•	Rapid heartbeat disproportionate to fever (tachycardia)
+•	Swelling under the skin of head, neck, or trunk (subcutaneous edema)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Lethargy / unusually low energy
+•	Increased thirst / drinking more water than usual
+•	Loss of appetite / not eating (anorexia)
+•	Red or inflamed eyes / conjunctivitis
+•	Watery discharge from eyes and nose (serous oculonasal discharge)
+•	Cloudy or bluish eyes (corneal clouding / “blue eye”)
+•	Abdominal pain / tenderness
+•	Vomiting, sometimes with blood (hematemesis)
+•	Small red or purple spots on oral mucosa (petechiae)
+•	Enlarged tonsils
+•	Rapid heartbeat disproportionate to fever (tachycardia)
+•	Swelling under the skin of head, neck, or trunk (subcutaneous edema)
+Urgency: High
+Contagious: Yes
+
+
+
+Disease: Pyoderma
+Species: Dog
+Status: [ ] Missing / [ ] Have but needs enrichment
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/skin/c_multi_pyoderma
+   Symptoms extracted: 
+•	Red, inflamed, or itchy skin
+•	Circular crusts or scabs on the skin
+•	Flaky or dandruff-like skin
+•	Patchy hair loss / alopecia
+•	Small raised pustules or pimple-like lesions
+•	Open sores or oozing pus from scratching or biting
+•	Thickened or darkened skin in chronic cases
+•	Swelling or draining tracts in deep infections
+•	Lethargy / low energy
+•	Loss of appetite / not eating
+•	Pain or trembling
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Red, inflamed, or itchy skin
+•	Circular crusts or scabs on the skin
+•	Flaky or dandruff-like skin
+•	Patchy hair loss / alopecia
+•	Small raised pustules or pimple-like lesions
+•	Open sores or oozing pus from scratching or biting
+•	Thickened or darkened skin in chronic cases
+•	Swelling or draining tracts in deep infections
+•	Lethargy / low energy
+•	Loss of appetite / not eating
+•	Pain or trembling
+Urgency: Medium
+Contagious: No
+
+
+
+
+Disease: Hot Spots
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/general-health/hot-spots-dogs
+   Symptoms extracted: 
+•	Red, inflamed, and raw skin lesions
+•	Moist or oozing areas on the skin
+•	Intermittent bleeding from the affected area
+•	Pain or tenderness when touched
+•	Rapidly spreading lesion due to licking, chewing, or scratching
+•	Licking, biting, or scratching at the lesion
+•	Localized hair loss around the lesion (secondary)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Red, inflamed, and raw skin lesions
+•	Moist or oozing areas on the skin
+•	Intermittent bleeding from the affected area
+•	Pain or tenderness when touched
+•	Rapidly spreading lesion due to licking, chewing, or scratching
+•	Licking, biting, or scratching at the lesion
+•	Localized hair loss around the lesion (secondary)
+Urgency: Medium
+Contagious: No
+
+
+
+
+
+
+
+
+
+
+
+
+
+Disease: Urinary Tract Infection
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/urinary/uti-dogs-signs-causes-and-when-call-your-vet
+   Symptoms extracted: 
+•	Straining or difficulty urinating (stranguria)
+•	Painful or uncomfortable urination (dysuria)
+•	Passing small amounts of urine / dribbling
+•	Frequent urination / increased urination attempts
+•	Urinary accidents indoors
+•	Licking or biting at the genital region
+•	Swelling or inflammation of the genital area
+•	Saliva-stained fur around the genitals (copper-colored from licking)
+•	Blood in the urine (hematuria)
+•	Discharge from the genitals
+•	Strong or unusual odor of urine
+•	Increased thirst / drinking more water than usual
+•	Lethargy / low energy (in severe cases)
+•	Fever (in severe cases)
+•	Loss of appetite / not eating (in severe cases)
+
+
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Straining or difficulty urinating (stranguria)
+•	Painful or uncomfortable urination (dysuria)
+•	Passing small amounts of urine / dribbling
+•	Frequent urination / increased urination attempts
+•	Urinary accidents indoors
+•	Licking or biting at the genital region
+•	Swelling or inflammation of the genital area
+•	Saliva-stained fur around the genitals (copper-colored from licking)
+•	Blood in the urine (hematuria)
+•	Discharge from the genitals
+•	Strong or unusual odor of urine
+•	Increased thirst / drinking more water than usual
+•	Lethargy / low energy (in severe cases)
+•	Fever (in severe cases)
+•	Loss of appetite / not eating (in severe cases)
+Urgency: Medium
+Contagious: No
+
+
+
+
+
+
+
+Disease: Ringworm
+Species: Dogs
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/skin/c_dg_dermatophytosis
+   Symptoms extracted: 
+•	Circular or ring-shaped areas of hair loss with red, crusty edges
+•	Broken or brittle hair / poor overall coat quality
+•	Dry, scaly skin or excessive dandruff
+•	Red or inflamed patches of skin
+•	Darkened or hyperpigmented skin patches
+•	Itching, scratching, or excessive grooming
+•	Inflamed or discolored nail beds
+•	Dry, brittle, or misshapen nails
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Circular or ring-shaped areas of hair loss with red, crusty edges
+•	Broken or brittle hair / poor overall coat quality
+•	Dry, scaly skin or excessive dandruff
+•	Red or inflamed patches of skin
+•	Darkened or hyperpigmented skin patches
+•	Itching, scratching, or excessive grooming
+•	Inflamed or discolored nail beds
+•	Dry, brittle, or misshapen nails
+Urgency: Medium
+Contagious: Zoonotic
+
+
+
+Disease: Cushing’s Disease
+Species: Dog
+Status: [ ] Missing / [ ] Have but needs enrichment
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/endocrine/cushings-disease-in-dogs-symptoms-diagnosis
+   Symptoms extracted: 
+•	Increased appetite (eating more than usual)
+•	Increased thirst and water intake
+•	Frequent or excessive urination
+•	Heavy or constant panting
+•	Gradual weight loss despite normal or increased eating
+•	Lethargy or reduced activity levels
+•	Potbellied or bloated abdomen appearance
+•	Thinning or fragile skin
+•	Patchy hair loss or thinning coat
+•	Recurrent skin infections (redness, odor, or scabbing)
+•	Hard lumps or firm nodules under the skin (calcified deposits)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Increased appetite (eating more than usual)
+•	Increased thirst and water intake
+•	Frequent or excessive urination
+•	Heavy or constant panting
+•	Gradual weight loss despite normal or increased eating
+•	Lethargy or reduced activity levels
+•	Potbellied or bloated abdomen appearance
+•	Thinning or fragile skin
+•	Patchy hair loss or thinning coat
+•	Recurrent skin infections (redness, odor, or scabbing)
+•	Hard lumps or firm nodules under the skin (calcified deposits)
+Urgency: Medium
+Contagious: No
+
+
+
+
+
+
+
+
+
+
+
+
+Disease: Addison’s Disease
+Species: Dog
+Status: [ ] Missing / [ ] Have but needs enrichment
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/endocrine/addisons-disease-dogs-symptoms-and-more
+   Symptoms extracted: 
+•	Increased thirst and water intake
+•	Frequent or excessive urination
+•	Muscle trembling or shaking
+•	Lethargy or lack of energy
+•	Generalized weakness or tiring easily
+•	Loss of appetite or refusing food
+•	Diarrhea (sometimes with dehydration or soft stools)
+•	Vomiting (often intermittent or after eating)
+•	Gradual weight loss
+•	Abdominal pain or discomfort when touched
+•	Sudden collapse or fainting episodes
+
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Increased thirst and water intake
+•	Frequent or excessive urination
+•	Muscle trembling or shaking
+•	Lethargy or lack of energy
+•	Generalized weakness or tiring easily
+•	Loss of appetite or refusing food
+•	Diarrhea (sometimes with dehydration or soft stools)
+•	Vomiting (often intermittent or after eating)
+•	Gradual weight loss
+•	Abdominal pain or discomfort when touched
+•	Sudden collapse or fainting episodes
+Urgency: High
+Contagious: No
+
+
+Disease: Hypothyroidism 
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/endocrine/c_dg_hypothyroidism
+   Symptoms extracted: 
+•	Unexplained weight gain despite normal or reduced appetite
+•	Lethargy or decreased activity level (excessive sleeping, low energy)
+•	Prefers warm places or heat-seeking behavior
+•	Chronic skin infections (recurrent dermatitis, flaking, odor)
+•	Recurrent ear infections (often with redness, discharge, or scratching)
+•	Dry, brittle, or thinning coat (especially along the back and tail — “rat tail” appearance)
+•	Darkened or increased pigmentation of skin
+•	Hair not regrowing after shaving or clipping
+•	Reproductive issues (infertility, irregular heat cycles)
+•	Hind leg weakness or dragging due to nerve dysfunction
+•	Eye fat deposits (small white spots on eyes)
+•	Dry eye (reduced tear production, eye redness or irritation)
+•	Drooping facial expression due to thickened facial skin
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Unexplained weight gain despite normal or reduced appetite
+•	Lethargy or decreased activity level (excessive sleeping, low energy)
+•	Prefers warm places or heat-seeking behavior
+•	Chronic skin infections (recurrent dermatitis, flaking, odor)
+•	Recurrent ear infections (often with redness, discharge, or scratching)
+•	Dry, brittle, or thinning coat (especially along the back and tail — “rat tail” appearance)
+•	Darkened or increased pigmentation of skin
+•	Hair not regrowing after shaving or clipping
+•	Reproductive issues (infertility, irregular heat cycles)
+•	Hind leg weakness or dragging due to nerve dysfunction
+•	Eye fat deposits (small white spots on eyes)
+•	Dry eye (reduced tear production, eye redness or irritation)
+•	Drooping facial expression due to thickened facial skin
+Urgency: Medium
+Contagious: No
+Disease: Chronic Kidney Disease
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/urinary/chronic-kidney-disease-ckd-dogs
+   Symptoms extracted: 
+•	Pale gums (sign of anemia or poor blood circulation)
+•	Increased urination (frequent or excessive urination)
+•	Increased thirst (drinking excessively)
+•	Decreased appetite (loss of interest in food)
+•	Dehydration (dry nose, sticky gums, sunken eyes)
+•	Muscle wasting (loss of muscle mass, visible ribs or hips)
+•	Nausea (drooling, lip licking, restlessness)
+•	Vomiting (intermittent or frequent)
+•	Mouth ulcers (sores inside the mouth, especially on the tongue or gums)
+•	Bad breath with ammonia-like odor
+•	Dull or poor coat quality (dry, rough, or shedding excessively)
+•	Vision loss (due to high blood pressure damaging the eyes)
+•	Weakness and lethargy (low energy, reluctance to move)
+•	Weight loss (progressive loss of body condition)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Pale gums (sign of anemia or poor blood circulation)
+•	Increased urination (frequent or excessive urination)
+•	Increased thirst (drinking excessively)
+•	Decreased appetite (loss of interest in food)
+•	Dehydration (dry nose, sticky gums, sunken eyes)
+•	Muscle wasting (loss of muscle mass, visible ribs or hips)
+•	Nausea (drooling, lip licking, restlessness)
+•	Vomiting (intermittent or frequent)
+•	Mouth ulcers (sores inside the mouth, especially on the tongue or gums)
+•	Bad breath with ammonia-like odor
+•	Dull or poor coat quality (dry, rough, or shedding excessively)
+•	Vision loss (due to high blood pressure damaging the eyes)
+•	Weakness and lethargy (low energy, reluctance to move)
+•	Weight loss (progressive loss of body condition)
+Urgency: High
+Contagious: No
+
+
+Disease: Liver Disease
+Species: Dogs
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/digestive/liver-disease-dogs
+   Symptoms extracted: 
+•	Yellowing of eyes, gums, or skin (jaundice)
+•	Disorientation or confusion (acting lost or dazed)
+•	Seizures (sudden shaking or convulsions)
+•	Depression or listlessness (unusual sadness or inactivity)
+•	Head pressing (dog presses its head against walls or furniture)
+•	Sudden blindness (loss of vision or bumping into objects)
+•	Behavioral changes (aggression, restlessness, or unresponsiveness)
+•	Decreased appetite (loss of interest in food)
+•	Vomiting (with or without bile)
+•	Diarrhea (frequent or loose stools)
+•	Weight loss (noticeable decrease in body mass)
+•	Increased drinking (excessive thirst)
+•	Increased urination (frequent or large amounts of urine)
+•	Pale, gray, or yellow stool (abnormal stool color)
+•	Swollen abdomen (fluid buildup or ascites)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Yellowing of eyes, gums, or skin (jaundice)
+•	Disorientation or confusion (acting lost or dazed)
+•	Seizures (sudden shaking or convulsions)
+•	Depression or listlessness (unusual sadness or inactivity)
+•	Head pressing (dog presses its head against walls or furniture)
+•	Sudden blindness (loss of vision or bumping into objects)
+•	Behavioral changes (aggression, restlessness, or unresponsiveness)
+•	Decreased appetite (loss of interest in food)
+•	Vomiting (with or without bile)
+•	Diarrhea (frequent or loose stools)
+•	Weight loss (noticeable decrease in body mass)
+•	Increased drinking (excessive thirst)
+•	Increased urination (frequent or large amounts of urine)
+•	Pale, gray, or yellow stool (abnormal stool color)
+•	Swollen abdomen (fluid buildup or ascites)
+Urgency: High
+Contagious: No
+
+Disease: Hip Dysplasia
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/musculoskeletal/hip-dysplasia-dogs
+   Symptoms extracted: 
+•	Intermittent or chronic limping (favoring one or both hind legs)
+•	Limping without prior injury (persistent limp with no visible cause)
+•	Bunny hopping gait (using both hind legs together when running or climbing stairs)
+•	Difficulty standing up (stiffness or struggle to rise after rest)
+•	Abnormal sitting posture (sitting with one leg out to the side or uneven weight distribution)
+•	Difficulty climbing stairs or jumping onto furniture (reluctance or visible pain during movement)
+
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Intermittent or chronic limping (favoring one or both hind legs)
+•	Limping without prior injury (persistent limp with no visible cause)
+•	Bunny hopping gait (using both hind legs together when running or climbing stairs)
+•	Difficulty standing up (stiffness or struggle to rise after rest)
+•	Abnormal sitting posture (sitting with one leg out to the side or uneven weight distribution)
+•	Difficulty climbing stairs or jumping onto furniture (reluctance or visible pain during movement)
+Urgency: Medium
+Contagious: No
+
+
+Disease: Patellar Luxation
+Species: Dog
+Status: [ ] Missing
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/musculoskeletal/luxating-patella-in-dogs
+   Symptoms extracted: 
+•	Sudden limping or skipping on one hind leg (lifting leg briefly while walking or running)
+•	Intermittent limp that comes and goes (temporary lameness episodes)
+•	Bowlegged stance in the hind limbs (knees turned outward)
+•	Arched or hunched lower back (abnormal posture due to pain)
+•	Clicking or popping sound from the knee joint when bent (audible joint noise)
+•	Stiff or awkward gait with reduced leg extension (permanent dislocation of the kneecap)
+•	Short yelp or sign of pain during movement (pain response during knee luxation)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Sudden limping or skipping on one hind leg (lifting leg briefly while walking or running)
+•	Intermittent limp that comes and goes (temporary lameness episodes)
+•	Bowlegged stance in the hind limbs (knees turned outward)
+•	Arched or hunched lower back (abnormal posture due to pain)
+•	Clicking or popping sound from the knee joint when bent (audible joint noise)
+•	Stiff or awkward gait with reduced leg extension (permanent dislocation of the kneecap)
+•	Short yelp or sign of pain during movement (pain response during knee luxation)
+Urgency: Medium
+Contagious: No
+
+Disease: ACL Tear
+Species: Dogs
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: hepperblog
+   URL: https://articles.hepper.com/torn-acl-in-dogs-vet-answer/
+   Symptoms extracted: 
+•	Limping or favoring one leg (lameness)
+•	Difficulty standing up after resting or lying down (mobility stiffness)
+•	Stiff movement in the affected leg (joint rigidity)
+•	Visible swelling or inflammation in the affected limb (joint swelling)
+•	Noticeable change in walking pattern or stride (altered gait)
+•	Trouble walking upstairs or on inclines (reduced hind leg strength)
+•	Refusal or hesitation to jump onto furniture or into vehicles (mobility reluctance)
+•	Sitting awkwardly with legs extended outward (abnormal sitting posture)
+•	Growling, snapping, or pulling away when the leg is touched (pain-induced aggression)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Limping or favoring one leg (lameness)
+•	Difficulty standing up after resting or lying down (mobility stiffness)
+•	Stiff movement in the affected leg (joint rigidity)
+•	Visible swelling or inflammation in the affected limb (joint swelling)
+•	Noticeable change in walking pattern or stride (altered gait)
+•	Trouble walking upstairs or on inclines (reduced hind leg strength)
+•	Refusal or hesitation to jump onto furniture or into vehicles (mobility reluctance)
+•	Sitting awkwardly with legs extended outward (abnormal sitting posture)
+•	Growling, snapping, or pulling away when the leg is touched (pain-induced aggression)
+Urgency: Medium
+Contagious: No
+
+
+
+
+
+
+
+
+Disease: Food Allergies	
+Species: Dogs
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/digestive/food-allergies-dogs
+   Symptoms extracted: 
+•	Persistent itching or red, irritated skin (pruritus and skin inflammation)
+•	Recurrent ear infections or skin infections (chronic otitis or dermatitis)
+•	Noticeable hair loss or patchy bald spots (alopecia)
+•	Constant licking or chewing of paws, often with brown discoloration (paw dermatitis)
+•	Loose or watery stools (diarrhea)
+•	Repeated vomiting or regurgitation (gastrointestinal upset)
+•	Frequent or excessive gas (flatulence)
+•	Unexplained weight loss (body condition decline)
+•	Low energy or tiredness (lethargy)
+•	Raised bumps on skin with facial swelling, especially around the muzzle or eyes (hives and facial edema — anaphylaxis indicator)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Persistent itching or red, irritated skin (pruritus and skin inflammation)
+•	Recurrent ear infections or skin infections (chronic otitis or dermatitis)
+•	Noticeable hair loss or patchy bald spots (alopecia)
+•	Constant licking or chewing of paws, often with brown discoloration (paw dermatitis)
+•	Loose or watery stools (diarrhea)
+•	Repeated vomiting or regurgitation (gastrointestinal upset)
+•	Frequent or excessive gas (flatulence)
+•	Unexplained weight loss (body condition decline)
+•	Low energy or tiredness (lethargy)
+•	Raised bumps on skin with facial swelling, especially around the muzzle or eyes (hives and facial edema — anaphylaxis indicator)
+Urgency: Medium (High if anaphylaxis symptoms like facial swelling or hives are present)
+Contagious: No
+
+Disease: Flea Allergy Dermatitis
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/skin/flea-allergy-dermatitis-dogs-everything-pet-parent-needs-know
+   Symptoms extracted: 
+•	Hair loss over the lower back, tail base, or hindquarters (localized alopecia)
+•	Constant itching, biting, or scratching (severe pruritus)
+•	Scabs or crusty skin lesions (crusted dermatitis)
+•	Red and inflamed skin (erythema and skin irritation)
+•	Presence of visible fleas or black flea dirt in the fur (flea infestation signs)
+•	Pale gums and fatigue due to blood loss (anemia and lethargy in heavy infestations)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Hair loss over the lower back, tail base, or hindquarters (localized alopecia)
+•	Constant itching, biting, or scratching (severe pruritus)
+•	Scabs or crusty skin lesions (crusted dermatitis)
+•	Red and inflamed skin (erythema and skin irritation)
+•	Presence of visible fleas or black flea dirt in the fur (flea infestation signs)
+•	Pale gums and fatigue due to blood loss (anemia and lethargy in heavy infestations)
+Urgency: Medium (High if severe anemia is present)
+Contagious: Yes
+
+Disease: Contact Dermatitis
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/skin/contact-dermatitis
+   Symptoms extracted: 
+•	Red, inflamed, or irritated skin (erythema and skin inflammation)
+•	Localized or patchy hair loss (alopecia)
+•	Hardened or flaky skin with scabs (hyperkeratosis and crusting)
+•	Darkened or discolored skin (hyperpigmentation)
+•	Pustules, pimples, or small raised lesions (purulent skin lesions)
+•	Persistent itching, scratching, or rubbing (pruritus)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Red, inflamed, or irritated skin (erythema and skin inflammation)
+•	Localized or patchy hair loss (alopecia)
+•	Hardened or flaky skin with scabs (hyperkeratosis and crusting)
+•	Darkened or discolored skin (hyperpigmentation)
+•	Pustules, pimples, or small raised lesions (purulent skin lesions)
+•	Persistent itching, scratching, or rubbing (pruritus)
+Urgency: Medium
+Contagious: No
+
+Disease: Demodectic Mange
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/skin/c_multi_Demodicosis
+   Symptoms extracted: 
+•	Patchy or generalized hair loss (alopecia)
+•	Dry, flaky, or scaling skin (dermatitis with scaling)
+•	Small raised bumps on the skin (papules)
+•	Darkened or pigmented skin (hyperpigmentation)
+•	Thickened or roughened skin (lichenification)
+•	Itching or scratching (pruritus, mild to severe depending on secondary infection)
+•	Pain or tenderness in affected areas (in severe/generalized cases)
+•	Lethargy and low energy (systemic signs in severe cases)
+•	Fever (secondary to severe skin infection)
+•	Draining sores or wounds (ulcerated skin lesions in advanced cases)
+•	Ear infections if mites invade the ear canal (otitis externa secondary to demodicosis)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Patchy or generalized hair loss (alopecia)
+•	Dry, flaky, or scaling skin (dermatitis with scaling)
+•	Small raised bumps on the skin (papules)
+•	Darkened or pigmented skin (hyperpigmentation)
+•	Thickened or roughened skin (lichenification)
+•	Itching or scratching (pruritus, mild to severe depending on secondary infection)
+•	Pain or tenderness in affected areas (in severe/generalized cases)
+•	Lethargy and low energy (systemic signs in severe cases)
+•	Fever (secondary to severe skin infection)
+•	Draining sores or wounds (ulcerated skin lesions in advanced cases)
+•	Ear infections if mites invade the ear canal (otitis externa secondary to demodicosis)
+Urgency: Medium (High if generalized with systemic signs like fever, lethargy, or draining wounds)
+Contagious: No
+
+
+
+
+
+
+
+
+
+
+Disease: Anaplasmosis
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/parasites/anaplasmosis-dogs
+   Symptoms extracted:
+ Anaplasma phagocytophilum:
+•	Limping or stiff joints
+•	Lethargic / very low energy
+•	Loss of appetite
+•	Feverish / high temperature
+•	Coughing
+•	Seizures / convulsions
+•	Vomiting
+•	Diarrhea
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Limping or stiff joints
+•	Lethargic / very low energy
+•	Loss of appetite
+•	Feverish / high temperature
+•	Coughing
+•	Seizures / convulsions
+•	Vomiting
+•	Diarrhea
+Urgency: High
+Contagious: No
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Disease: Babesiosis
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source:  petMD
+   URL: https://www.petmd.com/dog/conditions/infectious-parasitic/c_dg_babesiosis   Symptoms extracted: 
+•	Lethargic / very low energy
+•	Loss of appetite
+•	Pale gums / mucous membranes
+•	Feverish / high temperature
+•	Enlarged lymph nodes or spleen
+•	Dark red or orange urine
+•	Yellow/orange skin (jaundice)
+•	Swollen or distended abdomen
+•	Weight loss
+•	Discolored stool / dark stool
+•	Wobbly gait / imbalance
+•	Seizures / convulsions
+•	Neck pain / stiff neck
+Additional observation:
+•	Tick infestation (tiny hard bumps on skin, dark brown/black or engorged)
+
+
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Lethargic / very low energy
+•	Loss of appetite
+•	Pale gums / mucous membranes
+•	Feverish / high temperature
+•	Enlarged lymph nodes or spleen
+•	Dark red or orange urine
+•	Yellow/orange skin (jaundice)
+•	Swollen or distended abdomen
+•	Weight loss
+•	Discolored stool / dark stool
+•	Wobbly gait / imbalance
+•	Seizures / convulsions
+•	Neck pain / stiff neck
+Additional observation:
+•	Tick infestation (tiny hard bumps on skin, dark brown/black or engorged)
+
+Urgency: high
+Contagious: no
+
+
+
+
+
+
+
+Disease: Hookworms
+Species: Dogs
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/infectious-parasitic/hookworms-dogs-symptoms-treatment-and-how-prevent-them
+   Symptoms extracted: 
+•	Dark, tar-colored diarrhea
+•	Thin / underweight body condition
+•	Dull or unhealthy coat
+•	Pale gums / mucous membranes
+•	Weakness / lethargy
+•	Anemia (low blood count due to blood loss)
+•	Coughing / difficulty breathing (lung migration)
+•	Dermatitis / red, itchy skin between toes
+
+
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Dark, tar-colored diarrhea
+•	Thin / underweight body condition
+•	Dull or unhealthy coat
+•	Pale gums / mucous membranes
+•	Weakness / lethargy
+•	Anemia (low blood count due to blood loss)
+•	Coughing / difficulty breathing (lung migration)
+•	Dermatitis / red, itchy skin between toes
+Urgency: medium
+Contagious: zoonotic
+
+
+
+
+
+
+
+Disease: Heartworm Disease
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/infectious-parasitic/heartworm-disease-in-dogs
+   Symptoms extracted: 
+•	Persistent coughing / dry or wet cough
+•	Lethargic / very low energy
+•	Exercise intolerance / gets tired quickly when walking or playing
+•	Collapse / fainting spells
+•	Sudden death (in severe cases)
+•	Weight loss / losing condition
+•	Difficulty breathing / labored breathing
+•	Excessive panting / heavy breathing
+•	Abdominal swelling due to fluid buildup (ascites)
+
+
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Persistent coughing / dry or wet cough
+•	Lethargic / very low energy
+•	Exercise intolerance / gets tired quickly when walking or playing
+•	Collapse / fainting spells
+•	Sudden death (in severe cases)
+•	Weight loss / losing condition
+•	Difficulty breathing / labored breathing
+•	Excessive panting / heavy breathing
+•	Abdominal swelling due to fluid buildup (ascites)
+Urgency: high
+Contagious: no
+
+
+
+
+
+
+
+Disease: Heatstroke
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/systemic/heatstroke-dogs
+   Symptoms extracted: 
+•	Excessive panting / heavy, rapid breathing
+•	Red or bright gums / mucous membranes
+•	Rapid heartbeat / racing pulse
+•	Dehydration / dry gums and sunken eyes
+•	High fever / temperature 104°F or above
+•	Vomiting (may include blood)
+•	Diarrhea (may include blood)
+•	Disorientation / stumbling / confusion
+•	Weakness / collapse
+•	Seizures
+•	Sudden death (in severe cases)
+
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Excessive panting / heavy, rapid breathing
+•	Red or bright gums / mucous membranes
+•	Rapid heartbeat / racing pulse
+•	Dehydration / dry gums and sunken eyes
+•	High fever / temperature 104°F or above
+•	Vomiting (may include blood)
+•	Diarrhea (may include blood)
+•	Disorientation / stumbling / confusion
+•	Weakness / collapse
+•	Seizures
+•	Sudden death (in severe cases)
+Urgency: emergency
+Contagious: no
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Disease: Lyme Disease
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/infectious-parasitic/lyme-disease-dogs
+   Symptoms extracted: 
+•	Joint pain / swelling / stiff or painful joints
+•	Limping / lameness
+•	Feverish / high temperature
+•	Lethargic / very low energy
+•	Weakness / muscle fatigue
+•	Loss of appetite / not eating
+•	Enlarged lymph nodes / swollen glands
+•	Vomiting
+•	Diarrhea
+•	Excessive thirst / drinking more water than usual
+•	Frequent urination / peeing more often
+•	Weight loss / losing body condition
+•	Swollen limbs or abdomen / puffy legs or belly
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Joint pain / swelling / stiff or painful joints
+•	Limping / lameness
+•	Feverish / high temperature
+•	Lethargic / very low energy
+•	Weakness / muscle fatigue
+•	Loss of appetite / not eating
+•	Enlarged lymph nodes / swollen glands
+•	Vomiting
+•	Diarrhea
+•	Excessive thirst / drinking more water than usual
+•	Frequent urination / peeing more often
+•	Weight loss / losing body condition
+•	Swollen limbs or abdomen / puffy legs or belly
+Urgency: medium
+Contagious: no
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Disease: Roundworms (Ascarids)
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/dog/conditions/digestive/roundworms-in-dogs
+   Symptoms extracted: 
+•	Diarrhea or soft stool (may contain visible worms)
+•	Vomiting (may contain visible worms)
+•	Pot-bellied or bloated abdomen
+•	Thin or underweight body condition
+•	Weight loss / losing body condition
+•	Dull or unhealthy coat
+•	Coughing or difficulty breathing (if larvae reach the lungs)
+•	Weakness / low energy (in severe cases)
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Diarrhea or soft stool (may contain visible worms)
+•	Vomiting (may contain visible worms)
+•	Pot-bellied or bloated abdomen
+•	Thin or underweight body condition
+•	Weight loss / losing body condition
+•	Dull or unhealthy coat
+•	Coughing or difficulty breathing (if larvae reach the lungs)
+•	Weakness / low energy (in severe cases)
+Urgency: medium
+Contagious: zoonotic
+
+
+
+
+Disease: Rickettsial Infections
+Species: Dog
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: msdvetmanual
+   URL: https://www.msdvetmanual.com/special-pet-topics/infections/infections-caused-by-rickettsiae
+   Symptoms extracted: 
+•	Feverish / high temperature
+•	Loss of appetite / not eating
+•	Depression / unusually sad or withdrawn behavior
+•	Low stamina / tires easily during activity
+•	Lameness / limping or stiff movement
+•	Coughing
+•	Weight loss / losing body condition (especially in chronic cases)
+•	Weakness / low energy
+•	In severe or chronic cases: kidney, lung, brain, spleen, or bone marrow complications (may show as fatigue, trouble breathing, or neurologic issues)
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Feverish / high temperature
+•	Loss of appetite / not eating
+•	Depression / unusually sad or withdrawn behavior
+•	Low stamina / tires easily during activity
+•	Lameness / limping or stiff movement
+•	Coughing
+•	Weight loss / losing body condition (especially in chronic cases)
+•	Weakness / low energy
+•	In severe or chronic cases: kidney, lung, brain, spleen, or bone marrow complications (may show as fatigue, trouble breathing, or neurologic issues)
+Urgency: medium
+Contagious: no
+
+
+
+
+
+
+
+
+Disease: Heartworm Disease
+Species: Cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/cat/conditions/infectious-parasitic/c_ct_heartworm_disease
+   Symptoms extracted: 
+•	Lethargy (unusual tiredness or weakness)
+•	Persistent coughing
+•	Loss of appetite
+•	Weight loss despite eating normally
+•	Intolerance to physical activity
+•	Frequent vomiting
+•	Labored breathing (difficulty breathing)
+•	Rapid breathing rate
+•	Open-mouth breathing (especially during distress)
+•	Difficulty walking or uncoordinated movements (ataxia)
+•	Seizures
+•	Sudden collapse or unexpected death
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Lethargy (unusual tiredness or weakness)
+•	Persistent coughing
+•	Loss of appetite
+•	Weight loss despite eating normally
+•	Intolerance to physical activity
+•	Frequent vomiting
+•	Labored breathing (difficulty breathing)
+•	Rapid breathing rate
+•	Open-mouth breathing (especially during distress)
+•	Difficulty walking or uncoordinated movements (ataxia)
+•	Seizures
+•	Sudden collapse or unexpected death
+Urgency: High
+Contagious: No
+
+
+
+
+Disease: Roundworms
+Species: Cats
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/cat/conditions/infectious-parasitic/roundworms-cats
+   Symptoms extracted: 
+•	Poor growth or stunted development in kittens (growth retardation)
+•	Loose or watery stools (diarrhea)
+•	Excessive crying or vocalization (distress or discomfort)
+•	Distended or pot-bellied abdomen (abdominal distension)
+•	Unexplained weight loss (body condition decline)
+•	Dull or unkempt fur (poor coat condition)
+•	Repeated vomiting (emesis)
+•	Coughing or respiratory signs if larvae migrate to lungs (pulmonary irritation)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Poor growth or stunted development in kittens (growth retardation)
+•	Loose or watery stools (diarrhea)
+•	Excessive crying or vocalization (distress or discomfort)
+•	Distended or pot-bellied abdomen (abdominal distension)
+•	Unexplained weight loss (body condition decline)
+•	Dull or unkempt fur (poor coat condition)
+•	Repeated vomiting (emesis)
+•	Coughing or respiratory signs if larvae migrate to lungs (pulmonary irritation)
+Urgency: Medium
+Contagious: Yes
+
+Disease: Tapeworms
+Species: Cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/cat/conditions/infectious-parasitic/tapeworms-cats
+   Symptoms extracted: 
+•	Presence of white, rice-like worm segments around the anus or in feces (visible proglottids)
+•	Scooting or dragging the hind end along the floor (anal irritation)
+•	Licking or biting at the hindquarters (perianal itching)
+•	Loose stools or diarrhea (diarrhea)
+•	Repeated vomiting (emesis)
+•	Poor appetite (anorexia, in severe cases)
+•	Lethargy or low energy (systemic signs in heavy infections)
+•	Unexplained weight loss (body condition decline, rare in severe cases)
+•	Intestinal blockage (rare, in heavy infections)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Presence of white, rice-like worm segments around the anus or in feces (visible proglottids)
+•	Scooting or dragging the hind end along the floor (anal irritation)
+•	Licking or biting at the hindquarters (perianal itching)
+•	Loose stools or diarrhea (diarrhea)
+•	Repeated vomiting (emesis)
+•	Poor appetite (anorexia, in severe cases)
+•	Lethargy or low energy (systemic signs in heavy infections)
+•	Unexplained weight loss (body condition decline, rare in severe cases)
+•	Intestinal blockage (rare, in heavy infections)
+Urgency: Medium
+Contagious: Yes
+
+
+
+
+
+
+
+Disease: Hookworms
+Species: Cats
+Status: [ ] Missing
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/cat/conditions/infectious-parasitic/hookworms-cats
+   Symptoms extracted: 
+•	Blood in the stool (melena, dark tarry stools)
+•	Unexplained weight loss (body condition decline)
+•	Pale gums or low red blood cell count (anemia)
+•	Poor or dull coat condition (unhealthy hair coat)
+•	Lethargy or low energy (fatigue due to blood loss)
+•	Diarrhea (sometimes with blood, in severe infections)
+•	Vomiting (in some cases, due to intestinal irritation)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Blood in the stool (melena, dark tarry stools)
+•	Unexplained weight loss (body condition decline)
+•	Pale gums or low red blood cell count (anemia)
+•	Poor or dull coat condition (unhealthy hair coat)
+•	Lethargy or low energy (fatigue due to blood loss)
+•	Diarrhea (sometimes with blood, in severe infections)
+•	Vomiting (in some cases, due to intestinal irritation)
+Urgency: Medium
+Contagious: Yes
+
+
+Disease: Giardia
+Species: Cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/cat/conditions/infectious-parasitic/c_ct_giardiasis
+   Symptoms extracted: 
+•	Watery, foul-smelling diarrhea (often frequent)
+•	Vomiting (emesis)
+•	Excessive gas (flatulence)
+•	Decreased appetite (anorexia)
+•	Lethargy or low energy
+•	Frequent litter box use (polyuria/urgency due to diarrhea)
+•	Perianal irritation or excessive grooming (anal itching/soiling)
+•	Weight loss (in chronic or severe infections)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Watery, foul-smelling diarrhea (often frequent)
+•	Vomiting (emesis)
+•	Excessive gas (flatulence)
+•	Decreased appetite (anorexia)
+•	Lethargy or low energy
+•	Frequent litter box use (polyuria/urgency due to diarrhea)
+•	Perianal irritation or excessive grooming (anal itching/soiling)
+•	Weight loss (in chronic or severe infections)
+Urgency: Medium
+Contagious: Yes
+
+Disease: Urinary Blockage
+Species: Cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/cat/conditions/urinary/urinary-tract-blockage-cats
+   Symptoms extracted: 
+•	Bloody urine (hematuria)
+•	Straining to urinate or inability to urinate (dysuria/urinary obstruction)
+•	Urinating small amounts frequently (pollakiuria)
+•	Increased frequency of trips to the litter box (urinary urgency)
+•	Urinating outside the litter box (inappropriate urination)
+•	Licking or over-grooming the genital area (perineal discomfort)
+•	Vocalization when urinating or appearing in pain (painful urination)
+•	Lethargy or hiding (reduced activity due to discomfort)
+•	Decreased appetite (anorexia)
+•	Vomiting (emesis)
+•	Diarrhea (secondary GI upset in stress or obstruction)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Bloody urine (hematuria)
+•	Straining to urinate or inability to urinate (dysuria/urinary obstruction)
+•	Urinating small amounts frequently (pollakiuria)
+•	Increased frequency of trips to the litter box (urinary urgency)
+•	Urinating outside the litter box (inappropriate urination)
+•	Licking or over-grooming the genital area (perineal discomfort)
+•	Vocalization when urinating or appearing in pain (painful urination)
+•	Lethargy or hiding (reduced activity due to discomfort)
+•	Decreased appetite (anorexia)
+•	Vomiting (emesis)
+•	Diarrhea (secondary GI upset in stress or obstruction)
+Urgency: Emergency
+Contagious: No
+
+Disease: Cystitis
+Species: Cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/cat/conditions/urinary/feline-idiopathic-cystitis-fic-cats
+   Symptoms extracted:
+•	Straining to urinate or inability to urinate (dysuria/urinary obstruction)
+•	Urinating small amounts frequently (pollakiuria)
+•	Increased frequency of trips to the litter box (urinary urgency)
+•	Blood in the urine (hematuria)
+•	Urinating outside the litter box (inappropriate urination)
+•	Licking or over-grooming the genital area (perineal discomfort)
+•	Vocalization or crying while urinating (painful urination)
+•	Lethargy or hiding (reduced activity due to discomfort)
+•	Decreased appetite (anorexia)
+•	Vomiting (emesis)
+•	Diarrhea (secondary GI upset)
+•	Decreased social interaction (hiding or withdrawal due to discomfort)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Straining to urinate or inability to urinate (dysuria/urinary obstruction)
+•	Urinating small amounts frequently (pollakiuria)
+•	Increased frequency of trips to the litter box (urinary urgency)
+•	Blood in the urine (hematuria)
+•	Urinating outside the litter box (inappropriate urination)
+•	Licking or over-grooming the genital area (perineal discomfort)
+•	Vocalization or crying while urinating (painful urination)
+•	Lethargy or hiding (reduced activity due to discomfort)
+•	Decreased appetite (anorexia)
+•	Vomiting (emesis)
+•	Diarrhea (secondary GI upset)
+•	Decreased social interaction (hiding or withdrawal due to discomfort)
+Urgency: Emergency
+Contagious: No
+
+
+Disease: Kidney Stones
+Species: Cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/cat/conditions/urinary/c_ct_nephrolithiasis
+   Symptoms extracted: 
+•	Blood in the urine (hematuria)
+•	Vomiting (emesis)
+•	Recurrent urinary tract infections (chronic UTIs)
+•	Painful or difficult urination (dysuria)
+•	Frequent urination with small volume (polyuria/pollakiuria)
+•	Lethargy or reduced activity (secondary to discomfort)
+•	Decreased appetite (anorexia)
+
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Blood in the urine (hematuria)
+•	Vomiting (emesis)
+•	Recurrent urinary tract infections (chronic UTIs)
+•	Painful or difficult urination (dysuria)
+•	Frequent urination with small volume (polyuria/pollakiuria)
+•	Lethargy or reduced activity (secondary to discomfort)
+•	Decreased appetite (anorexia)
+Urgency: High
+
+Contagious: No
+
+
+
+Disease: Stomatitis
+Species: Cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/cat/conditions/mouth/stomatitis-in-cats
+   Symptoms extracted:
+•	Foul odor from the mouth (halitosis)
+•	Excessive salivation or drooling (ptyalism)
+•	Reduced grooming leading to matted or unkempt fur (poor coat maintenance)
+•	Difficulty eating or dropping food from the mouth (dysphagia)
+•	Crying out or vocalizing while eating (oral pain)
+•	Decreased appetite or food avoidance (anorexia)
+•	Weight loss (secondary to chronic pain and reduced intake)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Foul odor from the mouth (halitosis)
+•	Excessive salivation or drooling (ptyalism)
+•	Reduced grooming leading to matted or unkempt fur (poor coat maintenance)
+•	Difficulty eating or dropping food from the mouth (dysphagia)
+•	Crying out or vocalizing while eating (oral pain)
+•	Decreased appetite or food avoidance (anorexia)
+•	Weight loss (secondary to chronic pain and reduced intake)
+Urgency: Medium
+Contagious: No
+
+
+
+
+
+Disease: Tooth Resorption
+Species: Cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/cat/conditions/mouth/c_ct_Feline_Tooth_Resorption
+   Symptoms extracted: 
+•	Excessive drooling (ptyalism)
+•	Difficulty chewing or eating (dysphagia/masticatory pain)
+•	Dropping food while eating (food aversion due to oral pain)
+•	Jaw chattering while eating (oral discomfort)
+•	Avoiding the food bowl or reluctance to eat (food aversion)
+•	No outward signs of pain in some cats (asymptomatic cases)
+
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Excessive drooling (ptyalism)
+•	Difficulty chewing or eating (dysphagia/masticatory pain)
+•	Dropping food while eating (food aversion due to oral pain)
+•	Jaw chattering while eating (oral discomfort)
+•	Avoiding the food bowl or reluctance to eat (food aversion)
+•	No outward signs of pain in some cats (asymptomatic cases)
+Urgency: Medium
+Contagious: No
+
+
+
+Disease: Asthma
+Species: Cat
+Status: [ ] Missing / [ ] Have but needs enrichment
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/cat/conditions/respiratory/cat-asthma
+   Symptoms extracted: 
+•	Coughing, sometimes appearing as gagging or vomiting (paroxysmal cough)
+•	Difficulty breathing (dyspnea)
+•	Abdominal breathing instead of chest breathing (thoracoabdominal dyssynchrony)
+•	Rapid breathing (tachypnea)
+•	Blue or pale gums (cyanosis)
+•	Noisy wheezing or whistling sounds during breathing (wheezing/respiratory stridor)
+•	Crouched posture with extended head and neck during coughing or wheezing (postural distress)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Coughing, sometimes appearing as gagging or vomiting (paroxysmal cough)
+•	Difficulty breathing (dyspnea)
+•	Abdominal breathing instead of chest breathing (thoracoabdominal dyssynchrony)
+•	Rapid breathing (tachypnea)
+•	Blue or pale gums (cyanosis)
+•	Noisy wheezing or whistling sounds during breathing (wheezing/respiratory stridor)
+•	Crouched posture with extended head and neck during coughing or wheezing (postural distress)
+Urgency: Emergency
+Contagious: No
+
+
+
+Disease: Hairballs
+Species: Cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: webmd
+   URL: https://www.webmd.com/pets/cats/what-to-do-about-hairballs-in-cats   
+Symptoms extracted: 
+•	Vomiting with visible or non-visible hair (trichobezoar expulsion)
+•	Hacking, gagging, or retching (pre-vomiting reflex)
+•	Decreased appetite or anorexia
+•	Lethargy (lack of energy)
+•	Acting as if in pain (abdominal discomfort)
+•	Wads of hair in feces (trichobezoars passed via stool)
+•	Vocalization before vomiting (crying or howling)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Vomiting with visible or non-visible hair (trichobezoar expulsion)
+•	Hacking, gagging, or retching (pre-vomiting reflex)
+•	Decreased appetite or anorexia
+•	Lethargy (lack of energy)
+•	Acting as if in pain (abdominal discomfort)
+•	Wads of hair in feces (trichobezoars passed via stool)
+•	Vocalization before vomiting (crying or howling)
+Urgency: Medium
+Contagious: No
+
+
+
+
+
+
+
+
+
+
+
+Disease: Toxoplasmosis
+Species: Cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/cat/conditions/infectious-parasitic/c_ct_toxoplasmosis   Symptoms extracted: 
+•	Lethargy (low energy or tiredness)
+•	Loss of appetite
+•	Unexplained weight loss
+•	Fever
+•	Labored breathing (difficulty breathing)
+•	Yellowing of eyes, skin, or gums (jaundice)
+•	Sudden behavior changes or confusion
+•	Vision loss or trouble seeing
+•	General body weakness
+•	Loss of balance or walking in circles (lack of coordination)
+•	Neck stiffness or pain
+•	Seizures
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Lethargy (low energy or tiredness)
+•	Loss of appetite
+•	Unexplained weight loss
+•	Fever
+•	Labored breathing (difficulty breathing)
+•	Yellowing of eyes, skin, or gums (jaundice)
+•	Sudden behavior changes or confusion
+•	Vision loss or trouble seeing
+•	General body weakness
+•	Loss of balance or walking in circles (lack of coordination)
+•	Neck stiffness or pain
+•	Seizures
+Urgency: High
+Contagious: Zoonotic
+
+
+
+
+
+Disease: Feline Herpesvirus (FHV-1)
+Species: Cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/cat/conditions/infectious-parasitic/c_ct_feline_rhinotracheitis
+   Symptoms extracted: 
+•	Frequent sneezing
+•	Runny or congested nose (nasal discharge)
+•	Fever
+•	Loss of appetite
+•	Persistent coughing
+•	Watery or pus-like eye discharge
+•	Red or swollen eyes (conjunctivitis)
+•	Swelling of the inner eyelid (chemosis)
+•	Change in eye color or cloudiness (corneal inflammation)
+•	Corneal ulcers (scratches or sores on the clear part of the eye)
+•	Red, inflamed, or swollen skin around the nose and eyes
+•	Facial crusting or scabbing
+•	Hair loss around the face
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Frequent sneezing
+•	Runny or congested nose (nasal discharge)
+•	Fever
+•	Loss of appetite
+•	Persistent coughing
+•	Watery or pus-like eye discharge
+•	Red or swollen eyes (conjunctivitis)
+•	Swelling of the inner eyelid (chemosis)
+•	Change in eye color or cloudiness (corneal inflammation)
+•	Corneal ulcers (scratches or sores on the clear part of the eye)
+•	Red, inflamed, or swollen skin around the nose and eyes
+•	Facial crusting or scabbing
+•	Hair loss around the face
+Urgency: Medium
+Contagious: Yes
+
+
+
+Disease: Mange
+Species: cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/cat/conditions/infectious-parasitic/mange-cats
+   Symptoms extracted: 
+•	Patchy or widespread hair loss 
+•	Intense itching and scratching
+•	Red or irritated skin (rashes)
+•	Open sores or scabs from scratching
+•	Crusty bumps on the skin 
+•	Oozing red patches or raised lesions 
+•	Excessive grooming or hair pulling, especially on the belly
+•	Chin acne or inflamed skin on the chin area
+•	Crusty or scaly skin around the head and neck
+•	Visible moving dandruff or skin flakes
+
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Patchy or widespread hair loss 
+•	Intense itching and scratching
+•	Red or irritated skin (rashes)
+•	Open sores or scabs from scratching
+•	Crusty bumps on the skin 
+•	Oozing red patches or raised lesions 
+•	Excessive grooming or hair pulling, especially on the belly
+•	Chin acne or inflamed skin on the chin area
+•	Crusty or scaly skin around the head and neck
+•	Visible moving dandruff or skin flakes
+Urgency: Medium
+Contagious: Zoonotic
+
+
+
+
+Disease: Ticks
+Species: Cats
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/cat/conditions/infectious-parasitic/c_ct_ticks
+   Symptoms extracted: 
+•	Visible small bumps or dark brown parasites attached to the skin (ticks)
+•	Excessive scratching or licking at tick attachment sites
+•	Red or inflamed skin around tick bites
+•	Scabs or localized hair loss from irritation
+•	Lethargy or weakness (possible tick-borne infection)
+•	Fever or loss of appetite (if infection develops)
+
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Visible small bumps or dark brown parasites attached to the skin (ticks)
+•	Excessive scratching or licking at tick attachment sites
+•	Red or inflamed skin around tick bites
+•	Scabs or localized hair loss from irritation
+•	Lethargy or weakness (possible tick-borne infection)
+•	Fever or loss of appetite (if infection develops)
+Urgency: Medium
+Contagious: Zoonotic
+
+
+
+
+
+
+
+
+
+Disease: Campylobacteriosis 
+Species: Cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/cat/conditions/digestive/c_ct_campylobacteriosis
+   Symptoms extracted: 
+•	High fever or persistent warm body temperature
+•	Frequent vomiting
+•	Straining to defecate with little or no stool (tenesmus)
+•	Loss of appetite or refusal to eat (anorexia)
+•	Swollen or tender lymph nodes under the jaw or around the neck (lymphadenitis)
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	High fever or persistent warm body temperature
+•	Frequent vomiting
+•	Straining to defecate with little or no stool (tenesmus)
+•	Loss of appetite or refusal to eat (anorexia)
+•	Swollen or tender lymph nodes under the jaw or around the neck (lymphadenitis)
+Urgency: High
+Contagious: Zoonotic
+
+
+
+Disease: Acne
+Species: Cat
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petMD
+   URL: https://www.petmd.com/cat/conditions/skin/cat-acne
+   Symptoms extracted: 
+•	Red, inflamed chin (redness or swelling)
+•	Small bumps or pus-filled pimples on the chin (pustules)
+•	Crusty or scabby lesions on the chin
+•	Pain or tenderness when touching the chin
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Red, inflamed chin (redness or swelling)
+•	Small bumps or pus-filled pimples on the chin (pustules)
+•	Crusty or scabby lesions on the chin
+•	Pain or tenderness when touching the chin
+Urgency: Low
+Contagious: No
+
+
+
+
+
+
+
+
+
+
+
+Disease: Mycoplasma Respiratory Infection
+Species: Bird
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: vetverified
+   URL: https://vetverified.com/articles/mycoplasma-infections-in-pet-birds-causes-symptoms-and-treatment
+   Symptoms extracted: 
+•	Sneezing and nasal discharge (rhinitis)
+•	Watery, swollen, or red eyes (conjunctivitis)
+•	Coughing or wheezing (respiratory distress)
+•	Difficulty breathing or open-mouth breathing (dyspnea)
+•	Head shaking or rubbing beak on objects (irritation or discomfort)
+•	Lethargy and reduced activity (fatigue)
+•	Decreased appetite or weight loss (anorexia/emaciation)
+•	Poor feather condition (ruffled or unkempt feathers)
+•	Swelling in joints (arthritis, when synovial tissues are affected)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Sneezing and nasal discharge (rhinitis)
+•	Watery, swollen, or red eyes (conjunctivitis)
+•	Coughing or wheezing (respiratory distress)
+•	Difficulty breathing or open-mouth breathing (dyspnea)
+•	Head shaking or rubbing beak on objects (irritation or discomfort)
+•	Lethargy and reduced activity (fatigue)
+•	Decreased appetite or weight loss (anorexia/emaciation)
+•	Poor feather condition (ruffled or unkempt feathers)
+•	Swelling in joints (arthritis, when synovial tissues are affected)
+Urgency: Medium
+Contagious: Yes
+
+
+Disease: Vitamin A Deficiency
+Species: Bird
+Status: [ ] Missing
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/bird/conditions/digestive/c_bd_Vitamin_A_Deficiency
+   Symptoms extracted: 
+•	White or pus-filled spots in and around the eyes, sinuses, and mouth (oral and ocular lesions)
+•	Mouth abscesses causing difficulty breathing (airway obstruction)
+•	Choanal obstruction with nasal discharge (nasal blockage)
+•	Swollen eyes, sometimes with discharge (conjunctivitis/eyelid edema)
+•	Wheezing (respiratory distress)
+•	Sneezing (rhinitis)
+•	Crusts blocking the nostrils (nasal crusting)
+•	Loss of appetite (anorexia)
+•	Diarrhea (gastrointestinal upset)
+•	Weight loss (emaciation)
+•	Gagging (retching or choking)
+•	Foul odor from the mouth (halitosis)
+•	Slimy coating in the mouth (oral mucosal inflammation)
+•	Tail bobbing (sign of respiratory effort)
+•	Dull or poor feather condition (feather dullness)
+•	Listlessness or inactivity (lethargy)
+•	Depression or reduced responsiveness (behavioral depression)
+•	Potential internal organ disorders affecting reproductive, digestive, or respiratory systems (systemic complications)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	White or pus-filled spots in and around the eyes, sinuses, and mouth (oral and ocular lesions)
+•	Mouth abscesses causing difficulty breathing (airway obstruction)
+•	Choanal obstruction with nasal discharge (nasal blockage)
+•	Swollen eyes, sometimes with discharge (conjunctivitis/eyelid edema)
+•	Wheezing (respiratory distress)
+•	Sneezing (rhinitis)
+•	Crusts blocking the nostrils (nasal crusting)
+•	Loss of appetite (anorexia)
+•	Diarrhea (gastrointestinal upset)
+•	Weight loss (emaciation)
+•	Gagging (retching or choking)
+•	Foul odor from the mouth (halitosis)
+•	Slimy coating in the mouth (oral mucosal inflammation)
+•	Tail bobbing (sign of respiratory effort)
+•	Dull or poor feather condition (feather dullness)
+•	Listlessness or inactivity (lethargy)
+•	Depression or reduced responsiveness (behavioral depression)
+•	Potential internal organ disorders affecting reproductive, digestive, or respiratory systems (systemic complications)
+Urgency: High
+Contagious: No
+
+
+Disease: Calcium Deficiency 
+Species: Bird
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: the worlds rarest birds
+   URL: https://theworldsrarestbirds.com/low-blood-calcium-levels-in-birds/
+   Symptoms extracted: 
+•	Muscle tremors, twitches, or spasms (neuromuscular tremors)
+•	Generalized weakness and inactivity (lethargy/immobility)
+•	Difficulty standing, walking, or perching (ataxia or motor dysfunction)
+•	Abnormal or problematic egg-laying, including thin-shelled or soft eggs (reproductive dysfunction/egg-binding risk)
+•	Seizures or convulsions (neurological crisis)
+•	Decreased or poor appetite (anorexia)
+•	Labored breathing, open-mouth breathing, or panting (respiratory distress)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Muscle tremors, twitches, or spasms (neuromuscular tremors)
+•	Generalized weakness and inactivity (lethargy/immobility)
+•	Difficulty standing, walking, or perching (ataxia or motor dysfunction)
+•	Abnormal or problematic egg-laying, including thin-shelled or soft eggs (reproductive dysfunction/egg-binding risk)
+•	Seizures or convulsions (neurological crisis)
+•	Decreased or poor appetite (anorexia)
+•	Labored breathing, open-mouth breathing, or panting (respiratory distress)
+Urgency: Emergency
+Contagious: No
+
+
+Disease: Iodine Deficiency/Goiter
+Species: Bird
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/bird/conditions/digestive/c_bd_Iodine_Deficiency
+   Symptoms extracted: 
+•	Visible lump or swelling on the neck (goiter)
+•	Loud, harsh, or noisy breathing (respiratory distress)
+•	Wheezing or whistling sounds while breathing
+•	Clicking or crackling noises during breathing
+•	Difficulty swallowing or eating
+•	Regurgitating food after eating
+•	Reduced tolerance to stress
+•	Sudden irritability or abnormal behavior
+
+
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Visible lump or swelling on the neck (goiter)
+•	Loud, harsh, or noisy breathing (respiratory distress)
+•	Wheezing or whistling sounds while breathing
+•	Clicking or crackling noises during breathing
+•	Difficulty swallowing or eating
+•	Regurgitating food after eating
+•	Reduced tolerance to stress
+•	Sudden irritability or abnormal behavior
+Urgency: Medium
+Contagious: No
+
+
+
+Disease: Obesity
+Species: Birds
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: vcahospitals
+   URL: https://vcahospitals.com/know-your-pet/obesity-in-birds
+   Symptoms extracted: 
+•	Noticeable weight gain or excessive body fat (obesity)
+•	Difficulty flying or reluctance to move (reduced mobility)
+•	Fatty lumps under the skin (lipomas or xanthomas)
+•	Lethargy or low activity levels
+•	Labored or heavy breathing (possible cardiovascular strain)
+•	Sudden collapse or death from stress (in severe cases)
+•	Distended abdomen or rounded body shape
+•	Poor feather condition due to limited grooming or mobility
+•	Reduced stamina or easy fatigue
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Noticeable weight gain or excessive body fat (obesity)
+•	Difficulty flying or reluctance to move (reduced mobility)
+•	Fatty lumps under the skin (lipomas or xanthomas)
+•	Lethargy or low activity levels
+•	Labored or heavy breathing (possible cardiovascular strain)
+•	Sudden collapse or death from stress (in severe cases)
+•	Distended abdomen or rounded body shape
+•	Poor feather condition due to limited grooming or mobility
+•	Reduced stamina or easy fatigue
+Urgency: Medium
+Contagious: No
+
+
+
+
+
+
+Disease: Chronic Egg Laying
+Species: Birds
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: vcahospitals
+   URL: https://vcahospitals.com/know-your-pet/chronic-egg-laying-in-birds
+   Symptoms extracted: 
+•	Excessive or frequent egg production (more eggs or clutches than normal)
+•	Weakness or lethargy (due to calcium depletion)
+•	Loss of appetite or decreased food intake
+•	Difficulty passing eggs (egg binding)
+•	Swollen or distended abdomen (due to retained or abnormal eggs)
+•	Seizures or tremors (from severe hypocalcemia)
+•	Abnormal or soft-shelled eggs
+•	Straining during egg-laying
+•	Aggressive or territorial behavior
+•	Increased vocalization (hormonal behavior)
+•	Feather plucking or nesting behaviors
+•	Poor coordination or unsteady perching (calcium deficiency-related)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Excessive or frequent egg production (more eggs or clutches than normal)
+•	Weakness or lethargy (due to calcium depletion)
+•	Loss of appetite or decreased food intake
+•	Difficulty passing eggs (egg binding)
+•	Swollen or distended abdomen (due to retained or abnormal eggs)
+•	Seizures or tremors (from severe hypocalcemia)
+•	Abnormal or soft-shelled eggs
+•	Straining during egg-laying
+•	Aggressive or territorial behavior
+•	Increased vocalization (hormonal behavior)
+•	Feather plucking or nesting behaviors
+•	Poor coordination or unsteady perching (calcium deficiency-related)
+Urgency: High
+Contagious: No
+
+Disease: Avian Polyomavirus
+Species: Bird
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: merckvetmanual
+   URL: https://www.merckvetmanual.com/exotic-and-laboratory-animals/pet-birds/viral-diseases-of-pet-birds
+   Symptoms extracted: 
+•	Sudden death in young birds (within 24–48 hours after showing signs)
+•	Extreme tiredness or weakness (lethargy)
+•	Swollen or bloated abdomen (abdominal distention)
+•	Crop stasis (food staying in the crop and not digesting)
+•	Unusual feather loss or feather deformities (French molt, feather dusters)
+•	Bruising or bleeding under the skin (cutaneous hemorrhage)
+•	Poor feather growth in recovering birds
+•	Bleeding or blood spots visible on skin or feathers
+•	Difficulty perching or moving due to weakness
+•	Refusal to eat or reduced appetite
+•	Delayed fledging (not leaving the nest at the expected time)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Sudden death in young birds (within 24–48 hours after showing signs)
+•	Extreme tiredness or weakness (lethargy)
+•	Swollen or bloated abdomen (abdominal distention)
+•	Crop stasis (food staying in the crop and not digesting)
+•	Unusual feather loss or feather deformities (French molt, feather dusters)
+•	Bruising or bleeding under the skin (cutaneous hemorrhage)
+•	Poor feather growth in recovering birds
+•	Bleeding or blood spots visible on skin or feathers
+•	Difficulty perching or moving due to weakness
+•	Refusal to eat or reduced appetite
+•	Delayed fledging (not leaving the nest at the expected time)
+Urgency: High
+Contagious: Yes
+
+
+
+
+Disease: Lice and Mite
+Species: Bird
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: Vetverified
+   URL: https://vetverified.com/articles/mites-and-lice-in-pet-birds-identification-treatment-and-prevention
+   Symptoms extracted: 
+•	Frequent scratching and excessive grooming (indicating skin irritation or itchiness)
+•	Patchy feather loss or frayed feathers
+•	Restless behavior, especially during nighttime (common with red mite infestation)
+•	Scaly, crusty buildup on the beak, legs, or around the eyes (scaly face mites)
+•	Difficulty breathing or audible wheezing (air sac mites)
+•	Pale or discolored combs and wattles due to anemia
+•	Noticeable weakness and weight loss from blood loss or stress
+•	Visible tiny crawling insects or specks on feathers, near the vent, or in the cage
+•	Reduced egg production or refusal to eat (in heavy infestations)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Frequent scratching and excessive grooming (indicating skin irritation or itchiness)
+•	Patchy feather loss or frayed feathers
+•	Restless behavior, especially during nighttime (common with red mite infestation)
+•	Scaly, crusty buildup on the beak, legs, or around the eyes (scaly face mites)
+•	Difficulty breathing or audible wheezing (air sac mites)
+•	Pale or discolored combs and wattles due to anemia
+•	Noticeable weakness and weight loss from blood loss or stress
+•	Visible tiny crawling insects or specks on feathers, near the vent, or in the cage
+•	Reduced egg production or refusal to eat (in heavy infestations)
+Urgency: Medium
+Contagious: Yes
+
+
+
+
+Disease: Diarrhea
+Species: Rabbits
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: countryvetmom
+   URL: https://www.countryvetmom.com/post/diarrhea-in-rabbits-how-to-identify-treat-and-prevent-digestive-upsets-dr-gaffud#viewer-gi9n3537
+   Symptoms extracted: 
+•	Watery or mushy stools — feces are soft, runny, or unformed instead of firm pellets
+•	Dehydration — signs include dry gums, sunken eyes, and loss of skin elasticity
+•	Lethargy — reduced activity and general weakness
+•	Loss of appetite (anorexia) — decreased interest in food and water
+•	Abdominal bloating — visibly swollen or tight abdomen
+•	Hunched posture due to abdominal pain — rabbit sits curled up and avoids touch
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Watery or mushy stools — feces are soft, runny, or unformed instead of firm pellets
+•	Dehydration — signs include dry gums, sunken eyes, and loss of skin elasticity
+•	Lethargy — reduced activity and general weakness
+•	Loss of appetite (anorexia) — decreased interest in food and water
+•	Abdominal bloating — visibly swollen or tight abdomen
+•	Hunched posture due to abdominal pain — rabbit sits curled up and avoids touch
+Urgency: Emergency
+Contagious: No
+
+
+Disease: Bloat/Gastric Dilation
+Species: Rabbits
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/rabbit/conditions/digestive/c_rb_gastric_dilation
+   Symptoms extracted: 
+•	Weakness or collapse — sudden loss of strength or fainting due to poor circulation
+•	Loss of appetite (anorexia) — refusal to eat or reduced food intake
+•	Depression or lethargy — decreased activity and responsiveness
+•	Irregular heart rate (arrhythmia) — uneven or abnormal heartbeat rhythm
+•	Low blood pressure (hypotension) — poor circulation leading to cold extremities
+•	Severe abdominal pain on touch — rabbit shows discomfort or flinches when the abdomen is palpated
+•	Progressive abdominal bloating — stomach gradually becomes distended and firm over time
+•	Pale gums and weak pulse — signs of hypovolemic shock, often with low body temperature
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Weakness or collapse — sudden loss of strength or fainting due to poor circulation
+•	Loss of appetite (anorexia) — refusal to eat or reduced food intake
+•	Depression or lethargy — decreased activity and responsiveness
+•	Irregular heart rate (arrhythmia) — uneven or abnormal heartbeat rhythm
+•	Low blood pressure (hypotension) — poor circulation leading to cold extremities
+•	Severe abdominal pain on touch — rabbit shows discomfort or flinches when the abdomen is palpated
+•	Progressive abdominal bloating — stomach gradually becomes distended and firm over time
+•	Pale gums and weak pulse — signs of hypovolemic shock, often with low body temperature
+Urgency: Emergency
+Contagious: No
+
+
+
+Disease: Enteritis
+Species: Rabbit
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: companion animals
+   URL: https://companion-animals.extension.org/enteritis-in-rabbits/
+   Symptoms extracted: 
+•	Soft, mucus-covered stools (mucus diarrhea) — watery or sticky feces coated with mucus
+•	Soiled hindquarters — fur around the anus coated with fecal matter or mucus
+•	Bloated or painful abdomen — swollen belly causing visible discomfort when touched
+•	Teeth grinding (bruxism) — sign of abdominal pain or distress
+•	Loss of appetite (anorexia) — refusal to eat or noticeable decrease in food intake
+•	Unexplained weight loss — gradual decrease in body mass despite normal feeding
+•	Dehydration — dry gums, sunken eyes, or loss of skin elasticity
+•	Restlessness or discomfort — frequent shifting or inability to settle
+•	Dull or poor coat condition — fur appears rough, dry, or lacks shine
+•	Low body temperature (hypothermia) — ears and body feel unusually cool
+•	Intestinal blockage (bowel obstruction) — severe symptom identified by a veterinarian, with little to no fecal output
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Soft, mucus-covered stools (mucus diarrhea) — watery or sticky feces coated with mucus
+•	Soiled hindquarters — fur around the anus coated with fecal matter or mucus
+•	Bloated or painful abdomen — swollen belly causing visible discomfort when touched
+•	Teeth grinding (bruxism) — sign of abdominal pain or distress
+•	Loss of appetite (anorexia) — refusal to eat or noticeable decrease in food intake
+•	Unexplained weight loss — gradual decrease in body mass despite normal feeding
+•	Dehydration — dry gums, sunken eyes, or loss of skin elasticity
+•	Restlessness or discomfort — frequent shifting or inability to settle
+•	Dull or poor coat condition — fur appears rough, dry, or lacks shine
+•	Low body temperature (hypothermia) — ears and body feel unusually cool
+•	Intestinal blockage (bowel obstruction) — severe symptom identified by a veterinarian, with little to no fecal output
+Urgency: Emergency 
+Contagious: No
+
+
+
+Disease: Coccidiosis
+Species: Rabbits
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: vcahospitals
+   URL: https://vcahospitals.com/know-your-pet/coccidia-in-rabbits
+   Symptoms extracted: 
+•	Watery or mucus-covered diarrhea — loose, slimy stools, sometimes mixed with traces of blood
+•	Soft or mushy fecal pellets — droppings that lose their normal round, dry form
+•	Lethargy — rabbit appears tired, inactive, or unwilling to move
+•	Weakness or inability to stand — especially in young rabbits due to severe dehydration or malnutrition
+•	Loss of appetite (anorexia) — refusal to eat or significantly reduced food intake
+•	Weight loss — visible thinning or reduced body condition over time
+•	Dehydration — dry gums, sunken eyes, and reduced skin elasticity
+•	Intermittent diarrhea — diarrhea that stops and returns over time
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Watery or mucus-covered diarrhea — loose, slimy stools, sometimes mixed with traces of blood
+•	Soft or mushy fecal pellets — droppings that lose their normal round, dry form
+•	Lethargy — rabbit appears tired, inactive, or unwilling to move
+•	Weakness or inability to stand — especially in young rabbits due to severe dehydration or malnutrition
+•	Loss of appetite (anorexia) — refusal to eat or significantly reduced food intake
+•	Weight loss — visible thinning or reduced body condition over time
+•	Dehydration — dry gums, sunken eyes, and reduced skin elasticity
+•	Intermittent diarrhea — diarrhea that stops and returns over time
+Urgency: Emergency
+Contagious: Yes
+
+
+Disease: Hepatic Coccidiosis (Liver Coccidiosis)
+Species: Rabbits
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: merckvetmanual
+   URL: https://www.merckvetmanual.com/exotic-and-laboratory-animals/rabbits/parasitic-diseases-of-rabbits#Treatment_v54343625   
+Symptoms extracted: 
+•	Loss of appetite (anorexia) — rabbit eats less or stops eating
+•	Dull or rough coat — fur appears messy, coarse, or less shiny
+•	Poor growth or failure to gain weight — young rabbits not growing normally
+•	Lethargy — less active, sits still more than usual
+•	Sudden death (in severe cases) — possible in young rabbits with heavy infection
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Loss of appetite (anorexia) — rabbit eats less or stops eating
+•	Dull or rough coat — fur appears messy, coarse, or less shiny
+•	Poor growth or failure to gain weight — young rabbits not growing normally
+•	Lethargy — less active, sits still more than usual
+•	Sudden death (in severe cases) — possible in young rabbits with heavy infection
+Urgency: High
+Contagious: Yes
+
+
+
+
+Disease: Intestinal Coccidiosis
+Species: rabbit
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: merckvetmanual
+   URL: https://www.merckvetmanual.com/exotic-and-laboratory-animals/rabbits/parasitic-diseases-of-rabbits#Treatment_v54343625   
+   Symptoms extracted: 
+•	Soft or watery feces — loose droppings or diarrhea
+•	Loss of appetite — rabbit stops eating or eats less
+•	Weight loss — visible thinning over time
+•	Lethargy — sits quietly, less interested in surroundings
+•	Dehydration — dry gums or reduced water intake in severe cases
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Soft or watery feces — loose droppings or diarrhea
+•	Loss of appetite — rabbit stops eating or eats less
+•	Weight loss — visible thinning over time
+•	Lethargy — sits quietly, less interested in surroundings
+•	Dehydration — dry gums or reduced water intake in severe cases
+Urgency: High
+Contagious: Yes
+
+
+
+Disease: Ear Mite Infestation (Psoroptes cuniculi)
+Species: Rabbits
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: merckvetmanual
+   URL: https://www.merckvetmanual.com/exotic-and-laboratory-animals/rabbits/parasitic-diseases-of-rabbits#Treatment_v54343625   
+   Symptoms extracted: 
+•	Scratching at ears and head shaking — frequent irritation or discomfort
+•	Thick brown crusts inside ears (ear canker) — visible buildup in ear canal
+•	Head tilt or loss of balance (advanced cases) — possible if infection spreads to inner ear
+•	Weight loss or poor appetite — in prolonged or painful cases
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Scratching at ears and head shaking — frequent irritation or discomfort
+•	Thick brown crusts inside ears (ear canker) — visible buildup in ear canal
+•	Head tilt or loss of balance (advanced cases) — possible if infection spreads to inner ear
+•	Weight loss or poor appetite — in prolonged or painful cases
+Urgency: Medium
+Contagious: Yes
+
+
+Disease: Fur Mite Infestation (Cheyletiella parasitovorax)
+Species: Rabbit
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: merckvetmanual
+   URL: https://www.merckvetmanual.com/exotic-and-laboratory-animals/rabbits/parasitic-diseases-of-rabbits#Treatment_v54343625   
+   Symptoms extracted: 
+•	White flakes or dandruff on fur — appears as moving specks when mites are active
+•	Mild itching or scratching — especially around back and shoulders
+•	Patchy hair loss — may develop in severe or prolonged infestations
+•	Dry or flaky skin — visible on closer inspection
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	White flakes or dandruff on fur — appears as moving specks when mites are active
+•	Mild itching or scratching — especially around back and shoulders
+•	Patchy hair loss — may develop in severe or prolonged infestations
+•	Dry or flaky skin — visible on closer inspection
+Urgency: Low
+Contagious: Yes
+
+
+Disease: Sarcoptic Mange (Sarcoptes scabiei or Notoedres cati)
+Species: Rabbits
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: merckvetmanual
+   URL: https://www.merckvetmanual.com/exotic-and-laboratory-animals/rabbits/parasitic-diseases-of-rabbits#Treatment_v54343625   
+   Symptoms extracted: 
+•	Intense itching and scratching — rabbit constantly grooms or bites skin
+•	Thick crusts or scabs on ears, face, or body
+•	Patchy hair loss — fur falls out around affected areas
+•	Skin thickening or sores — due to constant scratching
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Intense itching and scratching — rabbit constantly grooms or bites skin
+•	Thick crusts or scabs on ears, face, or body
+•	Patchy hair loss — fur falls out around affected areas
+•	Skin thickening or sores — due to constant scratching
+Urgency: High
+Contagious: Zoonotic
+
+Disease: Flea Infestation (Ctenocephalides spp.)
+Species: Rabbit
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: merckvetmanual
+   URL: https://www.merckvetmanual.com/exotic-and-laboratory-animals/rabbits/parasitic-diseases-of-rabbits#Treatment_v54343625   
+   Symptoms extracted: 
+•	Frequent scratching or biting at fur
+•	Tiny dark specks (“flea dirt”) on skin or bedding
+•	Visible fleas jumping on fur
+•	Pale gums (in severe infestations) — sign of anemia
+•	Restlessness — rabbit seems uncomfortable or anxious
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Frequent scratching or biting at fur
+•	Tiny dark specks (“flea dirt”) on skin or bedding
+•	Visible fleas jumping on fur
+•	Pale gums (in severe infestations) — sign of anemia
+•	Restlessness — rabbit seems uncomfortable or anxious
+Urgency: Medium
+Contagious: Yes
+
+
+
+Disease: Encephalitozoonosis (Encephalitozoon cuniculi)
+Species: rabbits
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: merckvetmanual
+   URL: https://www.merckvetmanual.com/exotic-and-laboratory-animals/rabbits/parasitic-diseases-of-rabbits#Treatment_v54343625   
+   Symptoms extracted: 
+•	Head tilt (wry neck) — one ear lower than the other, loss of balance
+•	Loss of coordination — stumbling, falling, or rolling
+•	Seizures or tremors — involuntary shaking
+•	Excessive drinking or urination — possible kidney involvement
+•	Loss of appetite and weight loss — rabbit eats less and gets thinner
+•	Cloudy or white eye spots — possible cataract or uveitis (eye inflammation)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Head tilt (wry neck) — one ear lower than the other, loss of balance
+•	Loss of coordination — stumbling, falling, or rolling
+•	Seizures or tremors — involuntary shaking
+•	Excessive drinking or urination — possible kidney involvement
+•	Loss of appetite and weight loss — rabbit eats less and gets thinner
+•	Cloudy or white eye spots — possible cataract or uveitis (eye inflammation)
+Urgency: High
+Contagious: Yes
+
+
+Disease: Pinworm Infestation (Passalurus ambiguus)
+Species: [SPECIES]
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: merckvetmanual
+   URL: https://www.merckvetmanual.com/exotic-and-laboratory-animals/rabbits/parasitic-diseases-of-rabbits#Treatment_v54343625   
+   Symptoms extracted: 
+•	Visible small white worms in feces
+•	Scooting or rubbing rear on ground
+•	Mild itching around the anus
+•	Restlessness or mild discomfort — may appear irritable
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Visible small white worms in feces
+•	Scooting or rubbing rear on ground
+•	Mild itching around the anus
+•	Restlessness or mild discomfort — may appear irritable
+Urgency: Low
+Contagious: Yes
+
+
+Disease: Tooth root abscesses
+Species: Rabbit
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/rabbit/conditions/mouth/c_rb_tooth_root
+   Symptoms extracted: 
+•	Loose or wobbly teeth
+•	Overgrown or misaligned front teeth (incisors)
+•	Swelling around the mouth or jaw
+•	Prefers soft foods or avoids hard foods
+•	Noticeable weight loss
+•	Watery eyes or tear overflow
+•	Nasal discharge or sneezing
+•	Lethargy or low activity
+•	Hunched sitting posture (pain)
+•	Hiding more often or appearing depressed
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Loose or wobbly teeth
+•	Overgrown or misaligned front teeth (incisors)
+•	Swelling around the mouth or jaw
+•	Prefers soft foods or avoids hard foods
+•	Noticeable weight loss
+•	Watery eyes or tear overflow
+•	Nasal discharge or sneezing
+•	Lethargy or low activity
+•	Hunched sitting posture (pain)
+•	Hiding more often or appearing depressed
+Urgency: Medium
+Contagious: No
+
+
+Disease: Overgrown Incisors
+Species: Rabbits
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/rabbit/conditions/mouth/c_rb_incisor_malocclusion_overgrowth
+   Symptoms extracted: 
+•	Overgrown or visibly long front teeth
+•	Constant drooling or wet fur around the mouth (“slobbers”)
+•	Grinding or chattering teeth (sign of pain)
+•	Nasal discharge or wet nose
+•	Dropping food while eating
+•	Prefers soft foods or refuses hard food
+•	Drinks from water bowl instead of sipper bottle
+•	Reduced appetite or complete loss of appetite
+•	Noticeable weight loss
+•	Watery eyes or tear overflow
+•	Uneven face shape or one eye bulging slightly
+•	Signs of pain: hiding, hunched sitting, lethargy, or reluctance to move
+•	Messy or unkempt fur from lack of grooming
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Overgrown or visibly long front teeth
+•	Constant drooling or wet fur around the mouth (“slobbers”)
+•	Grinding or chattering teeth (sign of pain)
+•	Nasal discharge or wet nose
+•	Dropping food while eating
+•	Prefers soft foods or refuses hard food
+•	Drinks from water bowl instead of sipper bottle
+•	Reduced appetite or complete loss of appetite
+•	Noticeable weight loss
+•	Watery eyes or tear overflow
+•	Uneven face shape or one eye bulging slightly
+•	Signs of pain: hiding, hunched sitting, lethargy, or reluctance to move
+•	Messy or unkempt fur from lack of grooming
+Urgency: High 
+Contagious: No
+Disease: Rabbit Hemorrhagic Disease Virus
+Species: Rabbit
+Status: [ ] Missing / [ ] Have but needs enrichment
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/rabbit/conditions/systemic/rabbit-hemorrhagic-disease-virus
+   Symptoms extracted: 
+•	Sudden death without warning (in peracute cases)
+•	Bleeding from the nose, mouth, rectum, or eyes
+•	High fever (body feels very warm to touch)
+•	Difficulty breathing or gasping for air
+•	Loss of coordination or seizures before collapse
+•	Extreme weakness or depression
+•	Refusal to eat or drink
+•	Pale or yellowish gums and inner eyelids (sign of jaundice/anemia)
+•	Thin or poor body condition in prolonged cases
+•	Sudden collapse followed by death within hours to days
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Sudden death without warning (in peracute cases)
+•	Bleeding from the nose, mouth, rectum, or eyes
+•	High fever (body feels very warm to touch)
+•	Difficulty breathing or gasping for air
+•	Loss of coordination or seizures before collapse
+•	Extreme weakness or depression
+•	Refusal to eat or drink
+•	Pale or yellowish gums and inner eyelids (sign of jaundice/anemia)
+•	Thin or poor body condition in prolonged cases
+•	Sudden collapse followed by death within hours to days
+Urgency: Emergency
+Contagious: Yes
+
+
+
+
+
+
+Disease: Urinary Tract Infection
+Species: Rabbit
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/rabbit/conditions/urinary/rabbit-uti-urinary-tract-infection
+   Symptoms extracted: 
+•	Urinary incontinence (unable to control or hold urine)
+•	Dribbling urine or straining and squeaking while trying to urinate
+•	Frequent urination outside of the litter box or usual spots
+•	Lethargy (noticeably less active or unwilling to move)
+•	Loss of appetite or refusing food (inappetence)
+•	Urine scalding — fur loss and red, irritated skin near the genital or hind area
+•	Excessive licking or biting of the genital region
+•	Constant hunched posture as if in pain or discomfort
+•	Teeth grinding (sign of pain or distress)
+•	Hiding more than usual or avoiding interaction
+•	Reacting with discomfort when the lower abdomen is touched
+•	Darker or cloudy urine with strong odor
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Urinary incontinence (unable to control or hold urine)
+•	Dribbling urine or straining and squeaking while trying to urinate
+•	Frequent urination outside of the litter box or usual spots
+•	Lethargy (noticeably less active or unwilling to move)
+•	Loss of appetite or refusing food (inappetence)
+•	Urine scalding — fur loss and red, irritated skin near the genital or hind area
+•	Excessive licking or biting of the genital region
+•	Constant hunched posture as if in pain or discomfort
+•	Teeth grinding (sign of pain or distress)
+•	Hiding more than usual or avoiding interaction
+•	Reacting with discomfort when the lower abdomen is touched
+•	Darker or cloudy urine with strong odor
+Urgency: Medium
+Contagious: No
+
+
+
+
+
+Disease: Bladder Stones
+Species: Rabbits
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: vcahospitals
+   URL: https://vcahospitals.com/know-your-pet/bladder-sludge-and-bladder-stones-in-rabbits-and-guinea-pigs
+   Symptoms extracted: 
+•	Blood in urine (hematuria)
+•	Straining or vocalizing while urinating
+•	Frequent but small urine output
+•	Swollen or firm abdomen (in large stones)
+•	Lethargy or hunched posture due to pain
+•	Loss of appetite or reduced food intake
+•	Dribbling urine or signs of blockage in males
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Blood in urine (hematuria)
+•	Straining or vocalizing while urinating
+•	Frequent but small urine output
+•	Swollen or firm abdomen (in large stones)
+•	Lethargy or hunched posture due to pain
+•	Loss of appetite or reduced food intake
+•	Dribbling urine or signs of blockage in males
+Urgency: Emergency
+Contagious: No
+
+Disease: Bladder Sludge
+Species: Rabbit
+Status: [ ] Missing / [ ] Have but needs enrichment
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: vcahospitals
+   URL: https://vcahospitals.com/know-your-pet/bladder-sludge-and-bladder-stones-in-rabbits-and-guinea-pigs
+   Symptoms extracted: :
+•	Strong-smelling urine with pungent odor
+•	Darker-than-usual urine color
+•	Sandy or gritty particles visible in urine
+•	Thick, sludgy urine consistency
+•	Urine dribbling down the inner thighs
+•	Matted or stained fur on the hind legs
+•	Red, irritated, or ulcerated skin from urine scald
+•	Straining or difficulty urinating (in severe buildup)
+•	Lethargy or reduced activity (secondary to discomfort)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+•	Strong-smelling urine with pungent odor
+•	Darker-than-usual urine color
+•	Sandy or gritty particles visible in urine
+•	Thick, sludgy urine consistency
+•	Urine dribbling down the inner thighs
+•	Matted or stained fur on the hind legs
+•	Red, irritated, or ulcerated skin from urine scald
+•	Straining or difficulty urinating (in severe buildup)
+•	Lethargy or reduced activity (secondary to discomfort)
+Urgency: Medium
+Contagious: No
+
+
+
+Disease: Abscesses
+Species: Rabbits
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: everbreed
+   URL: https://everbreed.com/blog/rabbit-abscess-causes-treatment-and-prevention/
+   Symptoms extracted: 
+• Firm, immovable lump on the head, jaw, or around the eyes/ears
+• Swelling or localized redness around the lump
+• Pain when touching or manipulating the affected area
+• Reduced appetite or difficulty chewing food
+• Discharge from the eyes or ears (pus or unusual fluid)
+• Behavioral changes such as hiding, lethargy, or decreased activity
+• Teeth grinding (indicative of pain or discomfort)
+• Altered posture or head tilt due to discomfort
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Firm, immovable lump on the head, jaw, or around the eyes/ears
+• Swelling or localized redness around the lump
+• Pain when touching or manipulating the affected area
+• Reduced appetite or difficulty chewing food
+• Discharge from the eyes or ears (pus or unusual fluid)
+• Behavioral changes such as hiding, lethargy, or decreased activity
+• Teeth grinding (indicative of pain or discomfort)
+• Altered posture or head tilt due to discomfort
+Urgency: High
+Contagious: No
+
+Disease: Ringworm
+Species: Rabbits
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: Vethelpdirect
+   URL: https://vethelpdirect.com/pet-health-library/condition-rabbit-ringworm/
+   Symptoms extracted: 
+• Patchy hair loss, often circular or irregular, commonly on the face, eyes, nose, and limbs
+• Crusty or scaly skin at the site of hair loss
+• Skin ulcers or open sores where the skin is damaged
+• Discolored or flaky skin
+• Mild to moderate itching (may be absent in some rabbits)
+• Possible generalized patchy hair loss across the body in severe cases
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Patchy hair loss, often circular or irregular, commonly on the face, eyes, nose, and limbs
+• Crusty or scaly skin at the site of hair loss
+• Skin ulcers or open sores where the skin is damaged
+• Discolored or flaky skin
+• Mild to moderate itching (may be absent in some rabbits)
+• Possible generalized patchy hair loss across the body in severe cases
+Urgency: Medium
+Contagious: Zoonotic
+
+FISH
+Disease: Velvet Disease
+Species: Fish
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: hepper
+   URL: https://articles.hepper.com/velvet-fish-disease/ (vet reviewed article)
+   Symptoms extracted: 
+• Fine, dust-like golden or rust-colored coating on the skin and fins (velvet-like appearance)
+• Lethargy or reduced activity
+• Noticeable weight loss or emaciation
+• Spending excessive time near the surface of the water
+• Labored or rapid gill movement (difficulty breathing)
+• Pale or faded coloration (secondary to infection and stress)
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Fine, dust-like golden or rust-colored coating on the skin and fins (velvet-like appearance)
+• Lethargy or reduced activity
+• Noticeable weight loss or emaciation
+• Spending excessive time near the surface of the water
+• Labored or rapid gill movement (difficulty breathing)
+• Pale or faded coloration (secondary to infection and stress)
+Urgency: High
+Contagious: Yes
+
+Disease: Anchor Worms
+Species: Fish
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/fish/conditions/parasitic/c_fi_anchor_worm
+   Symptoms extracted: 
+• Red, inflamed skin lesions or irritations
+• Visible thread-like parasites protruding from the skin (whitish-green in color)
+• Fish rubbing or scraping against objects (flashing behavior)
+• Localized swelling around the attachment site of the parasite
+• Possible secondary bacterial infections at lesion sites
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Red, inflamed skin lesions or irritations
+• Visible thread-like parasites protruding from the skin (whitish-green in color)
+• Fish rubbing or scraping against objects (flashing behavior)
+• Localized swelling around the attachment site of the parasite
+• Possible secondary bacterial infections at lesion sites
+Urgency: High
+Contagious: Yes
+
+Disease: Fish Lice and Leech
+Species: Fish
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/fish/conditions/infectious-parasitic/c_fi_lice_leeches
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Small dark brown or tan spots on the body (visible parasites)
+• Flashing or rubbing against objects in the tank (attempting to remove parasites)
+• Jumping or erratic swimming behavior
+• Decreased appetite or refusal to eat
+• Lethargy or reduced activity
+• Pale or discolored gills
+• Parasites hiding under fins, near muscle, or in the mouth (may be visible as small moving specks)
+Urgency: Medium
+Contagious: Yes
+
+
+
+
+Disease: Fish Tuberculosis 
+Species: Fish
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: thevetdesk
+   URL: https://thevetdesk.com/pet-health-wellness/fish/tuberculosis-in-fish/
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Sunken or concave belly despite normal feeding
+• Enlarged or protruding eyes (exophthalmia)
+• Lethargy or markedly reduced activity
+• General weakness or difficulty swimming
+• Loss of appetite leading to anorexia
+• Stringy, thin, or irregular feces
+• Skin lesions, ulcers, or open sores
+• Wasting of flesh or emaciation
+• Visible bones due to severe weight loss
+• Spinal deformities or curvature of the backbone
+• Loss of scales or patchy scale detachment
+• Nodules in muscles or internal organs (granulomas)
+• Fin erosion or fraying
+• Signs of organ failure in advanced stages
+Urgency: High
+Contagious: Yes
+
+
+
+
+Disease: (Hemorrhagic Septicemia / Ulcerative Syndromes)
+Species: Fish
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: merckvetmanual
+   URL: https://www.msdvetmanual.com/exotic-and-laboratory-animals/aquarium-fish/bacterial-diseases-of-fish#Aeromonas,-Pseudomonas,-and-Vibriosis_v23355612
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Reddened or hemorrhagic skin, fins, tail, and body wall
+• Ulcerative lesions or deep crater-like abscesses
+• Swelling or hemorrhage in muscles and internal organs
+• Liquefactive necrosis in organs such as spleen and kidney
+• Lethargy or reduced swimming activity
+• Emaciation or weight loss in chronic cases
+Urgency: High
+Contagious: Yes
+
+
+
+
+
+Disease: Gram-positive Bacterial Infections (Streptococcus, Lactococcus, Enterococcus, Vagococcus)
+Species: Fish
+Status: [ ] Missing / [ ] Have but needs enrichment
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: merckvetmanual
+   URL: https://www.msdvetmanual.com/exotic-and-laboratory-animals/aquarium-fish/bacterial-diseases-of-fish#Aeromonas,-Pseudomonas,-and-Vibriosis_v23355612
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Neurologic symptoms: spinning, spiraling, or erratic swimming
+• Reddened skin or rostral ulceration
+• Stomatitis (inflammation of mouth and oral tissues)
+• Lethargy and reduced feeding
+• High mortality in severe outbreaks (>50%)
+Urgency: High
+Contagious: Some species zoonotic (e.g., Streptococcus iniae: zoonotic)
+
+Disease: Cotton wool disease
+Species: Fish
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: sprucepets
+   URL: https://www.thesprucepets.com/how-to-treat-cotton-wool-disease-in-freshwater-fish-5075288
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Pale, raised, fluffy-looking patches on the skin, fins, or around the mouth
+• Pale or necrotic gill tissue
+• Lethargy or markedly reduced swimming activity
+• Difficulty maintaining balance or swimming normally (loss of equilibrium)
+• Decreased appetite or refusal to eat
+Urgency: High
+Contagious: Yes
+
+Disease: Ammonia Poisoning
+Species: Fish
+Status: [ ] Missing / [ ] Have but needs enrichment
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: sprucepets
+   URL: https://www.thesprucepets.com/ammonia-poisoning-1378479
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Gasping at the water surface or rapid, labored breathing
+• Loss of appetite or refusal to eat
+• Lethargy or markedly reduced activity
+• Red, purple, or inflamed gills
+• Bloody streaks or red patches on the body and fins (ammonia burns)
+• Lying at the bottom of the tank with clamped fins (fins held close to the body)
+• Progressive tissue deterioration in severe cases
+Urgency: Emergency
+Contagious: No
+
+
+
+
+
+
+
+Disease: Nitrate Poisoning
+Species: Fish
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: petmd
+   URL: https://www.petmd.com/fish/conditions/toxicity/nitrate-poisoning-fish
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Lethargy or reduced swimming activity
+• Decreased appetite or refusal to eat
+• Reddened or inflamed skin/epidermis (skin irritation)
+• Rapid or labored gill movement (increased respiration)
+• Sudden death in severe or prolonged exposure
+Urgency: High
+Contagious: No
+
+Disease: pH shock
+Species: Fish
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: guppyslife
+   URL: https://guppys.life/ph-shock-in-fish/
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Gasping at the water surface due to oxygen stress
+• Rapid, labored, or irregular gill movement
+• Erratic swimming, darting, or colliding with objects
+• Lethargy or reduced activity
+• Loss of appetite or refusal to eat
+• Faded coloration, stress stripes, or unusual pigment changes
+• Clamped fins or hiding behavior
+• Increased mucus production on skin or fins
+• Sudden death following abrupt water changes
+Urgency: Emergency
+Contagious: No
+
+
+
+Disease: Cold Water Shock
+Species: Fish
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: guppyslife
+   URL: https://guppys.life/fish-temperature-shock/
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+Cold Water Shock
+Behavioral Symptoms:
+• Lethargy, resting on the bottom of the tank, or hiding in corners
+• Clamped fins (fins held close to the body)
+• Gasping at the water surface due to reduced oxygen availability
+• Loss of appetite or refusal to eat
+• Disruption of schooling behavior in species that normally swim in groups
+Physical Symptoms:
+• Faded or washed-out coloration, stress-induced pigment changes
+• Slowed metabolism affecting digestion and immune response
+• Increased susceptibility to secondary infections
+• Labored or rapid gill movement in severe cases
+• Sudden death in extreme cases
+Urgency: Emergency
+Contagious: No
+
+
+Disease: Heat Shock
+Species: Fish
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: guppyslife
+   URL: https://guppys.life/fish-temperature-shock/
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+Heat Shock
+Behavioral Symptoms:
+• Frantic or erratic swimming, disorientation, or collisions with objects
+• Loss of appetite or refusal to eat
+• Gasping at the water surface due to low dissolved oxygen (suffocation-like behavior)
+• Disruption of schooling behavior in species that normally swim in groups
+• Lethargy in prolonged exposure
+Physical Symptoms:
+• Clamped fins (fins held close to the body)
+• Faded or washed-out coloration, stress-induced pigment changes
+• Labored or rapid gill movement
+• White patches or burns on skin and gills from extreme temperature fluctuations
+• Potential organ damage with prolonged exposure
+• Sudden death in severe cases
+Urgency: Emergency
+Contagious: No
+
+
+
+Disease: Koi herpes virus
+Species: Fish
+Status: [ ] Missing 
+
+PRIMARY SOURCES (Choose 2-3):
+1. Source: ucdavis vetmed
+   URL: https://healthtopics.vetmed.ucdavis.edu/health-topics/koi-herpesvirus-khv
+
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Piping or gasping at the water surface due to difficulty breathing
+• Fish congregating near oxygen-rich areas (waterfalls, aerators)
+• Excessive mucous production from gills
+• Swollen or inflamed gills
+• Gill necrosis or discoloration
+• Skin and fin ulcerations
+• Reddened skin, fins, or tail (hemorrhagic lesions)
+• Pale patches on the body
+• Sloughing or loss of scales
+• “Sandpaper” texture of the skin
+• Increased or decreased mucous secretion on the body
+• Decreased appetite or refusal to eat
+• Lethargy or reduced activity
+• Sunken or protruding eyes (exophthalmia)
+• Erratic swimming or disorientation
+• “Hanging” with head-down posture in water
+Urgency: Emergency
+Contagious: Yes
+
+
+Disease: Protozoal Infection
+Species: Hamster
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2-3):
+1.	Source: merckvetmanual
+URL: https://www.msdvetmanual.com/all-other-pets/hamsters/disorders-and-diseases-of-hamsters
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Diarrhea, sometimes watery
+• Loss of appetite
+• Dehydration
+• Low energy or lethargy
+• Weight loss
+• Occasionally, sudden death in severe cases
+Urgency: Moderate
+Contagious: Yes
+________________________________________
+Disease: Pinworm Infection
+Species: Hamster
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2-3):
+1.	Source: merckvetmanual
+URL: https://www.msdvetmanual.com/all-other-pets/hamsters/disorders-and-diseases-of-hamsters
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Occasional diarrhea
+• Anal irritation or itching
+• Presence of worms in feces
+• Weight loss in severe infestations
+• Rarely, intestinal blockage
+• Lethargy
+Urgency: Moderate
+Contagious: Yes
+________________________________________
+Disease: Tapeworm Infection
+Species: Hamster
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2-3):
+1.	Source: merckvetmanual
+URL: https://www.msdvetmanual.com/all-other-pets/hamsters/disorders-and-diseases-of-hamsters
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Usually no signs in mild cases
+• Diarrhea in some hamsters
+• Weight loss in severe infestations
+• Intestinal inflammation or blockage in severe cases
+• Infection of lymph nodes
+• Decreased activity or lethargy
+Urgency: Moderate
+Contagious: Yes
+
+
+Disease: Diabetes Mellitus
+Species: Hamster
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2-3):
+1.	Source: vetask
+URL: https://www.vetask.com/pet_info/diabetes-mellitus-in-hamsters.php
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Excessive drinking (polydipsia) – may exceed 10 mL/day
+• Frequent urination (polyuria) – urine may be pale or watery
+• Increased appetite (polyphagia)
+• Unexplained weight loss despite eating normally
+• Irritability or behavioral changes
+• Weakness or lethargy
+• Occasional dehydration
+Urgency: Medium
+Contagious: No
+
+
+
+Disease: Malocclusion (Dental Overgrowth)
+Species: Hamster
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2-3):
+1.	Source: hamstersaspets
+URL: https://www.hamstersaspets.co.uk/hamster-dental-problems/
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Overgrown or misaligned incisor teeth – may prevent proper chewing
+• Weight loss due to inability to eat normally
+• Excessive drooling or threads of saliva around the mouth (“slobbers”)
+• Pawing at the mouth or face to wipe drool
+• Decreased appetite or refusal to eat hard food
+• Oral discomfort or pain (may vocalize or show irritability when eating)
+• Potential development of oral abscesses or infection if untreated
+Urgency: High
+Contagious: No
+
+
+
+
+
+
+Disease: Heatstroke
+Species: Hamster
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2-3):
+1.	Source: 5dpet
+URL: https://www.5dpet.com/knowledge/20084.html
+FINAL SYMPTOM LIST (5-7 symptoms):
+• Protruding or bulging eyes (exophthalmia) due to overheating
+• Reddened, swollen, or inflamed skin
+• Hair loss on the body
+• Rectal prolapse
+• Nosebleeds
+• Sneezing episodes associated with heat stress
+• Agitation, restlessness, or discomfort due to elevated body temperature
+Urgency: Emergency
+Contagious: No
+
+Disease: Hair Loss (Alopecia)
+Species: Hamster
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2 3):
+1.	Source: PetMD
+URL: https://www.petmd.com/exotic/conditions/skin/c_ex_hm_alopecia
+FINAL SYMPTOM LIST (5 7 symptoms):
+• Thinning of the fur coat
+• Patchy hair loss (localized bald spots)
+• Areas of short, stubbly hair growth
+• Scabbing or crusting of affected skin
+• Dandruff or flaky skin
+• Lethargy or reduced activity
+• Visible hair loss over the back, rump, or flanks
+Urgency: Medium
+Contagious: No
+Disease: Pyramiding
+Species: Turtle
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2 3):
+1.	Source: MerckVetManual
+URL: https://www.merckvetmanual.com/all-other-pets/reptiles/disorders-and-diseases-of-reptiles
+FINAL SYMPTOM LIST (5 7 symptoms):
+•	Abnormal beak growth that interferes with feeding
+•	Distorted skull shape as it develops
+•	Improper positioning of upper and lower beaks when jaw is closed
+•	Abnormal wear patterns on the beaks
+•	Difficulty eating or grasping food
+•	Visible deformity of jaw structure
+•	Progressive worsening requiring repeated beak trimming
+Urgency: Medium
+Contagious: No
+________________________________________
+Disease: Soft Shell Disease (Metabolic Bone Disease)
+Species: Turtle
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2 3):
+1.	Source: MerckVetManual
+URL: https://www.merckvetmanual.com/all-other-pets/reptiles/disorders-and-diseases-of-reptiles
+FINAL SYMPTOM LIST (5 7 symptoms):
+•	Swollen or distorted jaw or leg bones
+•	Soft or pliable shell that can be pressed inward
+•	Poor appetite or refusal to eat
+•	Weakness and inability to walk normally
+•	Fractures of the spine or legs
+•	Cloacal prolapse (tissue protruding from vent)
+•	Muscle spasms or tremors
+Urgency: High
+Contagious: No
+________________________________________
+Disease: Shell Injuries/Trauma
+Species: Turtle
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2 3):
+1.	Source: MerckVetManual
+URL: https://www.merckvetmanual.com/all-other-pets/reptiles/disorders-and-diseases-of-reptiles
+FINAL SYMPTOM LIST (5 7 symptoms):
+•	Visible cracks or breaks in the shell
+•	Bleeding from shell wounds
+•	Exposed tissue underneath damaged shell
+•	Pitting or holes in shell scutes
+•	Scutes sloughing off or becoming loose
+•	Discharge or pus around shell injuries
+•	Reddened or inflamed areas on shell
+Urgency: High
+Contagious: No
+________________________________________
+Disease: Hypovitaminosis D (Vitamin D3 Deficiency)
+Species: Turtle
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2 3):
+1.	Source: MerckVetManual
+URL: https://www.merckvetmanual.com/all-other-pets/reptiles/disorders-and-diseases-of-reptiles
+FINAL SYMPTOM LIST (5 7 symptoms):
+•	Distorted skull development
+•	Abnormal beak positioning and growth
+•	Soft or flexible shell
+•	Weakness and difficulty moving
+•	Swollen jaw or leg bones
+•	Fractures occurring easily
+•	Loss of appetite
+Urgency: High
+Contagious: No
+________________________________________
+Disease: Internal Parasites (Roundworms, Tapeworms, Protozoa)
+Species: Turtle
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2 3):
+1.	Source: MerckVetManual
+URL: https://www.merckvetmanual.com/all-other-pets/reptiles/disorders-and-diseases-of-reptiles
+FINAL SYMPTOM LIST (5 7 symptoms):
+•	Loss of appetite and weight loss
+•	Vomiting or regurgitation
+•	Mucus-containing or bloody diarrhea
+•	Visible worms in feces or vomit
+•	Lethargy and weakness
+•	Poor body condition despite eating
+•	Abdominal swelling or discomfort
+Urgency: Medium
+Contagious: Yes (to other reptiles)
+________________________________________
+Disease: External Parasites (Mites, Ticks, Leeches, Botflies)
+Species: Turtle
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2 3):
+1.	Source: MerckVetManual
+URL: https://www.merckvetmanual.com/all-other-pets/reptiles/disorders-and-diseases-of-reptiles
+FINAL SYMPTOM LIST (5 7 symptoms):
+•	Visible parasites on skin, around eyes, or on shell
+•	Excessive time spent soaking in water
+•	Coarse or rough-appearing skin
+•	Abnormal shedding patterns
+•	Lethargy or reduced energy
+•	Lumps under skin with tiny openings (botfly wounds)
+•	Anemia symptoms in heavy infestations (pale mucous membranes)
+Urgency: Medium
+Contagious: Yes (to other reptiles)
+________________________________________
+Disease: Thermal Burns
+Species: Turtle
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2 3):
+1.	Source: MerckVetManual
+URL: https://www.merckvetmanual.com/all-other-pets/reptiles/disorders-and-diseases-of-reptiles
+FINAL SYMPTOM LIST (5 7 symptoms):
+•	Fluid-filled blisters on skin or shell
+•	Reddened or discolored areas on exposed skin
+•	Damaged or peeling shell scutes
+•	Raw or exposed tissue beneath blisters
+•	Pustules that may rupture
+•	Localized swelling at burn site
+•	Reluctance to move or bask
+Urgency: High
+Contagious: No
+________________________________________
+Disease: Drowning/Hypothermia
+Species: Turtle
+Status: [ ] Missing
+PRIMARY SOURCES (Choose 2 3):
+1.	Source: MerckVetManual
+URL: https://www.merckvetmanual.com/all-other-pets/reptiles/disorders-and-diseases-of-reptiles
+FINAL SYMPTOM LIST (5 7 symptoms):
+•	Extreme lethargy or unresponsiveness
+•	Inability to move normally
+•	Cold to the touch
+•	Floating abnormally or inability to swim
+•	Gasping or labored breathing
+•	Loss of muscle control
+•	Convulsions or seizures
+Urgency: Critical/Emergency
+Contagious: No
+
+
+
+
+

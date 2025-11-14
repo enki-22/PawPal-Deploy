@@ -1,0 +1,101 @@
+ID,Owner,Animal,Animal_Type,Age,State,Diagnoses,Treatment
+1,John Doe,Max,Dog,5,California,Arthritis,Anti-inflammatory drugs
+2,Jane Smith,Whiskers,Cat,3,Texas,Upper respiratory infection,Antibiotics
+3,Bob Johnson,Polly,Bird,2,New York,Feather plucking,Behavioral therapy
+4,Alice Brown,Luna,Dog,7,Florida,Dental disease,Teeth cleaning
+5,Mike Wilson,Bubbles,Fish,1,Nevada,Fin rot,Salt bath and medication
+6,Emily Davis,Rex,Rabbit,4,Oregon,GI stasis,Dietary changes and fluids
+7,Sarah Miller,Daisy,Dog,6,Washington,Skin allergy,Antihistamines
+8,James Taylor,Charlie,Cat,2,Ohio,Fleas,Flea treatment
+9,Laura Harris,Spike,Lizard,3,Georgia,Metabolic bone disease,Calcium supplements
+10,Kevin White,Bella,Dog,8,Colorado,Heartworm,Heartworm treatment
+11,Owner_11,Animal_11,Rabbit,6,Washington,Arthritis,Anti-inflammatory drugs
+12,Owner_12,Animal_12,Lizard,6,Colorado,Heartworm,Anti-inflammatory drugs
+13,Owner_13,Animal_13,Dog,1,Georgia,Dental disease,Teeth cleaning
+14,Owner_14,Animal_14,Fish,2,California,Fleas,Antibiotics
+15,Owner_15,Animal_15,Fish,6,Georgia,Dental disease,Heartworm treatment
+16,Owner_16,Animal_16,Fish,10,Oregon,Feather plucking,Heartworm treatment
+17,Owner_17,Animal_17,Cat,4,Colorado,Upper respiratory infection,Antihistamines
+18,Owner_18,Animal_18,Fish,1,California,Upper respiratory infection,Antihistamines
+19,Owner_19,Animal_19,Lizard,6,Colorado,Feather plucking,Flea treatment
+20,Owner_20,Animal_20,Bird,1,Washington,Upper respiratory infection,Calcium supplements
+21,Owner_21,Animal_21,Rabbit,2,Oregon,Fin rot,Calcium supplements
+22,Owner_22,Animal_22,Dog,3,Florida,Feather plucking,Flea treatment
+23,Owner_23,Animal_23,Dog,5,Texas,GI stasis,Anti-inflammatory drugs
+24,Owner_24,Animal_24,Rabbit,3,Georgia,GI stasis,Calcium supplements
+25,Owner_25,Animal_25,Bird,1,California,GI stasis,Antihistamines
+26,Owner_26,Animal_26,Cat,14,Nevada,Feather plucking,Calcium supplements
+27,Owner_27,Animal_27,Dog,4,Colorado,GI stasis,Heartworm treatment
+28,Owner_28,Animal_28,Cat,3,Washington,Fleas,Calcium supplements
+29,Owner_29,Animal_29,Lizard,11,Oregon,Fleas,Teeth cleaning
+30,Owner_30,Animal_30,Cat,14,Ohio,Skin allergy,Antihistamines
+31,Owner_31,Animal_31,Lizard,1,Georgia,Upper respiratory infection,Antibiotics
+32,Owner_32,Animal_32,Dog,8,Georgia,Skin allergy,Flea treatment
+33,Owner_33,Animal_33,Cat,6,Colorado,Fleas,Salt bath and medication
+34,Owner_34,Animal_34,Rabbit,10,New York,Feather plucking,Heartworm treatment
+35,Owner_35,Animal_35,Fish,1,Georgia,Dental disease,Behavioral therapy
+36,Owner_36,Animal_36,Dog,11,Washington,Upper respiratory infection,Anti-inflammatory drugs
+37,Owner_37,Animal_37,Fish,3,Washington,Heartworm,Calcium supplements
+38,Owner_38,Animal_38,Lizard,12,Colorado,GI stasis,Behavioral therapy
+39,Owner_39,Animal_39,Dog,11,Texas,Heartworm,Flea treatment
+40,Owner_40,Animal_40,Bird,8,Washington,Heartworm,Calcium supplements
+41,Owner_41,Animal_41,Fish,12,Georgia,Feather plucking,Salt bath and medication
+42,Owner_42,Animal_42,Dog,3,Georgia,Arthritis,Salt bath and medication
+43,Owner_43,Animal_43,Cat,10,Florida,Heartworm,Antibiotics
+44,Owner_44,Animal_44,Fish,3,New York,Upper respiratory infection,Flea treatment
+45,Owner_45,Animal_45,Lizard,4,Florida,Heartworm,Antihistamines
+46,Owner_46,Animal_46,Fish,12,Washington,Arthritis,Heartworm treatment
+47,Owner_47,Animal_47,Fish,4,Florida,Skin allergy,Salt bath and medication
+48,Owner_48,Animal_48,Dog,3,Washington,Arthritis,Antibiotics
+49,Owner_49,Animal_49,Cat,4,Oregon,Fin rot,Dietary changes and fluids
+50,Owner_50,Animal_50,Cat,5,Ohio,Metabolic bone disease,Heartworm treatment
+51,Owner_51,Animal_51,Cat,2,California,Fin rot,Flea treatment
+52,Owner_52,Animal_52,Dog,3,Georgia,Dental disease,Antibiotics
+53,Owner_53,Animal_53,Bird,12,Nevada,Dental disease,Teeth cleaning
+54,Owner_54,Animal_54,Rabbit,10,Washington,Metabolic bone disease,Dietary changes and fluids
+55,Owner_55,Animal_55,Fish,11,Oregon,Metabolic bone disease,Flea treatment
+56,Owner_56,Animal_56,Fish,2,Georgia,Fleas,Teeth cleaning
+57,Owner_57,Animal_57,Bird,5,New York,Arthritis,Antihistamines
+58,Owner_58,Animal_58,Rabbit,11,Florida,Dental disease,Antihistamines
+59,Owner_59,Animal_59,Bird,7,Colorado,Metabolic bone disease,Flea treatment
+60,Owner_60,Animal_60,Dog,12,Ohio,Fleas,Heartworm treatment
+61,Owner_61,Animal_61,Dog,9,Oregon,Fleas,Antibiotics
+62,Owner_62,Animal_62,Rabbit,12,Florida,Upper respiratory infection,Heartworm treatment
+63,Owner_63,Animal_63,Lizard,3,Nevada,Metabolic bone disease,Antihistamines
+64,Owner_64,Animal_64,Lizard,4,Oregon,Fin rot,Anti-inflammatory drugs
+65,Owner_65,Animal_65,Dog,1,Florida,Fleas,Teeth cleaning
+66,Owner_66,Animal_66,Rabbit,1,Florida,Arthritis,Calcium supplements
+67,Owner_67,Animal_67,Cat,7,Ohio,Fin rot,Salt bath and medication
+68,Owner_68,Animal_68,Rabbit,1,Colorado,Heartworm,Antibiotics
+69,Owner_69,Animal_69,Cat,7,Colorado,Arthritis,Salt bath and medication
+70,Owner_70,Animal_70,Bird,4,Colorado,Skin allergy,Dietary changes and fluids
+71,Owner_71,Animal_71,Bird,11,Ohio,Fin rot,Anti-inflammatory drugs
+72,Owner_72,Animal_72,Dog,4,Florida,Feather plucking,Teeth cleaning
+73,Owner_73,Animal_73,Cat,9,New York,Fin rot,Antibiotics
+74,Owner_74,Animal_74,Cat,13,Florida,Skin allergy,Salt bath and medication
+75,Owner_75,Animal_75,Cat,9,Colorado,Dental disease,Salt bath and medication
+76,Owner_76,Animal_76,Cat,14,Ohio,Dental disease,Salt bath and medication
+77,Owner_77,Animal_77,Fish,9,Ohio,Fleas,Anti-inflammatory drugs
+78,Owner_78,Animal_78,Fish,14,Oregon,Metabolic bone disease,Anti-inflammatory drugs
+79,Owner_79,Animal_79,Bird,3,Texas,GI stasis,Calcium supplements
+80,Owner_80,Animal_80,Fish,4,New York,Arthritis,Salt bath and medication
+81,Owner_81,Animal_81,Dog,3,New York,Metabolic bone disease,Antihistamines
+82,Owner_82,Animal_82,Fish,12,Georgia,GI stasis,Heartworm treatment
+83,Owner_83,Animal_83,Lizard,14,Texas,Fin rot,Teeth cleaning
+84,Owner_84,Animal_84,Rabbit,1,Oregon,Fleas,Teeth cleaning
+85,Owner_85,Animal_85,Cat,9,Georgia,Fin rot,Behavioral therapy
+86,Owner_86,Animal_86,Bird,9,Nevada,Upper respiratory infection,Antibiotics
+87,Owner_87,Animal_87,Rabbit,4,California,Dental disease,Behavioral therapy
+88,Owner_88,Animal_88,Fish,9,New York,Dental disease,Antibiotics
+89,Owner_89,Animal_89,Rabbit,11,Oregon,Heartworm,Teeth cleaning
+90,Owner_90,Animal_90,Rabbit,3,Oregon,Feather plucking,Salt bath and medication
+91,Owner_91,Animal_91,Rabbit,9,California,GI stasis,Antibiotics
+92,Owner_92,Animal_92,Fish,5,Georgia,Feather plucking,Antibiotics
+93,Owner_93,Animal_93,Rabbit,4,Texas,Dental disease,Anti-inflammatory drugs
+94,Owner_94,Animal_94,Rabbit,13,Texas,GI stasis,Flea treatment
+95,Owner_95,Animal_95,Rabbit,14,California,Fleas,Calcium supplements
+96,Owner_96,Animal_96,Dog,1,Florida,Feather plucking,Salt bath and medication
+97,Owner_97,Animal_97,Rabbit,5,Georgia,Fleas,Teeth cleaning
+98,Owner_98,Animal_98,Fish,4,Georgia,Upper respiratory infection,Dietary changes and fluids
+99,Owner_99,Animal_99,Bird,14,Nevada,Skin allergy,Antihistamines
+100,Owner_100,Animal_100,Lizard,12,Nevada,GI stasis,Teeth cleaning

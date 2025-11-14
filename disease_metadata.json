@@ -1,0 +1,875 @@
+{
+  "Abnormal beak growth": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Abnormal beak growth. Replace with curated content.",
+    "species": [
+      "Turtle"
+    ]
+  },
+  "Abscesses": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Abscesses. Replace with curated content.",
+    "species": [
+      "Turtle"
+    ]
+  },
+  "Air sac mites / gapeworms": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Air sac mites / gapeworms. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Arthritis": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Arthritis. Replace with curated content.",
+    "species": [
+      "Dog"
+    ]
+  },
+  "Aspergillosis": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Aspergillosis. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Avian Gastric Yeast": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Avian Gastric Yeast. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Avian Influenza": {
+    "urgency": "High",
+    "contagious": true,
+    "description": "Auto-generated metadata for Avian Influenza. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Breathing difficulties": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Breathing difficulties. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Broken bones": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Broken bones. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Bumblefoot": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Bumblefoot. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Candidiasis": {
+    "urgency": "Moderate",
+    "contagious": true,
+    "description": "Auto-generated metadata for Candidiasis. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Canine Distemper": {
+    "urgency": "High",
+    "contagious": true,
+    "description": "Auto-generated metadata for Canine Distemper. Replace with curated content.",
+    "species": [
+      "Dog"
+    ]
+  },
+  "Canine Parvovirus": {
+    "urgency": "High",
+    "contagious": true,
+    "description": "Auto-generated metadata for Canine Parvovirus. Replace with curated content.",
+    "species": [
+      "Dog"
+    ]
+  },
+  "Canine distemper": {
+    "urgency": "High",
+    "contagious": true,
+    "description": "Auto-generated metadata for Canine distemper. Replace with curated content.",
+    "species": [
+      "Dog"
+    ]
+  },
+  "Canine influenza": {
+    "urgency": "High",
+    "contagious": true,
+    "description": "Auto-generated metadata for Canine influenza. Replace with curated content.",
+    "species": [
+      "Dog"
+    ]
+  },
+  "Canine parvovirus": {
+    "urgency": "High",
+    "contagious": true,
+    "description": "Auto-generated metadata for Canine parvovirus. Replace with curated content.",
+    "species": [
+      "Dog"
+    ]
+  },
+  "Cat Acne": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Cat Acne. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Cataract": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Cataract. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Cataracts": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Cataracts. Replace with curated content.",
+    "species": [
+      "Dog"
+    ]
+  },
+  "Chronic Kidney Disease": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Chronic Kidney Disease. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Cloacal prolapse": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Cloacal prolapse. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Conjunctivitis": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Conjunctivitis. Replace with curated content.",
+    "species": [
+      "Cat",
+      "Rabbit",
+      "Hamster",
+      "Bird"
+    ]
+  },
+  "Constipation": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Constipation. Replace with curated content.",
+    "species": [
+      "Hamster"
+    ]
+  },
+  "Corneal ulceration": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Corneal ulceration. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Diabetes": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Diabetes. Replace with curated content.",
+    "species": [
+      "Dog",
+      "Cat"
+    ]
+  },
+  "Diarrhea": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Diarrhea. Replace with curated content.",
+    "species": [
+      "Dog",
+      "Hamster"
+    ]
+  },
+  "Dysecdysis": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Dysecdysis. Replace with curated content.",
+    "species": [
+      "Turtle"
+    ]
+  },
+  "Dystocia": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Dystocia. Replace with curated content.",
+    "species": [
+      "Turtle"
+    ]
+  },
+  "Ear infections": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Ear infections. Replace with curated content.",
+    "species": [
+      "Dog",
+      "Turtle"
+    ]
+  },
+  "Ear mites": {
+    "urgency": "Mild",
+    "contagious": true,
+    "description": "Auto-generated metadata for Ear mites. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Egg Retention": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Egg Retention. Replace with curated content.",
+    "species": [
+      "Fish"
+    ]
+  },
+  "Egg binding": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Egg binding. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Eosinophilic Granuloma Complex": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Eosinophilic Granuloma Complex. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Eye abscesses / conjunctivitis": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Eye abscesses / conjunctivitis. Replace with curated content.",
+    "species": [
+      "Turtle"
+    ]
+  },
+  "Feather cysts": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Feather cysts. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Feline Calicivirus": {
+    "urgency": "Medium",
+    "contagious": false,
+    "description": "Auto-generated metadata for Feline Calicivirus. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Feline Immunodeficiency Virus": {
+    "urgency": "Severe",
+    "contagious": true,
+    "description": "Auto-generated metadata for Feline Immunodeficiency Virus. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Feline Infectious Peritonitis": {
+    "urgency": "Severe",
+    "contagious": true,
+    "description": "Auto-generated metadata for Feline Infectious Peritonitis. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Feline Leukemia Virus": {
+    "urgency": "Severe",
+    "contagious": true,
+    "description": "Auto-generated metadata for Feline Leukemia Virus. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Feline Lower Urinary Tract Disease": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Feline Lower Urinary Tract Disease. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Feline Panleukopenia Virus": {
+    "urgency": "Severe",
+    "contagious": true,
+    "description": "Auto-generated metadata for Feline Panleukopenia Virus. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Fin Rot": {
+    "urgency": "Moderate",
+    "contagious": true,
+    "description": "Auto-generated metadata for Fin Rot. Replace with curated content.",
+    "species": [
+      "Fish"
+    ]
+  },
+  "Fleas": {
+    "urgency": "Mild",
+    "contagious": true,
+    "description": "Auto-generated metadata for Fleas. Replace with curated content.",
+    "species": [
+      "Dog",
+      "Cat",
+      "Rabbit"
+    ]
+  },
+  "Flystrike": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Flystrike. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Fractures": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Fractures. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Fungus": {
+    "urgency": "Moderate",
+    "contagious": true,
+    "description": "Auto-generated metadata for Fungus. Replace with curated content.",
+    "species": [
+      "Fish"
+    ]
+  },
+  "Gastroenteritis": {
+    "urgency": "Medium",
+    "contagious": false,
+    "description": "Auto-generated metadata for Gastroenteritis. Replace with curated content.",
+    "species": [
+      "Dog",
+      "Cat"
+    ]
+  },
+  "Gastrointestinal stasis": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Gastrointestinal stasis. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Giardiasis": {
+    "urgency": "Moderate",
+    "contagious": true,
+    "description": "Auto-generated metadata for Giardiasis. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Gingivitis": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Gingivitis. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Gout": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Gout. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Hair loss / alopecia": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Hair loss / alopecia. Replace with curated content.",
+    "species": [
+      "Hamster"
+    ]
+  },
+  "Hairballs": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Hairballs. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Heartworms": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Heartworms. Replace with curated content.",
+    "species": [
+      "Dog"
+    ]
+  },
+  "Heavy metal poisoning": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Heavy metal poisoning. Replace with curated content.",
+    "species": [
+      "Turtle"
+    ]
+  },
+  "Hutch burn": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Hutch burn. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Hyperthyroidism": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Hyperthyroidism. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Ich": {
+    "urgency": "Moderate",
+    "contagious": true,
+    "description": "Auto-generated metadata for Ich. Replace with curated content.",
+    "species": [
+      "Fish"
+    ]
+  },
+  "Infectious stomatitis": {
+    "urgency": "Moderate",
+    "contagious": true,
+    "description": "Auto-generated metadata for Infectious stomatitis. Replace with curated content.",
+    "species": [
+      "Turtle"
+    ]
+  },
+  "Inflammatory Bowel Disease": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Inflammatory Bowel Disease. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Intestinal Parasites": {
+    "urgency": "Moderate",
+    "contagious": true,
+    "description": "Auto-generated metadata for Intestinal Parasites. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Kennel Cough": {
+    "urgency": "High",
+    "contagious": true,
+    "description": "Auto-generated metadata for Kennel Cough. Replace with curated content.",
+    "species": [
+      "Dog"
+    ]
+  },
+  "Kennel cough": {
+    "urgency": "High",
+    "contagious": true,
+    "description": "Auto-generated metadata for Kennel cough. Replace with curated content.",
+    "species": [
+      "Dog"
+    ]
+  },
+  "Lernaea": {
+    "urgency": "Moderate",
+    "contagious": true,
+    "description": "Auto-generated metadata for Lernaea. Replace with curated content.",
+    "species": [
+      "Fish"
+    ]
+  },
+  "Lymphocystis": {
+    "urgency": "Mild",
+    "contagious": true,
+    "description": "Auto-generated metadata for Lymphocystis. Replace with curated content.",
+    "species": [
+      "Fish"
+    ]
+  },
+  "Mammary Tumors": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Mammary Tumors. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Mast Cell Tumor": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Mast Cell Tumor. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Milk gland infection": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Milk gland infection. Replace with curated content.",
+    "species": [
+      "Hamster"
+    ]
+  },
+  "Myxomatosis": {
+    "urgency": "Severe",
+    "contagious": true,
+    "description": "Auto-generated metadata for Myxomatosis. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Newcastle Disease": {
+    "urgency": "Severe",
+    "contagious": true,
+    "description": "Auto-generated metadata for Newcastle Disease. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Obesity": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Obesity. Replace with curated content.",
+    "species": [
+      "Dog",
+      "Cat"
+    ]
+  },
+  "Osteoarthritis": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Osteoarthritis. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Otitis media/interna": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Otitis media/interna. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Overgrown teeth": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Overgrown teeth. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Pacheco\u2019s Disease": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Pacheco\u2019s Disease. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Pancreatitis": {
+    "urgency": "High",
+    "contagious": false,
+    "description": "Auto-generated metadata for Pancreatitis. Replace with curated content.",
+    "species": [
+      "Cat",
+      "Dog"
+    ]
+  },
+  "Papilloma": {
+    "urgency": "Mild",
+    "contagious": true,
+    "description": "Auto-generated metadata for Papilloma. Replace with curated content.",
+    "species": [
+      "Fish"
+    ]
+  },
+  "Parvovirus": {
+    "urgency": "High",
+    "contagious": true,
+    "description": "Auto-generated metadata for Parvovirus. Replace with curated content.",
+    "species": [
+      "Dog"
+    ]
+  },
+  "Periodontal Disease": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Periodontal Disease. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Pneumonia": {
+    "urgency": "High",
+    "contagious": true,
+    "description": "Auto-generated metadata for Pneumonia. Replace with curated content.",
+    "species": [
+      "Rabbit",
+      "Hamster",
+      "Turtle"
+    ]
+  },
+  "Popeye / Exophthalmia": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Popeye / Exophthalmia. Replace with curated content.",
+    "species": [
+      "Fish"
+    ]
+  },
+  "Protrusion of the eyeball": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Protrusion of the eyeball. Replace with curated content.",
+    "species": [
+      "Hamster"
+    ]
+  },
+  "Psittacine Beak and Feather Disease": {
+    "urgency": "Severe",
+    "contagious": true,
+    "description": "Auto-generated metadata for Psittacine Beak and Feather Disease. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Pyometra": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Pyometra. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Rabies": {
+    "urgency": "Severe",
+    "contagious": true,
+    "description": "Auto-generated metadata for Rabies. Replace with curated content.",
+    "species": [
+      "Dog"
+    ]
+  },
+  "Rhinitis": {
+    "urgency": "Moderate",
+    "contagious": true,
+    "description": "Auto-generated metadata for Rhinitis. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Ringworm": {
+    "urgency": "Mild",
+    "contagious": true,
+    "description": "Auto-generated metadata for Ringworm. Replace with curated content.",
+    "species": [
+      "Cat",
+      "Rabbit",
+      "Hamster",
+      "Bird"
+    ]
+  },
+  "Roundworms / Tapeworms": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Roundworms / Tapeworms. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Scale rot / blister disease": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Scale rot / blister disease. Replace with curated content.",
+    "species": [
+      "Fish"
+    ]
+  },
+  "Scaly face / tassel foot / feather mites": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Scaly face / tassel foot / feather mites. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Septicemia": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Septicemia. Replace with curated content.",
+    "species": [
+      "Turtle"
+    ]
+  },
+  "Skin abscesses": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Skin abscesses. Replace with curated content.",
+    "species": [
+      "Hamster"
+    ]
+  },
+  "Skin and Gill Flukes": {
+    "urgency": "Moderate",
+    "contagious": true,
+    "description": "Auto-generated metadata for Skin and Gill Flukes. Replace with curated content.",
+    "species": [
+      "Fish"
+    ]
+  },
+  "Skin and fur mites": {
+    "urgency": "Mild",
+    "contagious": true,
+    "description": "Auto-generated metadata for Skin and fur mites. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Skin parasites": {
+    "urgency": "Mild",
+    "contagious": true,
+    "description": "Auto-generated metadata for Skin parasites. Replace with curated content.",
+    "species": [
+      "Turtle"
+    ]
+  },
+  "Snuffles": {
+    "urgency": "Moderate",
+    "contagious": true,
+    "description": "Auto-generated metadata for Snuffles. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Sore hocks": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Sore hocks. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Splay leg": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Splay leg. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Squamous Cell Carcinoma": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Squamous Cell Carcinoma. Replace with curated content.",
+    "species": [
+      "Cat"
+    ]
+  },
+  "Stargazing": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Stargazing. Replace with curated content.",
+    "species": [
+      "Turtle"
+    ]
+  },
+  "Swim Bladder Disease": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Swim Bladder Disease. Replace with curated content.",
+    "species": [
+      "Fish"
+    ]
+  },
+  "Trichomoniasis": {
+    "urgency": "Moderate",
+    "contagious": true,
+    "description": "Auto-generated metadata for Trichomoniasis. Replace with curated content.",
+    "species": [
+      "Bird"
+    ]
+  },
+  "Upper Respiratory Infection": {
+    "urgency": "Moderate",
+    "contagious": true,
+    "description": "Auto-generated metadata for Upper Respiratory Infection. Replace with curated content.",
+    "species": [
+      "Cat",
+      "Rabbit"
+    ]
+  },
+  "Urethral Obstruction": {
+    "urgency": "High",
+    "contagious": false,
+    "description": "Auto-generated metadata for Urethral Obstruction. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  },
+  "Vent prolapse": {
+    "urgency": "Severe",
+    "contagious": false,
+    "description": "Auto-generated metadata for Vent prolapse. Replace with curated content.",
+    "species": [
+      "Turtle"
+    ]
+  },
+  "Vitamin C Deficiency": {
+    "urgency": "Moderate",
+    "contagious": false,
+    "description": "Auto-generated metadata for Vitamin C Deficiency. Replace with curated content.",
+    "species": [
+      "Fish"
+    ]
+  },
+  "Wet dewlap": {
+    "urgency": "Mild",
+    "contagious": false,
+    "description": "Auto-generated metadata for Wet dewlap. Replace with curated content.",
+    "species": [
+      "Rabbit"
+    ]
+  }
+}
