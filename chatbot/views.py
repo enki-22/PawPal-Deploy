@@ -323,7 +323,18 @@ def _validate_symptom_checker_payload(data: dict) -> tuple[bool, dict | None, Re
 def get_gemini_client():
     """Configure and return Gemini model"""
     try:
-        genai.configure(api_key=settings.GEMINI_API_KEY)
+        # Check if API key is set
+        api_key = getattr(settings, 'GEMINI_API_KEY', None)
+        if not api_key:
+            raise Exception("GEMINI_API_KEY is not set in your .env file. Please add GEMINI_API_KEY=your-key-here to your .env file.")
+        
+        # Strip whitespace in case there are spaces
+        api_key = api_key.strip()
+        if not api_key:
+            raise Exception("GEMINI_API_KEY is empty in your .env file. Please check your .env file and add a valid API key.")
+        
+        logger.info(f"🔑 Using Gemini API key (length: {len(api_key)})")
+        genai.configure(api_key=api_key)
         
         print("=== CHECKING GEMINI API CONNECTION ===")
         try:
@@ -474,8 +485,24 @@ def get_gemini_response(user_message, conversation_history=None, chat_mode='gene
             return "I'm having trouble responding right now. Could you please try again?"
        
     except Exception as e:
-        print(f"Gemini Error: {type(e).__name__}: {e}")
-        return "I'm experiencing technical difficulties. Please try again or consult with a veterinarian for immediate concerns."
+        error_str = str(e)
+        error_type = type(e).__name__
+        logger.error(f"Gemini Error ({error_type}): {error_str}")
+        print(f"❌ Gemini Error ({error_type}): {error_str}")
+        
+        # Provide more specific error messages
+        if "GEMINI_API_KEY is not set" in error_str or "GEMINI_API_KEY is empty" in error_str:
+            logger.error("API key configuration issue detected")
+            return f"I'm currently unavailable due to API configuration issues. {error_str} For immediate pet health concerns, please consult with a veterinarian."
+        elif "API key" in error_str or "invalid" in error_str.lower() or "revoked" in error_str.lower() or "403" in error_str:
+            logger.error("API key validation failed")
+            return f"I'm currently unavailable due to API configuration issues. {error_str} Please check your .env file and ensure GEMINI_API_KEY is set correctly. For immediate pet health concerns, please consult with a veterinarian."
+        elif "quota" in error_str.lower():
+            logger.warning("API quota exceeded")
+            return "I'm experiencing high demand right now. Please try again in a few minutes or consult with a veterinarian for immediate concerns."
+        else:
+            logger.error(f"Unexpected Gemini error: {error_str}")
+            return f"I'm experiencing technical difficulties: {error_str}. Please try again or consult with a veterinarian for immediate concerns."
 
 def get_gemini_response_with_pet_context(user_message, conversation_history=None, chat_mode='general', pet_context=None, assessment_context=None):
     """Generate AI response using Google Gemini with pet context"""
@@ -586,15 +613,23 @@ You already know about {pet_context['name']}, so don't ask for basic information
        
     except Exception as e:
         error_str = str(e)
-        print(f"Gemini Error: {type(e).__name__}: {e}")
+        error_type = type(e).__name__
+        logger.error(f"Gemini Error ({error_type}): {error_str}")
+        print(f"❌ Gemini Error ({error_type}): {error_str}")
         
         # Provide more specific error messages
-        if "API key" in error_str or "invalid" in error_str.lower() or "revoked" in error_str.lower():
-            return "I'm currently unavailable due to API configuration issues. Please contact support or try again later. For immediate pet health concerns, please consult with a veterinarian."
+        if "GEMINI_API_KEY is not set" in error_str or "GEMINI_API_KEY is empty" in error_str:
+            logger.error("API key configuration issue detected")
+            return f"I'm currently unavailable due to API configuration issues. {error_str} For immediate pet health concerns, please consult with a veterinarian."
+        elif "API key" in error_str or "invalid" in error_str.lower() or "revoked" in error_str.lower() or "403" in error_str:
+            logger.error("API key validation failed")
+            return f"I'm currently unavailable due to API configuration issues. {error_str} Please check your .env file and ensure GEMINI_API_KEY is set correctly. For immediate pet health concerns, please consult with a veterinarian."
         elif "quota" in error_str.lower():
+            logger.warning("API quota exceeded")
             return "I'm experiencing high demand right now. Please try again in a few minutes or consult with a veterinarian for immediate concerns."
         else:
-            return "I'm experiencing technical difficulties. Please try again or consult with a veterinarian for immediate concerns."
+            logger.error(f"Unexpected Gemini error: {error_str}")
+            return f"I'm experiencing technical difficulties: {error_str}. Please try again or consult with a veterinarian for immediate concerns."
 def generate_conversation_title(first_message, ai_response=None):
     """Generate a conversation title using Gemini"""
     try:
@@ -3238,50 +3273,121 @@ def get_pet_context_dict(pet):
     }
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Allow testing without auth for easier debugging
+@permission_classes([AllowAny])
 def test_gemini_api_key(request):
-    """Test if Gemini API key is working"""
+    """Test if Gemini API key is working - Public endpoint for debugging"""
     try:
         api_key = getattr(settings, 'GEMINI_API_KEY', None)
         
+        # Detailed diagnostics
+        diagnostics = {
+            'api_key_present': api_key is not None,
+            'api_key_length': len(api_key) if api_key else 0,
+            'api_key_starts_with': api_key[:10] if api_key and len(api_key) >= 10 else 'N/A',
+            'api_key_has_whitespace': api_key != api_key.strip() if api_key else False,
+        }
+        
         if not api_key:
             return Response({
+                'success': False,
+                'api_key_valid': False,
                 'error': 'GEMINI_API_KEY not found in settings',
-                'solution': 'Add GEMINI_API_KEY to your settings.py'
-            })
+                'diagnostics': diagnostics,
+                'solution': 'Add GEMINI_API_KEY=your-key-here to your .env file in the project root',
+                'steps': [
+                    '1. Open your .env file (should be in the same folder as manage.py)',
+                    '2. Add this line: GEMINI_API_KEY=your-actual-api-key',
+                    '3. Make sure there are no quotes around the key',
+                    '4. Restart your Django server',
+                    '5. Get a new key from https://aistudio.google.com/app/apikey if needed'
+                ]
+            }, status=400)
+        
+        # Strip whitespace
+        api_key_clean = api_key.strip()
+        if not api_key_clean:
+            return Response({
+                'success': False,
+                'api_key_valid': False,
+                'error': 'GEMINI_API_KEY is empty (only whitespace)',
+                'diagnostics': diagnostics,
+                'solution': 'Check your .env file - the key value is empty'
+            }, status=400)
         
         # Test API key
-        genai.configure(api_key=api_key)
-        
         try:
+            genai.configure(api_key=api_key_clean)
+            
             # Try to list models
             models = list(genai.list_models())
             model_names = [m.name for m in models]
             
+            # Try a simple generation test
+            test_model = genai.GenerativeModel('models/gemini-1.5-flash')
+            test_response = test_model.generate_content("Say 'Hello' if you can read this.")
+            
             return Response({
                 'success': True,
                 'api_key_valid': True,
-                'available_models': model_names,
+                'api_key_preview': f"{api_key_clean[:8]}...{api_key_clean[-4:]}",
+                'available_models': model_names[:5],  # First 5 models
                 'total_models': len(models),
-                'api_key_preview': f"{api_key[:8]}...{api_key[-4:]}"
+                'test_generation': test_response.text if hasattr(test_response, 'text') else 'Failed',
+                'diagnostics': diagnostics
             })
             
         except Exception as api_error:
+            error_str = str(api_error)
+            error_lower = error_str.lower()
+            
+            # Determine the specific issue
+            if '403' in error_str or 'permission' in error_lower or 'forbidden' in error_lower:
+                issue = 'API key is invalid or has been revoked'
+                solutions = [
+                    'Get a new API key from https://aistudio.google.com/app/apikey',
+                    'Make sure you copied the entire key (no spaces, no quotes)',
+                    'Check if the key has expired or been revoked in Google AI Studio'
+                ]
+            elif 'quota' in error_lower or '429' in error_str:
+                issue = 'API quota exceeded'
+                solutions = [
+                    'Wait a few minutes and try again',
+                    'Check your Google Cloud billing account',
+                    'Upgrade your API plan if needed'
+                ]
+            elif 'invalid' in error_lower:
+                issue = 'API key format is invalid'
+                solutions = [
+                    'Verify the key in your .env file has no extra spaces or quotes',
+                    'Get a fresh key from https://aistudio.google.com/app/apikey',
+                    'Make sure the key starts with "AI" (for Gemini API keys)'
+                ]
+            else:
+                issue = 'Unknown API error'
+                solutions = [
+                    'Check the error message below',
+                    'Verify your internet connection',
+                    'Try again in a few minutes'
+                ]
+            
             return Response({
                 'success': False,
                 'api_key_valid': False,
-                'error': str(api_error),
-                'api_key_preview': f"{api_key[:8]}...{api_key[-4:]}",
-                'solutions': [
-                    'Get a new API key from https://aistudio.google.com/app/apikey',
-                    'Check if Gemini is available in your region',
-                    'Verify billing is enabled'
-                ]
-            })
+                'error': error_str,
+                'issue': issue,
+                'api_key_preview': f"{api_key_clean[:8]}...{api_key_clean[-4:]}",
+                'diagnostics': diagnostics,
+                'solutions': solutions,
+                'help_url': 'https://aistudio.google.com/app/apikey'
+            }, status=400)
             
     except Exception as e:
+        logger.exception(f"Error in test_gemini_api_key: {e}")
         return Response({
-            'error': str(e)
+            'success': False,
+            'error': str(e),
+            'error_type': type(e).__name__
         }, status=500)
 
 

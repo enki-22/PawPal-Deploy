@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
-GEMINI_API_KEY = config('GEMINI_API_KEY')
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
 OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
 KAGGLE_USERNAME = config('KAGGLE_USERNAME', default='')
 KAGGLE_KEY = config('KAGGLE_KEY', default='')
