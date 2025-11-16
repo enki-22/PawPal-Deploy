@@ -97,11 +97,6 @@ class AIDiagnosis(models.Model):
     # Additional Context
     pet_context = models.JSONField(help_text="Pet profile context used")
     confidence_score = models.FloatField(default=0.0)
-
-    # Input Data
-    symptoms_text = models.TextField(help_text="User's symptom description")
-    image_analysis = models.JSONField(blank=True, null=True, help_text="Image classification results")
-    uploaded_image = models.ImageField(upload_to='symptom_images/', blank=True, null=True)
     
     class Meta:
         ordering = ['-generated_at']

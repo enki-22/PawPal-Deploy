@@ -70,6 +70,34 @@ const Chat = () => {
           sender: msg.sender,
           timestamp: msg.timestamp,
         }));
+        
+        // Check if there's assessment data to restore
+        if (response.data.assessment_data) {
+          const assessmentData = response.data.assessment_data;
+          setAssessmentData(assessmentData);
+          
+          // Add assessment message to the messages array if not already present
+          // Check if there's already an assessment message
+          const hasAssessmentMessage = formattedMessages.some(msg => msg.isAssessment);
+          if (!hasAssessmentMessage) {
+            // Find the position where assessment should be inserted (after the last user message about symptoms)
+            // Or just add it at the end
+            const assessmentMessage = {
+              id: `assessment-${conversationId}-${Date.now()}`,
+              content: '',
+              isUser: false,
+              sender: 'PawPal',
+              timestamp: assessmentData.case_id ? new Date().toISOString() : new Date().toISOString(),
+              isAssessment: true,
+              assessmentData: assessmentData
+            };
+            formattedMessages.push(assessmentMessage);
+          }
+        } else {
+          // Clear assessment data if not present
+          setAssessmentData(null);
+        }
+        
         setMessages(formattedMessages);
         if (response.data.conversation.title.includes('Symptom Check:')) {
           setChatMode('symptom_checker');
@@ -78,9 +106,12 @@ const Chat = () => {
         }
       } else {
         setMessages([]);
+        setAssessmentData(null);
       }
     } catch (err) {
+      console.error('Error loading conversation:', err);
       setMessages([]);
+      setAssessmentData(null);
     }
   }, [API_BASE_URL, token]);
 
@@ -469,7 +500,8 @@ const Chat = () => {
         {
           pet_id: currentPetContext?.id,
           symptoms: assessmentData.symptoms_text || 'Symptom assessment completed',
-          assessment_data: assessmentData
+          assessment_data: assessmentData,
+          conversation_id: currentConversationId  // Link assessment to current conversation
         },
         {
           headers: {

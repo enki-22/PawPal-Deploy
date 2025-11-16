@@ -6,12 +6,16 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
 
   const getUrgencyColor = (urgency) => {
     switch (urgency?.toLowerCase()) {
+      case 'critical':
       case 'immediate':
       case 'emergency':
         return '🔴';
+      case 'high':
       case 'soon':
       case 'urgent':
         return '🟡';
+      case 'moderate':
+        return '🟠';
       default:
         return '🟢';
     }
@@ -19,24 +23,32 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
 
   const getUrgencyText = (urgency) => {
     switch (urgency?.toLowerCase()) {
+      case 'critical':
       case 'immediate':
       case 'emergency':
-        return 'Immediate';
+        return 'CRITICAL';
+      case 'high':
       case 'soon':
       case 'urgent':
-        return 'Urgent';
+        return 'HIGH';
+      case 'moderate':
+        return 'MODERATE';
       default:
-        return 'Moderate';
+        return 'LOW';
     }
   };
 
   const getTimelineText = (urgency) => {
     switch (urgency?.toLowerCase()) {
+      case 'critical':
       case 'immediate':
       case 'emergency':
         return 'Seek veterinary care immediately';
+      case 'high':
       case 'soon':
       case 'urgent':
+        return 'Schedule vet visit within 2-6 hours';
+      case 'moderate':
         return 'Schedule vet visit within 24-48 hours';
       default:
         return 'Monitor and schedule routine check-up if symptoms persist';
@@ -62,19 +74,53 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
             Based on the symptoms you described, here are the most likely conditions:
           </p>
 
-          {/* Predictions */}
+          {/* Predictions - Top 3 */}
           {predictions.slice(0, 3).map((prediction, index) => (
-            <div key={index} className="border-b border-gray-200 pb-3 mb-3 last:border-b-0">
+            <div key={index} className="border border-gray-200 rounded-lg p-3 mb-3 bg-gray-50">
               <div className="mb-2">
-                <h4 className="font-bold text-gray-800">
-                  {index + 1}. **{prediction.disease || prediction.label}** ({Math.round((prediction.confidence || prediction.likelihood || 0) * 100)}% match)
+                <h4 className="font-bold text-gray-800 text-base">
+                  {index + 1}. {prediction.disease || prediction.label}
                 </h4>
-                <div className="text-sm text-gray-600 mt-1">
-                  Urgency: {getUrgencyColor(prediction.urgency)} {getUrgencyText(prediction.urgency)}
-                  <br />
-                  Contagious: {prediction.contagious ? 'Yes' : 'No'}
+                <div className="text-sm text-gray-600 mt-1 space-y-1">
+                  <div>
+                    <span className="font-semibold">Confidence:</span> {Math.round((prediction.confidence || prediction.likelihood || 0) * 100)}% match
+                  </div>
+                  <div>
+                    <span className="font-semibold">Urgency:</span> {getUrgencyColor(prediction.urgency)} {getUrgencyText(prediction.urgency)}
+                  </div>
+                  {prediction.timeline && (
+                    <div>
+                      <span className="font-semibold">Timeline:</span> {prediction.timeline}
+                    </div>
+                  )}
+                  <div>
+                    <span className="font-semibold">Contagious:</span> {prediction.contagious ? 'Yes' : 'No'}
+                  </div>
                 </div>
               </div>
+
+              {/* Red Flags */}
+              {prediction.red_flags && prediction.red_flags.length > 0 && (
+                <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded">
+                  <p className="text-xs font-semibold text-red-700 mb-1">⚠️ Red Flags Detected:</p>
+                  <ul className="text-xs text-red-600 space-y-1">
+                    {prediction.red_flags.map((flag, idx) => (
+                      <li key={idx} className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>{flag}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Recommendation */}
+              {prediction.recommendation && (
+                <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded">
+                  <p className="text-xs font-semibold text-blue-700 mb-1">💡 Recommendation:</p>
+                  <p className="text-xs text-blue-600">{prediction.recommendation}</p>
+                </div>
+              )}
 
               {prediction.care_guidelines && (
                 <div className="text-sm text-gray-700 mb-2">

@@ -1269,11 +1269,95 @@ def get_conversation_messages(request, conversation_id):
                 'timestamp': msg.created_at.isoformat()
             })
         
+        # Get assessment data from SOAP report if available
+        # Try to find SOAP report linked to this conversation, or find by pet/user if no direct link
+        assessment_data = None
+        soap_report = conversation.soap_reports.first()
+        
+        # If no SOAP report directly linked, try to find one for this pet/user
+        if not soap_report and conversation.pet:
+            from .models import SOAPReport
+            # Find most recent SOAP report for this pet and user
+            soap_report = SOAPReport.objects.filter(
+                pet=conversation.pet,
+                pet__owner=user_obj
+            ).order_by('-date_generated').first()
+        
+        if soap_report:
+            # Get associated AIDiagnosis to build assessment data
+            from .models import AIDiagnosis
+            try:
+                # Try exact match first (SOAP report might have # prefix)
+                try:
+                    ai_diagnosis = AIDiagnosis.objects.get(case_id=soap_report.case_id)
+                except AIDiagnosis.DoesNotExist:
+                    # Try without # prefix (AIDiagnosis doesn't have # prefix)
+                    case_id_clean = soap_report.case_id.lstrip('#')
+                    try:
+                        ai_diagnosis = AIDiagnosis.objects.get(case_id=case_id_clean)
+                    except AIDiagnosis.DoesNotExist:
+                        # Try with # prefix (in case SOAP was created without it but AIDiagnosis has it)
+                        case_id_with_hash = f'#{case_id_clean}'
+                        ai_diagnosis = AIDiagnosis.objects.get(case_id=case_id_with_hash)
+                # Transform suggested_diagnoses to predictions format expected by frontend
+                predictions = []
+                if isinstance(ai_diagnosis.suggested_diagnoses, list):
+                    for diag in ai_diagnosis.suggested_diagnoses:
+                        # Transform from AIDiagnosis format to frontend format
+                        prediction = {
+                            'disease': diag.get('condition_name', diag.get('condition', 'Unknown')),
+                            'label': diag.get('condition_name', diag.get('condition', 'Unknown')),
+                            'confidence': diag.get('likelihood_percentage', 0) / 100.0 if diag.get('likelihood_percentage') else (diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else diag.get('likelihood', 0) / 100.0),
+                            'likelihood': diag.get('likelihood_percentage', 0) / 100.0 if diag.get('likelihood_percentage') else (diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else diag.get('likelihood', 0) / 100.0),
+                            'urgency': diag.get('urgency_level', diag.get('urgency', 'moderate')),
+                            'description': diag.get('description', ''),
+                            'contagious': diag.get('contagious', False),
+                            'red_flags': diag.get('red_flags', []),
+                            'timeline': diag.get('timeline', ''),
+                        }
+                        predictions.append(prediction)
+                
+                # Build assessment data in the format expected by frontend
+                assessment_data = {
+                    'pet_name': conversation.pet.name if conversation.pet else 'Pet',
+                    'predictions': predictions,
+                    'overall_recommendation': ai_diagnosis.ai_explanation,
+                    'urgency_level': ai_diagnosis.urgency_level,
+                    'symptoms_text': ai_diagnosis.symptoms_text,
+                    'case_id': ai_diagnosis.case_id,
+                }
+            except AIDiagnosis.DoesNotExist:
+                # Fallback: use SOAP report assessment if AIDiagnosis doesn't exist
+                if soap_report.assessment and isinstance(soap_report.assessment, list):
+                    predictions = []
+                    for diag in soap_report.assessment:
+                        # Transform from SOAP report format to frontend format
+                        prediction = {
+                            'disease': diag.get('condition', diag.get('condition_name', 'Unknown')),
+                            'label': diag.get('condition', diag.get('condition_name', 'Unknown')),
+                            'confidence': diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else (diag.get('likelihood', 0) / 100.0),
+                            'likelihood': diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else (diag.get('likelihood', 0) / 100.0),
+                            'urgency': diag.get('urgency', 'moderate'),
+                            'description': diag.get('description', ''),
+                            'contagious': diag.get('contagious', False),
+                            'red_flags': diag.get('red_flags', []),
+                            'timeline': diag.get('timeline', ''),
+                        }
+                        predictions.append(prediction)
+                    
+                    assessment_data = {
+                        'pet_name': conversation.pet.name if conversation.pet else 'Pet',
+                        'predictions': predictions,
+                        'overall_recommendation': soap_report.plan.get('aiExplanation', '') if isinstance(soap_report.plan, dict) else '',
+                        'urgency_level': soap_report.plan.get('severityLevel', 'moderate').lower() if isinstance(soap_report.plan, dict) else 'moderate',
+                        'symptoms_text': soap_report.subjective,
+                        'case_id': soap_report.case_id,
+                    }
+        
         # Format response based on user type
         if request.user_type == 'admin':
             # Admin format (similar to admin endpoint)
             diagnosis_case_id = None
-            soap_report = conversation.soap_reports.first()
             if soap_report:
                 diagnosis_case_id = soap_report.case_id
             
@@ -1294,14 +1378,18 @@ def get_conversation_messages(request, conversation_id):
             }, status=status.HTTP_200_OK)
         else:
             # Pet owner format (existing format)
-            return Response({
+            response_data = {
                 'conversation': {
                     'id': conversation.id,
                     'title': conversation.title,
                     'created_at': conversation.created_at.isoformat(),
                 },
                 'messages': messages
-            }, status=status.HTTP_200_OK)
+            }
+            # Include assessment data if available
+            if assessment_data:
+                response_data['assessment_data'] = assessment_data
+            return Response(response_data, status=status.HTTP_200_OK)
        
     except Exception as e:
         return Response({
@@ -1445,6 +1533,7 @@ def get_diagnoses(request):
                 'created_at': diagnosis.generated_at.strftime('%B %d, %Y'),
                 'diagnosis': diagnosis.ai_explanation[:200] + '...' if len(diagnosis.ai_explanation) > 200 else diagnosis.ai_explanation,
                 'symptoms': diagnosis.symptoms_text,
+                'suggested_diagnoses': diagnosis.suggested_diagnoses,  # Include assessment data
             })
        
         return Response({
@@ -2092,6 +2181,105 @@ def _calculate_triage_assessment(emergency_data, severity, progression, predicti
     }
 
 
+def calculate_dynamic_urgency(user_input, predicted_disease, metadata):
+    """
+    Calculate urgency based on user input + red flags, not just disease metadata.
+    
+    Args:
+        user_input: Cleaned payload from frontend with symptoms, severity, progression, etc.
+        predicted_disease: Top predicted disease name
+        metadata: Disease metadata from model
+    
+    Returns:
+        dict: Dynamic urgency assessment with score, red flags, and recommendations
+    """
+    urgency_score = 0
+    red_flags = []
+    
+    # User-selected severity (highest weight)
+    severity = user_input.get('severity', 'moderate')
+    if severity == 'severe':
+        urgency_score += 3
+        red_flags.append("Severe symptoms reported")
+    elif severity == 'moderate':
+        urgency_score += 2
+    else:
+        urgency_score += 1
+    
+    # Progression (getting worse = more urgent)
+    progression = user_input.get('progression', 'same')
+    if progression == 'getting_worse':
+        urgency_score += 2
+        red_flags.append("Symptoms worsening")
+    
+    # RED FLAG SYMPTOMS (critical indicators)
+    symptoms = user_input.get('symptoms_list', [])
+    emergency_data = user_input.get('emergency_data', {})
+    emergency_screen = emergency_data.get('emergencyScreen', {}) if emergency_data else {}
+    
+    # Check emergency screening results
+    perfusion = emergency_screen.get('perfusion', '')
+    if perfusion in ['pale_white', 'blue_purple']:
+        urgency_score += 3
+        red_flags.append("Pale/blue gums - possible shock or blood loss")
+    
+    respiration = emergency_screen.get('respiration', '')
+    if respiration in ['gasping', 'not_breathing', 'open_mouth_breathing']:
+        urgency_score += 3
+        red_flags.append("Respiratory distress")
+    
+    alertness = emergency_screen.get('alertness', '')
+    if alertness in ['unresponsive', 'disoriented']:
+        urgency_score += 3
+        red_flags.append("Altered consciousness")
+    
+    # Check for blood-related symptoms
+    blood_symptoms = ['blood_in_urine', 'bloody_stool', 'vomiting_blood', 'hemoptysis']
+    if any(s in symptoms for s in blood_symptoms):
+        urgency_score += 2
+        red_flags.append("Blood in vomit/stool/urine")
+    
+    # Check critical symptoms from emergency screening
+    critical_symptoms = emergency_screen.get('criticalSymptoms', [])
+    if len(critical_symptoms) > 0:
+        urgency_score += 3
+        for symptom in critical_symptoms:
+            red_flags.append(f"Critical: {symptom}")
+    
+    # Duration (sudden onset = more concerning)
+    duration = user_input.get('duration_days', 3)
+    if duration < 1:  # Less than 24 hours
+        urgency_score += 1
+        red_flags.append("Rapid onset")
+    
+    # Map score to urgency level
+    if urgency_score >= 7:
+        urgency = "critical"
+        recommendation = "⚠️ URGENT: This appears to be a medical emergency. Seek immediate veterinary care. Contact your emergency vet or nearest 24-hour clinic immediately."
+        timeline = "Immediate - do not wait"
+    elif urgency_score >= 5:
+        urgency = "high"
+        recommendation = "HIGH URGENCY: These symptoms require prompt veterinary attention. Contact your vet today or visit an emergency clinic if after hours."
+        timeline = "Within 2-6 hours"
+    elif urgency_score >= 3:
+        urgency = "moderate"
+        recommendation = "Schedule a vet visit within 24-48 hours. Monitor closely for worsening symptoms."
+        timeline = "Within 24-48 hours"
+    else:
+        urgency = "low"
+        recommendation = "Monitor at home. Schedule routine vet visit if symptoms persist or worsen."
+        timeline = "Within 3-7 days or as needed"
+    
+    return {
+        'urgency': urgency,
+        'urgency_score': urgency_score,
+        'red_flags': red_flags,
+        'recommendation': recommendation,
+        'timeline': timeline,
+        'disease_base_urgency': metadata.get('urgency', 'moderate') if metadata else 'moderate'
+    }
+
+
 @api_view(['POST'])
 @authentication_classes([])  # Custom auth via check_user_or_admin
 @permission_classes([AllowAny])
@@ -2243,6 +2431,10 @@ def symptom_checker_predict(request):
         classes = list(label_encoder.classes_)
         probs = np.array(proba)
         top_indices = probs.argsort()[::-1][:3]
+        
+        logger.info(f"Top 3 indices: {top_indices}")
+        logger.info(f"Top 3 probabilities: {[probs[idx] for idx in top_indices]}")
+        logger.info(f"Top 3 diseases: {[classes[idx] for idx in top_indices]}")
 
         predictions = []
         symptoms_list = list(cleaned.get('symptoms_list') or [])
@@ -2250,22 +2442,28 @@ def symptom_checker_predict(request):
 
         for idx in top_indices:
             conf = float(probs[idx])
-            if conf < 0.10:
-                continue
+            logger.info(f"Processing disease {classes[idx]} with confidence {conf:.4f}")
+            # Always include top 3 predictions regardless of confidence
             disease_name = str(classes[idx])
             meta = (disease_metadata or {}).get(disease_name, {})
-            urgency_level = meta.get('urgency', 'moderate')
             contagious = bool(meta.get('contagious', False))
             sample_symptoms_text = meta.get('sample_symptoms', '') or ''
             sample_symptoms = extract_symptoms_from_text(sample_symptoms_text) or []
 
             matching_symptoms = [s for s in symptoms_list if s in sample_symptoms] if sample_symptoms else list(sympt_set)
 
+            # Calculate dynamic urgency based on user input + red flags
+            dynamic_urgency = calculate_dynamic_urgency(cleaned, disease_name, meta)
+
             prediction_obj = {
                 'disease': disease_name,
                 'confidence': conf,
                 'confidence_pct': f"{conf*100:.0f}%",
-                'urgency': urgency_level,
+                'urgency': dynamic_urgency['urgency'],
+                'urgency_score': dynamic_urgency['urgency_score'],
+                'red_flags': dynamic_urgency['red_flags'],
+                'recommendation': dynamic_urgency['recommendation'],
+                'timeline': dynamic_urgency['timeline'],
                 'contagious': contagious,
                 'matching_symptoms': matching_symptoms,
                 'common_symptoms': sample_symptoms,
@@ -2276,6 +2474,10 @@ def symptom_checker_predict(request):
             predictions.append(prediction_obj)
 
         predictions.sort(key=lambda x: x['confidence'], reverse=True)
+        
+        logger.info(f"After filtering and sorting: {len(predictions)} predictions collected. Top indices were: {top_indices}")
+        for i, pred in enumerate(predictions):
+            logger.info(f"  Prediction {i+1}: {pred.get('disease')} - confidence: {pred.get('confidence'):.4f}")
 
         if predictions:
             highest_urgency = max((p.get('urgency') or 'moderate') for p in predictions)
@@ -2358,6 +2560,8 @@ def symptom_checker_predict(request):
             'soap_data': soap_data,
             'symptoms_text': symptoms_text,
         }
+        
+        logger.info(f"Symptom checker predict returning {len(predictions)} predictions: {[p.get('disease') for p in predictions]}")
 
         return Response(response_payload)
     except Exception as e:
@@ -2377,6 +2581,10 @@ def symptom_checker_predict(request):
 @permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def create_ai_diagnosis(request):
     """Create a comprehensive AI diagnosis report"""
+    print("\n" + "="*50)
+    print("🔴 CREATE_AI_DIAGNOSIS CALLED")
+    print("="*50 + "\n")
+    
     from utils.unified_permissions import check_user_or_admin
     
     # Check authentication (supports both user types)
@@ -2397,9 +2605,11 @@ def create_ai_diagnosis(request):
         data = request.data
         pet_id = data.get('pet_id')
         symptoms_text = data.get('symptoms', '')
+        assessment_data = data.get('assessment_data', {})
+        conversation_id = data.get('conversation_id')  # Get conversation_id if provided
         
-        if not pet_id or not symptoms_text:
-            return Response({'error': 'pet_id and symptoms are required'}, status=status.HTTP_400_BAD_REQUEST)
+        if not pet_id:
+            return Response({'error': 'pet_id is required'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Get pet
         try:
@@ -2407,42 +2617,154 @@ def create_ai_diagnosis(request):
         except Pet.DoesNotExist:
             return Response({'error': 'Pet not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        # Temporarily set request.user for predict_symptoms function
-        request.user = user_obj
+        # Use assessment data from symptom checker if available
+        if assessment_data:
+            predictions = assessment_data.get('predictions', [])
+            urgency_level = assessment_data.get('urgency_level', 'moderate')
+            overall_recommendation = assessment_data.get('overall_recommendation', '')
+            triage_assessment = assessment_data.get('triage_assessment', {})
+            soap_data = assessment_data.get('soap_data', {})
+            
+            logger.info(f"Assessment data keys: {assessment_data.keys()}")
+            logger.info(f"SOAP data present: {bool(soap_data)}")
+            logger.info(f"SOAP data keys: {soap_data.keys() if soap_data else 'None'}")
+        else:
+            return Response({'error': 'assessment_data is required'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Get ML predictions
-        ml_response = predict_symptoms(request)
-        if ml_response.status_code != 200:
-            return ml_response
+        print("🟢 Step 1: Got predictions, building suggested_diagnoses")
         
-        ml_data = ml_response.data
+        # Get top prediction for overall severity
+        top_prediction = predictions[0] if predictions else {}
+        
+        # Build suggested diagnoses from predictions
+        suggested_diagnoses = []
+        for pred in predictions:
+            suggested_diagnoses.append({
+                'condition_name': pred.get('disease', pred.get('label', 'Unknown')),
+                'likelihood_percentage': pred.get('confidence', 0) * 100,
+                'description': pred.get('recommendation', f"AI-suggested condition based on symptoms"),
+                'urgency_level': pred.get('urgency', urgency_level),
+                'contagious': pred.get('contagious', False),
+                'red_flags': pred.get('red_flags', []),
+                'timeline': pred.get('timeline', '')
+            })
+        
+        print("🟢 Step 2: About to create AIDiagnosis record")
         
         # Create AI Diagnosis record
         ai_diagnosis = AIDiagnosis.objects.create(
             user=user_obj,
             pet=pet,
-            symptoms_text=symptoms_text,
-            image_analysis=ml_data.get('image_analysis'),
-            ml_predictions=ml_data['predictions'],
-            ai_explanation=ml_data['ai_explanation'],
-            overall_severity=ml_data['severity'],
-            urgency_level=ml_data['urgency'],
-            pet_context=ml_data['pet_context'],
-            confidence_score=ml_data['confidence_score']
+            symptoms_text=symptoms_text or assessment_data.get('symptoms_text', 'Symptom assessment completed'),
+            image_analysis=None,  # Not using image analysis from symptom checker
+            ml_predictions=predictions,
+            ai_explanation=overall_recommendation,
+            suggested_diagnoses=suggested_diagnoses,
+            overall_severity=triage_assessment.get('overall_urgency', urgency_level),
+            urgency_level=urgency_level,
+            pet_context={
+                'pet_name': pet.name,
+                'species': pet.animal_type,
+                'age': pet.age,
+                'weight': str(pet.weight) if pet.weight else None
+            },
+            confidence_score=top_prediction.get('confidence', 0.0)
         )
+        
+        print(f"🟢 Step 3: AIDiagnosis created with case_id: {ai_diagnosis.case_id}")
+        
+        # Always create SOAP Report
+        # Map urgency to flag level
+        flag_level_map = {
+            'critical': 'critical',
+            'immediate': 'critical',
+            'high': 'urgent',
+            'urgent': 'urgent',
+            'moderate': 'moderate',
+            'low': 'routine'
+        }
+        flag_level = flag_level_map.get(urgency_level, 'moderate')
+        print("🔵 Step 4: Building SOAP data...")
+        
+        # Build SOAP report data
+        subjective_text = soap_data.get('subjective', symptoms_text or 'Symptom assessment completed') if soap_data else (symptoms_text or 'Symptom assessment completed')
+        objective_data = soap_data.get('objective', {
+            'symptoms': predictions[0].get('matching_symptoms', []) if predictions else [],
+            'duration': assessment_data.get('symptoms_text', ''),
+            'severity': assessment_data.get('severity', 'moderate')
+        }) if soap_data else {
+            'symptoms': predictions[0].get('matching_symptoms', []) if predictions else [],
+            'duration': assessment_data.get('symptoms_text', ''),
+            'severity': assessment_data.get('severity', 'moderate')
+        }
+        
+        assessment_soap = soap_data.get('assessment', suggested_diagnoses) if soap_data else suggested_diagnoses
+        
+        plan_data = soap_data.get('plan', {
+            'severityLevel': urgency_level,
+            'careAdvice': [overall_recommendation]
+        }) if soap_data else {
+            'severityLevel': urgency_level,
+            'careAdvice': [overall_recommendation]
+        }
+        
+        # Ensure case_id has # prefix for SOAP report (to match expected format)
+        soap_case_id = ai_diagnosis.case_id
+        if not soap_case_id.startswith('#'):
+            soap_case_id = f'#{soap_case_id}'
+        
+        logger.info(f"🔵 About to create SOAP report for case_id: {soap_case_id}")
+        logger.info(f"🔵 SOAP parameters: case_id={soap_case_id}, pet={pet.id}, flag_level={flag_level}")
+        
+        try:
+            # Check if SOAP report already exists
+            existing_soap = SOAPReport.objects.filter(case_id=soap_case_id).first()
+            if existing_soap:
+                logger.info(f"⚠️ SOAP report already exists for case {soap_case_id}, skipping creation")
+                soap_report = existing_soap
+            else:
+                # Link to conversation if provided
+                conversation = None
+                if conversation_id:
+                    try:
+                        from .models import Conversation
+                        conversation = Conversation.objects.get(id=conversation_id, user=user_obj)
+                        logger.info(f"🔗 Linking SOAP report to conversation {conversation_id}")
+                    except Conversation.DoesNotExist:
+                        logger.warning(f"⚠️ Conversation {conversation_id} not found, creating SOAP report without conversation link")
+                
+                soap_report = SOAPReport.objects.create(
+                    case_id=soap_case_id,
+                    pet=pet,
+                    chat_conversation=conversation,  # Link to conversation if provided
+                    subjective=subjective_text,
+                    objective=objective_data,
+                    assessment=assessment_soap,
+                    plan=plan_data,
+                    flag_level=flag_level
+                )
+                logger.info(f"✅ Created SOAP report for case {soap_case_id}" + (f" linked to conversation {conversation_id}" if conversation else ""))
+        except Exception as soap_error:
+            logger.error(f"❌ Failed to create SOAP report: {soap_error}")
+            logger.error(f"SOAP error type: {type(soap_error).__name__}")
+            import traceback
+            logger.error(f"SOAP error traceback: {traceback.format_exc()}")
+            logger.error(f"SOAP data: subjective={subjective_text[:100]}, objective={objective_data}, assessment={assessment_soap}, plan={plan_data}, flag={flag_level}")
+            # Don't fail the entire request if SOAP creation fails
+            soap_report = None
         
         # Create diagnosis suggestions
         suggestions = []
-        for pred in ml_data['predictions']:
+        for pred in predictions:
             suggestion = DiagnosisSuggestion.objects.create(
                 ai_diagnosis=ai_diagnosis,
-                condition_name=pred['label'],
-                likelihood_percentage=pred['confidence'] * 100,
-                description=f"AI-suggested condition based on symptoms: {symptoms_text}",
-                matched_symptoms=[symptoms_text],
-                urgency_level=ml_data['urgency'],
-                contagious=False,  # This would need to be determined by a knowledge base
-                confidence_score=pred['confidence']
+                condition_name=pred.get('disease', pred.get('label', 'Unknown')),
+                likelihood_percentage=pred.get('confidence', 0) * 100,
+                description=pred.get('recommendation', f"AI-suggested condition based on symptoms"),
+                matched_symptoms=pred.get('matching_symptoms', [symptoms_text]),
+                urgency_level=pred.get('urgency', urgency_level),
+                contagious=pred.get('contagious', False),
+                confidence_score=pred.get('confidence', 0)
             )
             suggestions.append({
                 'id': suggestion.id,
@@ -2452,7 +2774,9 @@ def create_ai_diagnosis(request):
                 'matched_symptoms': suggestion.matched_symptoms,
                 'urgency_level': suggestion.urgency_level,
                 'contagious': suggestion.contagious,
-                'confidence_score': suggestion.confidence_score
+                'confidence_score': suggestion.confidence_score,
+                'red_flags': pred.get('red_flags', []),
+                'timeline': pred.get('timeline', '')
             })
         
         # Generate structured report
@@ -2460,8 +2784,8 @@ def create_ai_diagnosis(request):
             'case_id': ai_diagnosis.case_id,
             'generated_at': ai_diagnosis.generated_at.isoformat(),
             'pet_owner_info': {
-                'name': request.user.username,
-                'email': request.user.email,
+                'name': user_obj.username,
+                'email': user_obj.email,
             },
             'pet_info': {
                 'name': pet.name,
@@ -2472,27 +2796,39 @@ def create_ai_diagnosis(request):
                 'weight': float(pet.weight) if pet.weight else None,
             },
             'medical_info': {
-                'blood_type': 'Unknown',  # Extract from medical_notes if available
+                'blood_type': 'Unknown',
                 'spayed_neutered': 'Unknown',
                 'allergies': 'None',
                 'chronic_diseases': 'None',
             },
-            'symptom_summary': symptoms_text,
+            'symptom_summary': symptoms_text or assessment_data.get('symptoms_text', ''),
             'ai_suggested_diagnoses': suggestions,
             'overall_severity': ai_diagnosis.overall_severity,
             'urgency_level': ai_diagnosis.urgency_level,
             'confidence_score': ai_diagnosis.confidence_score,
-            'ai_explanation': ai_diagnosis.ai_explanation
+            'ai_explanation': ai_diagnosis.ai_explanation,
+            'soap_report': soap_data,
+            'triage_assessment': triage_assessment
         }
         
+        # Return the SOAP report case_id (with # prefix) if it was created, otherwise use AIDiagnosis case_id
+        response_case_id = soap_case_id if soap_report else ai_diagnosis.case_id
+        
         return Response({
+            'success': True,
             'diagnosis_id': ai_diagnosis.id,
-            'case_id': ai_diagnosis.case_id,
+            'case_id': response_case_id,  # Use SOAP case_id format for consistency
+            'ai_diagnosis_case_id': ai_diagnosis.case_id,  # Also include original for reference
+            'soap_report_created': soap_report is not None,
             'report': report
         }, status=status.HTTP_201_CREATED)
         
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        logger.exception(f'Error creating AI diagnosis: {e}')
+        return Response({
+            'success': False,
+            'error': f'Failed to create AI diagnosis: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])

@@ -25,11 +25,15 @@ urlpatterns = [
     path('diagnoses/create/', views.create_diagnosis, name='create_diagnosis'),
     path('predict/', views.predict_symptoms, name='predict_symptoms'),
     path('ai-diagnosis/create/', views.create_ai_diagnosis, name='create_ai_diagnosis'),
+    path('create-ai-diagnosis/', views.create_ai_diagnosis, name='create_ai_diagnosis_alt'),
     path('upload-image/', views.upload_symptom_image, name='upload_symptom_image'),
     # Pet integration
     path('get-user-pets/', views.get_user_pets, name='get_user_pets'),
     path('start-conversation-with-pet/', views.start_conversation_with_pet, name='start_conversation_with_pet'),
     path('analyze-symptom-with-image/', views.analyze_symptom_with_image, name='analyze_symptom_with_image'),
+    
+    # Symptom checker endpoints
+    path('symptom-checker/predict/', views.symptom_checker_predict, name='symptom_checker_predict'),
    
     # Debug endpoints
     path('debug/', views.debug_gemini, name='debug_gemini'),

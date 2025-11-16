@@ -1,253 +1,161 @@
 PAWPAL MODEL EVALUATION
 ============================================================
 
-Test Accuracy: 0.9087
-CV Accuracy: 0.8943 ± 0.0093
+Test Accuracy: 0.9569
+CV Accuracy: 0.9547 ± 0.0044
 
 Classification Report:
                                                                                            precision    recall  f1-score   support
 
                                           (Hemorrhagic Septicemia / Ulcerative Syndromes)       1.00      1.00      1.00         6
-                                                                                 ACL Tear       1.00      0.83      0.91         6
-                                                                     Abnormal beak growth       1.00      1.00      1.00         2
-                                                                                Abscesses       0.80      0.89      0.84         9
+                                                                                 ACL Tear       1.00      1.00      1.00         6
+                                                                                Abscesses       1.00      1.00      1.00         9
                                                                                      Acne       1.00      1.00      1.00         6
-                                                                        Addison’s Disease       0.86      1.00      0.92         6
-                                                                Air sac mites / gapeworms       0.50      0.50      0.50         2
-                                                                        Ammonia Poisoning       1.00      0.83      0.91         6
-                                                                             Anaplasmosis       0.86      1.00      0.92         6
+                                                                        Addison’s Disease       1.00      0.83      0.91         6
+                                                                Air sac mites / gapeworms       1.00      1.00      1.00         8
+                                                                        Ammonia Poisoning       1.00      1.00      1.00         6
+                                                                             Anaplasmosis       1.00      1.00      1.00         6
                                                                              Anchor Worms       1.00      1.00      1.00         6
-                                                                                Arthritis       1.00      1.00      1.00         3
-                                                                            Aspergillosis       0.45      0.56      0.50         9
+                                                                                Arthritis       1.00      0.89      0.94         9
+                                                                            Aspergillosis       0.93      0.93      0.93        15
                                                                                    Asthma       1.00      1.00      1.00         6
-                                                                      Avian Gastric Yeast       1.00      0.33      0.50         3
-                                                                          Avian Influenza       1.00      0.33      0.50         3
+                                                                      Avian Gastric Yeast       1.00      0.89      0.94         9
+                                                                          Avian Influenza       1.00      1.00      1.00         9
                                                                        Avian Polyomavirus       1.00      1.00      1.00         6
-                                                                                Avian Pox       1.00      1.00      1.00         6
-                                                                               Babesiosis       0.83      0.83      0.83         6
+                                                                                Avian Pox       1.00      1.00      1.00        12
+                                                                               Babesiosis       1.00      0.67      0.80         6
                                                                            Bladder Sludge       1.00      1.00      1.00         6
                                                                            Bladder Stones       1.00      1.00      1.00         6
-                                                                   Bloat/Gastric Dilation       1.00      0.83      0.91         6
-                                                                   Breathing difficulties       1.00      0.50      0.67         2
-                                                                             Broken bones       0.60      1.00      0.75         3
-                                                                               Bumblefoot       0.73      1.00      0.84         8
+                                                                   Bloat/Gastric Dilation       1.00      1.00      1.00         6
+                                                                   Breathing difficulties       0.89      0.89      0.89         9
+                                                                             Broken bones       0.88      0.78      0.82         9
+                                                                               Bumblefoot       1.00      0.93      0.96        14
                                                                        Calcium Deficiency       1.00      1.00      1.00         6
-                                                                       Campylobacteriosis       1.00      0.83      0.91         6
-                                                                              Candidiasis       0.67      0.67      0.67         3
-                                                                     Candidiasis (Thrush)       0.86      1.00      0.92         6
-                                                                         Canine Distemper       1.00      1.00      1.00         6
+                                                                       Campylobacteriosis       1.00      1.00      1.00         6
+                                                                              Candidiasis       0.90      1.00      0.95         9
+                                                                     Candidiasis (Thrush)       0.92      1.00      0.96        12
+                                                                         Canine Distemper       0.80      1.00      0.89        12
                                                                Canine Enteric Coronavirus       1.00      1.00      1.00         6
-                                                                        Canine Parvovirus       1.00      1.00      1.00         6
-                                                                         Canine distemper       1.00      1.00      1.00         2
+                                                                        Canine Parvovirus       1.00      1.00      1.00        12
+                                                                         Canine distemper       0.80      1.00      0.89         8
+                                                                         Canine influenza       1.00      1.00      1.00         7
+                                                                        Canine parvovirus       1.00      1.00      1.00         7
                                                            Canine respiratory coronavirus       1.00      1.00      1.00         6
-                                                                                 Cat Acne       0.67      0.67      0.67         3
-                                                                                 Cataract       1.00      1.00      1.00         2
-                                                                                Cataracts       1.00      1.00      1.00         3
-                                                                    Cheek Pouch Impaction       0.75      1.00      0.86         6
+                                                                                 Cat Acne       0.90      1.00      0.95         9
+                                                                                 Cataract       1.00      1.00      1.00         8
+                                                                                Cataracts       1.00      1.00      1.00         9
+                                                                    Cheek Pouch Impaction       1.00      1.00      1.00        12
                                                                        Chronic Egg Laying       1.00      1.00      1.00         6
-                                                                   Chronic Kidney Disease       1.00      0.78      0.88         9
-                                                                         Cloacal prolapse       0.67      0.67      0.67         3
+                                                                   Chronic Kidney Disease       0.78      0.78      0.78         9
+                                                                         Cloacal prolapse       0.75      1.00      0.86         9
                                                                               Coccidiosis       1.00      1.00      1.00         6
-                                                                         Cold Water Shock       0.86      1.00      0.92         6
-                                                                               Columnaris       1.00      1.00      1.00         6
-                                                                           Conjunctivitis       1.00      1.00      1.00        14
-                                                                             Constipation       1.00      1.00      1.00         2
-                                                                       Contact Dermatitis       0.67      1.00      0.80         6
-                                                                       Corneal ulceration       0.50      0.67      0.57         3
+                                                                         Cold Water Shock       1.00      1.00      1.00         6
+                                                                               Columnaris       1.00      1.00      1.00        12
+                                                                           Conjunctivitis       1.00      0.95      0.97        20
+                                                                       Contact Dermatitis       1.00      1.00      1.00         6
+                                                                       Corneal ulceration       0.69      1.00      0.82         9
                                                                       Cotton wool disease       1.00      1.00      1.00         6
-                                                                        Cushing’s Disease       0.80      0.80      0.80         5
-                                                                                 Cystitis       0.86      1.00      0.92         6
+                                                                        Cushing’s Disease       1.00      0.83      0.91         6
+                                                                                 Cystitis       1.00      1.00      1.00         6
                                                                          Demodectic Mange       1.00      1.00      1.00         6
-                                                                           Dental Disease       1.00      1.00      1.00         6
-                                                            Dental Disease (Malocclusion)       1.00      1.00      1.00         6
-                                                                                 Diabetes       0.40      0.80      0.53         5
+                                                                           Dental Disease       1.00      1.00      1.00        12
+                                                            Dental Disease (Malocclusion)       1.00      1.00      1.00        12
+                                                                                 Diabetes       0.90      0.82      0.86        11
                                                                         Diabetes Mellitus       1.00      1.00      1.00         6
-                                                                                 Diarrhea       0.90      0.82      0.86        11
-                                                                                   Dropsy       1.00      1.00      1.00         6
+                                                                                 Diarrhea       0.82      0.82      0.82        11
+                                                                                   Dropsy       0.92      0.92      0.92        12
                                                                      Drowning/Hypothermia       1.00      1.00      1.00         6
-                                                                               Dysecdysis       1.00      1.00      1.00         3
-                                                                                 Dystocia       1.00      1.00      1.00         3
-                                                            E. cuniculi (Encephalitozoon)       1.00      1.00      1.00         6
-                                                                  Ear Infections (Otitis)       1.00      1.00      1.00         6
+                                                                                 Dystocia       1.00      1.00      1.00         9
+                                                            E. cuniculi (Encephalitozoon)       1.00      1.00      1.00        12
+                                                                  Ear Infections (Otitis)       0.92      1.00      0.96        12
                                                 Ear Mite Infestation (Psoroptes cuniculi)       1.00      1.00      1.00         6
-                                                                                Ear Mites       1.00      1.00      1.00        12
-                                                                           Ear infections       0.80      0.80      0.80         5
-                                                                                Ear mites       1.00      0.67      0.80         3
-                                                                              Egg Binding       1.00      1.00      1.00         6
-                                                                            Egg Retention       1.00      1.00      1.00         2
-                                                                              Egg binding       0.50      1.00      0.67         3
-                                           Encephalitozoonosis (Encephalitozoon cuniculi)       1.00      0.83      0.91         6
-                                                                                Enteritis       0.75      1.00      0.86         6
-                                                           Eosinophilic Granuloma Complex       1.00      1.00      1.00         2
+                                                                                Ear Mites       1.00      1.00      1.00        18
+                                                                           Ear infections       0.92      1.00      0.96        11
+                                                                                Ear mites       0.80      0.89      0.84         9
+                                                                              Egg Binding       1.00      1.00      1.00        12
+                                                                            Egg Retention       1.00      1.00      1.00         9
+                                                                              Egg binding       0.89      0.89      0.89         9
+                                           Encephalitozoonosis (Encephalitozoon cuniculi)       1.00      1.00      1.00         6
+                                                                                Enteritis       1.00      0.83      0.91         6
                                      External Parasites (Mites, Ticks, Leeches, Botflies)       1.00      1.00      1.00         6
-                                                                           Eye Infections       1.00      1.00      1.00         6
-                                                           Eye abscesses / conjunctivitis       1.00      0.33      0.50         3
-                                                                         Feather Plucking       1.00      1.00      1.00         6
-                                                                            Feather cysts       1.00      1.00      1.00         2
-                                                                       Feline Calicivirus       1.00      1.00      1.00         6
-                                                               Feline Herpesvirus (FHV-1)       1.00      1.00      1.00         6
-                                                            Feline Immunodeficiency Virus       0.00      0.00      0.00         2
-                                                            Feline Infectious Peritonitis       0.40      0.67      0.50         3
-                                                                    Feline Leukemia Virus       0.50      0.33      0.40         3
-                                                       Feline Lower Urinary Tract Disease       1.00      1.00      1.00         8
-                                                                     Feline Panleukopenia       1.00      1.00      1.00         6
-                                                               Feline Panleukopenia Virus       0.33      0.33      0.33         3
-                                                                                  Fin Rot       0.75      1.00      0.86         9
+                                                                           Eye Infections       1.00      1.00      1.00        10
+                                                           Eye abscesses / conjunctivitis       1.00      1.00      1.00         9
+                                                                         Feather Plucking       1.00      1.00      1.00        12
+                                                                            Feather cysts       1.00      1.00      1.00         8
+                                                                       Feline Calicivirus       1.00      1.00      1.00        12
+                                                               Feline Herpesvirus (FHV-1)       1.00      0.67      0.80         6
+                                                            Feline Immunodeficiency Virus       0.88      0.78      0.82         9
+                                                            Feline Infectious Peritonitis       0.80      0.89      0.84         9
+                                                                    Feline Leukemia Virus       0.89      0.89      0.89         9
+                                                       Feline Lower Urinary Tract Disease       0.93      0.93      0.93        14
+                                                                     Feline Panleukopenia       0.83      0.83      0.83        12
+                                                               Feline Panleukopenia Virus       0.67      0.67      0.67         9
+                                                                                  Fin Rot       0.88      1.00      0.94        15
                                                                       Fish Lice and Leech       1.00      1.00      1.00         6
                                                                         Fish Tuberculosis       1.00      1.00      1.00         6
                                                                   Flea Allergy Dermatitis       1.00      1.00      1.00         6
-                                                  Flea Infestation (Ctenocephalides spp.)       1.00      1.00      1.00         6
-                                                                                    Fleas       0.89      1.00      0.94         8
-                                                                                Flystrike       0.50      0.67      0.57         3
-                                                                      Flystrike (Myiasis)       1.00      0.83      0.91         6
+                                                                                    Fleas       0.92      0.86      0.89        14
+                                                                                Flystrike       1.00      0.89      0.94         9
+                                                                      Flystrike (Myiasis)       1.00      1.00      1.00        12
                                                                            Food Allergies       1.00      1.00      1.00         6
-                                                                                Fractures       0.75      1.00      0.86         3
-                                                                                   Fungus       0.60      1.00      0.75         3
+                                                                                Fractures       1.00      0.67      0.80         9
+                                                                                   Fungus       1.00      0.89      0.94         9
                                         Fur Mite Infestation (Cheyletiella parasitovorax)       1.00      1.00      1.00         6
-                                                                                Fur Mites       1.00      1.00      1.00         6
-                                                                          Gastroenteritis       1.00      1.00      1.00         6
-                                                                  Gastrointestinal Stasis       1.00      1.00      1.00         6
-                                                                  Gastrointestinal stasis       1.00      1.00      1.00         3
-                                                                                   Giarda       1.00      0.83      0.91         6
+                                                                                Fur Mites       1.00      1.00      1.00        12
+                                                                          Gastroenteritis       1.00      1.00      1.00        12
+                                                                  Gastrointestinal Stasis       0.92      1.00      0.96        12
+                                                                  Gastrointestinal stasis       1.00      0.89      0.94         9
+                                                                                   Giarda       1.00      1.00      1.00         6
                                                                                   Giardia       1.00      1.00      1.00         6
-                                                                               Giardiasis       1.00      0.67      0.80         3
-                                                                               Gingivitis       1.00      0.67      0.80         3
-                                                                                     Gout       0.60      1.00      0.75         3
+                                                                               Giardiasis       1.00      0.89      0.94         9
+                                                                               Gingivitis       1.00      0.89      0.94         9
+                                                                                     Gout       0.82      1.00      0.90         9
 Gram-positive Bacterial Infections (Streptococcus, Lactococcus, Enterococcus, Vagococcus)       1.00      1.00      1.00         6
                                                                      Hair Loss (Alopecia)       1.00      1.00      1.00         6
-                                                                     Hair loss / alopecia       1.00      1.00      1.00         3
-                                                                                Hairballs       0.80      0.89      0.84         9
-                                                                        Heartworm Disease       0.92      0.92      0.92        12
-                                                                               Heartworms       1.00      1.00      1.00         3
-                                                                               Heat Shock       1.00      0.67      0.80         6
+                                                                     Hair loss / alopecia       0.82      1.00      0.90         9
+                                                                                Hairballs       1.00      0.78      0.88         9
+                                                                        Heartworm Disease       1.00      1.00      1.00         6
+                                                                               Heartworms       1.00      1.00      1.00         9
+                                                                               Heat Shock       1.00      0.83      0.91         6
                                                                               Heat Stress       1.00      1.00      1.00         6
-                                                                               Heatstroke       1.00      1.00      1.00        12
-                                                                    Heavy metal poisoning       0.60      1.00      0.75         3
-                                                  Hepatic Coccidiosis (Liver Coccidiosis)       1.00      1.00      1.00         6
-                                                                            Hip Dysplasia       1.00      1.00      1.00         6
-                                                                                Hookworms       1.00      0.92      0.96        12
-                                                                                Hot Spots       1.00      0.83      0.91         6
-                                                                               Hutch burn       0.67      0.67      0.67         3
-                                                                          Hyperthyroidism       0.50      0.33      0.40         3
-                                                                           Hypothyroidism       0.67      1.00      0.80         6
-                                                Hypovitaminosis D (Vitamin D3 Deficiency)       1.00      1.00      1.00         6
-                                                                                      Ich       0.50      0.33      0.40         3
                                                                  Ich (White Spot Disease)       1.00      1.00      1.00         6
-                                                              Infectious Canine Hepatitis       1.00      1.00      1.00         6
-                                                                    Infectious stomatitis       1.00      1.00      1.00         3
-                                                               Inflammatory Bowel Disease       1.00      0.33      0.50         3
-                                     Internal Parasites (Roundworms, Tapeworms, Protozoa)       1.00      1.00      1.00         6
-                                                                   Intestinal Coccidiosis       1.00      1.00      1.00         6
                                                                      Intestinal Parasites       1.00      1.00      1.00         9
-                                                             Intestinal Parasites (Worms)       0.86      1.00      0.92         6
-                                                                 Iodine Deficiency/Goiter       1.00      1.00      1.00         6
+                                                             Intestinal Parasites (Worms)       1.00      1.00      1.00         6
                                                                              Kennel Cough       1.00      1.00      1.00         6
-                                                                             Kennel cough       1.00      1.00      1.00         3
-                                                                            Kidney Stones       1.00      0.83      0.91         6
-                                                                         Koi herpes virus       1.00      0.83      0.91         6
-                                                                                  Lernaea       1.00      0.33      0.50         3
-                                                                            Lice and Mite       1.00      1.00      1.00         6
-                                                                            Liver Disease       0.62      0.83      0.71         6
-                                                                             Lyme Disease       0.86      1.00      0.92         6
-                                                                             Lymphocystis       1.00      1.00      1.00         3
-                                                         Malocclusion (Dental Overgrowth)       1.00      0.67      0.80         6
-                                                                           Mammary Tumors       1.00      1.00      1.00         2
-                                                                                    Mange       1.00      1.00      1.00         6
                                                                           Mange (Scabies)       1.00      1.00      1.00         6
-                                                                          Mast Cell Tumor       1.00      0.67      0.80         3
-                                                                   Metabolic Bone Disease       1.00      0.83      0.91         6
-                                                                     Milk gland infection       0.75      1.00      0.86         3
+                                                                   Metabolic Bone Disease       1.00      1.00      1.00         6
                                                                                     Mites       1.00      1.00      1.00         6
-                                                         Mycoplasma Respiratory Infection       1.00      1.00      1.00         6
-                                                                              Myxomatosis       1.00      0.67      0.80         3
-                                                                        Newcastle Disease       0.60      1.00      0.75         3
-                                                                        Nitrate Poisoning       1.00      1.00      1.00         6
-                                                                 Nutritional Deficiencies       1.00      0.83      0.91         6
-                                                                                  Obesity       0.92      1.00      0.96        11
-                                                                           Osteoarthritis       0.50      0.67      0.57         3
-                                                                     Otitis media/interna       0.75      1.00      0.86         3
-                                                                       Overgrown Incisors       1.00      1.00      1.00         6
-                                                                          Overgrown teeth       0.00      0.00      0.00         3
-                                                                        Pacheco’s Disease       1.00      0.67      0.80         3
-                                                                             Pancreatitis       0.00      0.00      0.00         2
-                                                                                Papilloma       1.00      1.00      1.00         2
+                                                                 Nutritional Deficiencies       1.00      0.80      0.89         5
+                                                                                  Obesity       0.67      0.80      0.73         5
                                                                 Pasteurellosis (Snuffles)       1.00      1.00      1.00         6
-                                                                        Patellar Luxation       1.00      1.00      1.00         6
-                                                                      Periodontal Disease       1.00      0.67      0.80         3
-                                                                        Pinworm Infection       0.86      1.00      0.92         6
-                                                                                Pneumonia       0.89      1.00      0.94         8
-                                                                    Popeye / Exophthalmia       1.00      1.00      1.00         3
-                                                                      Protozoal Infection       1.00      1.00      1.00         6
-                                                                Protrusion of the eyeball       1.00      1.00      1.00         3
-                                                      Psittacine Beak and Feather Disease       1.00      0.67      0.80         3
-                                                               Psittacosis (Chlamydiosis)       1.00      0.50      0.67         6
-                                                                                 Pyoderma       1.00      0.67      0.80         6
-                                                                                 Pyometra       1.00      0.67      0.80         3
-                                                                               Pyramiding       1.00      1.00      1.00         6
-                                                         Rabbit Hemorrhagic Disease Virus       1.00      1.00      1.00         6
+                                                                                Pneumonia       1.00      1.00      1.00         8
+                                                               Psittacosis (Chlamydiosis)       1.00      1.00      1.00         6
                                                                                    Rabies       1.00      1.00      1.00         9
                                                                    Respiratory Infections       1.00      1.00      1.00        18
-                                                                                 Rhinitis       0.67      0.67      0.67         3
-                                                                   Rickettsial Infections       1.00      0.83      0.91         6
-                                                                                 Ringworm       0.88      0.95      0.91        22
-                                                                               Roundworms       0.86      1.00      0.92         6
-                                                                    Roundworms (Ascarids)       0.83      0.83      0.83         6
-                                    Sarcoptic Mange (Sarcoptes scabiei or Notoedres cati)       1.00      1.00      1.00         6
-                                                              Scale rot / blister disease       0.33      0.33      0.33         3
-                                                 Scaly face / tassel foot / feather mites       1.00      0.67      0.80         3
-                                                                               Septicemia       1.00      0.67      0.80         3
-                                                                    Shell Injuries/Trauma       1.00      0.83      0.91         6
+                                                                                 Ringworm       1.00      1.00      1.00        11
                                                                                 Shell Rot       1.00      1.00      1.00         6
                                                                            Skin Allergies       1.00      1.00      1.00         6
-                                                       Skin Allergies (Atopic Dermatitis)       1.00      0.67      0.80         6
+                                                       Skin Allergies (Atopic Dermatitis)       1.00      1.00      1.00         6
                                                                                Skin Mites       1.00      1.00      1.00         6
-                                                                           Skin abscesses       1.00      0.67      0.80         3
-                                                                     Skin and Gill Flukes       1.00      0.67      0.80         3
-                                                                       Skin and fur mites       1.00      1.00      1.00         3
-                                                                           Skin parasites       1.00      1.00      1.00         2
-                                                                                 Snuffles       0.67      0.67      0.67         3
-                                              Soft Shell Disease (Metabolic Bone Disease)       0.86      1.00      0.92         6
                                                                                Sore Hocks       1.00      0.83      0.91         6
-                                                                                Splay leg       1.00      0.67      0.80         3
-                                                                  Squamous Cell Carcinoma       0.75      1.00      0.86         3
-                                                                               Stargazing       1.00      0.67      0.80         3
-                                                                               Stomatitis       1.00      1.00      1.00         5
-                                                                     Swim Bladder Disease       0.88      0.78      0.82         9
-                                                                       Tapeworm Infection       1.00      0.83      0.91         6
-                                                                                Tapeworms       0.92      1.00      0.96        12
-                                                                            Thermal Burns       0.86      1.00      0.92         6
+                                                                     Swim Bladder Disease       1.00      1.00      1.00         9
                                                                 Tick Fever (Ehrlichiosis)       1.00      1.00      1.00         6
-                                                                                    Ticks       1.00      1.00      1.00         6
-                                                                         Tooth Resorption       1.00      1.00      1.00         6
-                                                                     Tooth root abscesses       1.00      1.00      1.00         6
-                                                                            Toxoplasmosis       0.75      1.00      0.86         6
-                                                                           Trichomoniasis       0.67      1.00      0.80         2
-                                                                                   Tumors       1.00      0.83      0.91         6
-                                                              Upper Respiratory Infection       1.00      1.00      1.00         9
-                                                                     Urethral Obstruction       0.67      0.67      0.67         3
-                                                                         Urinary Blockage       1.00      0.83      0.91         6
-                                                                  Urinary Tract Infection       1.00      0.92      0.96        12
+                                                                                   Tumors       1.00      1.00      1.00         6
+                                                              Upper Respiratory Infection       0.90      1.00      0.95         9
                                                                            Uterine Cancer       1.00      1.00      1.00         6
-                                                                           Velvet Disease       1.00      1.00      1.00         6
-                                                                            Vent prolapse       0.75      1.00      0.86         3
-                                                                     Vitamin A Deficiency       1.00      0.75      0.86        12
-                                                                     Vitamin C Deficiency       0.75      1.00      0.86         3
+                                                                     Vitamin A Deficiency       1.00      1.00      1.00         6
                                                          Wet Tail (Proliferative Ileitis)       1.00      1.00      1.00         6
-                                                                               Wet dewlap       0.50      0.50      0.50         2
-                                                                                Whipworms       1.00      1.00      1.00         6
-                                                                          [Leptospirosis]       1.00      0.50      0.67         6
-                                                                                 pH shock       0.62      0.83      0.71         6
 
-                                                                                 accuracy                           0.91      1249
-                                                                                macro avg       0.90      0.88      0.88      1249
-                                                                             weighted avg       0.92      0.91      0.91      1249
+                                                                                 accuracy                           0.96      1161
+                                                                                macro avg       0.97      0.96      0.96      1161
+                                                                             weighted avg       0.96      0.96      0.96      1161
 
 
 Species-wise Accuracy:
-  Cat: 0.8870
-  Turtle: 0.9310
-  Dog: 0.9273
-  Rabbit: 0.9151
-  Hamster: 0.9500
-  Fish: 0.9014
-  Bird: 0.8667
+  Turtle: 1.0000
+  Cat: 0.9144
+  Fish: 0.9762
+  Dog: 0.9703
+  Rabbit: 0.9510
+  Bird: 0.9583
+  Hamster: 0.9740
