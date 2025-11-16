@@ -1,6 +1,7 @@
 import os
 import json
 import pickle
+import joblib
 import warnings
 from collections import Counter
 import time
@@ -17,6 +18,9 @@ import lightgbm as lgb
 from lightgbm import early_stopping
 from imblearn.over_sampling import SMOTE
 import re
+
+# Import shared model utilities
+from model_utils import _ravel_column
 
 warnings.filterwarnings("ignore")
 
@@ -258,12 +262,6 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     )
     
     return out
-
-
-# Module-level function for pickling compatibility
-def _ravel_column(x):
-    """Helper to flatten a single column for TF-IDF."""
-    return np.ravel(x)
 
 
 def build_preprocessor(categorical_cols: list, numeric_cols: list, text_col: str) -> ColumnTransformer:
@@ -520,16 +518,15 @@ def main():
     print("SAVING ARTIFACTS")
     print(f"{'='*60}\n")
     
-    with open(OUTPUTS['model'], 'wb') as f:
-        pickle.dump({
-            'model': model,
-            'preprocessor': preprocessor,
-            'random_state': RANDOM_STATE,
-        }, f)
+    # Use joblib instead of pickle for better sklearn compatibility
+    joblib.dump({
+        'model': model,
+        'preprocessor': preprocessor,
+        'random_state': RANDOM_STATE,
+    }, OUTPUTS['model'])
     print(f"✓ Model: {OUTPUTS['model']}")
     
-    with open(OUTPUTS['label_encoder'], 'wb') as f:
-        pickle.dump(le, f)
+    joblib.dump(le, OUTPUTS['label_encoder'])
     print(f"✓ Label encoder: {OUTPUTS['label_encoder']}")
     
     # Build metadata

@@ -15,19 +15,291 @@ from django.conf import settings
 import uuid
 from datetime import datetime
 import os
+import pickle
 import joblib
+import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.core.cache import cache
 from pets.models import Pet
 from .models import Conversation, Message, AIDiagnosis, SOAPReport, DiagnosisSuggestion
 # Note: image_classifier is now lazily loaded via analyze_pet_image when needed
 import logging
 logger = logging.getLogger(__name__)
 
+PAWPAL_MODEL = None
+PAWPAL_PREPROCESSOR = None
+PAWPAL_LABEL_ENCODER = None
+PAWPAL_DISEASE_METADATA = None
+PAWPAL_MODEL_LOADED = False
+PAWPAL_MODEL_ERROR = None
+
+ALLOWED_SPECIES = ["Dog", "Cat", "Rabbit", "Bird", "Fish", "Turtle", "Hamster"]
+
+# Import shared model utilities for deserialization
+try:
+    from model_utils import _ravel_column
+except ImportError:
+    # Fallback if model_utils not available
+    def _ravel_column(x):
+        """Helper to flatten a single column for TF-IDF - needed for model loading."""
+        return np.ravel(x)
+    logger.warning("Could not import _ravel_column from model_utils")
+
+try:
+    from train_model import CANONICAL_SYMPTOMS, extract_symptoms_from_text
+except Exception:
+    CANONICAL_SYMPTOMS = []
+
+    def extract_symptoms_from_text(text: str) -> list:  # type: ignore[no-redef]
+        return []
+
+    logger.warning("Could not import CANONICAL_SYMPTOMS from train_model.py; symptom checker validation will be limited.")
+
+
+def load_pawpal_lightgbm():
+    global PAWPAL_MODEL, PAWPAL_PREPROCESSOR, PAWPAL_LABEL_ENCODER, PAWPAL_DISEASE_METADATA, PAWPAL_MODEL_LOADED, PAWPAL_MODEL_ERROR
+
+    if (
+        PAWPAL_MODEL_LOADED
+        and PAWPAL_MODEL is not None
+        and PAWPAL_PREPROCESSOR is not None
+        and PAWPAL_LABEL_ENCODER is not None
+    ):
+        return PAWPAL_MODEL, PAWPAL_PREPROCESSOR, PAWPAL_LABEL_ENCODER, PAWPAL_DISEASE_METADATA
+
+    base_dir = getattr(settings, "BASE_DIR", None)
+    if base_dir is None:
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    model_path = os.path.join(str(base_dir), "pawpal_model.pkl")
+    label_path = os.path.join(str(base_dir), "pawpal_label_encoder.pkl")
+    metadata_path = os.path.join(str(base_dir), "pawpal_disease_metadata.json")
+
+    try:
+        # Try joblib first (better for sklearn models)
+        try:
+            artifacts = joblib.load(model_path)
+        except Exception:
+            # Fallback to pickle
+            with open(model_path, "rb") as f:
+                artifacts = pickle.load(f)
+
+        model = artifacts.get("model")
+        preprocessor = artifacts.get("preprocessor")
+
+        # Try joblib first for label encoder
+        try:
+            label_encoder = joblib.load(label_path)
+        except Exception:
+            with open(label_path, "rb") as f:
+                label_encoder = pickle.load(f)
+
+        if os.path.exists(metadata_path):
+            with open(metadata_path, "r") as f:
+                disease_metadata = json.load(f)
+        else:
+            disease_metadata = {}
+
+        if model is None or preprocessor is None or label_encoder is None:
+            raise RuntimeError("Loaded PawPal artifacts are incomplete.")
+
+        PAWPAL_MODEL = model
+        PAWPAL_PREPROCESSOR = preprocessor
+        PAWPAL_LABEL_ENCODER = label_encoder
+        PAWPAL_DISEASE_METADATA = disease_metadata
+        PAWPAL_MODEL_LOADED = True
+        PAWPAL_MODEL_ERROR = None
+
+        logger.info("PawPal LightGBM model loaded successfully for symptom checker.")
+        return PAWPAL_MODEL, PAWPAL_PREPROCESSOR, PAWPAL_LABEL_ENCODER, PAWPAL_DISEASE_METADATA
+    except Exception as e:
+        PAWPAL_MODEL = None
+        PAWPAL_PREPROCESSOR = None
+        PAWPAL_LABEL_ENCODER = None
+        PAWPAL_DISEASE_METADATA = None
+        PAWPAL_MODEL_LOADED = False
+        error_msg = str(e)
+        PAWPAL_MODEL_ERROR = error_msg
+        
+        # Provide helpful error message for common serialization issue
+        if "_ravel_column" in error_msg or "Can't get attribute" in error_msg:
+            logger.error(
+                "Model loading failed due to pickle serialization issue. "
+                "The model needs to be retrained. Run: python train_model.py"
+            )
+            raise RuntimeError(
+                "Disease prediction model needs to be retrained. "
+                "Please run 'python train_model.py' to regenerate the model with proper serialization."
+            )
+        
+        logger.exception("Failed to load PawPal LightGBM model: %s", e)
+        raise
+
+def _rate_limit_symptom_checker(user_id: int, max_requests: int = 10, window_seconds: int = 60) -> bool:
+    """Simple per-user rate limit: returns True if user is over limit."""
+    if not user_id:
+        return False
+    cache_key = f"symptom_checker_rl_{user_id}"
+    now_ts = datetime.now().timestamp()
+    attempts = cache.get(cache_key, [])
+    # keep attempts within window
+    threshold = now_ts - window_seconds
+    attempts = [ts for ts in attempts if ts >= threshold]
+    if len(attempts) >= max_requests:
+        cache.set(cache_key, attempts, timeout=window_seconds + 5)
+        return True
+    attempts.append(now_ts)
+    cache.set(cache_key, attempts, timeout=window_seconds + 5)
+    return False
+
+
+def _build_feature_row_from_payload(payload: dict) -> dict:
+    """Build a single feature row matching train_model engineer_features structure."""
+    species_raw = (payload.get("species") or "").strip().capitalize()
+    species = species_raw or "Dog"
+
+    urgency = (payload.get("urgency") or "moderate").strip().lower()
+    if urgency not in {"mild", "moderate", "severe"}:
+        urgency = "moderate"
+
+    symptoms_list = list(payload.get("symptoms_list") or [])
+    # normalize to canonical tokens
+    normalized = []
+    for s in symptoms_list:
+        if not s:
+            continue
+        token = str(s).strip().lower()
+        if token in CANONICAL_SYMPTOMS:
+            normalized.append(token)
+        else:
+            # allow non-canonical but they will not map to has_* flags
+            normalized.append(token)
+
+    symptom_count = len(normalized)
+    symptoms_text = payload.get("symptoms_text") or ", ".join(normalized)
+
+    # urgency encoding consistent with engineer_features
+    urgency_map = {"mild": 1, "moderate": 2, "severe": 3}
+    urgency_encoded = urgency_map.get(urgency, 2)
+
+    contagious_flag = 0
+
+    # category counts
+    respiratory_symptoms = ['coughing', 'sneezing', 'wheezing', 'labored_breathing', 'nasal_discharge', 'difficulty_breathing']
+    digestive_symptoms = ['vomiting', 'diarrhea', 'constipation', 'loss_of_appetite']
+    skin_symptoms = ['scratching', 'itching', 'hair_loss', 'red_skin', 'skin_lesions']
+
+    respiratory_count = sum(1 for s in normalized if s in respiratory_symptoms)
+    digestive_count = sum(1 for s in normalized if s in digestive_symptoms)
+    skin_count = sum(1 for s in normalized if s in skin_symptoms)
+
+    # severity_score formula from engineer_features
+    severity_score = urgency_encoded + (symptom_count / 3.0) + contagious_flag * 2
+
+    duration_days = payload.get("duration_days")
+    try:
+        duration_days_val = float(duration_days) if duration_days is not None else 3.0
+    except Exception:
+        duration_days_val = 3.0
+
+    row = {
+        "species": species,
+        "symptoms_text": symptoms_text,
+        "symptoms_list": normalized,
+        "symptom_count": symptom_count,
+        "urgency": urgency,
+        "contagious_flag": contagious_flag,
+        "urgency_encoded": urgency_encoded,
+        "respiratory_count": respiratory_count,
+        "digestive_count": digestive_count,
+        "skin_count": skin_count,
+        "severity_score": severity_score,
+        "duration_days": duration_days_val,
+    }
+
+    # add has_* flags for all canonical symptoms
+    for symptom in CANONICAL_SYMPTOMS:
+        row[f"has_{symptom}"] = 1 if symptom in normalized else 0
+
+    return row
+
+
+def _validate_symptom_checker_payload(data: dict) -> tuple[bool, dict | None, Response | None]:
+    required_fields = [
+        "pet_name",
+        "pet_id",
+        "species",
+        "urgency",
+        "duration_days",
+        "symptoms_list",
+        "symptoms_text",
+        "symptom_count",
+        "main_concern",
+        "severity",
+    ]
+    missing = [f for f in required_fields if f not in data]
+    if missing:
+        logger.error(f"Validation failed - Missing required fields: {missing}. Received data: {data}")
+        return False, None, Response(
+            {
+                "success": False,
+                "error": f"Missing required fields: {', '.join(missing)}",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    species = str(data.get("species") or "").strip().capitalize()
+    if species not in ALLOWED_SPECIES:
+        logger.error(f"Validation failed - Invalid species: {species}. Allowed: {ALLOWED_SPECIES}")
+        return False, None, Response(
+            {
+                "success": False,
+                "error": f"Invalid species '{species}'. Allowed: {', '.join(ALLOWED_SPECIES)}",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    urgency = str(data.get("urgency") or "").strip().lower()
+    if urgency not in {"mild", "moderate", "severe"}:
+        logger.error(f"Validation failed - Invalid urgency: {urgency}. Must be one of: mild, moderate, severe")
+        return False, None, Response(
+            {
+                "success": False,
+                "error": "Invalid urgency. Must be one of: mild, moderate, severe.",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    provided_symptoms = list(data.get("symptoms_list") or [])
+    if CANONICAL_SYMPTOMS:
+        invalid_symptoms = [s for s in provided_symptoms if s not in CANONICAL_SYMPTOMS]
+        if invalid_symptoms:
+            logger.warning(f"Some symptoms are not in CANONICAL_SYMPTOMS: {invalid_symptoms}. Filtering them out.")
+            # Filter out invalid symptoms instead of rejecting
+            provided_symptoms = [s for s in provided_symptoms if s in CANONICAL_SYMPTOMS]
+            data["symptoms_list"] = provided_symptoms
+            data["symptoms_text"] = ", ".join(provided_symptoms)
+            data["symptom_count"] = len(provided_symptoms)
+
+    try:
+        duration_days = data.get("duration_days")
+        if duration_days is not None:
+            duration_days = float(duration_days)
+    except Exception:
+        return False, None, Response(
+            {
+                "success": False,
+                "error": "duration_days must be a number.",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    return True, data, None
 
 
 # Configure Gemini
@@ -188,7 +460,7 @@ def get_gemini_response(user_message, conversation_history=None, chat_mode='gene
         print(f"Gemini Error: {type(e).__name__}: {e}")
         return "I'm experiencing technical difficulties. Please try again or consult with a veterinarian for immediate concerns."
 
-def get_gemini_response_with_pet_context(user_message, conversation_history=None, chat_mode='general', pet_context=None):
+def get_gemini_response_with_pet_context(user_message, conversation_history=None, chat_mode='general', pet_context=None, assessment_context=None):
     """Generate AI response using Google Gemini with pet context"""
     try:
         model = get_gemini_client()
@@ -255,6 +527,21 @@ You already know about {pet_context['name']}, so don't ask for basic information
             conversation_text += "Mode: Symptom Analysis\n"
         else:
             conversation_text += "Mode: General Pet Health Education\n"
+       
+        # Add assessment context if available (for follow-up questions)
+        if assessment_context and isinstance(assessment_context, dict):
+            conversation_text += "\nPrevious Assessment Context:\n"
+            if assessment_context.get('pet_name'):
+                conversation_text += f"Pet: {assessment_context['pet_name']}\n"
+            if assessment_context.get('predictions'):
+                conversation_text += "Recent diagnosis predictions:\n"
+                for i, pred in enumerate(assessment_context['predictions'][:3], 1):
+                    disease = pred.get('disease') or pred.get('label', 'Unknown')
+                    confidence = pred.get('confidence') or pred.get('likelihood', 0)
+                    conversation_text += f"{i}. {disease} ({confidence*100:.0f}% confidence)\n"
+            if assessment_context.get('overall_recommendation'):
+                conversation_text += f"Recommendation: {assessment_context['overall_recommendation']}\n"
+            conversation_text += "Use this context to answer follow-up questions about the assessment.\n\n"
        
         # Add conversation history if provided
         if conversation_history and conversation_history.exists():
@@ -404,6 +691,7 @@ def chat(request):
         user_message = request.data.get('message')
         conversation_id = request.data.get('conversation_id')
         chat_mode = request.data.get('chat_mode', 'general')
+        assessment_context = request.data.get('assessment_context')
        
         if not user_message:
             return Response({'error': 'Message is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -472,7 +760,8 @@ def chat(request):
             user_message, 
             conversation_history, 
             chat_mode, 
-            pet_context
+            pet_context,
+            assessment_context
         )
         print(f"AI response: {ai_response}")
         
@@ -1490,6 +1779,220 @@ def predict_symptoms(request):
         })
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@authentication_classes([])  # Custom auth via check_user_or_admin
+@permission_classes([AllowAny])
+def symptom_checker_predict(request):
+    """Predict likely diseases from structured symptom checker payload using PawPal LightGBM.
+
+    Expected payload (from conversational questionnaire):
+    {
+      "pet_name": "Max",
+      "pet_id": 123,
+      "species": "Dog",
+      "urgency": "moderate",
+      "duration_days": 3.0,
+      "symptoms_list": ["vomiting", "lethargy", "loss_of_appetite"],
+      "symptoms_text": "vomiting, lethargy, loss_of_appetite",
+      "symptom_count": 3,
+      "main_concern": "Digestive Issues",
+      "severity": "moderate"
+    }
+    """
+    from utils.unified_permissions import check_user_or_admin
+    from django.contrib.auth.models import AnonymousUser
+
+    # Authenticate user (pet owner only)
+    if isinstance(request.user, AnonymousUser) or not getattr(request.user, 'id', None):
+        user_type, user_obj, error_response = check_user_or_admin(request)
+        if error_response:
+            return error_response
+        if user_type != 'pet_owner':
+            return Response(
+                {
+                    'success': False,
+                    'error': 'Only pet owners can use the symptom checker prediction',
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        request.user = user_obj
+    else:
+        user_obj = request.user
+
+    # Rate limiting per user
+    if _rate_limit_symptom_checker(user_obj.id, max_requests=10, window_seconds=60):
+        return Response(
+            {
+                'success': False,
+                'error': 'Too many symptom checker requests. Please try again in a minute.',
+            },
+            status=429,
+        )
+
+    try:
+        payload = request.data or {}
+        logger.info(f"Symptom checker predict received payload: {payload}")
+        is_valid, cleaned, error_response = _validate_symptom_checker_payload(payload)
+        if not is_valid:
+            logger.error(f"Symptom checker payload validation failed. Payload: {payload}")
+            return error_response
+
+        pet_id = cleaned.get('pet_id')
+        pet = None
+        if pet_id:
+            try:
+                pet = Pet.objects.get(id=pet_id, owner=user_obj)
+            except Pet.DoesNotExist:
+                return Response(
+                    {
+                        'success': False,
+                        'error': 'Pet not found or not owned by the current user.',
+                    },
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+        try:
+            model, preprocessor, label_encoder, disease_metadata = load_pawpal_lightgbm()
+        except Exception as e:
+            return Response(
+                {
+                    'success': False,
+                    'error': 'Disease prediction model is not available. Please try again later.',
+                    'details': str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        feature_row = _build_feature_row_from_payload(cleaned)
+
+        categorical_cols = ['species', 'urgency']
+        numeric_cols = [
+            'symptom_count',
+            'urgency_encoded',
+            'contagious_flag',
+            'respiratory_count',
+            'digestive_count',
+            'skin_count',
+            'severity_score',
+            'duration_days',
+        ] + [f'has_{s}' for s in CANONICAL_SYMPTOMS]
+        text_col = 'symptoms_text'
+
+        ordered_cols = categorical_cols + numeric_cols + [text_col]
+
+        X_df = pd.DataFrame([{k: feature_row.get(k) for k in ordered_cols}])
+
+        try:
+            X_transformed = preprocessor.transform(X_df)
+            proba = model.predict_proba(X_transformed)[0]
+        except Exception as e:
+            logger.exception('Error during LightGBM prediction: %s', e)
+            return Response(
+                {
+                    'success': False,
+                    'error': 'Prediction failed. Please try again later.',
+                    'details': str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        classes = list(label_encoder.classes_)
+        probs = np.array(proba)
+        top_indices = probs.argsort()[::-1][:3]
+
+        predictions = []
+        symptoms_list = list(cleaned.get('symptoms_list') or [])
+        sympt_set = set(symptoms_list)
+
+        for idx in top_indices:
+            conf = float(probs[idx])
+            if conf < 0.10:
+                continue
+            disease_name = str(classes[idx])
+            meta = (disease_metadata or {}).get(disease_name, {})
+            urgency_level = meta.get('urgency', 'moderate')
+            contagious = bool(meta.get('contagious', False))
+            sample_symptoms_text = meta.get('sample_symptoms', '') or ''
+            sample_symptoms = extract_symptoms_from_text(sample_symptoms_text) or []
+
+            matching_symptoms = [s for s in symptoms_list if s in sample_symptoms] if sample_symptoms else list(sympt_set)
+
+            prediction_obj = {
+                'disease': disease_name,
+                'confidence': conf,
+                'confidence_pct': f"{conf*100:.0f}%",
+                'urgency': urgency_level,
+                'contagious': contagious,
+                'matching_symptoms': matching_symptoms,
+                'common_symptoms': sample_symptoms,
+                'care_guidelines': '',
+                'when_to_see_vet': '',
+            }
+
+            predictions.append(prediction_obj)
+
+        predictions.sort(key=lambda x: x['confidence'], reverse=True)
+
+        if predictions:
+            highest_urgency = max((p.get('urgency') or 'moderate') for p in predictions)
+        else:
+            highest_urgency = cleaned.get('urgency', 'moderate')
+
+        urgency_level = highest_urgency
+        should_see_vet_immediately = any(
+            str(p.get('urgency', '')).lower() in {'high', 'severe', 'immediate'} for p in predictions
+        )
+
+        pet_name = cleaned.get('pet_name')
+        symptoms_text = cleaned.get('symptoms_text')
+        duration_days = float(cleaned.get('duration_days') or 0)
+        if duration_days <= 0.5:
+            duration_str = 'less than 24 hours'
+        elif duration_days <= 3:
+            duration_str = '1-3 days'
+        elif duration_days <= 7:
+            duration_str = '3-7 days'
+        else:
+            duration_str = 'more than a week'
+
+        top_names = [p['disease'] for p in predictions[:3]] if predictions else []
+
+        overall_recommendation = (
+            "Based on the current severity and symptom pattern, we recommend scheduling a vet visit within 24-48 hours. "
+            "Monitor for worsening symptoms such as persistent vomiting, severe lethargy, or signs of dehydration."
+        )
+
+        soap_data = {
+            'subjective': f"Owner reports {pet_name} experiencing {symptoms_text} for {duration_str}",
+            'objective': f"Species: {cleaned.get('species')}, Severity: {cleaned.get('severity')}, Duration: {duration_str}",
+            'assessment': f"Top differential diagnoses: {', '.join(top_names) if top_names else 'Not available'}",
+            'plan': "Recommendations based on urgency level.",
+        }
+
+        response_payload = {
+            'success': True,
+            'pet_name': pet_name,
+            'assessment_date': timezone.now().isoformat(),
+            'predictions': predictions,
+            'overall_recommendation': overall_recommendation,
+            'urgency_level': urgency_level,
+            'should_see_vet_immediately': should_see_vet_immediately,
+            'soap_data': soap_data,
+        }
+
+        return Response(response_payload)
+    except Exception as e:
+        logger.exception('Unhandled error in symptom_checker_predict: %s', e)
+        return Response(
+            {
+                'success': False,
+                'error': 'Internal server error while processing symptom checker prediction.',
+                'details': str(e),
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(['POST'])

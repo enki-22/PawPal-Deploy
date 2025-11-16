@@ -3,12 +3,14 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from admin_panel.views_announcements import get_active_announcements
+from chatbot.views import symptom_checker_predict
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),
     path('api/auth/', include('users.urls_auth')),
     path('api/chatbot/', include('chatbot.urls')),
+    path('api/symptom-checker/predict/', symptom_checker_predict, name='symptom_checker_predict'),
     path('api/pets/', include('pets.urls')),  # Add this line if missing
     path('chat/', include('chatbot.urls')),
     path('', include('users.urls')),
