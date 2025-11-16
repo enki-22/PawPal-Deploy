@@ -27,7 +27,7 @@ warnings.filterwarnings("ignore")
 # ========================
 # CLEAN CONFIG - PAWPAL ONLY
 # ========================
-DATASET_FILE = "pet_disease_dataset_final.csv"
+DATASET_FILE = "pet_disease_dataset_final_merged.csv"  # ← CHANGED
 
 
 OUTPUTS = {
@@ -39,7 +39,7 @@ OUTPUTS = {
 
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
-MIN_SAMPLES_PER_CLASS = 8  # With 14 samples per disease, this keeps most
+MIN_SAMPLES_PER_CLASS = 20  # ← CHANGED (was 8)
 
 # Expanded symptom vocabulary for your dataset
 CANONICAL_SYMPTOMS = [
@@ -181,12 +181,29 @@ def load_pawpal_dataset(file_path: str) -> pd.DataFrame:
         symptoms_text = row.get('symptoms', '')
         urgency = row.get('urgency', 'moderate').strip().lower()
         contagious = str(row.get('contagious', 'no')).strip().lower() == 'yes'
+        source = row.get('source', 'unknown')  # ← ADDED
         
-        # Extract symptoms
-        symptoms_list = extract_symptoms_from_text(symptoms_text)
+        # ============================================================
+        # SMART SYMPTOM EXTRACTION:
+        # If source is "structured_from_vet_verified", symptoms are already clean
+        # ============================================================
+        if source == "structured_from_vet_verified":
+            # Direct split - no extraction needed
+            symptoms_list = [s.strip() for s in symptoms_text.split(',') if s.strip()]
+        else:
+            # Use extraction for original data
+            symptoms_list = extract_symptoms_from_text(symptoms_text)
+        # ============================================================
         
-        # Map urgency to duration (for feature engineering)
-        duration_map = {'mild': 1.0, 'moderate': 3.0, 'severe': 7.0}
+        # Map urgency to duration (handle all urgency levels) ← UPDATED
+        duration_map = {
+            'mild': 1.0, 
+            'moderate': 3.0, 
+            'medium': 3.0,
+            'severe': 7.0,
+            'high': 7.0,
+            'emergency': 10.0
+        }
         duration = duration_map.get(urgency, 3.0)
         
         rows.append({
@@ -198,6 +215,7 @@ def load_pawpal_dataset(file_path: str) -> pd.DataFrame:
             'urgency': urgency,
             'contagious': contagious,
             'duration_days': duration,
+            'source': source,  # ← ADDED
         })
     
     processed_df = pd.DataFrame(rows)
@@ -209,12 +227,33 @@ def load_pawpal_dataset(file_path: str) -> pd.DataFrame:
     print(f"Total samples: {len(processed_df)}")
     print(f"Unique diseases: {processed_df['disease'].nunique()}")
     print(f"Unique species: {processed_df['species'].nunique()}")
+    
+    # ← ADDED: Report by source
+    print(f"\nSamples by source:")
+    print(processed_df['source'].value_counts().to_string())
+    
     print(f"\nSpecies distribution:")
     print(processed_df['species'].value_counts().to_string())
     print(f"\nDisease distribution (top 15):")
     print(processed_df['disease'].value_counts().head(15).to_string())
     print(f"\nSymptom extraction rate: {(processed_df['symptom_count'] > 0).mean()*100:.1f}%")
     print(f"Avg symptoms per sample: {processed_df['symptom_count'].mean():.1f}")
+    
+    # ← ADDED: Report by source type
+    structured_data = processed_df[processed_df['source'] == 'structured_from_vet_verified']
+    if len(structured_data) > 0:
+        print(f"\n✅ Structured data quality:")
+        print(f"  Samples: {len(structured_data)}")
+        print(f"  Avg symptoms: {structured_data['symptom_count'].mean():.1f}")
+        print(f"  Symptom rate: {(structured_data['symptom_count'] > 0).mean()*100:.1f}%")
+    
+    original_data = processed_df[processed_df['source'] != 'structured_from_vet_verified']
+    if len(original_data) > 0:
+        print(f"\n📋 Original data quality:")
+        print(f"  Samples: {len(original_data)}")
+        print(f"  Avg symptoms: {original_data['symptom_count'].mean():.1f}")
+        print(f"  Symptom rate: {(original_data['symptom_count'] > 0).mean()*100:.1f}%")
+    
     print(f"{'='*60}\n")
     
     return processed_df
@@ -230,8 +269,15 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
             lambda lst: 1 if symptom in lst else 0
         )
     
-    # Urgency encoding
-    urgency_map = {'mild': 1, 'moderate': 2, 'severe': 3}
+    # Urgency encoding ← UPDATED
+    urgency_map = {
+        'mild': 1, 
+        'moderate': 2, 
+        'medium': 2,
+        'severe': 3,
+        'high': 3,
+        'emergency': 4
+    }
     out['urgency_encoded'] = out['urgency'].map(urgency_map).fillna(2)
     
     # Contagious flag
@@ -291,12 +337,6 @@ def main():
     print("PAWPAL DISEASE CLASSIFIER - CLEAN TRAINING")
     print("="*60)
     
-    # 1) Load dataset
-    if not os.path.exists(DATASET_FILE):
-        raise FileNotFoundError(f"Dataset not found: {DATASET_FILE}")
-    
-    df = load_pawpal_dataset(DATASET_FILE)
-
     # 1) Load dataset
     if not os.path.exists(DATASET_FILE):
         raise FileNotFoundError(f"Dataset not found: {DATASET_FILE}")

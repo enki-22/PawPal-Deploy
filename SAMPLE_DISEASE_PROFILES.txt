@@ -1,0 +1,201 @@
+================================================================================
+SAMPLE DISEASE PROFILES - disease_symptom_profiles.json
+================================================================================
+
+The following are representative examples from the extracted disease profiles.
+Each profile contains the comprehensive symptom list for that disease based on
+analysis of all raw symptom descriptions in the dataset.
+
+================================================================================
+CANINE DISTEMPER (Dog)
+================================================================================
+Species: dog
+Symptoms (7): coughing, diarrhea, fever, paralysis, seizures, vomiting, watery_eyes
+Urgency: severe
+Contagious: yes
+Sample Count: 10
+
+Medical Significance:
+- Highly contagious viral disease
+- Severe neurological complications
+- Multiple system involvement (respiratory, GI, neurological)
+- Requires immediate veterinary attention
+
+================================================================================
+FELINE LEUKEMIA VIRUS (Cat)
+================================================================================
+Species: cat
+Symptoms (11): anemia, bad_breath, diarrhea, fever, lethargy, loss_of_appetite, 
+               lymphadenopathy, pale_gums, vomiting, weakness, weight_loss
+Urgency: severe
+Contagious: yes
+Sample Count: 30
+
+Medical Significance:
+- Retroviral infection with systemic effects
+- Immunosuppression leading to secondary infections
+- Significant mortality risk
+- Requires isolation and supportive care
+
+================================================================================
+RINGWORM (Multi-species)
+================================================================================
+Species: bird, cat, dog, hamster, rabbit
+Symptoms (8): bald_patches, dandruff, hair_loss, itching, red_skin, 
+              scabs, scratching, skin_lesions
+Urgency: moderate
+Contagious: yes
+Sample Count: 60
+
+Medical Significance:
+- Fungal infection affecting multiple species
+- Zoonotic (transmissible to humans)
+- Dermatological manifestations
+- Requires antifungal treatment and environmental decontamination
+
+================================================================================
+HEARTWORM DISEASE (Dog)
+================================================================================
+Species: dog
+Symptoms (9): coughing, difficulty_breathing, exercise_intolerance, 
+              lethargy, loss_of_appetite, pale_gums, respiratory_distress, 
+              weakness, weight_loss
+Urgency: severe
+Contagious: no
+Sample Count: 30
+
+Medical Significance:
+- Parasitic disease affecting cardiac and pulmonary systems
+- Progressive and potentially fatal if untreated
+- Transmitted by mosquitoes (not contagious between animals)
+- Requires diagnostic imaging and treatment planning
+
+================================================================================
+URINARY TRACT INFECTION (Dog, Rabbit)
+================================================================================
+Species: dog, rabbit
+Symptoms (13): bad_breath, cloudy_urine, dental_issues, fever, frequent_urination, 
+               hiding, lethargy, loss_of_appetite, pain, straining, 
+               straining_to_urinate, urinary_urgency, weight_loss
+Urgency: medium
+Contagious: no
+Sample Count: 60
+
+Medical Significance:
+- Common in multiple species
+- Can lead to systemic infection if untreated
+- Behavioral changes (hiding) indicate pain/discomfort
+- Requires urinalysis and culture for diagnosis
+
+================================================================================
+VITAMIN A DEFICIENCY (Bird, Turtle)
+================================================================================
+Species: bird, turtle
+Symptoms (14): bad_breath, diarrhea, difficulty_breathing, ear_discharge, 
+               eye_discharge, lethargy, loss_of_appetite, nasal_discharge, 
+               respiratory_distress, skin_lesions, swollen_gums, weakness, 
+               weight_loss, wheezing
+Urgency: medium
+Contagious: no
+Sample Count: 60
+
+Medical Significance:
+- Nutritional deficiency with multi-system effects
+- Affects immune function and epithelial tissues
+- Respiratory and ocular complications common
+- Preventable with proper diet supplementation
+
+================================================================================
+UPPER RESPIRATORY INFECTION (Cat)
+================================================================================
+Species: cat
+Symptoms (18): coughing, difficulty_breathing, eye_discharge, fever, gas, 
+               gasping, gasping_at_surface, head_tilt, lethargy, loss_of_appetite, 
+               nasal_congestion, nasal_discharge, respiratory_distress, 
+               sneezing, swelling, watery_eyes, weakness, wheezing
+Urgency: medium
+Contagious: yes
+Sample Count: 44
+
+Medical Significance:
+- Viral or bacterial infection of upper respiratory tract
+- Highly contagious among cats
+- Can progress to lower respiratory involvement
+- Supportive care and monitoring essential
+
+================================================================================
+SWIM BLADDER DISEASE (Fish)
+================================================================================
+Species: fish
+Symptoms (5): bloating, loss_of_appetite, loss_of_balance, swelling, swimming_upside_down
+Urgency: medium
+Contagious: no
+Sample Count: 44
+
+Medical Significance:
+- Affects buoyancy control in fish
+- Multiple potential causes (bacterial, environmental, dietary)
+- Behavioral signs (inverted swimming) are diagnostic
+- Treatment depends on underlying cause
+
+================================================================================
+EXTRACTION QUALITY METRICS
+================================================================================
+
+Profile Coverage:
+- Total Diseases: 235
+- Average Symptoms per Disease: 6.7
+- Diseases with 3+ symptoms: 215 (91.5%)
+- Diseases with <3 symptoms: 20 (8.5%)
+
+Symptom Distribution:
+- Most Common Symptoms: lethargy, loss_of_appetite, weakness, fever
+- Least Common Symptoms: specific avian/aquatic symptoms
+- Average Symptom Frequency: ~6.7 diseases per symptom
+
+Urgency Distribution:
+- Severe: ~25%
+- Moderate/Medium: ~50%
+- Mild: ~15%
+- High/Emergency: ~10%
+
+Contagious Status:
+- Contagious: ~40%
+- Non-contagious: ~60%
+
+Species Coverage:
+- Dog: ~35 diseases
+- Cat: ~40 diseases
+- Rabbit: ~25 diseases
+- Bird: ~20 diseases
+- Fish: ~15 diseases
+- Turtle: ~15 diseases
+- Hamster: ~10 diseases
+- Multi-species: ~75 diseases
+
+================================================================================
+USAGE EXAMPLES
+================================================================================
+
+1. Load profiles:
+   import json
+   with open('disease_symptom_profiles.json') as f:
+       profiles = json.load(f)
+
+2. Get symptoms for a disease:
+   symptoms = profiles['Canine distemper']['symptoms']
+   # Returns: ['coughing', 'diarrhea', 'fever', 'paralysis', 'seizures', 'vomiting', 'watery_eyes']
+
+3. Filter severe diseases:
+   severe = [d for d, p in profiles.items() if p['urgency'] == 'severe']
+
+4. Find contagious diseases:
+   contagious = [d for d, p in profiles.items() if p['contagious'] == 'yes']
+
+5. Get dog-specific diseases:
+   dog_diseases = [d for d, p in profiles.items() if 'dog' in p['species']]
+
+6. Find diseases with specific symptom:
+   lethargy_diseases = [d for d, p in profiles.items() if 'lethargy' in p['symptoms']]
+
+================================================================================

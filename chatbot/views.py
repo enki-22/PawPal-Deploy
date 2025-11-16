@@ -252,6 +252,23 @@ def _validate_symptom_checker_payload(data: dict) -> tuple[bool, dict | None, Re
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
+    
+    # Validate optional emergency_data structure if provided
+    emergency_data = data.get('emergency_data')
+    if emergency_data and isinstance(emergency_data, dict):
+        emergency_screen = emergency_data.get('emergencyScreen', {})
+        # Validate that if emergency_data exists, it has the right structure
+        if not isinstance(emergency_screen, dict):
+            logger.warning(f"Invalid emergency_data structure: {emergency_data}")
+            data['emergency_data'] = None  # Clear invalid data
+    
+    # Validate progression if provided
+    progression = data.get('progression')
+    if progression:
+        valid_progression = ['getting_worse', 'staying_same', 'getting_better', 'intermittent']
+        if progression not in valid_progression:
+            logger.warning(f"Invalid progression value: {progression}. Must be one of: {valid_progression}")
+            data['progression'] = None  # Clear invalid data
 
     species = str(data.get("species") or "").strip().capitalize()
     if species not in ALLOWED_SPECIES:
@@ -1781,6 +1798,300 @@ def predict_symptoms(request):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+def _build_comprehensive_soap_report(cleaned, emergency_data, progression, severity, predictions, triage_assessment):
+    """
+    Build a comprehensive SOAP report including emergency screening results.
+    
+    Args:
+        cleaned: Cleaned payload data
+        emergency_data: Emergency screening results
+        progression: Symptom progression
+        severity: Severity level
+        predictions: Disease predictions
+        triage_assessment: Triage assessment results
+    
+    Returns:
+        dict: Complete SOAP report with S, O, A, P sections
+    """
+    pet_name = cleaned.get('pet_name', 'Pet')
+    symptoms_list = cleaned.get('symptoms_list', [])
+    symptoms_text = cleaned.get('symptoms_text', '')
+    duration_days = float(cleaned.get('duration_days') or 0)
+    main_concern = cleaned.get('main_concern', 'Not specified')
+    vtl_category = cleaned.get('vtl_category', 'Generalised')
+    
+    # Format duration
+    if duration_days <= 0.5:
+        duration_str = 'less than 24 hours'
+    elif duration_days <= 3:
+        duration_str = '1-3 days'
+    elif duration_days <= 7:
+        duration_str = '3-7 days'
+    else:
+        duration_str = 'more than a week'
+    
+    # Extract emergency screening data
+    chief_complaint = ''
+    respiration_status = 'Not assessed'
+    alertness_status = 'Not assessed'
+    perfusion_status = 'Not assessed'
+    critical_symptoms = []
+    
+    if emergency_data and isinstance(emergency_data, dict):
+        chief_complaint = emergency_data.get('chiefComplaint', '').strip()
+        emergency_screen = emergency_data.get('emergencyScreen', {})
+        
+        if isinstance(emergency_screen, dict):
+            respiration_status = emergency_screen.get('respiration', 'Not assessed')
+            alertness_status = emergency_screen.get('alertness', 'Not assessed')
+            perfusion_status = emergency_screen.get('perfusion', 'Not assessed')
+            critical_symptoms = emergency_screen.get('criticalSymptoms', [])
+    
+    # Format progression
+    progression_map = {
+        'getting_worse': 'Getting worse',
+        'staying_same': 'Staying about the same',
+        'getting_better': 'Getting better',
+        'intermittent': 'Coming and going (intermittent)'
+    }
+    progression_text = progression_map.get(progression, 'Not assessed') if progression else 'Not assessed'
+    
+    # Format severity
+    severity_text = severity.capitalize() if severity else 'Not specified'
+    
+    # ===== SUBJECTIVE SECTION =====
+    subjective_lines = []
+    
+    if chief_complaint:
+        subjective_lines.append(f"Chief Complaint: {chief_complaint}")
+    
+    subjective_lines.append(f"\nOwner reports {pet_name} experiencing the following symptoms:")
+    
+    if symptoms_list:
+        for symptom in symptoms_list:
+            # Convert snake_case to readable format
+            readable_symptom = symptom.replace('_', ' ').title()
+            subjective_lines.append(f"  • {readable_symptom}")
+    else:
+        subjective_lines.append("  • [No specific symptoms documented]")
+    
+    subjective_lines.append(f"\nDuration: {duration_str}")
+    subjective_lines.append(f"Progression: {progression_text}")
+    subjective_lines.append(f"Severity: {severity_text}")
+    subjective_lines.append(f"Main concern: {main_concern} (Body system: {vtl_category})")
+    
+    subjective_text = "\n".join(subjective_lines)
+    
+    # ===== OBJECTIVE SECTION =====
+    objective_lines = []
+    
+    # Basic patient information
+    species = cleaned.get('species', 'Unknown')
+    objective_lines.append(f"Species: {species}")
+    
+    # Add breed, age, weight if available from pet data
+    # Note: These would need to be passed from the Pet model
+    objective_lines.append("")
+    
+    # Emergency Screening (RAP Assessment)
+    objective_lines.append("Emergency Screening (RAP Assessment):")
+    objective_lines.append(f"  • Respiration: {respiration_status}")
+    objective_lines.append(f"  • Alertness: {alertness_status}")
+    objective_lines.append(f"  • Perfusion: {perfusion_status}")
+    
+    if critical_symptoms:
+        critical_list = ", ".join(critical_symptoms)
+        objective_lines.append(f"  • Critical symptoms: {critical_list}")
+    else:
+        objective_lines.append("  • Critical symptoms: None detected")
+    
+    objective_lines.append("")
+    
+    # Symptoms Documented
+    objective_lines.append("Symptoms Documented:")
+    if symptoms_list:
+        for symptom in symptoms_list:
+            readable_symptom = symptom.replace('_', ' ').title()
+            objective_lines.append(f"  • {readable_symptom}")
+    else:
+        objective_lines.append("  • [No specific symptoms documented]")
+    
+    objective_lines.append("")
+    objective_lines.append("Assessment conducted: AI-powered symptom analysis via structured triage questionnaire")
+    
+    objective_text = "\n".join(objective_lines)
+    
+    # ===== ASSESSMENT SECTION =====
+    assessment_lines = []
+    
+    # Differential diagnoses
+    top_names = [p['disease'] for p in predictions[:3]] if predictions else []
+    if top_names:
+        assessment_lines.append("Differential Diagnoses:")
+        for i, disease in enumerate(top_names, 1):
+            assessment_lines.append(f"  {i}. {disease}")
+    else:
+        assessment_lines.append("Differential Diagnoses: Unable to determine from available data")
+    
+    assessment_lines.append("")
+    
+    # Triage Classification
+    overall_urgency = triage_assessment.get('overall_urgency', 'Moderate')
+    urgency_reasoning = triage_assessment.get('urgency_reasoning', [])
+    
+    assessment_lines.append(f"Triage Classification: {overall_urgency.upper()}")
+    assessment_lines.append("Based on:")
+    
+    if urgency_reasoning:
+        for reason in urgency_reasoning:
+            assessment_lines.append(f"  • {reason}")
+    else:
+        assessment_lines.append("  • Comprehensive symptom and emergency screening assessment")
+    
+    assessment_text = "\n".join(assessment_lines)
+    
+    # ===== PLAN SECTION =====
+    plan_lines = []
+    
+    requires_care_within = triage_assessment.get('requires_care_within', '24-48 hours')
+    requires_immediate = triage_assessment.get('requires_immediate_care', False)
+    
+    if requires_immediate:
+        plan_lines.append("⚠️ IMMEDIATE CARE REQUIRED")
+        plan_lines.append("Seek emergency veterinary care immediately. Contact your emergency vet or nearest 24-hour clinic.")
+    else:
+        plan_lines.append(f"Recommended timeline: {requires_care_within}")
+    
+    plan_lines.append("")
+    plan_lines.append("Monitoring recommendations:")
+    plan_lines.append("  • Monitor for worsening symptoms")
+    plan_lines.append("  • Track symptom progression and any changes")
+    plan_lines.append("  • Maintain detailed notes of symptom patterns")
+    
+    if progression == 'getting_worse':
+        plan_lines.append("  • Given worsening progression, seek care sooner rather than later")
+    
+    plan_lines.append("")
+    plan_lines.append("Note: This assessment is AI-generated and does not replace professional veterinary diagnosis.")
+    plan_lines.append("Always consult with a licensed veterinarian for definitive diagnosis and treatment.")
+    
+    plan_text = "\n".join(plan_lines)
+    
+    # Return complete SOAP report
+    return {
+        'subjective': subjective_text,
+        'objective': objective_text,
+        'assessment': assessment_text,
+        'plan': plan_text,
+        'full_report': f"S - SUBJECTIVE:\n{subjective_text}\n\nO - OBJECTIVE:\n{objective_text}\n\nA - ASSESSMENT:\n{assessment_text}\n\nP - PLAN:\n{plan_text}"
+    }
+
+
+def _calculate_triage_assessment(emergency_data, severity, progression, predictions):
+    """
+    Calculate comprehensive triage assessment based on multiple factors.
+    
+    Args:
+        emergency_data: Emergency screening results from frontend
+        severity: User-selected severity (mild/moderate/severe)
+        progression: Symptom progression (getting_worse/staying_same/getting_better/intermittent)
+        predictions: List of disease predictions with urgency levels
+    
+    Returns:
+        dict: Triage assessment with urgency level and reasoning
+    """
+    urgency_reasoning = []
+    is_emergency = False
+    requires_immediate_care = False
+    
+    # 1. Check emergency screening (HIGHEST PRIORITY)
+    if emergency_data and isinstance(emergency_data, dict):
+        emergency_screen = emergency_data.get('emergencyScreen', {})
+        if isinstance(emergency_screen, dict):
+            is_emergency = emergency_screen.get('isEmergency', False)
+            
+            if is_emergency:
+                requires_immediate_care = True
+                urgency_reasoning.append("Emergency indicators detected in RAP screening")
+                
+                # Add specific emergency details
+                critical_symptoms = emergency_screen.get('criticalSymptoms', [])
+                if critical_symptoms:
+                    urgency_reasoning.append(f"Critical symptoms present: {', '.join(critical_symptoms)}")
+                
+                return {
+                    'overall_urgency': 'immediate',
+                    'emergency_indicators': True,
+                    'requires_immediate_care': True,
+                    'requires_care_within': 'Immediately - seek emergency veterinary care',
+                    'urgency_reasoning': urgency_reasoning
+                }
+    
+    # 2. Check disease prediction urgency
+    highest_disease_urgency = 'moderate'
+    if predictions:
+        disease_urgencies = [p.get('urgency', 'moderate') for p in predictions]
+        if any(u in ['high', 'severe', 'immediate'] for u in disease_urgencies):
+            highest_disease_urgency = 'high'
+            urgency_reasoning.append("High-urgency condition predicted")
+        elif any(u == 'urgent' for u in disease_urgencies):
+            highest_disease_urgency = 'urgent'
+    
+    # 3. Evaluate severity level
+    if severity == 'severe':
+        urgency_reasoning.append("Severe symptoms reported")
+        if highest_disease_urgency == 'high':
+            return {
+                'overall_urgency': 'urgent',
+                'emergency_indicators': False,
+                'requires_immediate_care': False,
+                'requires_care_within': '12-24 hours',
+                'urgency_reasoning': urgency_reasoning
+            }
+    elif severity == 'moderate':
+        urgency_reasoning.append("Moderate severity symptoms")
+    else:  # mild
+        urgency_reasoning.append("Mild symptoms reported")
+    
+    # 4. Factor in progression
+    if progression == 'getting_worse':
+        urgency_reasoning.append("Symptoms are getting worse - recommend monitoring closely")
+        # Escalate urgency if symptoms are worsening
+        if severity in ['moderate', 'severe']:
+            return {
+                'overall_urgency': 'urgent',
+                'emergency_indicators': False,
+                'requires_immediate_care': False,
+                'requires_care_within': '12-24 hours',
+                'urgency_reasoning': urgency_reasoning
+            }
+    elif progression == 'getting_better':
+        urgency_reasoning.append("Symptoms are improving")
+    elif progression == 'intermittent':
+        urgency_reasoning.append("Symptoms are intermittent - patterns should be monitored")
+    elif progression == 'staying_same':
+        urgency_reasoning.append("Symptoms are stable")
+    
+    # 5. Default urgency calculation
+    if severity == 'severe' or highest_disease_urgency == 'high':
+        overall_urgency = 'urgent'
+        requires_care_within = '12-24 hours'
+    elif severity == 'moderate' or progression == 'getting_worse':
+        overall_urgency = 'moderate'
+        requires_care_within = '24-48 hours'
+    else:
+        overall_urgency = 'routine'
+        requires_care_within = 'Schedule regular appointment within a few days'
+    
+    return {
+        'overall_urgency': overall_urgency,
+        'emergency_indicators': False,
+        'requires_immediate_care': False,
+        'requires_care_within': requires_care_within,
+        'urgency_reasoning': urgency_reasoning
+    }
+
+
 @api_view(['POST'])
 @authentication_classes([])  # Custom auth via check_user_or_admin
 @permission_classes([AllowAny])
@@ -1798,7 +2109,38 @@ def symptom_checker_predict(request):
       "symptoms_text": "vomiting, lethargy, loss_of_appetite",
       "symptom_count": 3,
       "main_concern": "Digestive Issues",
-      "severity": "moderate"
+      "severity": "moderate",
+      "vtl_category": "Gastrointestinal",
+      "progression": "getting_worse",
+      "emergency_data": {
+        "chiefComplaint": "Dog vomiting all morning",
+        "emergencyScreen": {
+          "respiration": "normal_breathing",
+          "alertness": "alert_and_aware",
+          "perfusion": "normal_pink",
+          "criticalSymptoms": [],
+          "isEmergency": false
+        },
+        "timestamp": "2024-11-16T10:30:00Z"
+      }
+    }
+    
+    Returns enhanced response with triage_assessment:
+    {
+      "success": true,
+      "predictions": [...],
+      "triage_assessment": {
+        "overall_urgency": "moderate",
+        "emergency_indicators": false,
+        "requires_immediate_care": false,
+        "requires_care_within": "24-48 hours",
+        "urgency_reasoning": [...]
+      },
+      "soap_data": {
+        "subjective": "Owner reports: Chief complaint. Symptoms progression...",
+        "objective": "Emergency screening results...",
+        ...
+      }
     }
     """
     from utils.unified_permissions import check_user_or_admin
@@ -1959,17 +2301,50 @@ def symptom_checker_predict(request):
 
         top_names = [p['disease'] for p in predictions[:3]] if predictions else []
 
-        overall_recommendation = (
-            "Based on the current severity and symptom pattern, we recommend scheduling a vet visit within 24-48 hours. "
-            "Monitor for worsening symptoms such as persistent vomiting, severe lethargy, or signs of dehydration."
+        # Get emergency data and progression for enhanced triage
+        emergency_data = cleaned.get('emergency_data')
+        progression = cleaned.get('progression')
+        severity = cleaned.get('severity', 'moderate')
+        
+        # Calculate comprehensive triage assessment
+        triage_assessment = _calculate_triage_assessment(
+            emergency_data=emergency_data,
+            severity=severity,
+            progression=progression,
+            predictions=predictions
         )
-
-        soap_data = {
-            'subjective': f"Owner reports {pet_name} experiencing {symptoms_text} for {duration_str}",
-            'objective': f"Species: {cleaned.get('species')}, Severity: {cleaned.get('severity')}, Duration: {duration_str}",
-            'assessment': f"Top differential diagnoses: {', '.join(top_names) if top_names else 'Not available'}",
-            'plan': "Recommendations based on urgency level.",
-        }
+        
+        # Build comprehensive SOAP report with emergency screening
+        soap_data = _build_comprehensive_soap_report(
+            cleaned=cleaned,
+            emergency_data=emergency_data,
+            progression=progression,
+            severity=severity,
+            predictions=predictions,
+            triage_assessment=triage_assessment
+        )
+        
+        # Update overall recommendation based on triage
+        if triage_assessment.get('requires_immediate_care'):
+            overall_recommendation = (
+                "⚠️ URGENT: This appears to be a medical emergency. "
+                "Seek immediate veterinary care. Contact your emergency vet or nearest 24-hour clinic immediately."
+            )
+        elif triage_assessment.get('overall_urgency') == 'urgent':
+            overall_recommendation = (
+                "Based on the assessment, veterinary care is recommended within 12-24 hours. "
+                "Monitor closely for any worsening symptoms and seek immediate care if condition deteriorates."
+            )
+        elif triage_assessment.get('overall_urgency') == 'moderate':
+            overall_recommendation = (
+                "Based on the current severity and symptom pattern, we recommend scheduling a vet visit within 24-48 hours. "
+                "Monitor for worsening symptoms such as persistent vomiting, severe lethargy, or signs of dehydration."
+            )
+        else:
+            overall_recommendation = (
+                "Continue monitoring your pet's condition. Schedule a routine veterinary appointment within a few days. "
+                "Seek care sooner if symptoms worsen or new concerning signs develop."
+            )
 
         response_payload = {
             'success': True,
@@ -1977,9 +2352,11 @@ def symptom_checker_predict(request):
             'assessment_date': timezone.now().isoformat(),
             'predictions': predictions,
             'overall_recommendation': overall_recommendation,
-            'urgency_level': urgency_level,
-            'should_see_vet_immediately': should_see_vet_immediately,
+            'urgency_level': triage_assessment.get('overall_urgency', urgency_level),
+            'should_see_vet_immediately': triage_assessment.get('requires_immediate_care', should_see_vet_immediately),
+            'triage_assessment': triage_assessment,
             'soap_data': soap_data,
+            'symptoms_text': symptoms_text,
         }
 
         return Response(response_payload)

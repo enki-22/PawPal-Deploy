@@ -1,19 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import EmergencyScreening from './EmergencyScreening';
+import AssessmentMethodology from './AssessmentMethodology';
 
 const PRIMARY_COLOR = '#815FB3';
 const ACCENT_COLOR = '#F4D06F';
 
 const MAIN_CONCERNS = [
-  { id: 'Digestive Issues', label: 'Digestive Issues', icon: '🔴' },
-  { id: 'Respiratory Problems', label: 'Respiratory Problems', icon: '🫁' },
-  { id: 'Skin & Coat Issues', label: 'Skin & Coat Issues', icon: '🐾' },
-  { id: 'Behavioral Changes', label: 'Behavioral Changes', icon: '🧠' },
-  { id: 'Movement Problems', label: 'Movement Problems', icon: '🦴' },
-  { id: 'Eyes & Ears', label: 'Eyes & Ears', icon: '👁️' },
-  { id: 'Urinary Issues', label: 'Urinary Issues', icon: '💧' },
-  { id: 'Oral/Dental Problems', label: 'Oral/Dental Problems', icon: '🦷' },
-  { id: 'Other', label: 'Other', icon: '❓' },
+  { id: 'Digestive Issues', label: 'Digestive Issues', icon: '🔴', vtlCategory: 'Gastrointestinal' },
+  { id: 'Respiratory Problems', label: 'Respiratory Problems', icon: '🫁', vtlCategory: 'Respiratory' },
+  { id: 'Skin & Coat Issues', label: 'Skin & Coat Issues', icon: '🐾', vtlCategory: 'Generalised/External' },
+  { id: 'Behavioral Changes', label: 'Behavioral Changes', icon: '🧠', vtlCategory: 'Neurological/Generalised' },
+  { id: 'Movement Problems', label: 'Movement Problems', icon: '🦴', vtlCategory: 'Musculoskeletal' },
+  { id: 'Eyes & Ears', label: 'Eyes & Ears', icon: '👁️', vtlCategory: 'Generalised/External' },
+  { id: 'Urinary Issues', label: 'Urinary Issues', icon: '💧', vtlCategory: 'Urogenital' },
+  { id: 'Oral/Dental Problems', label: 'Oral/Dental Problems', icon: '🦷', vtlCategory: 'Generalised' },
+  { id: 'Other', label: 'Other', icon: '❓', vtlCategory: 'Generalised' },
 ];
 
 const PRIMARY_SYMPTOMS_BY_CONCERN = {
@@ -155,6 +157,13 @@ const DURATION_OPTIONS = [
   { key: 'gt_7d', label: 'More than a week', days: 10.0 },
 ];
 
+const PROGRESSION_OPTIONS = [
+  { key: 'getting_worse', label: '📈 Getting worse', emoji: '📈' },
+  { key: 'staying_same', label: '➡️ Staying about the same', emoji: '➡️' },
+  { key: 'getting_better', label: '📉 Getting better', emoji: '📉' },
+  { key: 'intermittent', label: '🔄 Coming and going (intermittent)', emoji: '🔄' },
+];
+
 const getSpeciesCategory = (speciesRaw) => {
   if (!speciesRaw) return null;
   const s = String(speciesRaw).toLowerCase();
@@ -174,8 +183,14 @@ const formatSymptomLabel = (code) => {
 };
 
 const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => {
+  // Emergency screening state
+  const [showEmergencyScreening, setShowEmergencyScreening] = useState(true);
+  const [emergencyData, setEmergencyData] = useState(null);
+  
+  // Main questionnaire state
   const [currentStep, setCurrentStep] = useState(1); // 1-5
   const [selectedMainConcern, setSelectedMainConcern] = useState(null);
+  const [selectedVtlCategory, setSelectedVtlCategory] = useState(null);
   const [primarySymptoms, setPrimarySymptoms] = useState([]);
   const [pendingPrimarySymptoms, setPendingPrimarySymptoms] = useState([]);
   const [severity, setSeverity] = useState(null); // mild | moderate | severe
@@ -183,6 +198,9 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
   const [durationKey, setDurationKey] = useState(null);
   const [durationDays, setDurationDays] = useState(null);
   const [durationLabel, setDurationLabel] = useState('');
+  const [progression, setProgression] = useState(null);
+  const [progressionLabel, setProgressionLabel] = useState('');
+  const [showProgression, setShowProgression] = useState(false);
   const [additionalSymptoms, setAdditionalSymptoms] = useState([]);
   const [pendingGeneralAdditional, setPendingGeneralAdditional] = useState([]);
   const [pendingSpeciesAdditional, setPendingSpeciesAdditional] = useState([]);
@@ -199,8 +217,11 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
 
   useEffect(() => {
     // Initialize conversation when pet changes
+    setShowEmergencyScreening(true);
+    setEmergencyData(null);
     setCurrentStep(1);
     setSelectedMainConcern(null);
+    setSelectedVtlCategory(null);
     setPrimarySymptoms([]);
     setPendingPrimarySymptoms([]);
     setSeverity(null);
@@ -208,18 +229,15 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
     setDurationKey(null);
     setDurationDays(null);
     setDurationLabel('');
+    setProgression(null);
+    setProgressionLabel('');
+    setShowProgression(false);
     setAdditionalSymptoms([]);
     setPendingGeneralAdditional([]);
     setPendingSpeciesAdditional([]);
     setShowSummary(false);
     setIsTyping(false);
-
-    const introMessage = {
-      id: 'intro',
-      from: 'bot',
-      text: `Hi! I see you want to check symptoms for ${petName} (${petSpecies}). What's your main concern?`,
-    };
-    setMessages([introMessage]);
+    setMessages([]);
 
     return () => {
       if (typingTimeoutRef.current) {
@@ -257,6 +275,27 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
     ]);
   };
 
+  const handleEmergencyScreeningComplete = (data) => {
+    setEmergencyData(data);
+    setShowEmergencyScreening(false);
+    
+    // Start main questionnaire with intro message
+    const introMessage = {
+      id: 'intro',
+      from: 'bot',
+      text: data.emergencyScreen.isEmergency 
+        ? `Thank you for completing the emergency screening. While you arrange veterinary care, let's gather more details about ${petName}'s condition.`
+        : `Good news - based on your answers, ${petName}'s condition doesn't appear to be an immediate emergency. However, let's do a thorough assessment to understand what's going on.\n\nWhat's your main concern?`,
+    };
+    setMessages([introMessage]);
+  };
+
+  const handleEmergencyDetected = (criticalSymptoms) => {
+    // Emergency was detected - this is called by EmergencyScreening
+    // The component will show the warning and user can choose to continue
+    console.log('Emergency detected:', criticalSymptoms);
+  };
+
   const goToStepWithTyping = (nextStep, botText) => {
     setIsTyping(true);
     if (typingTimeoutRef.current) {
@@ -274,7 +313,9 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
   const handleSelectMainConcern = (concernId) => {
     const concernObj = MAIN_CONCERNS.find((c) => c.id === concernId);
     const label = concernObj ? concernObj.label : concernId;
+    const vtlCategory = concernObj ? concernObj.vtlCategory : 'Generalised';
     setSelectedMainConcern(label);
+    setSelectedVtlCategory(vtlCategory);
     addUserMessage(`${label}`);
     addBotMessage(`Got it, ${label}. Let me ask about specific symptoms.`);
     goToStepWithTyping(2, `Which of these symptoms is ${petName} experiencing? (Select all that apply)`);
@@ -317,6 +358,19 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
   const handleConfirmDuration = () => {
     if (!durationKey) return;
     addUserMessage(`Duration: ${durationLabel}`);
+    setShowProgression(true);
+    goToStepWithTyping(4, `How are ${petName}'s symptoms changing?`);
+  };
+
+  const handleSelectProgression = (option) => {
+    setProgression(option.key);
+    setProgressionLabel(option.label);
+  };
+
+  const handleConfirmProgression = () => {
+    if (!progression) return;
+    addUserMessage(`Progression: ${progressionLabel}`);
+    setShowProgression(false);
     goToStepWithTyping(
       5,
       `Are there any other symptoms you've noticed in ${petName}? (Optional - you can skip this)`,
@@ -394,7 +448,11 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
       symptoms_text: symptomsList.join(', '),
       symptom_count: symptomsList.length,
       main_concern: selectedMainConcern,
+      vtl_category: selectedVtlCategory || null,
       severity: severity || null,
+      progression: progression || null,
+      // Include emergency screening data
+      emergency_data: emergencyData || null,
     };
 
     if (onComplete) {
@@ -403,8 +461,12 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
   };
 
   const handleStartOver = () => {
+    // Reset everything and go back to emergency screening
+    setShowEmergencyScreening(true);
+    setEmergencyData(null);
     setCurrentStep(1);
     setSelectedMainConcern(null);
+    setSelectedVtlCategory(null);
     setPrimarySymptoms([]);
     setPendingPrimarySymptoms([]);
     setSeverity(null);
@@ -412,18 +474,15 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
     setDurationKey(null);
     setDurationDays(null);
     setDurationLabel('');
+    setProgression(null);
+    setProgressionLabel('');
+    setShowProgression(false);
     setAdditionalSymptoms([]);
     setPendingGeneralAdditional([]);
     setPendingSpeciesAdditional([]);
     setShowSummary(false);
     setIsTyping(false);
-
-    const introMessage = {
-      id: `intro-${Date.now()}`,
-      from: 'bot',
-      text: `Hi! I see you want to check symptoms for ${petName} (${petSpecies}). What's your main concern?`,
-    };
-    setMessages([introMessage]);
+    setMessages([]);
   };
 
   const renderMessageBubble = (message) => {
@@ -490,6 +549,10 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
               <p>
                 <span className="font-semibold">Duration:</span> {durationDisplay}
               </p>
+              <p>
+                <span className="font-semibold">Progression:</span>{' '}
+                {progression ? PROGRESSION_OPTIONS.find(opt => opt.key === progression)?.label || 'Not specified' : 'Not specified'}
+              </p>
             </div>
 
             <div className="flex flex-wrap gap-2 mt-1">
@@ -521,20 +584,29 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
             className="max-w-xl w-full px-4 py-3 rounded-lg bg-[#E4DEED]"
             style={{ fontFamily: 'Raleway' }}
           >
-            <p className="text-[14px] mb-2">Choose the main concern for this visit:</p>
-            <div className="flex flex-wrap gap-2">
+            <p className="text-[14px] font-semibold mb-3">Which body system seems most affected?</p>
+              <p className="text-[13px] text-gray-700 mb-3">(Select the primary concern)</p>
+            <div className="flex flex-wrap gap-2 mb-3">
               {MAIN_CONCERNS.map((option) => (
                 <button
                   key={option.id}
                   type="button"
                   onClick={() => handleSelectMainConcern(option.id)}
-                  className="px-3 py-2 rounded-full text-[13px] font-semibold flex items-center gap-1 text-white hover:opacity-90 transition-opacity"
+                  className={`px-3 py-2 rounded-full text-[13px] font-semibold flex items-center gap-1 text-white hover:opacity-90 transition-opacity`}
                   style={{ backgroundColor: PRIMARY_COLOR }}
                 >
                   <span>{option.icon}</span>
                   <span>{option.label}</span>
                 </button>
               ))}
+            </div>
+            <div className="mt-3 pt-3 border-t border-gray-300">
+              <p className="text-[12px] text-gray-600">
+                &#x1F4A1; This assessment follows veterinary body system organization to ensure we gather the most relevant information for {petName}&apos;s symptoms.
+              </p>
+              <p className="text-[11px] text-gray-500 italic mt-2">
+                Body system organization follows the Veterinary Triage List (VTL) approach, adapted from the Manchester Triage Scale.
+              </p>
             </div>
           </div>
         </div>
@@ -567,7 +639,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
                     }`}
                   >
                     <span>{formatSymptomLabel(code)}</span>
-                    <span className="ml-2 text-xs">{isSelected ? '☑' : '☐'}</span>
+                    <span className="ml-2 text-xs">{isSelected ? '&#x2611;' : '&#x2610;'}</span>
                   </button>
                 );
               })}
@@ -581,7 +653,9 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
                 onClick={handleConfirmPrimarySymptoms}
                 disabled={!pendingPrimarySymptoms.length}
                 className={`px-4 py-2 rounded-full text-[13px] font-semibold text-white transition-opacity ${
-                  pendingPrimarySymptoms.length ? 'hover:opacity-90' : 'opacity-40 cursor-not-allowed'
+                  pendingPrimarySymptoms.length
+                    ? 'hover:opacity-90'
+                    : 'opacity-40 cursor-not-allowed'
                 }`}
                 style={{ backgroundColor: PRIMARY_COLOR }}
               >
@@ -600,7 +674,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
             className="max-w-xl w-full px-4 py-3 rounded-lg bg-[#E4DEED]"
             style={{ fontFamily: 'Raleway' }}
           >
-            <p className="text-[14px] mb-2">How severe are these symptoms?</p>
+            <p className="text-[14px] mb-2">Choose the main concern for this visit:</p>
             <div className="space-y-2 mb-3">
               {SEVERITY_OPTIONS.map((option) => {
                 const isSelected = severity === option.key;
@@ -639,6 +713,65 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
     }
 
     if (currentStep === 4) {
+      // Show progression question after duration is answered
+      if (showProgression) {
+        return (
+          <div className="flex justify-start mt-4">
+            <div
+              className="max-w-xl w-full px-4 py-3 rounded-lg bg-[#E4DEED]"
+              style={{ fontFamily: 'Raleway' }}
+            >
+              <p className="text-[14px] mb-2">
+                How are {petName}'s symptoms changing?
+              </p>
+              <div className="space-y-2 mb-3">
+                {PROGRESSION_OPTIONS.map((option) => {
+                  const isSelected = progression === option.key;
+                  return (
+                    <button
+                      key={option.key}
+                      type="button"
+                      onClick={() => handleSelectProgression(option)}
+                      className={`w-full text-left px-3 py-2 rounded-lg border text-[13px] transition-colors ${
+                        isSelected
+                          ? 'bg-white border-transparent text-gray-900 shadow-sm'
+                          : 'bg-[#F9FAFB] border-[#E5E7EB] text-gray-800 hover:bg-white'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-[12px] text-gray-700">
+                  💡 <strong>Helper:</strong> Understanding how symptoms are changing helps determine urgency and appropriate care.
+                </p>
+              </div>
+              <div className="flex justify-end mt-1">
+                <button
+                  type="button"
+                  onClick={handleConfirmProgression}
+                  disabled={!progression}
+                  className={`px-4 py-2 rounded-full text-[13px] font-semibold text-white transition-opacity ${
+                    progression ? 'hover:opacity-90' : 'opacity-40 cursor-not-allowed'
+                  }`}
+                  style={{ backgroundColor: PRIMARY_COLOR }}
+                >
+                  Continue
+                </button>
+              </div>
+              <div className="mt-3 pt-3 border-t border-gray-300">
+                <p className="text-[11px] text-gray-500 italic">
+                  Symptom progression is a standard veterinary triage assessment factor.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // Show duration question first
       return (
         <div className="flex justify-start mt-4">
           <div
@@ -786,6 +919,18 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
     return null;
   };
 
+  // Show emergency screening first
+  if (showEmergencyScreening) {
+    return (
+      <EmergencyScreening
+        selectedPet={selectedPet}
+        onComplete={handleEmergencyScreeningComplete}
+        onEmergencyDetected={handleEmergencyDetected}
+      />
+    );
+  }
+
+  // Show main questionnaire after emergency screening
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-2">
@@ -810,6 +955,9 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
         {isTyping && renderTypingIndicator()}
         {renderStepControls()}
       </div>
+
+      {/* Assessment Methodology Section */}
+      <AssessmentMethodology />
     </div>
   );
 };

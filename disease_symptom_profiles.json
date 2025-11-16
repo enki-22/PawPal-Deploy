@@ -1,0 +1,9316 @@
+{
+  "Canine distemper": {
+    "species": [
+      "dog"
+    ],
+    "symptoms": [
+      "coughing",
+      "diarrhea",
+      "fever",
+      "paralysis",
+      "seizures",
+      "vomiting",
+      "watery_eyes"
+    ],
+    "symptom_count": 7,
+    "urgency": "severe",
+    "contagious": "yes",
+    "sources": [
+      "synthetic"
+    ],
+    "sample_count": 10
+  },
+  "Canine influenza": {
+    "species": [
+      "dog"
+    ],
+    "symptoms": [
+      "coughing",
+      "lethargy",
+      "sneezing"
+    ],
+    "symptom_count": 3,
+    "urgency": "moderate",
+    "contagious": "yes",
+    "sources": [
+      "synthetic"
+    ],
+    "sample_count": 7
+  },
+  "Canine parvovirus": {
+    "species": [
+      "dog"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "lethargy",
+      "vomiting"
+    ],
+    "symptom_count": 3,
+    "urgency": "severe",
+    "contagious": "yes",
+    "sources": [
+      "synthetic"
+    ],
+    "sample_count": 7
+  },
+  "Fleas": {
+    "species": [
+      "cat",
+      "dog",
+      "rabbit"
+    ],
+    "symptoms": [
+      "bumps",
+      "dandruff",
+      "hair_loss",
+      "irritated_skin",
+      "itching",
+      "scratching",
+      "visible_parasites"
+    ],
+    "symptom_count": 7,
+    "urgency": "mild",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 42
+  },
+  "Heartworms": {
+    "species": [
+      "dog"
+    ],
+    "symptoms": [
+      "coughing",
+      "difficulty_breathing",
+      "lethargy",
+      "weight_loss"
+    ],
+    "symptom_count": 4,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Kennel cough": {
+    "species": [
+      "dog"
+    ],
+    "symptoms": [
+      "coughing",
+      "nasal_discharge",
+      "sneezing",
+      "vomiting"
+    ],
+    "symptom_count": 4,
+    "urgency": "moderate",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Rabies": {
+    "species": [
+      "Dog",
+      "dog"
+    ],
+    "symptoms": [
+      "aggression",
+      "confusion",
+      "difficulty_breathing",
+      "drooling",
+      "fever",
+      "lethargy",
+      "loss_of_appetite",
+      "paralysis",
+      "seizures",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 11,
+    "urgency": "emergency",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 44
+  },
+  "Obesity": {
+    "species": [
+      "Birds",
+      "cat",
+      "dog"
+    ],
+    "symptoms": [
+      "bloating",
+      "gas",
+      "labored_breathing",
+      "lethargy",
+      "lumps",
+      "reluctance_to_move",
+      "visible_parasites",
+      "weight_loss"
+    ],
+    "symptom_count": 8,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 58
+  },
+  "Diabetes": {
+    "species": [
+      "cat",
+      "dog"
+    ],
+    "symptoms": [
+      "dehydration",
+      "increased_thirst",
+      "lethargy",
+      "loss_of_appetite",
+      "seizures",
+      "vomiting",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 8,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 28
+  },
+  "Cataracts": {
+    "species": [
+      "dog"
+    ],
+    "symptoms": [
+      "bumps",
+      "cloudy_eyes",
+      "squinting"
+    ],
+    "symptom_count": 3,
+    "urgency": "mild",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Arthritis": {
+    "species": [
+      "dog"
+    ],
+    "symptoms": [
+      "lameness",
+      "limping",
+      "stiffness",
+      "swelling"
+    ],
+    "symptom_count": 4,
+    "urgency": "mild",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Ear infections": {
+    "species": [
+      "dog",
+      "turtle"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "ear_discharge",
+      "ear_scratching",
+      "head_tilt",
+      "itching",
+      "lethargy",
+      "lumps",
+      "red_skin",
+      "scabs",
+      "scratching",
+      "swelling"
+    ],
+    "symptom_count": 11,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 28
+  },
+  "Diarrhea": {
+    "species": [
+      "Rabbits",
+      "dog",
+      "hamster"
+    ],
+    "symptoms": [
+      "bloating",
+      "dehydration",
+      "diarrhea",
+      "gas",
+      "lethargy",
+      "loss_of_appetite",
+      "vomiting",
+      "weakness",
+      "wet_tail"
+    ],
+    "symptom_count": 9,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 58
+  },
+  "Broken bones": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "lameness",
+      "limping",
+      "swelling"
+    ],
+    "symptom_count": 3,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Chronic Kidney Disease": {
+    "species": [
+      "Dog",
+      "cat"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "constipation",
+      "dehydration",
+      "increased_thirst",
+      "lethargy",
+      "loss_of_appetite",
+      "skin_lesions",
+      "swelling",
+      "vomiting",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 11,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 44
+  },
+  "Cat Acne": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "bumps",
+      "red_skin",
+      "scabs",
+      "swelling"
+    ],
+    "symptom_count": 4,
+    "urgency": "mild",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Eosinophilic Granuloma Complex": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "scratching",
+      "skin_lesions"
+    ],
+    "symptom_count": 2,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "synthetic"
+    ],
+    "sample_count": 10
+  },
+  "Feline Immunodeficiency Virus": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "coughing",
+      "difficulty_breathing",
+      "fever",
+      "lethargy",
+      "red_skin",
+      "seizures",
+      "skin_lesions",
+      "sneezing",
+      "vomiting",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 11,
+    "urgency": "severe",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Feline Infectious Peritonitis": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "circling",
+      "difficulty_breathing",
+      "fever",
+      "lethargy",
+      "red_eyes",
+      "red_skin",
+      "seizures",
+      "squinting",
+      "swelling",
+      "weight_loss"
+    ],
+    "symptom_count": 10,
+    "urgency": "severe",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Feline Leukemia Virus": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "fever",
+      "lameness",
+      "limping",
+      "loss_of_appetite",
+      "red_gums",
+      "weight_loss"
+    ],
+    "symptom_count": 7,
+    "urgency": "severe",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Feline Lower Urinary Tract Disease": {
+    "species": [
+      "Cat",
+      "cat"
+    ],
+    "symptoms": [
+      "blood_in_urine",
+      "frequent_urination",
+      "straining",
+      "straining_to_urinate"
+    ],
+    "symptom_count": 4,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 43
+  },
+  "Feline Panleukopenia Virus": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "dehydration",
+      "diarrhea",
+      "fever",
+      "lethargy",
+      "vomiting",
+      "weight_loss"
+    ],
+    "symptom_count": 6,
+    "urgency": "severe",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Hyperthyroidism": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "aggression",
+      "diarrhea",
+      "difficulty_breathing",
+      "increased_thirst",
+      "restlessness",
+      "vomiting",
+      "weight_loss"
+    ],
+    "symptom_count": 7,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Inflammatory Bowel Disease": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "lethargy",
+      "vomiting",
+      "weight_loss"
+    ],
+    "symptom_count": 4,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Intestinal Parasites": {
+    "species": [
+      "Cat",
+      "cat"
+    ],
+    "symptoms": [
+      "coughing",
+      "diarrhea",
+      "loss_of_appetite",
+      "visible_parasites",
+      "vomiting",
+      "weight_loss"
+    ],
+    "symptom_count": 6,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 44
+  },
+  "Mammary Tumors": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "lumps",
+      "swelling"
+    ],
+    "symptom_count": 2,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 13
+  },
+  "Mast Cell Tumor": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "hair_loss",
+      "itching",
+      "lumps",
+      "swelling",
+      "vomiting",
+      "weight_loss"
+    ],
+    "symptom_count": 6,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Osteoarthritis": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "lameness",
+      "limping",
+      "stiffness",
+      "swelling"
+    ],
+    "symptom_count": 4,
+    "urgency": "mild",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Pancreatitis": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "loss_of_appetite",
+      "vomiting",
+      "weight_loss"
+    ],
+    "symptom_count": 4,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Periodontal Disease": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "dental_issues",
+      "loss_of_appetite",
+      "red_gums",
+      "red_skin"
+    ],
+    "symptom_count": 5,
+    "urgency": "mild",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Gingivitis": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "dental_issues",
+      "drooling",
+      "mouth_pain",
+      "swelling",
+      "swollen_gums"
+    ],
+    "symptom_count": 6,
+    "urgency": "mild",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Pyometra": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "bloating",
+      "dehydration",
+      "diarrhea",
+      "fever",
+      "increased_thirst",
+      "lethargy",
+      "loss_of_appetite",
+      "swelling",
+      "vomiting"
+    ],
+    "symptom_count": 9,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Squamous Cell Carcinoma": {
+    "species": [
+      "cat"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "dental_issues",
+      "drooling",
+      "lumps",
+      "skin_lesions",
+      "weight_loss"
+    ],
+    "symptom_count": 6,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Upper Respiratory Infection": {
+    "species": [
+      "Cat",
+      "cat"
+    ],
+    "symptoms": [
+      "coughing",
+      "difficulty_breathing",
+      "eye_discharge",
+      "fever",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_congestion",
+      "nasal_discharge",
+      "red_eyes",
+      "scabs",
+      "sneezing",
+      "squinting",
+      "swelling",
+      "weight_loss"
+    ],
+    "symptom_count": 18,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 44
+  },
+  "Urethral Obstruction": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "blood_in_urine",
+      "loss_of_appetite",
+      "straining",
+      "straining_to_urinate"
+    ],
+    "symptom_count": 4,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Overgrown teeth": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "dental_issues",
+      "drooling",
+      "swelling",
+      "watery_eyes",
+      "weight_loss"
+    ],
+    "symptom_count": 5,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Hairballs": {
+    "species": [
+      "Cat",
+      "rabbit"
+    ],
+    "symptoms": [
+      "bloating",
+      "coughing",
+      "dental_issues",
+      "lethargy",
+      "loss_of_appetite",
+      "vomiting"
+    ],
+    "symptom_count": 6,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 44
+  },
+  "Snuffles": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "head_tilt",
+      "lameness",
+      "lethargy",
+      "limping",
+      "loss_of_appetite",
+      "nasal_discharge",
+      "red_eyes",
+      "sneezing",
+      "weight_loss"
+    ],
+    "symptom_count": 10,
+    "urgency": "moderate",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Myxomatosis": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "fever",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_discharge",
+      "red_skin",
+      "seizures",
+      "swelling",
+      "weight_loss"
+    ],
+    "symptom_count": 8,
+    "urgency": "severe",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Ear mites": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "ear_discharge",
+      "itching",
+      "lethargy",
+      "loss_of_appetite",
+      "restlessness",
+      "scabs",
+      "scratching"
+    ],
+    "symptom_count": 7,
+    "urgency": "mild",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Sore hocks": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "skin_lesions"
+    ],
+    "symptom_count": 1,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "synthetic"
+    ],
+    "sample_count": 7
+  },
+  "Flystrike": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "lethargy",
+      "loss_of_appetite",
+      "skin_lesions",
+      "swelling"
+    ],
+    "symptom_count": 5,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Breathing difficulties": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "eye_discharge",
+      "labored_breathing",
+      "sneezing",
+      "weight_loss",
+      "wheezing"
+    ],
+    "symptom_count": 5,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Gastrointestinal stasis": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "bloating",
+      "dental_issues",
+      "diarrhea",
+      "gas",
+      "lethargy"
+    ],
+    "symptom_count": 5,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Conjunctivitis": {
+    "species": [
+      "Cat",
+      "bird",
+      "hamster",
+      "rabbit"
+    ],
+    "symptoms": [
+      "cloudy_eyes",
+      "ear_discharge",
+      "eye_discharge",
+      "lethargy",
+      "red_eyes",
+      "red_skin",
+      "scabs",
+      "scratching",
+      "squinting",
+      "swelling"
+    ],
+    "symptom_count": 10,
+    "urgency": "mild",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 72
+  },
+  "Corneal ulceration": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "cloudy_eyes",
+      "eye_discharge",
+      "red_skin",
+      "squinting",
+      "swelling"
+    ],
+    "symptom_count": 5,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Otitis media/interna": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "dental_issues",
+      "ear_discharge",
+      "head_tilt",
+      "loss_of_appetite",
+      "loss_of_balance",
+      "reluctance_to_move",
+      "vomiting"
+    ],
+    "symptom_count": 7,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Splay leg": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "difficulty_walking"
+    ],
+    "symptom_count": 1,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Rhinitis": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "dental_issues",
+      "drooling",
+      "nasal_discharge",
+      "sneezing"
+    ],
+    "symptom_count": 4,
+    "urgency": "moderate",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Pneumonia": {
+    "species": [
+      "hamster",
+      "rabbit",
+      "turtle"
+    ],
+    "symptoms": [
+      "coughing",
+      "difficulty_breathing",
+      "drooling",
+      "eye_discharge",
+      "fever",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_discharge",
+      "red_eyes",
+      "respiratory_distress",
+      "sneezing",
+      "swelling",
+      "weight_loss",
+      "wheezing"
+    ],
+    "symptom_count": 18,
+    "urgency": "severe",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 42
+  },
+  "Hutch burn": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "hair_loss",
+      "itching",
+      "lameness",
+      "limping",
+      "red_skin",
+      "skin_lesions"
+    ],
+    "symptom_count": 6,
+    "urgency": "mild",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Wet dewlap": {
+    "species": [
+      "rabbit"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "irritated_skin"
+    ],
+    "symptom_count": 2,
+    "urgency": "mild",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 13
+  },
+  "Ringworm": {
+    "species": [
+      "Cat",
+      "Dogs",
+      "Rabbits",
+      "bird",
+      "hamster"
+    ],
+    "symptoms": [
+      "bald_patches",
+      "dandruff",
+      "hair_loss",
+      "itching",
+      "lameness",
+      "limping",
+      "rash",
+      "scabs",
+      "scratching",
+      "skin_lesions"
+    ],
+    "symptom_count": 10,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 114
+  },
+  "Constipation": {
+    "species": [
+      "hamster"
+    ],
+    "symptoms": [
+      "straining",
+      "visible_parasites"
+    ],
+    "symptom_count": 2,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Protrusion of the eyeball": {
+    "species": [
+      "hamster"
+    ],
+    "symptoms": [
+      "red_skin",
+      "scabs",
+      "squinting",
+      "swelling",
+      "watery_eyes",
+      "weight_loss"
+    ],
+    "symptom_count": 6,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Milk gland infection": {
+    "species": [
+      "hamster"
+    ],
+    "symptoms": [
+      "swelling"
+    ],
+    "symptom_count": 1,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Skin abscesses": {
+    "species": [
+      "hamster"
+    ],
+    "symptoms": [
+      "swelling"
+    ],
+    "symptom_count": 1,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Hair loss / alopecia": {
+    "species": [
+      "hamster"
+    ],
+    "symptoms": [
+      "bald_patches",
+      "dandruff",
+      "hair_loss",
+      "lethargy",
+      "scabs",
+      "weight_loss"
+    ],
+    "symptom_count": 6,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Skin and fur mites": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "dandruff",
+      "hair_loss",
+      "itching",
+      "red_skin",
+      "scabs",
+      "scratching",
+      "skin_lesions"
+    ],
+    "symptom_count": 7,
+    "urgency": "mild",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Avian Gastric Yeast": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "loss_of_appetite",
+      "vomiting",
+      "weight_loss"
+    ],
+    "symptom_count": 3,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Candidiasis": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "fluffed_feathers",
+      "lethargy",
+      "lumps",
+      "vomiting",
+      "weight_loss",
+      "white_spots"
+    ],
+    "symptom_count": 7,
+    "urgency": "moderate",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Pacheco\u2019s Disease": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "eye_discharge",
+      "fluffed_feathers",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_discharge"
+    ],
+    "symptom_count": 5,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Giardiasis": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "feather_loss",
+      "itching",
+      "weight_loss"
+    ],
+    "symptom_count": 4,
+    "urgency": "moderate",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Trichomoniasis": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "drooling",
+      "skin_lesions",
+      "vomiting"
+    ],
+    "symptom_count": 3,
+    "urgency": "moderate",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 11
+  },
+  "Roundworms / Tapeworms": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "weight_loss"
+    ],
+    "symptom_count": 2,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "synthetic"
+    ],
+    "sample_count": 7
+  },
+  "Cataract": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "cloudy_eyes",
+      "squinting",
+      "watery_eyes"
+    ],
+    "symptom_count": 3,
+    "urgency": "mild",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 13
+  },
+  "Fractures": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "drooping_wing",
+      "lameness",
+      "limping",
+      "swelling",
+      "wing_droop"
+    ],
+    "symptom_count": 5,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Gout": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "dehydration",
+      "diarrhea",
+      "swelling"
+    ],
+    "symptom_count": 3,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Aspergillosis": {
+    "species": [
+      "Bird",
+      "bird"
+    ],
+    "symptoms": [
+      "bumps",
+      "difficulty_breathing",
+      "ear_discharge",
+      "fluffed_feathers",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_discharge",
+      "paralysis",
+      "tail_bobbing",
+      "weakness",
+      "weight_loss",
+      "wheezing"
+    ],
+    "symptom_count": 16,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 44
+  },
+  "Avian Influenza": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "coughing",
+      "diarrhea",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_discharge",
+      "reluctance_to_move",
+      "sneezing",
+      "swelling",
+      "weakness",
+      "weight_loss",
+      "wheezing"
+    ],
+    "symptom_count": 11,
+    "urgency": "severe",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Newcastle Disease": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "difficulty_breathing",
+      "eye_discharge",
+      "nasal_discharge",
+      "paralysis",
+      "sneezing",
+      "weight_loss"
+    ],
+    "symptom_count": 7,
+    "urgency": "severe",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Air sac mites / gapeworms": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "drooling",
+      "tail_bobbing",
+      "weight_loss"
+    ],
+    "symptom_count": 4,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 13
+  },
+  "Cloacal prolapse": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "red_skin",
+      "straining",
+      "swelling"
+    ],
+    "symptom_count": 3,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Egg binding": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "bloating",
+      "lameness",
+      "lethargy",
+      "limping",
+      "paralysis",
+      "straining",
+      "swelling",
+      "weakness"
+    ],
+    "symptom_count": 8,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Feather cysts": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "irritated_skin",
+      "lameness",
+      "limping",
+      "lumps",
+      "red_skin"
+    ],
+    "symptom_count": 5,
+    "urgency": "mild",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 11
+  },
+  "Bumblefoot": {
+    "species": [
+      "Bird",
+      "bird"
+    ],
+    "symptoms": [
+      "difficulty_walking",
+      "lameness",
+      "limping",
+      "loss_of_appetite",
+      "red_skin",
+      "scabs",
+      "skin_lesions",
+      "swelling"
+    ],
+    "symptom_count": 8,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 43
+  },
+  "Scaly face / tassel foot / feather mites": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "dandruff",
+      "feather_loss",
+      "itching",
+      "lethargy",
+      "restlessness",
+      "scabs",
+      "weakness"
+    ],
+    "symptom_count": 7,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Psittacine Beak and Feather Disease": {
+    "species": [
+      "bird"
+    ],
+    "symptoms": [
+      "feather_loss"
+    ],
+    "symptom_count": 1,
+    "urgency": "severe",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Heavy metal poisoning": {
+    "species": [
+      "turtle"
+    ],
+    "symptoms": [
+      "difficulty_walking",
+      "lethargy",
+      "seizures",
+      "vomiting",
+      "weakness"
+    ],
+    "symptom_count": 5,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Septicemia": {
+    "species": [
+      "turtle"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "respiratory_distress",
+      "seizures"
+    ],
+    "symptom_count": 5,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Infectious stomatitis": {
+    "species": [
+      "turtle"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "dental_issues",
+      "difficulty_eating",
+      "lameness",
+      "limping",
+      "loss_of_appetite",
+      "red_gums",
+      "swelling",
+      "weight_loss"
+    ],
+    "symptom_count": 9,
+    "urgency": "moderate",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Eye abscesses / conjunctivitis": {
+    "species": [
+      "turtle"
+    ],
+    "symptoms": [
+      "cloudy_eyes",
+      "eye_discharge",
+      "lumps",
+      "nasal_discharge",
+      "red_skin",
+      "scratching",
+      "swelling"
+    ],
+    "symptom_count": 7,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Abnormal beak growth": {
+    "species": [
+      "turtle"
+    ],
+    "symptoms": [
+      "difficulty_eating"
+    ],
+    "symptom_count": 1,
+    "urgency": "mild",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Stargazing": {
+    "species": [
+      "turtle"
+    ],
+    "symptoms": [
+      "head_tilt"
+    ],
+    "symptom_count": 1,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Dystocia": {
+    "species": [
+      "turtle"
+    ],
+    "symptoms": [
+      "bloating",
+      "lethargy",
+      "loss_of_appetite",
+      "restlessness",
+      "straining",
+      "swelling",
+      "weight_loss"
+    ],
+    "symptom_count": 7,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Vent prolapse": {
+    "species": [
+      "turtle"
+    ],
+    "symptoms": [
+      "red_skin",
+      "straining",
+      "swelling"
+    ],
+    "symptom_count": 3,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Abscesses": {
+    "species": [
+      "Rabbits",
+      "turtle"
+    ],
+    "symptoms": [
+      "bumps",
+      "dental_issues",
+      "head_tilt",
+      "hiding",
+      "lethargy",
+      "loss_of_appetite",
+      "lumps",
+      "red_skin",
+      "swelling",
+      "weakness"
+    ],
+    "symptom_count": 10,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 44
+  },
+  "Dysecdysis": {
+    "species": [
+      "turtle"
+    ],
+    "symptoms": [],
+    "symptom_count": 0,
+    "urgency": "mild",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Skin parasites": {
+    "species": [
+      "turtle"
+    ],
+    "symptoms": [
+      "dandruff",
+      "lethargy",
+      "restlessness",
+      "scratching",
+      "visible_parasites"
+    ],
+    "symptom_count": 5,
+    "urgency": "mild",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Scale rot / blister disease": {
+    "species": [
+      "fish"
+    ],
+    "symptoms": [
+      "bumps",
+      "dandruff",
+      "skin_lesions"
+    ],
+    "symptom_count": 3,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Papilloma": {
+    "species": [
+      "fish"
+    ],
+    "symptoms": [
+      "lumps"
+    ],
+    "symptom_count": 1,
+    "urgency": "mild",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 11
+  },
+  "Lymphocystis": {
+    "species": [
+      "fish"
+    ],
+    "symptoms": [
+      "lumps",
+      "skin_lesions"
+    ],
+    "symptom_count": 2,
+    "urgency": "mild",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Fin Rot": {
+    "species": [
+      "Fish",
+      "fish"
+    ],
+    "symptoms": [
+      "clamped_fins",
+      "lethargy",
+      "loss_of_appetite",
+      "red_skin",
+      "weakness"
+    ],
+    "symptom_count": 5,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 44
+  },
+  "Ich": {
+    "species": [
+      "fish"
+    ],
+    "symptoms": [
+      "clamped_fins",
+      "dandruff",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "rubbing_against_objects",
+      "scratching",
+      "weight_loss",
+      "white_spots"
+    ],
+    "symptom_count": 12,
+    "urgency": "moderate",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Fungus": {
+    "species": [
+      "fish"
+    ],
+    "symptoms": [
+      "lethargy",
+      "loss_of_appetite",
+      "lumps",
+      "skin_lesions"
+    ],
+    "symptom_count": 4,
+    "urgency": "moderate",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Popeye / Exophthalmia": {
+    "species": [
+      "fish"
+    ],
+    "symptoms": [
+      "cloudy_eyes",
+      "red_skin",
+      "swelling"
+    ],
+    "symptom_count": 3,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Skin and Gill Flukes": {
+    "species": [
+      "fish"
+    ],
+    "symptoms": [
+      "clamped_fins",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lethargy",
+      "swelling",
+      "weight_loss"
+    ],
+    "symptom_count": 8,
+    "urgency": "moderate",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Lernaea": {
+    "species": [
+      "fish"
+    ],
+    "symptoms": [
+      "lameness",
+      "lethargy",
+      "limping",
+      "scratching",
+      "skin_lesions",
+      "visible_parasites"
+    ],
+    "symptom_count": 6,
+    "urgency": "moderate",
+    "contagious": "yes",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Swim Bladder Disease": {
+    "species": [
+      "Fish",
+      "fish"
+    ],
+    "symptoms": [
+      "bloating",
+      "loss_of_appetite",
+      "loss_of_balance",
+      "swelling",
+      "swimming_upside_down"
+    ],
+    "symptom_count": 5,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic",
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 44
+  },
+  "Vitamin C Deficiency": {
+    "species": [
+      "fish"
+    ],
+    "symptoms": [
+      "lethargy",
+      "loss_of_appetite",
+      "lumps"
+    ],
+    "symptom_count": 3,
+    "urgency": "moderate",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Egg Retention": {
+    "species": [
+      "fish"
+    ],
+    "symptoms": [
+      "bloating",
+      "hiding",
+      "lethargy",
+      "loss_of_appetite",
+      "lumps",
+      "straining",
+      "swelling"
+    ],
+    "symptom_count": 7,
+    "urgency": "severe",
+    "contagious": "no",
+    "sources": [
+      "real",
+      "synthetic"
+    ],
+    "sample_count": 14
+  },
+  "Canine Parvovirus": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "bloating",
+      "dehydration",
+      "diarrhea",
+      "fever",
+      "gas",
+      "lethargy",
+      "loss_of_appetite",
+      "vomiting",
+      "weakness"
+    ],
+    "symptom_count": 10,
+    "urgency": "emergency",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Canine Distemper": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "coughing",
+      "diarrhea",
+      "fever",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_discharge",
+      "vomiting",
+      "watery_eyes",
+      "weakness"
+    ],
+    "symptom_count": 9,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Tick Fever (Ehrlichiosis)": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "fever",
+      "lethargy",
+      "loss_of_appetite",
+      "stiffness",
+      "swelling",
+      "weakness"
+    ],
+    "symptom_count": 6,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Mange (Scabies)": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "hair_loss",
+      "itching",
+      "lameness",
+      "limping",
+      "red_skin",
+      "restlessness",
+      "scabs",
+      "skin_lesions"
+    ],
+    "symptom_count": 9,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Ear Infections (Otitis)": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "ear_discharge",
+      "head_tilt",
+      "loss_of_balance",
+      "red_skin",
+      "scratching",
+      "swelling"
+    ],
+    "symptom_count": 7,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Skin Allergies (Atopic Dermatitis)": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "hair_loss",
+      "lameness",
+      "limping",
+      "rash",
+      "red_skin",
+      "scratching"
+    ],
+    "symptom_count": 6,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 29
+  },
+  "Intestinal Parasites (Worms)": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "visible_parasites",
+      "vomiting",
+      "weight_loss"
+    ],
+    "symptom_count": 4,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Kennel Cough": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "coughing",
+      "loss_of_appetite",
+      "nasal_discharge"
+    ],
+    "symptom_count": 3,
+    "urgency": "low",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Gastroenteritis": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "dehydration",
+      "diarrhea",
+      "fever",
+      "lethargy",
+      "loss_of_appetite",
+      "vomiting",
+      "weakness"
+    ],
+    "symptom_count": 7,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Feline Panleukopenia": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "dehydration",
+      "diarrhea",
+      "fever",
+      "hiding",
+      "lethargy",
+      "loss_of_appetite",
+      "vomiting",
+      "weakness"
+    ],
+    "symptom_count": 8,
+    "urgency": "emergency",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Feline Calicivirus": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "difficulty_eating",
+      "drooling",
+      "fever",
+      "lameness",
+      "limping",
+      "loss_of_appetite",
+      "mouth_pain",
+      "nasal_discharge",
+      "sneezing"
+    ],
+    "symptom_count": 9,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Ear Mites": {
+    "species": [
+      "Cat",
+      "Rabbit"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "ear_discharge",
+      "hair_loss",
+      "loss_of_balance",
+      "scabs",
+      "scratching",
+      "skin_lesions"
+    ],
+    "symptom_count": 7,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 60
+  },
+  "Skin Allergies": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "bald_patches",
+      "hair_loss",
+      "lameness",
+      "limping",
+      "red_skin",
+      "scabs",
+      "scratching"
+    ],
+    "symptom_count": 7,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Dental Disease": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "dental_issues",
+      "difficulty_eating",
+      "drooling",
+      "lameness",
+      "limping",
+      "red_gums",
+      "weight_loss"
+    ],
+    "symptom_count": 8,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Psittacosis (Chlamydiosis)": {
+    "species": [
+      "Bird"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "ear_discharge",
+      "fluffed_feathers",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_discharge",
+      "red_eyes",
+      "swelling",
+      "tail_bobbing",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 12,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Candidiasis (Thrush)": {
+    "species": [
+      "Bird"
+    ],
+    "symptoms": [
+      "lethargy",
+      "loss_of_appetite",
+      "vomiting",
+      "weakness"
+    ],
+    "symptom_count": 4,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Avian Pox": {
+    "species": [
+      "Bird"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "scabs",
+      "skin_lesions",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 11,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Egg Binding": {
+    "species": [
+      "Bird"
+    ],
+    "symptoms": [
+      "fluffed_feathers",
+      "lethargy",
+      "loss_of_appetite",
+      "straining",
+      "swelling",
+      "tail_bobbing",
+      "weakness"
+    ],
+    "symptom_count": 7,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Respiratory Infections": {
+    "species": [
+      "Bird",
+      "Hamster",
+      "Turtle"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "ear_discharge",
+      "eye_discharge",
+      "fluffed_feathers",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_discharge",
+      "sneezing",
+      "tail_bobbing",
+      "weakness",
+      "weight_loss",
+      "wheezing"
+    ],
+    "symptom_count": 16,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 90
+  },
+  "Feather Plucking": {
+    "species": [
+      "Bird"
+    ],
+    "symptoms": [
+      "bald_patches",
+      "feather_loss",
+      "red_skin"
+    ],
+    "symptom_count": 3,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Nutritional Deficiencies": {
+    "species": [
+      "Bird"
+    ],
+    "symptoms": [
+      "lethargy",
+      "lumps",
+      "seizures",
+      "weakness"
+    ],
+    "symptom_count": 4,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 29
+  },
+  "Mites": {
+    "species": [
+      "Bird"
+    ],
+    "symptoms": [
+      "feather_loss",
+      "restlessness",
+      "scabs",
+      "scratching",
+      "skin_lesions",
+      "visible_parasites"
+    ],
+    "symptom_count": 6,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Gastrointestinal Stasis": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "bloating",
+      "dental_issues",
+      "gas",
+      "lethargy",
+      "loss_of_appetite",
+      "reluctance_to_move",
+      "weakness"
+    ],
+    "symptom_count": 7,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Dental Disease (Malocclusion)": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "dental_issues",
+      "difficulty_eating",
+      "drooling",
+      "ear_discharge",
+      "eye_discharge",
+      "overgrown_teeth",
+      "swelling",
+      "watery_eyes",
+      "weight_loss"
+    ],
+    "symptom_count": 9,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 29
+  },
+  "Pasteurellosis (Snuffles)": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "ear_discharge",
+      "eye_discharge",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "head_tilt",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_discharge",
+      "sneezing",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 13,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Flystrike (Myiasis)": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "lethargy",
+      "loss_of_appetite",
+      "skin_lesions"
+    ],
+    "symptom_count": 3,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Uterine Cancer": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "blood_in_urine",
+      "difficulty_breathing",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "lumps",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 8,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "E. cuniculi (Encephalitozoon)": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "cloudy_eyes",
+      "confusion",
+      "head_tilt",
+      "lethargy",
+      "loss_of_balance",
+      "rolling",
+      "seizures",
+      "weakness"
+    ],
+    "symptom_count": 8,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Heat Stress": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "drooling",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "seizures",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 11,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Sore Hocks": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "hair_loss",
+      "lameness",
+      "limping",
+      "red_skin",
+      "reluctance_to_move",
+      "scabs",
+      "skin_lesions",
+      "swelling"
+    ],
+    "symptom_count": 8,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Fur Mites": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "dandruff",
+      "hair_loss",
+      "restlessness",
+      "scratching"
+    ],
+    "symptom_count": 4,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Wet Tail (Proliferative Ileitis)": {
+    "species": [
+      "Hamster"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "dehydration",
+      "diarrhea",
+      "lethargy",
+      "loss_of_appetite",
+      "weight_loss"
+    ],
+    "symptom_count": 6,
+    "urgency": "emergency",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Cheek Pouch Impaction": {
+    "species": [
+      "Hamster"
+    ],
+    "symptoms": [
+      "difficulty_eating",
+      "drooling",
+      "loss_of_appetite",
+      "swelling",
+      "weight_loss"
+    ],
+    "symptom_count": 5,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Skin Mites": {
+    "species": [
+      "Hamster"
+    ],
+    "symptoms": [
+      "hair_loss",
+      "irritated_skin",
+      "restlessness",
+      "scabs",
+      "scratching"
+    ],
+    "symptom_count": 5,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Tumors": {
+    "species": [
+      "Hamster"
+    ],
+    "symptoms": [
+      "lethargy",
+      "loss_of_appetite",
+      "lumps",
+      "weight_loss"
+    ],
+    "symptom_count": 4,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Ich (White Spot Disease)": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "clamped_fins",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "hiding",
+      "loss_of_appetite",
+      "rubbing_against_objects",
+      "white_spots"
+    ],
+    "symptom_count": 8,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Columnaris": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "lumps",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 10,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Dropsy": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "dandruff",
+      "lethargy",
+      "loss_of_appetite",
+      "swelling",
+      "weakness"
+    ],
+    "symptom_count": 5,
+    "urgency": "emergency",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Shell Rot": {
+    "species": [
+      "Turtle"
+    ],
+    "symptoms": [
+      "ear_discharge",
+      "lethargy",
+      "loss_of_appetite",
+      "weakness"
+    ],
+    "symptom_count": 4,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Metabolic Bone Disease": {
+    "species": [
+      "Turtle"
+    ],
+    "symptoms": [
+      "difficulty_walking",
+      "lethargy",
+      "loss_of_appetite",
+      "seizures",
+      "swelling",
+      "weakness"
+    ],
+    "symptom_count": 6,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Vitamin A Deficiency": {
+    "species": [
+      "Bird",
+      "Turtle"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "diarrhea",
+      "difficulty_breathing",
+      "ear_discharge",
+      "eye_discharge",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_discharge",
+      "sneezing",
+      "swelling",
+      "tail_bobbing",
+      "weakness",
+      "weight_loss",
+      "wheezing"
+    ],
+    "symptom_count": 14,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 60
+  },
+  "Eye Infections": {
+    "species": [
+      "Turtle"
+    ],
+    "symptoms": [
+      "eye_discharge",
+      "lethargy",
+      "loss_of_appetite",
+      "swelling",
+      "weakness"
+    ],
+    "symptom_count": 5,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 29
+  },
+  "[Leptospirosis]": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "coughing",
+      "dehydration",
+      "diarrhea",
+      "difficulty_breathing",
+      "fever",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "red_eyes",
+      "reluctance_to_move",
+      "squinting",
+      "stiffness",
+      "swelling",
+      "vomiting",
+      "weight_loss"
+    ],
+    "symptom_count": 16,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Giarda": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "bloating",
+      "diarrhea",
+      "gas",
+      "lethargy",
+      "loss_of_appetite",
+      "weight_loss"
+    ],
+    "symptom_count": 6,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8"
+    ],
+    "sample_count": 29
+  },
+  "Tapeworms": {
+    "species": [
+      "Cat",
+      "Dog"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "lethargy",
+      "loss_of_appetite",
+      "visible_parasites",
+      "vomiting",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 7,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 60
+  },
+  "Whipworms": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "dehydration",
+      "diarrhea",
+      "lethargy",
+      "visible_parasites",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 6,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Canine Enteric Coronavirus": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "bloating",
+      "dehydration",
+      "diarrhea",
+      "fever",
+      "gas",
+      "lethargy",
+      "loss_of_appetite",
+      "seizures",
+      "vomiting"
+    ],
+    "symptom_count": 9,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Canine respiratory coronavirus": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "coughing",
+      "difficulty_breathing",
+      "ear_discharge",
+      "eye_discharge",
+      "fever",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_congestion",
+      "sneezing",
+      "vomiting",
+      "weight_loss"
+    ],
+    "symptom_count": 14,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Infectious Canine Hepatitis": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "ear_discharge",
+      "eye_discharge",
+      "fever",
+      "increased_thirst",
+      "lameness",
+      "lethargy",
+      "limping",
+      "loss_of_appetite",
+      "red_eyes",
+      "swelling",
+      "vomiting",
+      "weakness"
+    ],
+    "symptom_count": 12,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Pyoderma": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "dandruff",
+      "hair_loss",
+      "itching",
+      "lameness",
+      "lethargy",
+      "limping",
+      "loss_of_appetite",
+      "scabs",
+      "scratching",
+      "skin_lesions",
+      "swelling",
+      "weakness"
+    ],
+    "symptom_count": 12,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Hot Spots": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "hair_loss",
+      "lameness",
+      "limping",
+      "scratching",
+      "skin_lesions"
+    ],
+    "symptom_count": 5,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Urinary Tract Infection": {
+    "species": [
+      "Dog",
+      "Rabbit"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "cloudy_urine",
+      "dental_issues",
+      "fever",
+      "frequent_urination",
+      "hiding",
+      "increased_thirst",
+      "lethargy",
+      "loss_of_appetite",
+      "straining",
+      "straining_to_urinate",
+      "swelling",
+      "weakness"
+    ],
+    "symptom_count": 13,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 60
+  },
+  "Cushing\u2019s Disease": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "bloating",
+      "bumps",
+      "gas",
+      "hair_loss",
+      "increased_thirst",
+      "lethargy",
+      "loss_of_appetite",
+      "lumps",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 10,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 29
+  },
+  "Addison\u2019s Disease": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "increased_thirst",
+      "lethargy",
+      "loss_of_appetite",
+      "vomiting",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 7,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Hypothyroidism": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "lethargy",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 3,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Liver Disease": {
+    "species": [
+      "Dogs"
+    ],
+    "symptoms": [
+      "confusion",
+      "diarrhea",
+      "lethargy",
+      "loss_of_appetite",
+      "seizures",
+      "swelling",
+      "vomiting",
+      "weight_loss"
+    ],
+    "symptom_count": 8,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Hip Dysplasia": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "lameness",
+      "limping"
+    ],
+    "symptom_count": 2,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 29
+  },
+  "Patellar Luxation": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "lameness",
+      "limping",
+      "stiffness"
+    ],
+    "symptom_count": 3,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "ACL Tear": {
+    "species": [
+      "Dogs"
+    ],
+    "symptoms": [
+      "lameness",
+      "limping",
+      "stiffness",
+      "swelling"
+    ],
+    "symptom_count": 4,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Food Allergies": {
+    "species": [
+      "Dogs"
+    ],
+    "symptoms": [
+      "bumps",
+      "diarrhea",
+      "gas",
+      "hair_loss",
+      "irritated_skin",
+      "itching",
+      "lethargy",
+      "red_skin",
+      "swelling",
+      "vomiting",
+      "weight_loss"
+    ],
+    "symptom_count": 11,
+    "urgency": "medium (high if anaphylaxis symptoms like facial swelling or hives are present)",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Flea Allergy Dermatitis": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "hair_loss",
+      "itching",
+      "lameness",
+      "lethargy",
+      "limping",
+      "red_skin",
+      "scabs",
+      "scratching",
+      "skin_lesions"
+    ],
+    "symptom_count": 9,
+    "urgency": "medium (high if severe anemia is present)",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Contact Dermatitis": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "hair_loss",
+      "irritated_skin",
+      "itching",
+      "lameness",
+      "limping",
+      "red_skin",
+      "scabs",
+      "scratching",
+      "skin_lesions"
+    ],
+    "symptom_count": 9,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Demodectic Mange": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "bumps",
+      "dandruff",
+      "fever",
+      "hair_loss",
+      "itching",
+      "lethargy",
+      "scratching",
+      "skin_lesions",
+      "visible_parasites",
+      "weakness"
+    ],
+    "symptom_count": 10,
+    "urgency": "medium (high if generalized with systemic signs like fever, lethargy, or draining wounds)",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Anaplasmosis": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "coughing",
+      "diarrhea",
+      "fever",
+      "lameness",
+      "lethargy",
+      "limping",
+      "loss_of_appetite",
+      "seizures",
+      "stiffness",
+      "vomiting"
+    ],
+    "symptom_count": 10,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Babesiosis": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "bloating",
+      "fever",
+      "lethargy",
+      "loss_of_appetite",
+      "seizures",
+      "stiffness",
+      "swelling",
+      "weight_loss"
+    ],
+    "symptom_count": 8,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Hookworms": {
+    "species": [
+      "Cats",
+      "Dogs"
+    ],
+    "symptoms": [
+      "coughing",
+      "diarrhea",
+      "difficulty_breathing",
+      "itching",
+      "lethargy",
+      "rash",
+      "vomiting",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 9,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 60
+  },
+  "Heartworm Disease": {
+    "species": [
+      "Cat",
+      "Dog"
+    ],
+    "symptoms": [
+      "coughing",
+      "difficulty_breathing",
+      "difficulty_walking",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "seizures",
+      "swelling",
+      "vomiting",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 14,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 60
+  },
+  "Heatstroke": {
+    "species": [
+      "Dog",
+      "Hamster"
+    ],
+    "symptoms": [
+      "confusion",
+      "dehydration",
+      "diarrhea",
+      "fever",
+      "hair_loss",
+      "lameness",
+      "lethargy",
+      "limping",
+      "red_skin",
+      "restlessness",
+      "seizures",
+      "sneezing",
+      "swelling",
+      "vomiting",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 16,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 60
+  },
+  "Lyme Disease": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "fever",
+      "frequent_urination",
+      "increased_thirst",
+      "lameness",
+      "lethargy",
+      "limping",
+      "loss_of_appetite",
+      "stiffness",
+      "swelling",
+      "vomiting",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 13,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Roundworms (Ascarids)": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "bloating",
+      "coughing",
+      "diarrhea",
+      "difficulty_breathing",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "lethargy",
+      "vomiting",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 11,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Rickettsial Infections": {
+    "species": [
+      "Dog"
+    ],
+    "symptoms": [
+      "coughing",
+      "fever",
+      "hiding",
+      "lameness",
+      "lethargy",
+      "limping",
+      "loss_of_appetite",
+      "stiffness",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 10,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Roundworms": {
+    "species": [
+      "Cats"
+    ],
+    "symptoms": [
+      "bloating",
+      "coughing",
+      "diarrhea",
+      "lumps",
+      "vomiting",
+      "weight_loss"
+    ],
+    "symptom_count": 6,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Giardia": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "gas",
+      "irritated_skin",
+      "lethargy",
+      "loss_of_appetite",
+      "vomiting",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 8,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Urinary Blockage": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "blood_in_urine",
+      "diarrhea",
+      "hiding",
+      "lethargy",
+      "loss_of_appetite",
+      "straining",
+      "straining_to_urinate",
+      "vomiting",
+      "weakness"
+    ],
+    "symptom_count": 9,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Cystitis": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "hiding",
+      "lethargy",
+      "loss_of_appetite",
+      "straining",
+      "straining_to_urinate",
+      "vomiting"
+    ],
+    "symptom_count": 7,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Kidney Stones": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "frequent_urination",
+      "lethargy",
+      "loss_of_appetite",
+      "vomiting",
+      "weakness"
+    ],
+    "symptom_count": 5,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Stomatitis": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "difficulty_eating",
+      "drooling",
+      "loss_of_appetite",
+      "weight_loss"
+    ],
+    "symptom_count": 5,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 29
+  },
+  "Tooth Resorption": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "drooling"
+    ],
+    "symptom_count": 1,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Asthma": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "coughing",
+      "difficulty_breathing",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "vomiting",
+      "weight_loss",
+      "wheezing"
+    ],
+    "symptom_count": 9,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Toxoplasmosis": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "circling",
+      "confusion",
+      "fever",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "loss_of_balance",
+      "seizures",
+      "stiffness",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 14,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Feline Herpesvirus (FHV-1)": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "coughing",
+      "ear_discharge",
+      "eye_discharge",
+      "fever",
+      "hair_loss",
+      "lameness",
+      "limping",
+      "loss_of_appetite",
+      "nasal_congestion",
+      "scabs",
+      "sneezing",
+      "swelling"
+    ],
+    "symptom_count": 12,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Mange": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "bumps",
+      "dandruff",
+      "hair_loss",
+      "irritated_skin",
+      "itching",
+      "lameness",
+      "limping",
+      "red_skin",
+      "scabs",
+      "scratching",
+      "skin_lesions"
+    ],
+    "symptom_count": 11,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Ticks": {
+    "species": [
+      "Cats"
+    ],
+    "symptoms": [
+      "bumps",
+      "fever",
+      "hair_loss",
+      "irritated_skin",
+      "lameness",
+      "lethargy",
+      "limping",
+      "loss_of_appetite",
+      "red_skin",
+      "scabs",
+      "scratching",
+      "visible_parasites",
+      "weakness"
+    ],
+    "symptom_count": 13,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Campylobacteriosis": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "fever",
+      "loss_of_appetite",
+      "straining",
+      "swelling",
+      "vomiting"
+    ],
+    "symptom_count": 5,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Acne": {
+    "species": [
+      "Cat"
+    ],
+    "symptoms": [
+      "bumps",
+      "lameness",
+      "limping",
+      "scabs",
+      "skin_lesions"
+    ],
+    "symptom_count": 5,
+    "urgency": "low",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Mycoplasma Respiratory Infection": {
+    "species": [
+      "Bird"
+    ],
+    "symptoms": [
+      "coughing",
+      "difficulty_breathing",
+      "labored_breathing",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_discharge",
+      "red_eyes",
+      "sneezing",
+      "swelling",
+      "weakness",
+      "weight_loss",
+      "wheezing"
+    ],
+    "symptom_count": 12,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Calcium Deficiency": {
+    "species": [
+      "Bird"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "itching",
+      "labored_breathing",
+      "lethargy",
+      "seizures",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 10,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Iodine Deficiency/Goiter": {
+    "species": [
+      "Bird"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lumps",
+      "swelling",
+      "vomiting",
+      "weight_loss",
+      "wheezing"
+    ],
+    "symptom_count": 10,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Chronic Egg Laying": {
+    "species": [
+      "Birds"
+    ],
+    "symptoms": [
+      "aggression",
+      "bloating",
+      "feather_loss",
+      "lethargy",
+      "loss_of_appetite",
+      "seizures",
+      "straining",
+      "swelling",
+      "weakness"
+    ],
+    "symptom_count": 9,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Avian Polyomavirus": {
+    "species": [
+      "Bird"
+    ],
+    "symptoms": [
+      "bloating",
+      "feather_loss",
+      "gas",
+      "lethargy",
+      "loss_of_appetite",
+      "lumps",
+      "red_skin",
+      "swelling",
+      "weakness"
+    ],
+    "symptom_count": 9,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Lice and Mite": {
+    "species": [
+      "Bird"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "feather_loss",
+      "labored_breathing",
+      "lethargy",
+      "restlessness",
+      "scabs",
+      "scratching",
+      "weakness",
+      "weight_loss",
+      "wheezing"
+    ],
+    "symptom_count": 10,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Bloat/Gastric Dilation": {
+    "species": [
+      "Rabbits"
+    ],
+    "symptoms": [
+      "bloating",
+      "gas",
+      "lethargy",
+      "loss_of_appetite",
+      "weakness"
+    ],
+    "symptom_count": 5,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Enteritis": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "bloating",
+      "dehydration",
+      "dental_issues",
+      "diarrhea",
+      "gas",
+      "loss_of_appetite",
+      "restlessness",
+      "weight_loss"
+    ],
+    "symptom_count": 8,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Coccidiosis": {
+    "species": [
+      "Rabbits"
+    ],
+    "symptoms": [
+      "dehydration",
+      "diarrhea",
+      "lethargy",
+      "loss_of_appetite",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 6,
+    "urgency": "emergency",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Hepatic Coccidiosis (Liver Coccidiosis)": {
+    "species": [
+      "Rabbits"
+    ],
+    "symptoms": [
+      "lethargy",
+      "loss_of_appetite",
+      "lumps",
+      "weight_loss"
+    ],
+    "symptom_count": 4,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Intestinal Coccidiosis": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "dehydration",
+      "lethargy",
+      "loss_of_appetite",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 5,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Ear Mite Infestation (Psoroptes cuniculi)": {
+    "species": [
+      "Rabbits"
+    ],
+    "symptoms": [
+      "head_shaking",
+      "head_tilt",
+      "loss_of_appetite",
+      "loss_of_balance",
+      "scratching",
+      "weight_loss"
+    ],
+    "symptom_count": 6,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 29
+  },
+  "Fur Mite Infestation (Cheyletiella parasitovorax)": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "dandruff",
+      "hair_loss",
+      "itching",
+      "scratching"
+    ],
+    "symptom_count": 4,
+    "urgency": "low",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Sarcoptic Mange (Sarcoptes scabiei or Notoedres cati)": {
+    "species": [
+      "Rabbits"
+    ],
+    "symptoms": [
+      "hair_loss",
+      "itching",
+      "scabs",
+      "scratching",
+      "skin_lesions"
+    ],
+    "symptom_count": 5,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Flea Infestation (Ctenocephalides spp.)": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "restlessness",
+      "scratching"
+    ],
+    "symptom_count": 2,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Encephalitozoonosis (Encephalitozoon cuniculi)": {
+    "species": [
+      "Rabbits"
+    ],
+    "symptoms": [
+      "head_tilt",
+      "loss_of_appetite",
+      "seizures",
+      "weight_loss"
+    ],
+    "symptom_count": 4,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Pinworm Infestation (Passalurus ambiguus)": {
+    "species": [
+      "Species"
+    ],
+    "symptoms": [
+      "itching",
+      "restlessness",
+      "visible_parasites"
+    ],
+    "symptom_count": 3,
+    "urgency": "low",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Tooth root abscesses": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "dental_issues",
+      "ear_discharge",
+      "hiding",
+      "lethargy",
+      "nasal_discharge",
+      "sneezing",
+      "swelling",
+      "watery_eyes",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 10,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Overgrown Incisors": {
+    "species": [
+      "Rabbits"
+    ],
+    "symptoms": [
+      "dental_issues",
+      "drooling",
+      "hiding",
+      "lethargy",
+      "loss_of_appetite",
+      "nasal_discharge",
+      "reluctance_to_move",
+      "watery_eyes",
+      "weight_loss"
+    ],
+    "symptom_count": 9,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Rabbit Hemorrhagic Disease Virus": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "fever",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lethargy",
+      "seizures",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 10,
+    "urgency": "emergency",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Bladder Stones": {
+    "species": [
+      "Rabbits"
+    ],
+    "symptoms": [
+      "blood_in_urine",
+      "lethargy",
+      "loss_of_appetite",
+      "straining",
+      "swelling",
+      "weakness"
+    ],
+    "symptom_count": 6,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Bladder Sludge": {
+    "species": [
+      "Rabbit"
+    ],
+    "symptoms": [
+      "bad_breath",
+      "lethargy",
+      "straining",
+      "straining_to_urinate"
+    ],
+    "symptom_count": 4,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Velvet Disease": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "lethargy",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 3,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Anchor Worms": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "irritated_skin",
+      "lameness",
+      "limping",
+      "red_skin",
+      "skin_lesions",
+      "swelling",
+      "visible_parasites"
+    ],
+    "symptom_count": 7,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Fish Lice and Leech": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "hiding",
+      "lethargy",
+      "loss_of_appetite",
+      "rubbing_against_objects",
+      "visible_parasites",
+      "weakness"
+    ],
+    "symptom_count": 6,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Fish Tuberculosis": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "bumps",
+      "dandruff",
+      "lethargy",
+      "loss_of_appetite",
+      "skin_lesions",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 7,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "(Hemorrhagic Septicemia / Ulcerative Syndromes)": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "lethargy",
+      "skin_lesions",
+      "swelling",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 5,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Gram-positive Bacterial Infections (Streptococcus, Lactococcus, Enterococcus, Vagococcus)": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "circling",
+      "lethargy",
+      "weakness"
+    ],
+    "symptom_count": 3,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Cotton wool disease": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "lethargy",
+      "loss_of_appetite",
+      "weakness"
+    ],
+    "symptom_count": 3,
+    "urgency": "high",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Ammonia Poisoning": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "clamped_fins",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lameness",
+      "lethargy",
+      "limping",
+      "loss_of_appetite",
+      "weight_loss"
+    ],
+    "symptom_count": 10,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Nitrate Poisoning": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "lameness",
+      "lethargy",
+      "limping",
+      "loss_of_appetite",
+      "red_skin",
+      "weakness"
+    ],
+    "symptom_count": 6,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "pH shock": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "clamped_fins",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "hiding",
+      "lethargy",
+      "loss_of_appetite",
+      "weakness"
+    ],
+    "symptom_count": 8,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Cold Water Shock": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "clamped_fins",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "hiding",
+      "lethargy",
+      "loss_of_appetite",
+      "weakness"
+    ],
+    "symptom_count": 8,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Heat Shock": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "clamped_fins",
+      "confusion",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "lethargy",
+      "loss_of_appetite",
+      "white_spots"
+    ],
+    "symptom_count": 8,
+    "urgency": "emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Koi herpes virus": {
+    "species": [
+      "Fish"
+    ],
+    "symptoms": [
+      "confusion",
+      "dandruff",
+      "difficulty_breathing",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "lameness",
+      "lethargy",
+      "limping",
+      "loss_of_appetite",
+      "swelling",
+      "weight_loss"
+    ],
+    "symptom_count": 12,
+    "urgency": "emergency",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Protozoal Infection": {
+    "species": [
+      "Hamster"
+    ],
+    "symptoms": [
+      "dehydration",
+      "diarrhea",
+      "lethargy",
+      "loss_of_appetite",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 6,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Pinworm Infection": {
+    "species": [
+      "Hamster"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "irritated_skin",
+      "itching",
+      "lethargy",
+      "visible_parasites",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 7,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Tapeworm Infection": {
+    "species": [
+      "Hamster"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "lethargy",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 4,
+    "urgency": "medium",
+    "contagious": "yes",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Diabetes Mellitus": {
+    "species": [
+      "Hamster"
+    ],
+    "symptoms": [
+      "dehydration",
+      "frequent_urination",
+      "increased_thirst",
+      "lethargy",
+      "loss_of_appetite",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 7,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Malocclusion (Dental Overgrowth)": {
+    "species": [
+      "Hamster"
+    ],
+    "symptoms": [
+      "dental_issues",
+      "drooling",
+      "loss_of_appetite",
+      "weight_loss"
+    ],
+    "symptom_count": 4,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Hair Loss (Alopecia)": {
+    "species": [
+      "Hamster"
+    ],
+    "symptoms": [
+      "dandruff",
+      "hair_loss",
+      "lethargy",
+      "lumps",
+      "scabs",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 7,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Pyramiding": {
+    "species": [
+      "Turtle"
+    ],
+    "symptoms": [
+      "difficulty_eating",
+      "lumps"
+    ],
+    "symptom_count": 2,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Soft Shell Disease (Metabolic Bone Disease)": {
+    "species": [
+      "Turtle"
+    ],
+    "symptoms": [
+      "lethargy",
+      "loss_of_appetite",
+      "swelling",
+      "weakness"
+    ],
+    "symptom_count": 4,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Shell Injuries/Trauma": {
+    "species": [
+      "Turtle"
+    ],
+    "symptoms": [
+      "ear_discharge",
+      "lameness",
+      "limping",
+      "skin_lesions"
+    ],
+    "symptom_count": 4,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Hypovitaminosis D (Vitamin D3 Deficiency)": {
+    "species": [
+      "Turtle"
+    ],
+    "symptoms": [
+      "lethargy",
+      "loss_of_appetite",
+      "lumps",
+      "swelling",
+      "weakness"
+    ],
+    "symptom_count": 5,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 29
+  },
+  "Internal Parasites (Roundworms, Tapeworms, Protozoa)": {
+    "species": [
+      "Turtle"
+    ],
+    "symptoms": [
+      "diarrhea",
+      "lethargy",
+      "loss_of_appetite",
+      "swelling",
+      "visible_parasites",
+      "vomiting",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 8,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "External Parasites (Mites, Ticks, Leeches, Botflies)": {
+    "species": [
+      "Turtle"
+    ],
+    "symptoms": [
+      "lethargy",
+      "lumps",
+      "visible_parasites"
+    ],
+    "symptom_count": 3,
+    "urgency": "medium",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Thermal Burns": {
+    "species": [
+      "Turtle"
+    ],
+    "symptoms": [
+      "reluctance_to_move",
+      "swelling"
+    ],
+    "symptom_count": 2,
+    "urgency": "high",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  },
+  "Drowning/Hypothermia": {
+    "species": [
+      "Turtle"
+    ],
+    "symptoms": [
+      "difficulty_breathing",
+      "gas",
+      "gasping",
+      "gasping_at_surface",
+      "labored_breathing",
+      "lethargy",
+      "seizures",
+      "weakness",
+      "weight_loss"
+    ],
+    "symptom_count": 9,
+    "urgency": "critical/emergency",
+    "contagious": "no",
+    "sources": [
+      "variation_1",
+      "variation_10",
+      "variation_11",
+      "variation_12",
+      "variation_13",
+      "variation_14",
+      "variation_15",
+      "variation_16",
+      "variation_17",
+      "variation_18",
+      "variation_19",
+      "variation_2",
+      "variation_20",
+      "variation_21",
+      "variation_22",
+      "variation_23",
+      "variation_24",
+      "variation_25",
+      "variation_26",
+      "variation_27",
+      "variation_28",
+      "variation_29",
+      "variation_3",
+      "variation_30",
+      "variation_4",
+      "variation_5",
+      "variation_6",
+      "variation_7",
+      "variation_8",
+      "variation_9"
+    ],
+    "sample_count": 30
+  }
+}
