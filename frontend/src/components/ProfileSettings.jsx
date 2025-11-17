@@ -29,6 +29,8 @@ const ProfileSettings = () => {
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  // Responsive mobile sidebar overlay
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
@@ -202,55 +204,120 @@ const ProfileSettings = () => {
   };
 
   return (
-    <div className="h-screen bg-[#F0F0F0] flex overflow-hidden">
-      {/* Left Sidebar */}
-      <Sidebar
-        sidebarVisible={sidebarVisible}
-        currentPage="profile-settings"
-        onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
-        showSearch={false}
-        showPinnedChats={true}
-        showRecentChats={true}
-        conversations={conversations}
-        loadingConversations={loadingConversations}
-        onLoadConversation={handleLoadConversation}
-        onCreateNewConversation={handleCreateNewConversation}
-        onPinConversation={handlePinConversation}
-        onRenameConversation={handleRenameConversation}
-        onArchiveConversation={handleArchiveConversation}
-        onDeleteConversation={handleDeleteConversation}
-      />
+  <div className="min-h-screen bg-[#F0F0F0] flex flex-col md:flex-row overflow-hidden">
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <div className="hidden md:block sticky top-0 h-screen z-30">
+        <Sidebar
+          sidebarVisible={sidebarVisible}
+          currentPage="profile-settings"
+          onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
+          showSearch={false}
+          showPinnedChats={true}
+          showRecentChats={true}
+          conversations={conversations}
+          loadingConversations={loadingConversations}
+          onLoadConversation={handleLoadConversation}
+          onCreateNewConversation={handleCreateNewConversation}
+          onPinConversation={handlePinConversation}
+          onRenameConversation={handleRenameConversation}
+          onArchiveConversation={handleArchiveConversation}
+          onDeleteConversation={handleDeleteConversation}
+          isMobileOverlay={false}
+        />
+      </div>
+
+      {/* --- MODIFIED BLOCK --- */}
+      {/* Mobile Sidebar Overlay with Transitions */}
+      <div
+        className={`
+          md:hidden fixed inset-0 z-50 flex
+          transition-opacity duration-300 ease-in-out
+          ${isMobileSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
+        `}
+        role="dialog"
+        aria-modal="true"
+      >
+        {/* Sidebar Component (The sliding part) */}
+        <div
+          className={`
+            w-80 h-full
+            transition-transform duration-300 ease-in-out transform
+            ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+            bg-[#DCCEF1]
+          `}
+        >
+          <Sidebar
+            sidebarVisible={true}
+            currentPage="profile-settings"
+            onToggleSidebar={() => setIsMobileSidebarOpen(false)}
+            showSearch={false}
+            showPinnedChats={true}
+            showRecentChats={true}
+            conversations={conversations}
+            loadingConversations={loadingConversations}
+            onLoadConversation={(id) => {
+              handleLoadConversation(id);
+              setIsMobileSidebarOpen(false);
+            }}
+            onCreateNewConversation={() => {
+              handleCreateNewConversation();
+              setIsMobileSidebarOpen(false);
+            }}
+            onPinConversation={handlePinConversation}
+            onRenameConversation={handleRenameConversation}
+            onArchiveConversation={handleArchiveConversation}
+            onDeleteConversation={handleDeleteConversation}
+            isMobileOverlay={true}
+          />
+        </div>
+        
+        {/* Overlay Background (The fading part) */}
+        <div 
+          className="flex-1 bg-black bg-opacity-50" 
+          onClick={() => setIsMobileSidebarOpen(false)}
+          aria-label="Close sidebar"
+        ></div>
+      </div>
+      {/* --- END OF MODIFIED BLOCK --- */}
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#F0F0F0]">
-        {/* Header */}
-        <div className="border-b p-4 flex items-center justify-between flex-shrink-0" style={{ backgroundColor: '#f0f1f1' }}>
-          <div className="flex items-center space-x-4">
-            {!sidebarVisible && (
-              <button
-                onClick={() => setSidebarVisible(true)}
-                className="p-2 hover:bg-gray-200 rounded-lg transition-colors text-gray-600"
-                title="Show sidebar"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+  <div className="flex-1 flex flex-col min-w-0 bg-[#F0F0F0] w-full">
+        {/* Header - Changed to flex-row and added hamburger button */}
+        {/* Header - Mobile: logo, sidebar toggle, profile. Desktop: unchanged. */}
+        <div className="border-b p-2 md:p-4 flex flex-row items-center justify-between flex-shrink-0 gap-2 md:gap-0 sticky top-0 z-20 bg-[#DCCEF1] md:bg-[#f0f1f1]">
+          {/* Mobile header */}
+          <div className="flex items-center gap-2 md:hidden w-full justify-between">
+            <div className="flex items-center gap-2">
+              <img src="/pat-removebg-preview 2.png" alt="PawPal Logo" className="w-8 h-8" />
+              <span className="font-bold text-lg text-[#815FB3]" style={{ fontFamily: 'Raleway' }}>PAWPAL</span>
+              <button onClick={() => setIsMobileSidebarOpen(true)} className="p-2 ml-2" aria-label="Open sidebar">
+                {/* Flipped sidebar-expand-icon.png to face right */}
+                <img src="/sidebar-expand-icon.png" alt="Sidebar Toggle" className="w-6 h-6" style={{ transform: 'scaleX(-1)' }} />
               </button>
-            )}
-            <h2 className="text-[24px] font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
-              Profile Settings
-            </h2>
+            </div>
+            <ProfileButton onLogoutClick={handleLogoutClick} />
           </div>
-          
-          <div className="flex items-center space-x-4">
+          {/* Desktop header */}
+          <div className="hidden md:flex items-center gap-2 md:gap-4 w-full justify-between">
+            <div className="flex items-center gap-2 md:gap-4">
+              <h2 className="text-lg md:text-[24px] font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
+                Profile Settings
+              </h2>
+            </div>
             <ProfileButton onLogoutClick={handleLogoutClick} />
           </div>
         </div>
+        {/* Page name below header for mobile */}
+        <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#F0F0F0' }}>
+          <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
+            Profile Settings
+          </h2>
+        </div>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+  <div className="flex-1 overflow-y-auto p-2 md:p-6">
           {fetchingData ? (
-            <div className="max-w-4xl mx-auto flex items-center justify-center h-64">
+            <div className="max-w-2xl md:max-w-4xl mx-auto flex items-center justify-center h-40 md:h-64">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3] mx-auto mb-4"></div>
                 <div className="text-lg font-medium text-gray-600" style={{ fontFamily: 'Raleway' }}>
@@ -259,18 +326,18 @@ const ProfileSettings = () => {
               </div>
             </div>
           ) : (
-            <div className="max-w-4xl mx-auto space-y-6">
+            <div className="max-w-2xl md:max-w-4xl mx-auto space-y-4 md:space-y-6">
             
             {/* Profile Information Card */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
+            <div className="bg-white rounded-xl shadow-sm p-3 md:p-6">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0 mb-4 md:mb-6">
+                <h3 className="text-base md:text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
                   Profile Information
                 </h3>
                 {!editingProfile && (
                   <button
                     onClick={() => setEditingProfile(true)}
-                    className="bg-[#815FB3] hover:bg-[#6D4C9A] text-white font-bold py-2 px-6 rounded-full transition-colors"
+                    className="bg-[#815FB3] hover:bg-[#6D4C9A] text-white font-bold py-2 px-4 md:px-6 rounded-full transition-colors"
                     style={{ fontFamily: 'Raleway' }}
                   >
                     Edit Profile
@@ -278,10 +345,10 @@ const ProfileSettings = () => {
                 )}
               </div>
 
-              <div className="flex items-start space-x-6">
+              <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
                 {/* Profile Image */}
                 <div className="relative">
-                  <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
+                  <div className="w-20 h-20 md:w-24 md:h-24 bg-gray-200 rounded-full flex items-center justify-center">
                     <svg className="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                     </svg>
@@ -296,8 +363,8 @@ const ProfileSettings = () => {
                 </div>
 
                 {/* Profile Details */}
-                <div className="flex-1 space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex-1 space-y-2 md:space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontFamily: 'Raleway' }}>
                         Username
@@ -346,15 +413,15 @@ const ProfileSettings = () => {
             </div>
 
             {/* Contact Information Card */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
+            <div className="bg-white rounded-xl shadow-sm p-3 md:p-6">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0 mb-4 md:mb-6">
+                <h3 className="text-base md:text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
                   Contact Information
                 </h3>
                 {!editingContact && (
                   <button
                     onClick={() => setEditingContact(true)}
-                    className="bg-[#815FB3] hover:bg-[#6D4C9A] text-white font-bold py-2 px-6 rounded-full transition-colors"
+                    className="bg-[#815FB3] hover:bg-[#6D4C9A] text-white font-bold py-2 px-4 md:px-6 rounded-full transition-colors"
                     style={{ fontFamily: 'Raleway' }}
                   >
                     Update Contact Info
@@ -362,7 +429,7 @@ const ProfileSettings = () => {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontFamily: 'Raleway' }}>
                     Phone Number
@@ -467,8 +534,8 @@ const ProfileSettings = () => {
             </div>
 
             {/* Account Settings Card */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-6" style={{ fontFamily: 'Raleway' }}>
+            <div className="bg-white rounded-xl shadow-sm p-3 md:p-6">
+              <h3 className="text-base md:text-xl font-bold text-gray-900 mb-4 md:mb-6" style={{ fontFamily: 'Raleway' }}>
                 Account Settings
               </h3>
 

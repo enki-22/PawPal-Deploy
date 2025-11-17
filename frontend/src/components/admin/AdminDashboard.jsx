@@ -199,52 +199,46 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-[#f0f0f0]">
       <AdminTopNav activePage="Dashboard" />
-      <div className="px-[100px] pt-[114px] pb-[50px]">
+      <div className="px-2 pt-20 pb-8 md:px-12 lg:px-24 xl:px-[100px] md:pt-[114px] md:pb-[50px]">
         {/* Stats Cards */}
-        <div className="grid grid-cols-4 gap-[30px] mb-[34px]">
-          {stats.map((stat, index) => {
-            // ...existing stat card code...
-            return (
-              <div key={index} style={{position: 'relative', width: 300, height: 110, background: '#FFFFFF', borderRadius: 10}}>
-                {/* For Users stat, show only the logo without circle */}
-                <div style={{position: 'absolute', width: 76.5, height: 76.5, left: 29, top: 17, background: '#EFE8BE', borderRadius: '100px', boxShadow: '0 2px 6px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                  <img src={stat.icon} alt={stat.label} style={{width: 57.375, height: 57.375, objectFit: 'contain'}} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-[30px] mb-6 md:mb-[34px]">
+          {stats.map((stat, index) => (
+            <div key={index} className="relative bg-white rounded-lg w-full max-w-xs md:max-w-[300px] h-[110px] mx-auto flex items-center">
+              <div className="absolute left-4 top-4 w-16 h-16 bg-[#EFE8BE] rounded-full shadow flex items-center justify-center">
+                <img src={stat.icon} alt={stat.label} className="w-12 h-12 object-contain" />
+              </div>
+              {(stat.label === 'SOAP Reports' || stat.label === 'Conversations') && (
+                <div className="absolute right-4 top-4 bg-[#EFE8BE] rounded px-2 py-1 flex items-center justify-center cursor-pointer">
+                  <select
+                    value={stat.label === 'SOAP Reports' ? soapFilter : conversationFilter}
+                    onChange={stat.label === 'SOAP Reports'
+                      ? (e) => setSoapFilter(e.target.value)
+                      : (e) => setConversationFilter(e.target.value)
+                    }
+                    className="bg-transparent border-none font-inter font-normal text-xs text-black outline-none w-[90px] cursor-pointer"
+                  >
+                    <option value="Last 24 Hours">Last 24 Hours</option>
+                    <option value="Last 7 Days">Last 7 Days</option>
+                    <option value="Last Month">Last Month</option>
+                    <option value="All Time">All Time</option>
+                  </select>
                 </div>
-                  {/* Dropdown for SOAP Reports and Conversations */}
-                  {(stat.label === 'SOAP Reports' || stat.label === 'Conversations') && (
-                    <div style={{position: 'absolute', width: 85, height: 20, right: 15, top: 15, background: '#EFE8BE', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 8px', cursor: 'pointer'}}>
-                      <select
-                        value={stat.label === 'SOAP Reports' ? soapFilter : conversationFilter}
-                        onChange={stat.label === 'SOAP Reports'
-                          ? (e) => setSoapFilter(e.target.value)
-                          : (e) => setConversationFilter(e.target.value)
-                        }
-                        style={{background: 'transparent', border: 'none', fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11, color: '#000', outline: 'none', width: '110px', cursor: 'pointer'}}
-                      >
-                        <option value="Last 24 Hours">Last 24 Hours</option>
-                        <option value="Last 7 Days">Last 7 Days</option>
-                        <option value="Last Month">Last Month</option>
-                        <option value="All Time">All Time</option>
-                      </select>
-                    </div>
-                  )}
-                  {/* Centered value and label */}
-                  <div style={{position: 'absolute', left: 122, top: '50%', transform: 'translateY(-50%)', textAlign: 'left'}}>
-                    <div style={{width: 99, height: 35, fontFamily: 'Raleway', fontWeight: 700, fontSize: 30, lineHeight: '35px', letterSpacing: '0.05em', color: '#34113F'}}>{stat.value}</div>
-                    <div style={{width: 99, height: 16, fontFamily: 'Raleway', fontWeight: 400, fontSize: 14, lineHeight: '16px', letterSpacing: '0.05em', color: '#000000'}}>{stat.label}</div>
-                  </div>
-                </div>
-              );
-            })}
+              )}
+              <div className="absolute left-24 top-1/2 -translate-y-1/2 text-left">
+                <div className="font-raleway font-bold text-2xl text-[#34113F]">{stat.value}</div>
+                <div className="font-raleway font-normal text-base text-black">{stat.label}</div>
+              </div>
+            </div>
+          ))}
           </div>
           {/* Main Content Grid: Left (FAQ, Pets, Flagged Cases) and Right (Charts, Symptoms, Announcements) */}
-          <div className="grid grid-cols-3 gap-[30px] mb-[34px]">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-[30px] mb-6 md:mb-[34px]">
             {/* Left Column */}
-            <div className="col-span-2 flex flex-col gap-[30px]">
+            <div className="col-span-1 md:col-span-2 flex flex-col gap-4 md:gap-[30px]">
               {/* FAQ */}
-              <div className="bg-white rounded-[10px] p-[28px]">
-                <h2 className="font-['Raleway:Bold',sans-serif] tracking-[1.1px] mb-[24px]">Frequently Asked Questions</h2>
-                <div className="space-y-[10px]">
+              <div className="bg-white rounded-lg p-4 md:p-[28px]">
+                <h2 className="font-raleway font-bold tracking-wide mb-4 md:mb-[24px]">Frequently Asked Questions</h2>
+                <div className="space-y-2 md:space-y-[10px]">
                   {faqs.length > 0 ? (
                     faqs.map((faq, index) => (
                       <div key={index} className="border border-[#666666] rounded-[5px]">
@@ -268,21 +262,21 @@ const AdminDashboard = () => {
                 </div>
               </div>
               {/* Recently Added Pets */}
-              <div className="bg-white rounded-[10px] p-[28px]" style={{ maxHeight: 350, overflowY: 'auto' }}>
-                <div className="flex items-center justify-between mb-[28px]">
-                  <h2 className="font-['Raleway:Bold',sans-serif] tracking-[1.1px]">Recently Added Pets</h2>
+              <div className="bg-white rounded-lg p-4 md:p-[28px] max-h-[350px] overflow-y-auto">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0 mb-4 md:mb-[28px]">
+                  <h2 className="font-raleway font-bold tracking-wide">Recently Added Pets</h2>
                   <button 
                     onClick={() => navigate('/admin/pets')}
-                    className="bg-[#f0e4b3] rounded-[10px] px-[41px] py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px] cursor-pointer hover:bg-[#e8d9a0] transition-colors"
+                    className="bg-[#f0e4b3] rounded-lg px-6 py-2 shadow font-raleway font-extrabold text-[#34113f] tracking-wide cursor-pointer hover:bg-[#e8d9a0] transition-colors"
                   >
                     Show All Pets
                   </button>
                 </div>
-                <div className="space-y-[18px]">
+                <div className="space-y-3 md:space-y-[18px]">
                   {pets.length > 0 ? (
                     pets.map((pet, index) => (
-                      <div key={index} className="bg-[#ebe2f7] rounded-[5px] p-[12px_18px]">
-                        <div className="grid grid-cols-5 gap-4">
+                      <div key={index} className="bg-[#ebe2f7] rounded-md p-3 md:p-[12px_18px]">
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-4">
                           <div>
                             <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Name</div>
                             <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.pet_name || pet.name}</div>
@@ -314,20 +308,20 @@ const AdminDashboard = () => {
                 </div>
               </div>
               {/* Flagged Cases */}
-              <div className="bg-white rounded-[10px] p-[28px]" style={{ maxHeight: 350, overflowY: 'auto' }}>
-                <div className="flex items-center justify-between mb-[28px]">
-                  <h2 className="font-['Raleway:Bold',sans-serif] tracking-[1.1px]">Flagged Cases</h2>
+              <div className="bg-white rounded-lg p-4 md:p-[28px] max-h-[350px] overflow-y-auto">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0 mb-4 md:mb-[28px]">
+                  <h2 className="font-raleway font-bold tracking-wide">Flagged Cases</h2>
                   <button 
                     onClick={() => navigate('/admin/reports')}
-                    className="bg-[#f0e4b3] rounded-[10px] px-[41px] py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] tracking-[0.6px] cursor-pointer hover:bg-[#e8d9a0] transition-colors"
+                    className="bg-[#f0e4b3] rounded-lg px-6 py-2 shadow font-raleway font-extrabold text-[#34113f] tracking-wide cursor-pointer hover:bg-[#e8d9a0] transition-colors"
                   >
                     View All Flagged SOAP Reports
                   </button>
                 </div>
-                <div className="space-y-[18px]">
+                <div className="space-y-3 md:space-y-[18px]">
                   {cases.map((caseItem, index) => (
-                    <div key={index} className="bg-[#ebe2f7] rounded-[5px] p-[12px_18px]">
-                      <div className="grid grid-cols-6 gap-4 items-center">
+                    <div key={index} className="bg-[#ebe2f7] rounded-md p-3 md:p-[12px_18px]">
+                      <div className="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-4 items-center">
                         <div>
                           <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Name</div>
                           <div className="font-['Raleway:SemiBold',sans-serif] text-black">{caseItem.pet_name}</div>
@@ -367,16 +361,15 @@ const AdminDashboard = () => {
               </div>
             </div>
             {/* Right Column: Charts, Symptoms, Announcements */}
-            <div className="flex flex-col gap-[30px]">
+            <div className="flex flex-col gap-4 md:gap-[30px]">
               {/* Checks by Species Chart */}
-              <div className="bg-white rounded-[10px] p-[18px]">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-['Raleway:Bold',sans-serif]">Checks by <span className="text-[#57166B]">Species</span></span>
+              <div className="bg-white rounded-lg p-3 md:p-[18px]">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0 mb-2">
+                  <span className="font-raleway font-bold">Checks by <span className="text-[#57166B]">Species</span></span>
                   <select
                     value={speciesFilter}
                     onChange={e => setSpeciesFilter(e.target.value)}
-                    className="bg-[#efe8be] rounded-[5px] px-2 py-1 text-xs font-['Inter:Regular',sans-serif] text-[#57166B] border-none outline-none cursor-pointer"
-                    style={{ minWidth: 110, fontFamily: 'Inter, sans-serif' }}
+                    className="bg-[#efe8be] rounded px-2 py-1 text-xs font-inter text-[#57166B] border-none outline-none cursor-pointer min-w-[110px]"
                   >
                     <option value="Last 24 Hours">Last 24 Hours</option>
                     <option value="Last 7 Days">Last 7 Days</option>
@@ -384,7 +377,7 @@ const AdminDashboard = () => {
                     <option value="All Time">All Time</option>
                   </select>
                 </div>
-                <div style={{ width: '100%', height: 250 }}>
+                <div className="w-full h-[200px] md:h-[250px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={speciesData}
@@ -422,14 +415,13 @@ const AdminDashboard = () => {
                 </div>
               </div>
               {/* Most Common Symptoms */}
-              <div className="bg-white rounded-[10px] p-[18px]">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="font-['Raleway:Bold',sans-serif] text-lg">Most Common Symptoms</span>
+              <div className="bg-white rounded-lg p-3 md:p-[18px]">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0 mb-4">
+                  <span className="font-raleway font-bold text-base md:text-lg">Most Common Symptoms</span>
                   <select
                     value={soapFilter}
                     onChange={e => setSoapFilter(e.target.value)}
-                    className="bg-[#efe8be] rounded-[5px] px-2 py-1 text-xs font-semibold text-[#57166B] border-none outline-none cursor-pointer"
-                    style={{ minWidth: 110 }}
+                    className="bg-[#efe8be] rounded px-2 py-1 text-xs font-semibold text-[#57166B] border-none outline-none cursor-pointer min-w-[110px]"
                   >
                     <option value="Last 24 Hours">Last 24 Hours</option>
                     <option value="Last 7 Days">Last 7 Days</option>
@@ -437,7 +429,7 @@ const AdminDashboard = () => {
                     <option value="All Time">All Time</option>
                   </select>
                 </div>
-                <ul className="space-y-4">
+                <ul className="space-y-2 md:space-y-4">
                   {symptoms.map((s, i) => (
                     <li key={i} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -450,26 +442,26 @@ const AdminDashboard = () => {
                 </ul>
               </div>
               {/* Common Symptoms in Species */}
-              <div className="bg-white rounded-[10px] p-[18px]">
-                <div className="font-['Raleway:Bold',sans-serif] mb-4 text-lg">Common Symptoms in Species</div>
-                <div className="flex flex-col gap-3">
+              <div className="bg-white rounded-lg p-3 md:p-[18px]">
+                <div className="font-raleway font-bold mb-2 md:mb-4 text-base md:text-lg">Common Symptoms in Species</div>
+                <div className="flex flex-col gap-2 md:gap-3">
                   {Object.entries(symptomsBySpecies).map(([species, symptoms], i) => (
-                    <div key={i} className="grid grid-cols-2 items-center rounded-[10px] bg-[#f3eafd] px-4 py-3">
-                      <div className="font-bold text-[#34113F] text-base bg-white rounded-[6px] px-4 py-2 flex items-center justify-center mr-3">{species}</div>
-                      <div className="text-base text-[#34113F] bg-white rounded-[6px] px-4 py-2 flex items-center">{Array.isArray(symptoms) ? symptoms.join(', ') : symptoms}</div>
+                    <div key={i} className="grid grid-cols-1 md:grid-cols-2 items-center rounded-lg bg-[#f3eafd] px-2 py-2 md:px-4 md:py-3">
+                      <div className="font-bold text-[#34113F] text-base bg-white rounded px-2 py-1 md:px-4 md:py-2 flex items-center justify-center mr-0 md:mr-3">{species}</div>
+                      <div className="text-base text-[#34113F] bg-white rounded px-2 py-1 md:px-4 md:py-2 flex items-center">{Array.isArray(symptoms) ? symptoms.join(', ') : symptoms}</div>
                     </div>
                   ))}
                 </div>
                 <button 
                   onClick={() => navigate('/admin/reports')}
-                  className="mt-5 w-full bg-[#f0e4b3] rounded-[10px] py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.10)] font-['Raleway:ExtraBold',sans-serif] text-[#34113f] text-base tracking-[0.6px] cursor-pointer hover:bg-[#e8d9a0] transition-colors"
+                  className="mt-3 w-full bg-[#f0e4b3] rounded-lg py-2 shadow font-raleway font-extrabold text-[#34113f] text-base tracking-wide cursor-pointer hover:bg-[#e8d9a0] transition-colors"
                 >
                   View ALL Common Symptoms in Species
                 </button>
               </div>
               {/* Latest SOAP Report Generated */}
-              <div className="bg-white rounded-[10px] p-[18px]">
-                <div className="font-['Raleway:Bold',sans-serif] mb-2">Latest SOAP Report Generated</div>
+              <div className="bg-white rounded-lg p-3 md:p-[18px]">
+                <div className="font-raleway font-bold mb-1 md:mb-2">Latest SOAP Report Generated</div>
                 <ul className="space-y-1 text-xs">
                   {latestSoapReports.length > 0 ? (
                     latestSoapReports.map((report, i) => (
@@ -483,7 +475,7 @@ const AdminDashboard = () => {
                 </ul>
                 <button 
                   onClick={() => navigate('/admin/reports')}
-                  className="mt-2 w-full bg-[#efe8be] rounded-[5px] py-1 text-xs font-bold text-[#57166B] cursor-pointer hover:bg-[#e5dba8] transition-colors"
+                  className="mt-2 w-full bg-[#efe8be] rounded py-1 text-xs font-bold text-[#57166B] cursor-pointer hover:bg-[#e5dba8] transition-colors"
                 >
                   View All SOAP Reports
                 </button>

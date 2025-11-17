@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
@@ -7,7 +7,6 @@ import Alert from './Alert';
 
 const RegisterStep1 = () => {
   // Redirect to landing if all fields are empty (prevents browser back from step 2)
-  import { useEffect } from 'react';
   useEffect(() => {
     if (!formData.username && !formData.email && !formData.password1 && !formData.password2) {
       navigate('/', { replace: true });
@@ -72,52 +71,52 @@ const RegisterStep1 = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#D8CAED] flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full bg-[#FFFFF2] rounded-lg shadow-xl overflow-hidden">
-        <div className="p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="min-h-screen bg-[#D8CAED] flex items-center justify-center p-2 md:p-4">
+      <div className="max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl w-full bg-[#FFFFF2] rounded-lg shadow-xl overflow-hidden">
+        <div className="p-2 md:p-4 lg:p-8">
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-4 lg:gap-8">
             {/* Left Side - PawPal Promotional Panel */}
-            <div className="bg-[#815FB3] text-white p-8 rounded-lg flex flex-col justify-center">
+            <div className="bg-[#815FB3] text-white p-2 md:p-4 lg:p-8 rounded-lg flex flex-col justify-center">
               <div className="text-center">
                 {!showClinicInfo ? (
                   <>
-                    <div className="mb-4">
+                    <div className="mb-2 md:mb-4">
                       <div className="inline-flex items-center">
-                        <img src={pawIcon} alt="Paw" className="w-16 h-16 mr-2" />
-                        <h1 className="text-[#FFF07B] font-museo font-black text-[47px] leading-[100%] tracking-[0%]">
+                        <img src={pawIcon} alt="Paw" className="w-10 h-10 md:w-16 md:h-16 mr-2" />
+                        <h1 className="text-[#FFF07B] font-museo font-black text-2xl md:text-[47px] leading-[100%] tracking-[0%]">
                           PAWPAL
                         </h1>
                       </div>
                     </div>
                     
-                    <h2 className="text-[20px] font-bold leading-[100%] tracking-[0%] text-center mb-4" 
+                    <h2 className="text-base md:text-[20px] font-bold leading-[100%] tracking-[0%] text-center mb-2 md:mb-4" 
                         style={{ fontFamily: 'Raleway' }}>
                       Your pet&apos;s health companion
                     </h2>
                     
-                    <p className="text-[16px] font-medium leading-[100%] tracking-[0%] mb-8" 
-                       style={{ fontFamily: 'Raleway' }}>
+              <p className="text-sm md:text-[16px] font-medium leading-[100%] tracking-[0%] mb-4 md:mb-8" 
+                style={{ fontFamily: 'Raleway' }}>
                       Get instant answers to your pet health questions, track vaccinations, and receive personalized care recommendations.
                     </p>
                     
-                    <div className="space-y-3 text-left">
+                    <div className="space-y-2 md:space-y-3 text-left">
                       <div className="flex items-center">
-                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
-                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
+                        <img src={pawBullet} alt="Paw" className="w-4 h-4 md:w-6 md:h-6 mr-2 md:mr-3 transform rotate-45" />
+                        <span className="text-xs md:text-[18px] font-medium leading-[100%] tracking-[0%]" 
                               style={{ fontFamily: 'Raleway' }}>
                           24/7 Pet Health Support
                         </span>
                       </div>
                       <div className="flex items-center">
-                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
-                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
+                        <img src={pawBullet} alt="Paw" className="w-4 h-4 md:w-6 md:h-6 mr-2 md:mr-3 transform rotate-45" />
+                        <span className="text-xs md:text-[18px] font-medium leading-[100%] tracking-[0%]" 
                               style={{ fontFamily: 'Raleway' }}>
                           Personalized Care
                         </span>
                       </div>
                       <div className="flex items-center">
-                        <img src={pawBullet} alt="Paw" className="w-6 h-6 mr-3 transform rotate-45" />
-                        <span className="text-[18px] font-medium leading-[100%] tracking-[0%]" 
+                        <img src={pawBullet} alt="Paw" className="w-4 h-4 md:w-6 md:h-6 mr-2 md:mr-3 transform rotate-45" />
+                        <span className="text-xs md:text-[18px] font-medium leading-[100%] tracking-[0%]" 
                               style={{ fontFamily: 'Raleway' }}>
                           Track Vaccinations and Medications
                         </span>
@@ -156,7 +155,7 @@ const RegisterStep1 = () => {
                   </>
                 )}
                 
-                <div className="mt-8 flex justify-center space-x-2">
+                <div className="mt-4 md:mt-8 flex justify-center gap-2">
                   <button
                     onClick={() => setShowClinicInfo(false)}
                     className={`w-8 h-2 rounded-full transition-colors duration-200 ${!showClinicInfo ? 'bg-purple-800' : 'bg-purple-400 hover:bg-purple-300 cursor-pointer'}`}
@@ -170,22 +169,15 @@ const RegisterStep1 = () => {
             </div>
 
             {/* Right Side - Registration Form */}
-            <div 
-              style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                height: '100%' 
-              }}
-            >
-              <div className="max-w-sm mx-auto w-full" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div className="w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto flex flex-col h-full">
                 
                 {/* Section 1: Header (flex-grow: 0) */}
                 <div className="text-center" style={{ flexGrow: 0 }}>
-                  <h2 className="text-[30px] font-bold leading-[100%] tracking-[5%] text-center mb-3" 
+                  <h2 className="text-xl md:text-[30px] font-bold leading-[100%] tracking-[5%] text-center mb-2 md:mb-3" 
                       style={{ fontFamily: 'Raleway' }}>
                     Get Started
                   </h2>
-                  <p className="text-[18px] font-light leading-[100%] tracking-[0%] text-center mb-5" 
+                  <p className="text-sm md:text-[18px] font-light leading-[100%] tracking-[0%] text-center mb-2 md:mb-5" 
                      style={{ fontFamily: 'Raleway' }}>
                     Already have an account?{' '}
                     <Link 
@@ -196,28 +188,15 @@ const RegisterStep1 = () => {
                     </Link>
                   </p>
                   <div 
-                    className="text-left mb-4" 
-                    style={{ 
-                      fontFamily: 'Raleway',
-                      fontSize: '1.125rem',
-                      fontWeight: 700,
-                      lineHeight: '100%',
-                      letterSpacing: '0%'
-                    }}
+                    className="text-left mb-2 md:mb-4 text-base md:text-lg font-bold" 
+                    style={{ fontFamily: 'Raleway' }}
                   >
                     1 ) Account Information
                   </div>
                 </div>
 
                 {/* Section 2: Fields (flex-grow: 1) */}
-                <div 
-                  style={{ 
-                    flexGrow: 1, 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    justifyContent: 'center' 
-                  }}
-                >
+                <div className="flex flex-col justify-center flex-grow">
                   {Object.keys(errors).length > 0 && (
                     <div className="mb-4">
                       <Alert type="error">
@@ -230,10 +209,10 @@ const RegisterStep1 = () => {
                     </div>
                   )}
 
-                  <form onSubmit={handleSubmit}>
-                    <div style={{ marginBottom: '1rem' }}>
-                      <label htmlFor="username" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
-                             style={{ fontFamily: 'Raleway', color: '#666666' }}>
+                    <form onSubmit={handleSubmit} className="space-y-2 md:space-y-4">
+                    <div className="mb-2 md:mb-4">
+       <label htmlFor="username" className="block text-sm md:text-[16px] font-light leading-[100%] tracking-[0%] mb-1 md:mb-2" 
+         style={{ fontFamily: 'Raleway', color: '#666666' }}>
                         Name
                       </label>
                       <input
@@ -242,20 +221,16 @@ const RegisterStep1 = () => {
                         name="username"
                         value={formData.username}
                         onChange={handleChange}
-                        className="w-full px-0 py-2 border-0 bg-transparent focus:outline-none text-[16px] font-semibold leading-[100%] tracking-[0%]"
-                        style={{ 
-                          fontFamily: 'Raleway',
-                          color: '#333333',
-                          borderBottom: '2px solid #34113F'
-                        }}
+                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F]"
+                        style={{ fontFamily: 'Raleway', color: '#333333' }}
                         required
                       />
                       {errors.username && <span className="text-red-600 text-sm mt-1 block">{errors.username}</span>}
                     </div>
 
-                    <div style={{ marginBottom: '1rem' }}>
-                      <label htmlFor="email" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
-                             style={{ fontFamily: 'Raleway', color: '#666666' }}>
+                    <div className="mb-2 md:mb-4">
+       <label htmlFor="email" className="block text-sm md:text-[16px] font-light leading-[100%] tracking-[0%] mb-1 md:mb-2" 
+         style={{ fontFamily: 'Raleway', color: '#666666' }}>
                         Email
                       </label>
                       <input
@@ -264,20 +239,16 @@ const RegisterStep1 = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-0 py-2 border-0 bg-transparent focus:outline-none text-[16px] font-semibold leading-[100%] tracking-[0%]"
-                        style={{ 
-                          fontFamily: 'Raleway',
-                          color: '#333333',
-                          borderBottom: '2px solid #34113F'
-                        }}
+                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F]"
+                        style={{ fontFamily: 'Raleway', color: '#333333' }}
                         required
                       />
                       {errors.email && <span className="text-red-600 text-sm mt-1 block">{errors.email}</span>}
                     </div>
 
-                    <div style={{ marginBottom: '1rem' }}>
-                      <label htmlFor="password1" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
-                             style={{ fontFamily: 'Raleway', color: '#666666' }}>
+                    <div className="mb-2 md:mb-4">
+       <label htmlFor="password1" className="block text-sm md:text-[16px] font-light leading-[100%] tracking-[0%] mb-1 md:mb-2" 
+         style={{ fontFamily: 'Raleway', color: '#666666' }}>
                         Password
                       </label>
                       <input
@@ -286,20 +257,16 @@ const RegisterStep1 = () => {
                         name="password1"
                         value={formData.password1}
                         onChange={handleChange}
-                        className="w-full px-0 py-2 border-0 bg-transparent focus:outline-none text-[16px] font-semibold leading-[100%] tracking-[0%]"
-                        style={{ 
-                          fontFamily: 'Raleway',
-                          color: '#333333',
-                          borderBottom: '2px solid #34113F'
-                        }}
+                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F]"
+                        style={{ fontFamily: 'Raleway', color: '#333333' }}
                         required
                       />
                       {errors.password1 && <span className="text-red-600 text-sm mt-1 block">{errors.password1}</span>}
                     </div>
 
-                    <div style={{ marginBottom: '1rem' }}>
-                      <label htmlFor="password2" className="block text-[16px] font-light leading-[100%] tracking-[0%] mb-2" 
-                             style={{ fontFamily: 'Raleway', color: '#666666' }}>
+                    <div className="mb-2 md:mb-4">
+       <label htmlFor="password2" className="block text-sm md:text-[16px] font-light leading-[100%] tracking-[0%] mb-1 md:mb-2" 
+         style={{ fontFamily: 'Raleway', color: '#666666' }}>
                         Confirm Password
                       </label>
                       <input
@@ -308,26 +275,21 @@ const RegisterStep1 = () => {
                         name="password2"
                         value={formData.password2}
                         onChange={handleChange}
-                        className="w-full px-0 py-2 border-0 bg-transparent focus:outline-none text-[16px] font-semibold leading-[100%] tracking-[0%]"
-                        style={{ 
-                          fontFamily: 'Raleway',
-                          color: '#333333',
-                          borderBottom: '2px solid #34113F'
-                        }}
+                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F]"
+                        style={{ fontFamily: 'Raleway', color: '#333333' }}
                         required
                       />
                       {errors.password2 && <span className="text-red-600 text-sm mt-1 block">{errors.password2}</span>}
                     </div>
 
-                    <div style={{ marginBottom: '1.5rem' }}>
-                      <label className="flex items-center text-[16px] font-light leading-[100%] tracking-[0%]" 
-                             style={{ fontFamily: 'Raleway', color: '#666666' }}>
-                        <input
-                          type="checkbox"
-                          checked={showPassword}
-                          onChange={(e) => setShowPassword(e.target.checked)}
-                          className="mr-2"
-                        />
+                    <div className="mb-2 md:mb-4 flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={showPassword}
+                        onChange={(e) => setShowPassword(e.target.checked)}
+                        className="mr-2"
+                      />
+                      <label className="text-xs md:text-[15px] font-light" style={{ fontFamily: 'Raleway', color: '#666666' }}>
                         Show Password
                       </label>
                     </div>
@@ -335,21 +297,12 @@ const RegisterStep1 = () => {
                 </div>
 
                 {/* Section 3: Button (flex-grow: 0) */}
-                <div 
-                  className="flex justify-center" 
-                  style={{ 
-                    flexGrow: 0, 
-                    marginTop: '1.5rem' 
-                  }}
-                >
+                <div className="flex justify-center mt-2 md:mt-4">
                   <button 
                     type="submit" 
                     onClick={handleSubmit}
-                    className="bg-[#815FB3] hover:bg-[#6d4a96] text-white font-medium py-3 px-16 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#815FB3] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ 
-                      fontFamily: 'Raleway',
-                      boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)'
-                    }}
+                    className="bg-[#815FB3] hover:bg-[#6d4a96] text-white font-medium py-2 md:py-3 px-6 md:px-16 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#815FB3] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-xs md:text-base"
+                    style={{ fontFamily: 'Raleway', boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)' }}
                   >
                     Next
                   </button>
@@ -358,7 +311,6 @@ const RegisterStep1 = () => {
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };

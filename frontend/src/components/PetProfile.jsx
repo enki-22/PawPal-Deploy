@@ -28,6 +28,8 @@ const PetProfile = () => {
   const [loading, setLoading] = useState(true);
   const [petSwitchLoading, setPetSwitchLoading] = useState(false); // Separate loading for pet switching
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  // Responsive mobile sidebar overlay
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [currentPetId, setCurrentPetId] = useState(null); // Add state for current pet ID
   const [showAddPetModal, setShowAddPetModal] = useState(false); // Modal state for AddPetModal
@@ -217,7 +219,7 @@ const PetProfile = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-[#F0F0F0]">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#F0F0F0] overflow-hidden">
       {/* AddPetModal - overlays everything including header */}
       <AddPetModal
         isOpen={showAddPetModal}
@@ -234,8 +236,59 @@ const PetProfile = () => {
         token={token}
       />
 
-      {/* Sidebar (sticky, stationary while content scrolls) */}
-      <div className="h-screen sticky top-0 flex-shrink-0 z-50">
+      {/* --- MODIFIED BLOCK --- */}
+      {/* Mobile Sidebar Overlay with Transitions */}
+      <div
+        className={`
+          md:hidden fixed inset-0 z-[60] flex
+          transition-opacity duration-300 ease-in-out
+          ${isMobileSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
+        `}
+        role="dialog"
+        aria-modal="true"
+      >
+        {/* Sidebar Component (The sliding part) */}
+        <div
+          className={`
+            w-80 h-full
+            transition-transform duration-300 ease-in-out transform
+            ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+            bg-[#DCCEF1]
+          `}
+        >
+          <Sidebar
+            sidebarVisible={true}
+            currentPage="pet-profile"
+            onToggleSidebar={() => setIsMobileSidebarOpen(false)}
+            conversations={conversations}
+            loadingConversations={loadingConversations}
+            onLoadConversation={(id) => {
+              handleLoadConversation(id);
+              setIsMobileSidebarOpen(false);
+            }}
+            onCreateNewConversation={() => {
+              handleCreateNewConversation();
+              setIsMobileSidebarOpen(false);
+            }}
+            onPinConversation={handlePinConversation}
+            onRenameConversation={handleRenameConversation}
+            onArchiveConversation={handleArchiveConversation}
+            onDeleteConversation={handleDeleteConversation}
+            isMobileOverlay={true}
+          />
+        </div>
+        
+        {/* Overlay Background (The fading part) */}
+        <div 
+          className="flex-1 bg-black bg-opacity-50" 
+          onClick={() => setIsMobileSidebarOpen(false)}
+          aria-label="Close sidebar"
+        ></div>
+      </div>
+      {/* --- END OF MODIFIED BLOCK --- */}
+
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <div className="hidden md:block h-screen sticky top-0 flex-shrink-0 z-50">
         <Sidebar
           sidebarVisible={sidebarVisible}
           currentPage="pet-profile"
@@ -248,61 +301,63 @@ const PetProfile = () => {
           onRenameConversation={handleRenameConversation}
           onArchiveConversation={handleArchiveConversation}
           onDeleteConversation={handleDeleteConversation}
+          isMobileOverlay={false}
         />
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className="border-b p-4 flex items-center justify-between bg-[#F0F0F0]">
-          <div className="flex items-center space-x-4">
-            <button 
-              onClick={() => navigate('/pet-health-records')}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Back to Pet Health Records"
-            >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <h2 className="text-[24px] font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
-              Pet Health Records
-            </h2>
+        {/* Header - Added hamburger button and responsive spacing */}
+        {/* Header - Mobile: logo, sidebar toggle, profile. Desktop: unchanged. */}
+        <div className="border-b p-4 flex items-center justify-between sticky top-0 z-40 bg-[#DCCEF1] md:bg-[#F0F0F0]">
+          {/* Mobile header */}
+          <div className="flex items-center gap-2 md:hidden w-full justify-between">
+            <div className="flex items-center gap-2">
+              <img src="/pat-removebg-preview 2.png" alt="PawPal Logo" className="w-8 h-8" />
+              <span className="font-bold text-lg text-[#815FB3]" style={{ fontFamily: 'Raleway' }}>PAWPAL</span>
+              <button onClick={() => setIsMobileSidebarOpen(true)} className="p-2 ml-2" aria-label="Open sidebar">
+                {/* Flipped sidebar-expand-icon.png to face right */}
+                <img src="/sidebar-expand-icon.png" alt="Sidebar Toggle" className="w-6 h-6" style={{ transform: 'scaleX(-1)' }} />
+              </button>
+            </div>
+            <ProfileButton onLogoutClick={() => setShowLogoutModal(true)} />
           </div>
-          <div className="flex items-center space-x-4">
+          {/* Desktop header */}
+          <div className="hidden md:flex items-center space-x-2 md:space-x-4 w-full justify-between">
+            <div className="flex items-center space-x-2 md:space-x-4">
+              <button 
+                onClick={() => navigate('/pet-health-records')}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Back to Pet Health Records"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+              </button>
+              <h2 className="text-lg md:text-[24px] font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
+                Pet Health Records
+              </h2>
+            </div>
             <ProfileButton onLogoutClick={() => setShowLogoutModal(true)} />
           </div>
         </div>
+        {/* Page name below header for mobile */}
+        <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#F0F0F0' }}>
+          <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
+            Pet Health Records
+          </h2>
+        </div>
 
-        {/* Pet Navigation - UPDATED with larger icons */}
-  <div className="pt-6 px-6 pb-6">
+        {/* Pet Navigation - Made scrollable on x-axis for small screens */}
+        <div className="pt-6 px-6 pb-6 overflow-x-auto whitespace-nowrap">
           <div className="flex items-center space-x-6">
-            {/* Add Pet Button - LARGER */}
+            {/* Add Pet Button - Responsive */}
             <button 
               onClick={() => setShowAddPetModal(true)}
-              className="flex-shrink-0 transition-all duration-300 ease-in-out hover:transform hover:scale-105"
-              style={{
-                width: '80px',
-                height: '80px',
-                background: '#FFF4C9',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: 'none',
-                cursor: 'pointer'
-              }}
+              className="flex-shrink-0 transition-all duration-300 ease-in-out hover:transform hover:scale-105 w-14 h-14 md:w-20 md:h-20 rounded-full flex items-center justify-center bg-[#FFF4C9] border-none cursor-pointer"
               title="Add Pet"
             >
-              <span 
-                className="font-bold text-gray-600"
-                style={{ 
-                  fontSize: '32px',
-                  fontWeight: '900'
-                }}
-              >
-                +
-              </span>
+              <span className="font-bold text-gray-600 text-2xl md:text-4xl">+</span>
             </button>
             
             {/* Vertical Separator Line - TALLER */}
@@ -393,7 +448,7 @@ const PetProfile = () => {
           />
           {/* Add subtle loading indicator only for the content area during pet switching */}
           <div className={`transition-opacity duration-200 ${petSwitchLoading ? 'opacity-50' : 'opacity-100'}`}> 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column - Pet Info */}
               <div className="space-y-6">
               {/* Pet Profile Card - Redesigned to match Pasted Image 1 */}

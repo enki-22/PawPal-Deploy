@@ -80,7 +80,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', token);
       setToken(token);
       setUser(userData);
-      
+      // Force a storage event to notify other tabs/components
+      window.dispatchEvent(new Event('storage'));
+      // Optionally, force a re-render by updating a dummy state (not needed if setUser works)
       return { success: true };
     } else {
       console.error('No token in response:', response.data);

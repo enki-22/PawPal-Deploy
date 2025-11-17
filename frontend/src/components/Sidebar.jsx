@@ -19,7 +19,8 @@ const Sidebar = ({
   onPinConversation = null,
   onRenameConversation = null,
   onArchiveConversation = null,
-  onDeleteConversation = null
+  onDeleteConversation = null,
+  isMobileOverlay = false // New prop to detect mobile mode
 }) => {
   const navigate = useNavigate();
   const [renamingConversationId, setRenamingConversationId] = useState(null);
@@ -90,34 +91,42 @@ const Sidebar = ({
 
   return (
     <div className={
-      `${sidebarVisible ? 'w-80 bg-[#DCCEF1]' : 'w-auto bg-transparent'} min-h-screen flex flex-col h-full relative overflow-hidden transition-all duration-300 ease-in-out`
+      `${isMobileOverlay ? 'w-full' : (sidebarVisible ? 'w-80' : 'w-15')} 
+      bg-[#DCCEF1] min-h-screen flex flex-col h-full relative 
+      ${isMobileOverlay ? 'overflow-y-auto' : 'overflow-hidden'} 
+      ${!isMobileOverlay ? 'transition-width duration-300 ease-in-out' : ''}`
     }>
       {/* Minimized Header - Always visible */}
-      <div className={`flex items-center p-4 ${sidebarVisible ? 'justify-between' : 'justify-start'}`}>
-        <div className="flex items-center">
-          <img src="/pawpalicon.png" alt="PawPal" className="w-12 h-12 mr-2 transition-all duration-300" />
-          <h1 className="text-2xl text-[#815FB3] font-extrabold transition-all duration-300" style={{ fontFamily: 'Raleway' }}>
+      <div className={`p-4 flex ${(sidebarVisible || isMobileOverlay) ? 'flex-row items-center justify-between' : 'flex-col items-center space-y-2'}`}>
+        <div className={`flex ${(sidebarVisible || isMobileOverlay) ? 'items-center' : 'flex-col items-center w-full'}`}>
+          <img 
+            src="/pawpalicon.png" 
+            alt="PawPal" 
+            className={`transition-[width,height] duration-300 flex-shrink-0 ${(sidebarVisible || isMobileOverlay) ? 'w-12 h-12' : 'w-10 h-10'}`} 
+          />
+          <h1 className={`text-2xl text-[#815FB3] font-extrabold ml-2 transition-[opacity,width] duration-300 ease-in-out ${(sidebarVisible || isMobileOverlay) ? 'opacity-100' : 'opacity-0 w-0'}`} style={{ fontFamily: 'Raleway' }}>
             PAWPAL
           </h1>
         </div>
         {onToggleSidebar && (
           <button 
             onClick={onToggleSidebar}
-            className="p-2 hover:bg-purple-100 rounded-lg transition-colors ml-2"
-            title={sidebarVisible ? 'Hide sidebar' : 'Show sidebar'}
+            className="p-2 hover:bg-purple-100 rounded-lg transition-colors"
+            title={isMobileOverlay ? "Close sidebar" : (sidebarVisible ? 'Hide sidebar' : 'Show sidebar')}
           >
+            {/* Use sidebar-expand-icon.png for mobile overlay, no rotation or flipping */}
             <img 
               src="/sidebar-expand-icon.png" 
               alt="Toggle sidebar" 
-              className="transition-all duration-300 w-6 h-6"
-              style={{ transform: sidebarVisible ? 'rotate(0deg)' : 'rotate(180deg)' }}
+              className="transition-transform duration-300 w-6 h-6"
+              style={{ transform: isMobileOverlay ? 'none' : (sidebarVisible ? 'rotate(0deg)' : 'rotate(180deg)') }}
             />
           </button>
         )}
       </div>
 
       {/* Expandable Content - Only visible when sidebar is expanded */}
-      {sidebarVisible && (
+      {(sidebarVisible || isMobileOverlay) && (
         <div className="px-4 flex-1 flex flex-col custom-scrollbar">
           {/* New Chat Button */}
           <button 
