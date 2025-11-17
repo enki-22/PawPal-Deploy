@@ -91,8 +91,8 @@ const Sidebar = ({
 
   return (
     <div className={
-      `${isMobileOverlay ? 'w-full' : (sidebarVisible ? 'w-80' : 'w-15')} 
-      bg-[#DCCEF1] min-h-screen flex flex-col h-full relative 
+      `${isMobileOverlay ? 'w-full' : (sidebarVisible ? 'w-80 bg-[#DCCEF1]' : 'w-20 bg-[#f0f1f1] border-r border-gray-300')} 
+      min-h-screen flex flex-col h-full relative 
       ${isMobileOverlay ? 'overflow-y-auto' : 'overflow-hidden'} 
       ${!isMobileOverlay ? 'transition-width duration-300 ease-in-out' : ''}`
     }>
@@ -108,6 +108,19 @@ const Sidebar = ({
             PAWPAL
           </h1>
         </div>
+        {/* Add '+' button in minimized sidebar state */}
+        {(!sidebarVisible && !isMobileOverlay) && (
+          <button
+            onClick={currentPage === 'chat' && onCreateNewConversation ? onCreateNewConversation : () => navigate('/chat/new')}
+            className="p-2 my-2 bg-[#FFF4C9] hover:bg-yellow-200 rounded-full shadow transition-colors flex items-center justify-center"
+            title="New Chat"
+            aria-label="New Chat"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-[#815FB3]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        )}
         {onToggleSidebar && (
           <button 
             onClick={onToggleSidebar}

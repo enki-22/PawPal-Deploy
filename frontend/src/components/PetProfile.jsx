@@ -322,7 +322,11 @@ const PetProfile = () => {
           marginLeft: '0px',
           marginTop: '0px',
           ...(typeof window !== 'undefined' && window.innerWidth >= 768
-            ? { marginLeft: '320px', marginTop: '72px' } // 320px sidebar, 72px header
+            ? {
+                marginLeft: sidebarVisible ? '320px' : '80px',
+                marginTop: '72px',
+                transition: 'margin-left 0.3s',
+              }
             : {}),
         }}
       >
@@ -332,12 +336,13 @@ const PetProfile = () => {
           style={{
             position: typeof window !== 'undefined' && window.innerWidth >= 768 ? 'fixed' : 'static',
             top: typeof window !== 'undefined' && window.innerWidth >= 768 ? 0 : undefined,
-            left: typeof window !== 'undefined' && window.innerWidth >= 768 ? 320 : undefined,
+            left: typeof window !== 'undefined' && window.innerWidth >= 768 ? (sidebarVisible ? 320 : 80) : undefined,
             right: typeof window !== 'undefined' && window.innerWidth >= 768 ? 0 : undefined,
-            width: typeof window !== 'undefined' && window.innerWidth >= 768 ? 'calc(100% - 320px)' : '100%',
+            width: typeof window !== 'undefined' && window.innerWidth >= 768 ? (sidebarVisible ? 'calc(100% - 320px)' : 'calc(100% - 80px)') : '100%',
             height: typeof window !== 'undefined' && window.innerWidth >= 768 ? '72px' : undefined,
             zIndex: 40,
             background: typeof window !== 'undefined' && window.innerWidth >= 768 ? '#F0F0F0' : '#DCCEF1',
+            transition: 'left 0.3s, width 0.3s',
           }}
         >
           {/* Mobile header */}
