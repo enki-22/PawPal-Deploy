@@ -306,9 +306,9 @@ const AIDiagnosis = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3]" />
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto flex justify-center">
               <table
-                className="min-w-full bg-[#fffde7] rounded-xl shadow border text-[15px]"
+                className="min-w-[1200px] bg-[#fffde7] rounded-xl shadow border text-[15px]"
                 style={{ fontFamily: 'Raleway', tableLayout: 'fixed' }}
               >
                 <colgroup>
