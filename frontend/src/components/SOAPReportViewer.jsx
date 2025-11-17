@@ -129,8 +129,8 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
     return null;
   }
 
-  // Parse diagnoses - assuming they might be in assessment or a separate field
-  const diagnoses = report.assessment?.diagnoses || [];
+  // Parse diagnoses - assessment is an array, not an object with diagnoses property
+  const diagnoses = Array.isArray(report.assessment) ? report.assessment : (report.assessment?.diagnoses || []);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -265,34 +265,47 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
         {/* Diagnoses Section */}
         {diagnoses.length > 0 && (
           <div className="px-8 mt-6 space-y-4">
-            {diagnoses.map((diagnosis, index) => (
-              <div key={index} className="bg-[#f0f0f0] rounded-[10px] p-6 relative">
-                <div className="absolute top-6 right-6">
-                  <div className={`${getLikelihoodColor(diagnosis.likelihood || 0)} rounded-[5px] px-4 py-2`}>
-                    <span className="font-['Inter'] text-sm text-black font-medium">
-                      Likelihood: {diagnosis.likelihood || 0}%
-                    </span>
+            {diagnoses.map((diagnosis, index) => {
+              // Handle different field name formats (condition vs name, likelihood as decimal vs percentage)
+              const conditionName = diagnosis.condition || diagnosis.name || diagnosis.condition_name || 'Unknown Diagnosis';
+              const likelihood = diagnosis.likelihood_percentage !== undefined 
+                ? diagnosis.likelihood_percentage 
+                : (typeof diagnosis.likelihood === 'number' 
+                    ? (diagnosis.likelihood <= 1 ? diagnosis.likelihood * 100 : diagnosis.likelihood)
+                    : 0);
+              const matchedSymptoms = Array.isArray(diagnosis.matched_symptoms) 
+                ? diagnosis.matched_symptoms.join(', ') 
+                : (diagnosis.matched_symptoms || '');
+              
+              return (
+                <div key={index} className="bg-[#f0f0f0] rounded-[10px] p-6 relative">
+                  <div className="absolute top-6 right-6">
+                    <div className={`${getLikelihoodColor(likelihood)} rounded-[5px] px-4 py-2`}>
+                      <span className="font-['Inter'] text-sm text-black font-medium">
+                        Likelihood: {Math.round(likelihood)}%
+                      </span>
+                    </div>
+                  </div>
+                  <p className="font-['Inter'] font-medium text-[#815fb3] text-base mb-3 pr-32">
+                    {conditionName}
+                  </p>
+                  <div className="font-['Inter'] text-sm text-black">
+                    <p className="mb-3 leading-relaxed">{diagnosis.description || ''}</p>
+                    <ul className="list-disc ml-6 space-y-2">
+                      {matchedSymptoms && (
+                        <li>Matched Symptoms: {matchedSymptoms}</li>
+                      )}
+                      {diagnosis.urgency && (
+                        <li>Urgency: {diagnosis.urgency}</li>
+                      )}
+                      {diagnosis.contagious !== undefined && (
+                        <li>Contagious: {diagnosis.contagious ? 'Yes' : 'No'}</li>
+                      )}
+                    </ul>
                   </div>
                 </div>
-                <p className="font-['Inter'] font-medium text-[#815fb3] text-base mb-3 pr-32">
-                  {diagnosis.name || 'Unknown Diagnosis'}
-                </p>
-                <div className="font-['Inter'] text-sm text-black">
-                  <p className="mb-3 leading-relaxed">{diagnosis.description || ''}</p>
-                  <ul className="list-disc ml-6 space-y-2">
-                    {diagnosis.matched_symptoms && (
-                      <li>Matched Symptoms: {diagnosis.matched_symptoms}</li>
-                    )}
-                    {diagnosis.urgency && (
-                      <li>Urgency: {diagnosis.urgency}</li>
-                    )}
-                    {diagnosis.contagious !== undefined && (
-                      <li>Contagious: {diagnosis.contagious}</li>
-                    )}
-                  </ul>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

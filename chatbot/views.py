@@ -15,26 +15,326 @@ from django.conf import settings
 import uuid
 from datetime import datetime
 import os
+import pickle
 import joblib
+import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.core.cache import cache
 from pets.models import Pet
 from .models import Conversation, Message, AIDiagnosis, SOAPReport, DiagnosisSuggestion
 # Note: image_classifier is now lazily loaded via analyze_pet_image when needed
 import logging
 logger = logging.getLogger(__name__)
 
+PAWPAL_MODEL = None
+PAWPAL_PREPROCESSOR = None
+PAWPAL_LABEL_ENCODER = None
+PAWPAL_DISEASE_METADATA = None
+PAWPAL_MODEL_LOADED = False
+PAWPAL_MODEL_ERROR = None
+
+ALLOWED_SPECIES = ["Dog", "Cat", "Rabbit", "Bird", "Fish", "Turtle", "Hamster"]
+
+# Import shared model utilities for deserialization
+try:
+    from model_utils import _ravel_column
+except ImportError:
+    # Fallback if model_utils not available
+    def _ravel_column(x):
+        """Helper to flatten a single column for TF-IDF - needed for model loading."""
+        return np.ravel(x)
+    logger.warning("Could not import _ravel_column from model_utils")
+
+try:
+    from train_model import CANONICAL_SYMPTOMS, extract_symptoms_from_text
+except Exception:
+    CANONICAL_SYMPTOMS = []
+
+    def extract_symptoms_from_text(text: str) -> list:  # type: ignore[no-redef]
+        return []
+
+    logger.warning("Could not import CANONICAL_SYMPTOMS from train_model.py; symptom checker validation will be limited.")
+
+
+def load_pawpal_lightgbm():
+    global PAWPAL_MODEL, PAWPAL_PREPROCESSOR, PAWPAL_LABEL_ENCODER, PAWPAL_DISEASE_METADATA, PAWPAL_MODEL_LOADED, PAWPAL_MODEL_ERROR
+
+    if (
+        PAWPAL_MODEL_LOADED
+        and PAWPAL_MODEL is not None
+        and PAWPAL_PREPROCESSOR is not None
+        and PAWPAL_LABEL_ENCODER is not None
+    ):
+        return PAWPAL_MODEL, PAWPAL_PREPROCESSOR, PAWPAL_LABEL_ENCODER, PAWPAL_DISEASE_METADATA
+
+    base_dir = getattr(settings, "BASE_DIR", None)
+    if base_dir is None:
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    model_path = os.path.join(str(base_dir), "pawpal_model.pkl")
+    label_path = os.path.join(str(base_dir), "pawpal_label_encoder.pkl")
+    metadata_path = os.path.join(str(base_dir), "pawpal_disease_metadata.json")
+
+    try:
+        # Try joblib first (better for sklearn models)
+        try:
+            artifacts = joblib.load(model_path)
+        except Exception:
+            # Fallback to pickle
+            with open(model_path, "rb") as f:
+                artifacts = pickle.load(f)
+
+        model = artifacts.get("model")
+        preprocessor = artifacts.get("preprocessor")
+
+        # Try joblib first for label encoder
+        try:
+            label_encoder = joblib.load(label_path)
+        except Exception:
+            with open(label_path, "rb") as f:
+                label_encoder = pickle.load(f)
+
+        if os.path.exists(metadata_path):
+            with open(metadata_path, "r") as f:
+                disease_metadata = json.load(f)
+        else:
+            disease_metadata = {}
+
+        if model is None or preprocessor is None or label_encoder is None:
+            raise RuntimeError("Loaded PawPal artifacts are incomplete.")
+
+        PAWPAL_MODEL = model
+        PAWPAL_PREPROCESSOR = preprocessor
+        PAWPAL_LABEL_ENCODER = label_encoder
+        PAWPAL_DISEASE_METADATA = disease_metadata
+        PAWPAL_MODEL_LOADED = True
+        PAWPAL_MODEL_ERROR = None
+
+        logger.info("PawPal LightGBM model loaded successfully for symptom checker.")
+        return PAWPAL_MODEL, PAWPAL_PREPROCESSOR, PAWPAL_LABEL_ENCODER, PAWPAL_DISEASE_METADATA
+    except Exception as e:
+        PAWPAL_MODEL = None
+        PAWPAL_PREPROCESSOR = None
+        PAWPAL_LABEL_ENCODER = None
+        PAWPAL_DISEASE_METADATA = None
+        PAWPAL_MODEL_LOADED = False
+        error_msg = str(e)
+        PAWPAL_MODEL_ERROR = error_msg
+        
+        # Provide helpful error message for common serialization issue
+        if "_ravel_column" in error_msg or "Can't get attribute" in error_msg:
+            logger.error(
+                "Model loading failed due to pickle serialization issue. "
+                "The model needs to be retrained. Run: python train_model.py"
+            )
+            raise RuntimeError(
+                "Disease prediction model needs to be retrained. "
+                "Please run 'python train_model.py' to regenerate the model with proper serialization."
+            )
+        
+        logger.exception("Failed to load PawPal LightGBM model: %s", e)
+        raise
+
+def _rate_limit_symptom_checker(user_id: int, max_requests: int = 10, window_seconds: int = 60) -> bool:
+    """Simple per-user rate limit: returns True if user is over limit."""
+    if not user_id:
+        return False
+    cache_key = f"symptom_checker_rl_{user_id}"
+    now_ts = datetime.now().timestamp()
+    attempts = cache.get(cache_key, [])
+    # keep attempts within window
+    threshold = now_ts - window_seconds
+    attempts = [ts for ts in attempts if ts >= threshold]
+    if len(attempts) >= max_requests:
+        cache.set(cache_key, attempts, timeout=window_seconds + 5)
+        return True
+    attempts.append(now_ts)
+    cache.set(cache_key, attempts, timeout=window_seconds + 5)
+    return False
+
+
+def _build_feature_row_from_payload(payload: dict) -> dict:
+    """Build a single feature row matching train_model engineer_features structure."""
+    species_raw = (payload.get("species") or "").strip().capitalize()
+    species = species_raw or "Dog"
+
+    urgency = (payload.get("urgency") or "moderate").strip().lower()
+    if urgency not in {"mild", "moderate", "severe"}:
+        urgency = "moderate"
+
+    symptoms_list = list(payload.get("symptoms_list") or [])
+    # normalize to canonical tokens
+    normalized = []
+    for s in symptoms_list:
+        if not s:
+            continue
+        token = str(s).strip().lower()
+        if token in CANONICAL_SYMPTOMS:
+            normalized.append(token)
+        else:
+            # allow non-canonical but they will not map to has_* flags
+            normalized.append(token)
+
+    symptom_count = len(normalized)
+    symptoms_text = payload.get("symptoms_text") or ", ".join(normalized)
+
+    # urgency encoding consistent with engineer_features
+    urgency_map = {"mild": 1, "moderate": 2, "severe": 3}
+    urgency_encoded = urgency_map.get(urgency, 2)
+
+    contagious_flag = 0
+
+    # category counts
+    respiratory_symptoms = ['coughing', 'sneezing', 'wheezing', 'labored_breathing', 'nasal_discharge', 'difficulty_breathing']
+    digestive_symptoms = ['vomiting', 'diarrhea', 'constipation', 'loss_of_appetite']
+    skin_symptoms = ['scratching', 'itching', 'hair_loss', 'red_skin', 'skin_lesions']
+
+    respiratory_count = sum(1 for s in normalized if s in respiratory_symptoms)
+    digestive_count = sum(1 for s in normalized if s in digestive_symptoms)
+    skin_count = sum(1 for s in normalized if s in skin_symptoms)
+
+    # severity_score formula from engineer_features
+    severity_score = urgency_encoded + (symptom_count / 3.0) + contagious_flag * 2
+
+    duration_days = payload.get("duration_days")
+    try:
+        duration_days_val = float(duration_days) if duration_days is not None else 3.0
+    except Exception:
+        duration_days_val = 3.0
+
+    row = {
+        "species": species,
+        "symptoms_text": symptoms_text,
+        "symptoms_list": normalized,
+        "symptom_count": symptom_count,
+        "urgency": urgency,
+        "contagious_flag": contagious_flag,
+        "urgency_encoded": urgency_encoded,
+        "respiratory_count": respiratory_count,
+        "digestive_count": digestive_count,
+        "skin_count": skin_count,
+        "severity_score": severity_score,
+        "duration_days": duration_days_val,
+    }
+
+    # add has_* flags for all canonical symptoms
+    for symptom in CANONICAL_SYMPTOMS:
+        row[f"has_{symptom}"] = 1 if symptom in normalized else 0
+
+    return row
+
+
+def _validate_symptom_checker_payload(data: dict) -> tuple[bool, dict | None, Response | None]:
+    required_fields = [
+        "pet_name",
+        "pet_id",
+        "species",
+        "urgency",
+        "duration_days",
+        "symptoms_list",
+        "symptoms_text",
+        "symptom_count",
+        "main_concern",
+        "severity",
+    ]
+    missing = [f for f in required_fields if f not in data]
+    if missing:
+        logger.error(f"Validation failed - Missing required fields: {missing}. Received data: {data}")
+        return False, None, Response(
+            {
+                "success": False,
+                "error": f"Missing required fields: {', '.join(missing)}",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    
+    # Validate optional emergency_data structure if provided
+    emergency_data = data.get('emergency_data')
+    if emergency_data and isinstance(emergency_data, dict):
+        emergency_screen = emergency_data.get('emergencyScreen', {})
+        # Validate that if emergency_data exists, it has the right structure
+        if not isinstance(emergency_screen, dict):
+            logger.warning(f"Invalid emergency_data structure: {emergency_data}")
+            data['emergency_data'] = None  # Clear invalid data
+    
+    # Validate progression if provided
+    progression = data.get('progression')
+    if progression:
+        valid_progression = ['getting_worse', 'staying_same', 'getting_better', 'intermittent']
+        if progression not in valid_progression:
+            logger.warning(f"Invalid progression value: {progression}. Must be one of: {valid_progression}")
+            data['progression'] = None  # Clear invalid data
+
+    species = str(data.get("species") or "").strip().capitalize()
+    if species not in ALLOWED_SPECIES:
+        logger.error(f"Validation failed - Invalid species: {species}. Allowed: {ALLOWED_SPECIES}")
+        return False, None, Response(
+            {
+                "success": False,
+                "error": f"Invalid species '{species}'. Allowed: {', '.join(ALLOWED_SPECIES)}",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    urgency = str(data.get("urgency") or "").strip().lower()
+    if urgency not in {"mild", "moderate", "severe"}:
+        logger.error(f"Validation failed - Invalid urgency: {urgency}. Must be one of: mild, moderate, severe")
+        return False, None, Response(
+            {
+                "success": False,
+                "error": "Invalid urgency. Must be one of: mild, moderate, severe.",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    provided_symptoms = list(data.get("symptoms_list") or [])
+    if CANONICAL_SYMPTOMS:
+        invalid_symptoms = [s for s in provided_symptoms if s not in CANONICAL_SYMPTOMS]
+        if invalid_symptoms:
+            logger.warning(f"Some symptoms are not in CANONICAL_SYMPTOMS: {invalid_symptoms}. Filtering them out.")
+            # Filter out invalid symptoms instead of rejecting
+            provided_symptoms = [s for s in provided_symptoms if s in CANONICAL_SYMPTOMS]
+            data["symptoms_list"] = provided_symptoms
+            data["symptoms_text"] = ", ".join(provided_symptoms)
+            data["symptom_count"] = len(provided_symptoms)
+
+    try:
+        duration_days = data.get("duration_days")
+        if duration_days is not None:
+            duration_days = float(duration_days)
+    except Exception:
+        return False, None, Response(
+            {
+                "success": False,
+                "error": "duration_days must be a number.",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    return True, data, None
 
 
 # Configure Gemini
 def get_gemini_client():
     """Configure and return Gemini model"""
     try:
-        genai.configure(api_key=settings.GEMINI_API_KEY)
+        # Check if API key is set
+        api_key = getattr(settings, 'GEMINI_API_KEY', None)
+        if not api_key:
+            raise Exception("GEMINI_API_KEY is not set in your .env file. Please add GEMINI_API_KEY=your-key-here to your .env file.")
+        
+        # Strip whitespace in case there are spaces
+        api_key = api_key.strip()
+        if not api_key:
+            raise Exception("GEMINI_API_KEY is empty in your .env file. Please check your .env file and add a valid API key.")
+        
+        logger.info(f"🔑 Using Gemini API key (length: {len(api_key)})")
+        genai.configure(api_key=api_key)
         
         print("=== CHECKING GEMINI API CONNECTION ===")
         try:
@@ -185,10 +485,26 @@ def get_gemini_response(user_message, conversation_history=None, chat_mode='gene
             return "I'm having trouble responding right now. Could you please try again?"
        
     except Exception as e:
-        print(f"Gemini Error: {type(e).__name__}: {e}")
-        return "I'm experiencing technical difficulties. Please try again or consult with a veterinarian for immediate concerns."
+        error_str = str(e)
+        error_type = type(e).__name__
+        logger.error(f"Gemini Error ({error_type}): {error_str}")
+        print(f"❌ Gemini Error ({error_type}): {error_str}")
+        
+        # Provide more specific error messages
+        if "GEMINI_API_KEY is not set" in error_str or "GEMINI_API_KEY is empty" in error_str:
+            logger.error("API key configuration issue detected")
+            return f"I'm currently unavailable due to API configuration issues. {error_str} For immediate pet health concerns, please consult with a veterinarian."
+        elif "API key" in error_str or "invalid" in error_str.lower() or "revoked" in error_str.lower() or "403" in error_str:
+            logger.error("API key validation failed")
+            return f"I'm currently unavailable due to API configuration issues. {error_str} Please check your .env file and ensure GEMINI_API_KEY is set correctly. For immediate pet health concerns, please consult with a veterinarian."
+        elif "quota" in error_str.lower():
+            logger.warning("API quota exceeded")
+            return "I'm experiencing high demand right now. Please try again in a few minutes or consult with a veterinarian for immediate concerns."
+        else:
+            logger.error(f"Unexpected Gemini error: {error_str}")
+            return f"I'm experiencing technical difficulties: {error_str}. Please try again or consult with a veterinarian for immediate concerns."
 
-def get_gemini_response_with_pet_context(user_message, conversation_history=None, chat_mode='general', pet_context=None):
+def get_gemini_response_with_pet_context(user_message, conversation_history=None, chat_mode='general', pet_context=None, assessment_context=None):
     """Generate AI response using Google Gemini with pet context"""
     try:
         model = get_gemini_client()
@@ -256,6 +572,21 @@ You already know about {pet_context['name']}, so don't ask for basic information
         else:
             conversation_text += "Mode: General Pet Health Education\n"
        
+        # Add assessment context if available (for follow-up questions)
+        if assessment_context and isinstance(assessment_context, dict):
+            conversation_text += "\nPrevious Assessment Context:\n"
+            if assessment_context.get('pet_name'):
+                conversation_text += f"Pet: {assessment_context['pet_name']}\n"
+            if assessment_context.get('predictions'):
+                conversation_text += "Recent diagnosis predictions:\n"
+                for i, pred in enumerate(assessment_context['predictions'][:3], 1):
+                    disease = pred.get('disease') or pred.get('label', 'Unknown')
+                    confidence = pred.get('confidence') or pred.get('likelihood', 0)
+                    conversation_text += f"{i}. {disease} ({confidence*100:.0f}% confidence)\n"
+            if assessment_context.get('overall_recommendation'):
+                conversation_text += f"Recommendation: {assessment_context['overall_recommendation']}\n"
+            conversation_text += "Use this context to answer follow-up questions about the assessment.\n\n"
+       
         # Add conversation history if provided
         if conversation_history and conversation_history.exists():
             conversation_text += "Previous conversation:\n"
@@ -282,15 +613,23 @@ You already know about {pet_context['name']}, so don't ask for basic information
        
     except Exception as e:
         error_str = str(e)
-        print(f"Gemini Error: {type(e).__name__}: {e}")
+        error_type = type(e).__name__
+        logger.error(f"Gemini Error ({error_type}): {error_str}")
+        print(f"❌ Gemini Error ({error_type}): {error_str}")
         
         # Provide more specific error messages
-        if "API key" in error_str or "invalid" in error_str.lower() or "revoked" in error_str.lower():
-            return "I'm currently unavailable due to API configuration issues. Please contact support or try again later. For immediate pet health concerns, please consult with a veterinarian."
+        if "GEMINI_API_KEY is not set" in error_str or "GEMINI_API_KEY is empty" in error_str:
+            logger.error("API key configuration issue detected")
+            return f"I'm currently unavailable due to API configuration issues. {error_str} For immediate pet health concerns, please consult with a veterinarian."
+        elif "API key" in error_str or "invalid" in error_str.lower() or "revoked" in error_str.lower() or "403" in error_str:
+            logger.error("API key validation failed")
+            return f"I'm currently unavailable due to API configuration issues. {error_str} Please check your .env file and ensure GEMINI_API_KEY is set correctly. For immediate pet health concerns, please consult with a veterinarian."
         elif "quota" in error_str.lower():
+            logger.warning("API quota exceeded")
             return "I'm experiencing high demand right now. Please try again in a few minutes or consult with a veterinarian for immediate concerns."
         else:
-            return "I'm experiencing technical difficulties. Please try again or consult with a veterinarian for immediate concerns."
+            logger.error(f"Unexpected Gemini error: {error_str}")
+            return f"I'm experiencing technical difficulties: {error_str}. Please try again or consult with a veterinarian for immediate concerns."
 def generate_conversation_title(first_message, ai_response=None):
     """Generate a conversation title using Gemini"""
     try:
@@ -404,6 +743,7 @@ def chat(request):
         user_message = request.data.get('message')
         conversation_id = request.data.get('conversation_id')
         chat_mode = request.data.get('chat_mode', 'general')
+        assessment_context = request.data.get('assessment_context')
        
         if not user_message:
             return Response({'error': 'Message is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -472,7 +812,8 @@ def chat(request):
             user_message, 
             conversation_history, 
             chat_mode, 
-            pet_context
+            pet_context,
+            assessment_context
         )
         print(f"AI response: {ai_response}")
         
@@ -963,11 +1304,95 @@ def get_conversation_messages(request, conversation_id):
                 'timestamp': msg.created_at.isoformat()
             })
         
+        # Get assessment data from SOAP report if available
+        # Try to find SOAP report linked to this conversation, or find by pet/user if no direct link
+        assessment_data = None
+        soap_report = conversation.soap_reports.first()
+        
+        # If no SOAP report directly linked, try to find one for this pet/user
+        if not soap_report and conversation.pet:
+            from .models import SOAPReport
+            # Find most recent SOAP report for this pet and user
+            soap_report = SOAPReport.objects.filter(
+                pet=conversation.pet,
+                pet__owner=user_obj
+            ).order_by('-date_generated').first()
+        
+        if soap_report:
+            # Get associated AIDiagnosis to build assessment data
+            from .models import AIDiagnosis
+            try:
+                # Try exact match first (SOAP report might have # prefix)
+                try:
+                    ai_diagnosis = AIDiagnosis.objects.get(case_id=soap_report.case_id)
+                except AIDiagnosis.DoesNotExist:
+                    # Try without # prefix (AIDiagnosis doesn't have # prefix)
+                    case_id_clean = soap_report.case_id.lstrip('#')
+                    try:
+                        ai_diagnosis = AIDiagnosis.objects.get(case_id=case_id_clean)
+                    except AIDiagnosis.DoesNotExist:
+                        # Try with # prefix (in case SOAP was created without it but AIDiagnosis has it)
+                        case_id_with_hash = f'#{case_id_clean}'
+                        ai_diagnosis = AIDiagnosis.objects.get(case_id=case_id_with_hash)
+                # Transform suggested_diagnoses to predictions format expected by frontend
+                predictions = []
+                if isinstance(ai_diagnosis.suggested_diagnoses, list):
+                    for diag in ai_diagnosis.suggested_diagnoses:
+                        # Transform from AIDiagnosis format to frontend format
+                        prediction = {
+                            'disease': diag.get('condition_name', diag.get('condition', 'Unknown')),
+                            'label': diag.get('condition_name', diag.get('condition', 'Unknown')),
+                            'confidence': diag.get('likelihood_percentage', 0) / 100.0 if diag.get('likelihood_percentage') else (diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else diag.get('likelihood', 0) / 100.0),
+                            'likelihood': diag.get('likelihood_percentage', 0) / 100.0 if diag.get('likelihood_percentage') else (diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else diag.get('likelihood', 0) / 100.0),
+                            'urgency': diag.get('urgency_level', diag.get('urgency', 'moderate')),
+                            'description': diag.get('description', ''),
+                            'contagious': diag.get('contagious', False),
+                            'red_flags': diag.get('red_flags', []),
+                            'timeline': diag.get('timeline', ''),
+                        }
+                        predictions.append(prediction)
+                
+                # Build assessment data in the format expected by frontend
+                assessment_data = {
+                    'pet_name': conversation.pet.name if conversation.pet else 'Pet',
+                    'predictions': predictions,
+                    'overall_recommendation': ai_diagnosis.ai_explanation,
+                    'urgency_level': ai_diagnosis.urgency_level,
+                    'symptoms_text': ai_diagnosis.symptoms_text,
+                    'case_id': ai_diagnosis.case_id,
+                }
+            except AIDiagnosis.DoesNotExist:
+                # Fallback: use SOAP report assessment if AIDiagnosis doesn't exist
+                if soap_report.assessment and isinstance(soap_report.assessment, list):
+                    predictions = []
+                    for diag in soap_report.assessment:
+                        # Transform from SOAP report format to frontend format
+                        prediction = {
+                            'disease': diag.get('condition', diag.get('condition_name', 'Unknown')),
+                            'label': diag.get('condition', diag.get('condition_name', 'Unknown')),
+                            'confidence': diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else (diag.get('likelihood', 0) / 100.0),
+                            'likelihood': diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else (diag.get('likelihood', 0) / 100.0),
+                            'urgency': diag.get('urgency', 'moderate'),
+                            'description': diag.get('description', ''),
+                            'contagious': diag.get('contagious', False),
+                            'red_flags': diag.get('red_flags', []),
+                            'timeline': diag.get('timeline', ''),
+                        }
+                        predictions.append(prediction)
+                    
+                    assessment_data = {
+                        'pet_name': conversation.pet.name if conversation.pet else 'Pet',
+                        'predictions': predictions,
+                        'overall_recommendation': soap_report.plan.get('aiExplanation', '') if isinstance(soap_report.plan, dict) else '',
+                        'urgency_level': soap_report.plan.get('severityLevel', 'moderate').lower() if isinstance(soap_report.plan, dict) else 'moderate',
+                        'symptoms_text': soap_report.subjective,
+                        'case_id': soap_report.case_id,
+                    }
+        
         # Format response based on user type
         if request.user_type == 'admin':
             # Admin format (similar to admin endpoint)
             diagnosis_case_id = None
-            soap_report = conversation.soap_reports.first()
             if soap_report:
                 diagnosis_case_id = soap_report.case_id
             
@@ -988,14 +1413,18 @@ def get_conversation_messages(request, conversation_id):
             }, status=status.HTTP_200_OK)
         else:
             # Pet owner format (existing format)
-            return Response({
+            response_data = {
                 'conversation': {
                     'id': conversation.id,
                     'title': conversation.title,
                     'created_at': conversation.created_at.isoformat(),
                 },
                 'messages': messages
-            }, status=status.HTTP_200_OK)
+            }
+            # Include assessment data if available
+            if assessment_data:
+                response_data['assessment_data'] = assessment_data
+            return Response(response_data, status=status.HTTP_200_OK)
        
     except Exception as e:
         return Response({
@@ -1139,6 +1568,7 @@ def get_diagnoses(request):
                 'created_at': diagnosis.generated_at.strftime('%B %d, %Y'),
                 'diagnosis': diagnosis.ai_explanation[:200] + '...' if len(diagnosis.ai_explanation) > 200 else diagnosis.ai_explanation,
                 'symptoms': diagnosis.symptoms_text,
+                'suggested_diagnoses': diagnosis.suggested_diagnoses,  # Include assessment data
             })
        
         return Response({
@@ -1492,11 +1922,704 @@ def predict_symptoms(request):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+def _build_comprehensive_soap_report(cleaned, emergency_data, progression, severity, predictions, triage_assessment):
+    """
+    Build a comprehensive SOAP report including emergency screening results.
+    
+    Args:
+        cleaned: Cleaned payload data
+        emergency_data: Emergency screening results
+        progression: Symptom progression
+        severity: Severity level
+        predictions: Disease predictions
+        triage_assessment: Triage assessment results
+    
+    Returns:
+        dict: Complete SOAP report with S, O, A, P sections
+    """
+    pet_name = cleaned.get('pet_name', 'Pet')
+    symptoms_list = cleaned.get('symptoms_list', [])
+    symptoms_text = cleaned.get('symptoms_text', '')
+    duration_days = float(cleaned.get('duration_days') or 0)
+    main_concern = cleaned.get('main_concern', 'Not specified')
+    vtl_category = cleaned.get('vtl_category', 'Generalised')
+    
+    # Format duration
+    if duration_days <= 0.5:
+        duration_str = 'less than 24 hours'
+    elif duration_days <= 3:
+        duration_str = '1-3 days'
+    elif duration_days <= 7:
+        duration_str = '3-7 days'
+    else:
+        duration_str = 'more than a week'
+    
+    # Extract emergency screening data
+    chief_complaint = ''
+    respiration_status = 'Not assessed'
+    alertness_status = 'Not assessed'
+    perfusion_status = 'Not assessed'
+    critical_symptoms = []
+    
+    if emergency_data and isinstance(emergency_data, dict):
+        chief_complaint = emergency_data.get('chiefComplaint', '').strip()
+        emergency_screen = emergency_data.get('emergencyScreen', {})
+        
+        if isinstance(emergency_screen, dict):
+            respiration_status = emergency_screen.get('respiration', 'Not assessed')
+            alertness_status = emergency_screen.get('alertness', 'Not assessed')
+            perfusion_status = emergency_screen.get('perfusion', 'Not assessed')
+            critical_symptoms = emergency_screen.get('criticalSymptoms', [])
+    
+    # Format progression
+    progression_map = {
+        'getting_worse': 'Getting worse',
+        'staying_same': 'Staying about the same',
+        'getting_better': 'Getting better',
+        'intermittent': 'Coming and going (intermittent)'
+    }
+    progression_text = progression_map.get(progression, 'Not assessed') if progression else 'Not assessed'
+    
+    # Format severity
+    severity_text = severity.capitalize() if severity else 'Not specified'
+    
+    # ===== SUBJECTIVE SECTION =====
+    subjective_lines = []
+    
+    if chief_complaint:
+        subjective_lines.append(f"Chief Complaint: {chief_complaint}")
+    
+    subjective_lines.append(f"\nOwner reports {pet_name} experiencing the following symptoms:")
+    
+    if symptoms_list:
+        for symptom in symptoms_list:
+            # Convert snake_case to readable format
+            readable_symptom = symptom.replace('_', ' ').title()
+            subjective_lines.append(f"  • {readable_symptom}")
+    else:
+        subjective_lines.append("  • [No specific symptoms documented]")
+    
+    subjective_lines.append(f"\nDuration: {duration_str}")
+    subjective_lines.append(f"Progression: {progression_text}")
+    subjective_lines.append(f"Severity: {severity_text}")
+    subjective_lines.append(f"Main concern: {main_concern} (Body system: {vtl_category})")
+    
+    subjective_text = "\n".join(subjective_lines)
+    
+    # ===== OBJECTIVE SECTION =====
+    objective_lines = []
+    
+    # Basic patient information
+    species = cleaned.get('species', 'Unknown')
+    objective_lines.append(f"Species: {species}")
+    
+    # Add breed, age, weight if available from pet data
+    # Note: These would need to be passed from the Pet model
+    objective_lines.append("")
+    
+    # Emergency Screening (RAP Assessment)
+    objective_lines.append("Emergency Screening (RAP Assessment):")
+    objective_lines.append(f"  • Respiration: {respiration_status}")
+    objective_lines.append(f"  • Alertness: {alertness_status}")
+    objective_lines.append(f"  • Perfusion: {perfusion_status}")
+    
+    if critical_symptoms:
+        critical_list = ", ".join(critical_symptoms)
+        objective_lines.append(f"  • Critical symptoms: {critical_list}")
+    else:
+        objective_lines.append("  • Critical symptoms: None detected")
+    
+    objective_lines.append("")
+    
+    # Symptoms Documented
+    objective_lines.append("Symptoms Documented:")
+    if symptoms_list:
+        for symptom in symptoms_list:
+            readable_symptom = symptom.replace('_', ' ').title()
+            objective_lines.append(f"  • {readable_symptom}")
+    else:
+        objective_lines.append("  • [No specific symptoms documented]")
+    
+    objective_lines.append("")
+    objective_lines.append("Assessment conducted: AI-powered symptom analysis via structured triage questionnaire")
+    
+    objective_text = "\n".join(objective_lines)
+    
+    # ===== ASSESSMENT SECTION =====
+    assessment_lines = []
+    
+    # Differential diagnoses
+    top_names = [p['disease'] for p in predictions[:3]] if predictions else []
+    if top_names:
+        assessment_lines.append("Differential Diagnoses:")
+        for i, disease in enumerate(top_names, 1):
+            assessment_lines.append(f"  {i}. {disease}")
+    else:
+        assessment_lines.append("Differential Diagnoses: Unable to determine from available data")
+    
+    assessment_lines.append("")
+    
+    # Triage Classification
+    overall_urgency = triage_assessment.get('overall_urgency', 'Moderate')
+    urgency_reasoning = triage_assessment.get('urgency_reasoning', [])
+    
+    assessment_lines.append(f"Triage Classification: {overall_urgency.upper()}")
+    assessment_lines.append("Based on:")
+    
+    if urgency_reasoning:
+        for reason in urgency_reasoning:
+            assessment_lines.append(f"  • {reason}")
+    else:
+        assessment_lines.append("  • Comprehensive symptom and emergency screening assessment")
+    
+    assessment_text = "\n".join(assessment_lines)
+    
+    # ===== PLAN SECTION =====
+    plan_lines = []
+    
+    requires_care_within = triage_assessment.get('requires_care_within', '24-48 hours')
+    requires_immediate = triage_assessment.get('requires_immediate_care', False)
+    
+    if requires_immediate:
+        plan_lines.append("⚠️ IMMEDIATE CARE REQUIRED")
+        plan_lines.append("Seek emergency veterinary care immediately. Contact your emergency vet or nearest 24-hour clinic.")
+    else:
+        plan_lines.append(f"Recommended timeline: {requires_care_within}")
+    
+    plan_lines.append("")
+    plan_lines.append("Monitoring recommendations:")
+    plan_lines.append("  • Monitor for worsening symptoms")
+    plan_lines.append("  • Track symptom progression and any changes")
+    plan_lines.append("  • Maintain detailed notes of symptom patterns")
+    
+    if progression == 'getting_worse':
+        plan_lines.append("  • Given worsening progression, seek care sooner rather than later")
+    
+    plan_lines.append("")
+    plan_lines.append("Note: This assessment is AI-generated and does not replace professional veterinary diagnosis.")
+    plan_lines.append("Always consult with a licensed veterinarian for definitive diagnosis and treatment.")
+    
+    plan_text = "\n".join(plan_lines)
+    
+    # Return complete SOAP report
+    return {
+        'subjective': subjective_text,
+        'objective': objective_text,
+        'assessment': assessment_text,
+        'plan': plan_text,
+        'full_report': f"S - SUBJECTIVE:\n{subjective_text}\n\nO - OBJECTIVE:\n{objective_text}\n\nA - ASSESSMENT:\n{assessment_text}\n\nP - PLAN:\n{plan_text}"
+    }
+
+
+def _calculate_triage_assessment(emergency_data, severity, progression, predictions):
+    """
+    Calculate comprehensive triage assessment based on multiple factors.
+    
+    Args:
+        emergency_data: Emergency screening results from frontend
+        severity: User-selected severity (mild/moderate/severe)
+        progression: Symptom progression (getting_worse/staying_same/getting_better/intermittent)
+        predictions: List of disease predictions with urgency levels
+    
+    Returns:
+        dict: Triage assessment with urgency level and reasoning
+    """
+    urgency_reasoning = []
+    is_emergency = False
+    requires_immediate_care = False
+    
+    # 1. Check emergency screening (HIGHEST PRIORITY)
+    if emergency_data and isinstance(emergency_data, dict):
+        emergency_screen = emergency_data.get('emergencyScreen', {})
+        if isinstance(emergency_screen, dict):
+            is_emergency = emergency_screen.get('isEmergency', False)
+            
+            if is_emergency:
+                requires_immediate_care = True
+                urgency_reasoning.append("Emergency indicators detected in RAP screening")
+                
+                # Add specific emergency details
+                critical_symptoms = emergency_screen.get('criticalSymptoms', [])
+                if critical_symptoms:
+                    urgency_reasoning.append(f"Critical symptoms present: {', '.join(critical_symptoms)}")
+                
+                return {
+                    'overall_urgency': 'immediate',
+                    'emergency_indicators': True,
+                    'requires_immediate_care': True,
+                    'requires_care_within': 'Immediately - seek emergency veterinary care',
+                    'urgency_reasoning': urgency_reasoning
+                }
+    
+    # 2. Check disease prediction urgency
+    highest_disease_urgency = 'moderate'
+    if predictions:
+        disease_urgencies = [p.get('urgency', 'moderate') for p in predictions]
+        if any(u in ['high', 'severe', 'immediate'] for u in disease_urgencies):
+            highest_disease_urgency = 'high'
+            urgency_reasoning.append("High-urgency condition predicted")
+        elif any(u == 'urgent' for u in disease_urgencies):
+            highest_disease_urgency = 'urgent'
+    
+    # 3. Evaluate severity level
+    if severity == 'severe':
+        urgency_reasoning.append("Severe symptoms reported")
+        if highest_disease_urgency == 'high':
+            return {
+                'overall_urgency': 'urgent',
+                'emergency_indicators': False,
+                'requires_immediate_care': False,
+                'requires_care_within': '12-24 hours',
+                'urgency_reasoning': urgency_reasoning
+            }
+    elif severity == 'moderate':
+        urgency_reasoning.append("Moderate severity symptoms")
+    else:  # mild
+        urgency_reasoning.append("Mild symptoms reported")
+    
+    # 4. Factor in progression
+    if progression == 'getting_worse':
+        urgency_reasoning.append("Symptoms are getting worse - recommend monitoring closely")
+        # Escalate urgency if symptoms are worsening
+        if severity in ['moderate', 'severe']:
+            return {
+                'overall_urgency': 'urgent',
+                'emergency_indicators': False,
+                'requires_immediate_care': False,
+                'requires_care_within': '12-24 hours',
+                'urgency_reasoning': urgency_reasoning
+            }
+    elif progression == 'getting_better':
+        urgency_reasoning.append("Symptoms are improving")
+    elif progression == 'intermittent':
+        urgency_reasoning.append("Symptoms are intermittent - patterns should be monitored")
+    elif progression == 'staying_same':
+        urgency_reasoning.append("Symptoms are stable")
+    
+    # 5. Default urgency calculation
+    if severity == 'severe' or highest_disease_urgency == 'high':
+        overall_urgency = 'urgent'
+        requires_care_within = '12-24 hours'
+    elif severity == 'moderate' or progression == 'getting_worse':
+        overall_urgency = 'moderate'
+        requires_care_within = '24-48 hours'
+    else:
+        overall_urgency = 'routine'
+        requires_care_within = 'Schedule regular appointment within a few days'
+    
+    return {
+        'overall_urgency': overall_urgency,
+        'emergency_indicators': False,
+        'requires_immediate_care': False,
+        'requires_care_within': requires_care_within,
+        'urgency_reasoning': urgency_reasoning
+    }
+
+
+def calculate_dynamic_urgency(user_input, predicted_disease, metadata):
+    """
+    Calculate urgency based on user input + red flags, not just disease metadata.
+    
+    Args:
+        user_input: Cleaned payload from frontend with symptoms, severity, progression, etc.
+        predicted_disease: Top predicted disease name
+        metadata: Disease metadata from model
+    
+    Returns:
+        dict: Dynamic urgency assessment with score, red flags, and recommendations
+    """
+    urgency_score = 0
+    red_flags = []
+    
+    # User-selected severity (highest weight)
+    severity = user_input.get('severity', 'moderate')
+    if severity == 'severe':
+        urgency_score += 3
+        red_flags.append("Severe symptoms reported")
+    elif severity == 'moderate':
+        urgency_score += 2
+    else:
+        urgency_score += 1
+    
+    # Progression (getting worse = more urgent)
+    progression = user_input.get('progression', 'same')
+    if progression == 'getting_worse':
+        urgency_score += 2
+        red_flags.append("Symptoms worsening")
+    
+    # RED FLAG SYMPTOMS (critical indicators)
+    symptoms = user_input.get('symptoms_list', [])
+    emergency_data = user_input.get('emergency_data', {})
+    emergency_screen = emergency_data.get('emergencyScreen', {}) if emergency_data else {}
+    
+    # Check emergency screening results
+    perfusion = emergency_screen.get('perfusion', '')
+    if perfusion in ['pale_white', 'blue_purple']:
+        urgency_score += 3
+        red_flags.append("Pale/blue gums - possible shock or blood loss")
+    
+    respiration = emergency_screen.get('respiration', '')
+    if respiration in ['gasping', 'not_breathing', 'open_mouth_breathing']:
+        urgency_score += 3
+        red_flags.append("Respiratory distress")
+    
+    alertness = emergency_screen.get('alertness', '')
+    if alertness in ['unresponsive', 'disoriented']:
+        urgency_score += 3
+        red_flags.append("Altered consciousness")
+    
+    # Check for blood-related symptoms
+    blood_symptoms = ['blood_in_urine', 'bloody_stool', 'vomiting_blood', 'hemoptysis']
+    if any(s in symptoms for s in blood_symptoms):
+        urgency_score += 2
+        red_flags.append("Blood in vomit/stool/urine")
+    
+    # Check critical symptoms from emergency screening
+    critical_symptoms = emergency_screen.get('criticalSymptoms', [])
+    if len(critical_symptoms) > 0:
+        urgency_score += 3
+        for symptom in critical_symptoms:
+            red_flags.append(f"Critical: {symptom}")
+    
+    # Duration (sudden onset = more concerning)
+    duration = user_input.get('duration_days', 3)
+    if duration < 1:  # Less than 24 hours
+        urgency_score += 1
+        red_flags.append("Rapid onset")
+    
+    # Map score to urgency level
+    if urgency_score >= 7:
+        urgency = "critical"
+        recommendation = "⚠️ URGENT: This appears to be a medical emergency. Seek immediate veterinary care. Contact your emergency vet or nearest 24-hour clinic immediately."
+        timeline = "Immediate - do not wait"
+    elif urgency_score >= 5:
+        urgency = "high"
+        recommendation = "HIGH URGENCY: These symptoms require prompt veterinary attention. Contact your vet today or visit an emergency clinic if after hours."
+        timeline = "Within 2-6 hours"
+    elif urgency_score >= 3:
+        urgency = "moderate"
+        recommendation = "Schedule a vet visit within 24-48 hours. Monitor closely for worsening symptoms."
+        timeline = "Within 24-48 hours"
+    else:
+        urgency = "low"
+        recommendation = "Monitor at home. Schedule routine vet visit if symptoms persist or worsen."
+        timeline = "Within 3-7 days or as needed"
+    
+    return {
+        'urgency': urgency,
+        'urgency_score': urgency_score,
+        'red_flags': red_flags,
+        'recommendation': recommendation,
+        'timeline': timeline,
+        'disease_base_urgency': metadata.get('urgency', 'moderate') if metadata else 'moderate'
+    }
+
+
+@api_view(['POST'])
+@authentication_classes([])  # Custom auth via check_user_or_admin
+@permission_classes([AllowAny])
+def symptom_checker_predict(request):
+    """Predict likely diseases from structured symptom checker payload using PawPal LightGBM.
+
+    Expected payload (from conversational questionnaire):
+    {
+      "pet_name": "Max",
+      "pet_id": 123,
+      "species": "Dog",
+      "urgency": "moderate",
+      "duration_days": 3.0,
+      "symptoms_list": ["vomiting", "lethargy", "loss_of_appetite"],
+      "symptoms_text": "vomiting, lethargy, loss_of_appetite",
+      "symptom_count": 3,
+      "main_concern": "Digestive Issues",
+      "severity": "moderate",
+      "vtl_category": "Gastrointestinal",
+      "progression": "getting_worse",
+      "emergency_data": {
+        "chiefComplaint": "Dog vomiting all morning",
+        "emergencyScreen": {
+          "respiration": "normal_breathing",
+          "alertness": "alert_and_aware",
+          "perfusion": "normal_pink",
+          "criticalSymptoms": [],
+          "isEmergency": false
+        },
+        "timestamp": "2024-11-16T10:30:00Z"
+      }
+    }
+    
+    Returns enhanced response with triage_assessment:
+    {
+      "success": true,
+      "predictions": [...],
+      "triage_assessment": {
+        "overall_urgency": "moderate",
+        "emergency_indicators": false,
+        "requires_immediate_care": false,
+        "requires_care_within": "24-48 hours",
+        "urgency_reasoning": [...]
+      },
+      "soap_data": {
+        "subjective": "Owner reports: Chief complaint. Symptoms progression...",
+        "objective": "Emergency screening results...",
+        ...
+      }
+    }
+    """
+    from utils.unified_permissions import check_user_or_admin
+    from django.contrib.auth.models import AnonymousUser
+
+    # Authenticate user (pet owner only)
+    if isinstance(request.user, AnonymousUser) or not getattr(request.user, 'id', None):
+        user_type, user_obj, error_response = check_user_or_admin(request)
+        if error_response:
+            return error_response
+        if user_type != 'pet_owner':
+            return Response(
+                {
+                    'success': False,
+                    'error': 'Only pet owners can use the symptom checker prediction',
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        request.user = user_obj
+    else:
+        user_obj = request.user
+
+    # Rate limiting per user
+    if _rate_limit_symptom_checker(user_obj.id, max_requests=10, window_seconds=60):
+        return Response(
+            {
+                'success': False,
+                'error': 'Too many symptom checker requests. Please try again in a minute.',
+            },
+            status=429,
+        )
+
+    try:
+        payload = request.data or {}
+        logger.info(f"Symptom checker predict received payload: {payload}")
+        is_valid, cleaned, error_response = _validate_symptom_checker_payload(payload)
+        if not is_valid:
+            logger.error(f"Symptom checker payload validation failed. Payload: {payload}")
+            return error_response
+
+        pet_id = cleaned.get('pet_id')
+        pet = None
+        if pet_id:
+            try:
+                pet = Pet.objects.get(id=pet_id, owner=user_obj)
+            except Pet.DoesNotExist:
+                return Response(
+                    {
+                        'success': False,
+                        'error': 'Pet not found or not owned by the current user.',
+                    },
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+        try:
+            model, preprocessor, label_encoder, disease_metadata = load_pawpal_lightgbm()
+        except Exception as e:
+            return Response(
+                {
+                    'success': False,
+                    'error': 'Disease prediction model is not available. Please try again later.',
+                    'details': str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        feature_row = _build_feature_row_from_payload(cleaned)
+
+        categorical_cols = ['species', 'urgency']
+        numeric_cols = [
+            'symptom_count',
+            'urgency_encoded',
+            'contagious_flag',
+            'respiratory_count',
+            'digestive_count',
+            'skin_count',
+            'severity_score',
+            'duration_days',
+        ] + [f'has_{s}' for s in CANONICAL_SYMPTOMS]
+        text_col = 'symptoms_text'
+
+        ordered_cols = categorical_cols + numeric_cols + [text_col]
+
+        X_df = pd.DataFrame([{k: feature_row.get(k) for k in ordered_cols}])
+
+        try:
+            X_transformed = preprocessor.transform(X_df)
+            proba = model.predict_proba(X_transformed)[0]
+        except Exception as e:
+            logger.exception('Error during LightGBM prediction: %s', e)
+            return Response(
+                {
+                    'success': False,
+                    'error': 'Prediction failed. Please try again later.',
+                    'details': str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        classes = list(label_encoder.classes_)
+        probs = np.array(proba)
+        top_indices = probs.argsort()[::-1][:3]
+        
+        logger.info(f"Top 3 indices: {top_indices}")
+        logger.info(f"Top 3 probabilities: {[probs[idx] for idx in top_indices]}")
+        logger.info(f"Top 3 diseases: {[classes[idx] for idx in top_indices]}")
+
+        predictions = []
+        symptoms_list = list(cleaned.get('symptoms_list') or [])
+        sympt_set = set(symptoms_list)
+
+        for idx in top_indices:
+            conf = float(probs[idx])
+            logger.info(f"Processing disease {classes[idx]} with confidence {conf:.4f}")
+            # Always include top 3 predictions regardless of confidence
+            disease_name = str(classes[idx])
+            meta = (disease_metadata or {}).get(disease_name, {})
+            contagious = bool(meta.get('contagious', False))
+            sample_symptoms_text = meta.get('sample_symptoms', '') or ''
+            sample_symptoms = extract_symptoms_from_text(sample_symptoms_text) or []
+
+            matching_symptoms = [s for s in symptoms_list if s in sample_symptoms] if sample_symptoms else list(sympt_set)
+
+            # Calculate dynamic urgency based on user input + red flags
+            dynamic_urgency = calculate_dynamic_urgency(cleaned, disease_name, meta)
+
+            prediction_obj = {
+                'disease': disease_name,
+                'confidence': conf,
+                'confidence_pct': f"{conf*100:.0f}%",
+                'urgency': dynamic_urgency['urgency'],
+                'urgency_score': dynamic_urgency['urgency_score'],
+                'red_flags': dynamic_urgency['red_flags'],
+                'recommendation': dynamic_urgency['recommendation'],
+                'timeline': dynamic_urgency['timeline'],
+                'contagious': contagious,
+                'matching_symptoms': matching_symptoms,
+                'common_symptoms': sample_symptoms,
+                'care_guidelines': '',
+                'when_to_see_vet': '',
+            }
+
+            predictions.append(prediction_obj)
+
+        predictions.sort(key=lambda x: x['confidence'], reverse=True)
+        
+        logger.info(f"After filtering and sorting: {len(predictions)} predictions collected. Top indices were: {top_indices}")
+        for i, pred in enumerate(predictions):
+            logger.info(f"  Prediction {i+1}: {pred.get('disease')} - confidence: {pred.get('confidence'):.4f}")
+
+        if predictions:
+            highest_urgency = max((p.get('urgency') or 'moderate') for p in predictions)
+        else:
+            highest_urgency = cleaned.get('urgency', 'moderate')
+
+        urgency_level = highest_urgency
+        should_see_vet_immediately = any(
+            str(p.get('urgency', '')).lower() in {'high', 'severe', 'immediate'} for p in predictions
+        )
+
+        pet_name = cleaned.get('pet_name')
+        symptoms_text = cleaned.get('symptoms_text')
+        duration_days = float(cleaned.get('duration_days') or 0)
+        if duration_days <= 0.5:
+            duration_str = 'less than 24 hours'
+        elif duration_days <= 3:
+            duration_str = '1-3 days'
+        elif duration_days <= 7:
+            duration_str = '3-7 days'
+        else:
+            duration_str = 'more than a week'
+
+        top_names = [p['disease'] for p in predictions[:3]] if predictions else []
+
+        # Get emergency data and progression for enhanced triage
+        emergency_data = cleaned.get('emergency_data')
+        progression = cleaned.get('progression')
+        severity = cleaned.get('severity', 'moderate')
+        
+        # Calculate comprehensive triage assessment
+        triage_assessment = _calculate_triage_assessment(
+            emergency_data=emergency_data,
+            severity=severity,
+            progression=progression,
+            predictions=predictions
+        )
+        
+        # Build comprehensive SOAP report with emergency screening
+        soap_data = _build_comprehensive_soap_report(
+            cleaned=cleaned,
+            emergency_data=emergency_data,
+            progression=progression,
+            severity=severity,
+            predictions=predictions,
+            triage_assessment=triage_assessment
+        )
+        
+        # Update overall recommendation based on triage
+        if triage_assessment.get('requires_immediate_care'):
+            overall_recommendation = (
+                "⚠️ URGENT: This appears to be a medical emergency. "
+                "Seek immediate veterinary care. Contact your emergency vet or nearest 24-hour clinic immediately."
+            )
+        elif triage_assessment.get('overall_urgency') == 'urgent':
+            overall_recommendation = (
+                "Based on the assessment, veterinary care is recommended within 12-24 hours. "
+                "Monitor closely for any worsening symptoms and seek immediate care if condition deteriorates."
+            )
+        elif triage_assessment.get('overall_urgency') == 'moderate':
+            overall_recommendation = (
+                "Based on the current severity and symptom pattern, we recommend scheduling a vet visit within 24-48 hours. "
+                "Monitor for worsening symptoms such as persistent vomiting, severe lethargy, or signs of dehydration."
+            )
+        else:
+            overall_recommendation = (
+                "Continue monitoring your pet's condition. Schedule a routine veterinary appointment within a few days. "
+                "Seek care sooner if symptoms worsen or new concerning signs develop."
+            )
+
+        response_payload = {
+            'success': True,
+            'pet_name': pet_name,
+            'assessment_date': timezone.now().isoformat(),
+            'predictions': predictions,
+            'overall_recommendation': overall_recommendation,
+            'urgency_level': triage_assessment.get('overall_urgency', urgency_level),
+            'should_see_vet_immediately': triage_assessment.get('requires_immediate_care', should_see_vet_immediately),
+            'triage_assessment': triage_assessment,
+            'soap_data': soap_data,
+            'symptoms_text': symptoms_text,
+        }
+        
+        logger.info(f"Symptom checker predict returning {len(predictions)} predictions: {[p.get('disease') for p in predictions]}")
+
+        return Response(response_payload)
+    except Exception as e:
+        logger.exception('Unhandled error in symptom_checker_predict: %s', e)
+        return Response(
+            {
+                'success': False,
+                'error': 'Internal server error while processing symptom checker prediction.',
+                'details': str(e),
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
 @api_view(['POST'])
 @authentication_classes([])  # Disable DRF authentication - our custom function handles it
 @permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def create_ai_diagnosis(request):
     """Create a comprehensive AI diagnosis report"""
+    print("\n" + "="*50)
+    print("🔴 CREATE_AI_DIAGNOSIS CALLED")
+    print("="*50 + "\n")
+    
     from utils.unified_permissions import check_user_or_admin
     
     # Check authentication (supports both user types)
@@ -1517,9 +2640,11 @@ def create_ai_diagnosis(request):
         data = request.data
         pet_id = data.get('pet_id')
         symptoms_text = data.get('symptoms', '')
+        assessment_data = data.get('assessment_data', {})
+        conversation_id = data.get('conversation_id')  # Get conversation_id if provided
         
-        if not pet_id or not symptoms_text:
-            return Response({'error': 'pet_id and symptoms are required'}, status=status.HTTP_400_BAD_REQUEST)
+        if not pet_id:
+            return Response({'error': 'pet_id is required'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Get pet
         try:
@@ -1527,42 +2652,154 @@ def create_ai_diagnosis(request):
         except Pet.DoesNotExist:
             return Response({'error': 'Pet not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        # Temporarily set request.user for predict_symptoms function
-        request.user = user_obj
+        # Use assessment data from symptom checker if available
+        if assessment_data:
+            predictions = assessment_data.get('predictions', [])
+            urgency_level = assessment_data.get('urgency_level', 'moderate')
+            overall_recommendation = assessment_data.get('overall_recommendation', '')
+            triage_assessment = assessment_data.get('triage_assessment', {})
+            soap_data = assessment_data.get('soap_data', {})
+            
+            logger.info(f"Assessment data keys: {assessment_data.keys()}")
+            logger.info(f"SOAP data present: {bool(soap_data)}")
+            logger.info(f"SOAP data keys: {soap_data.keys() if soap_data else 'None'}")
+        else:
+            return Response({'error': 'assessment_data is required'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Get ML predictions
-        ml_response = predict_symptoms(request)
-        if ml_response.status_code != 200:
-            return ml_response
+        print("🟢 Step 1: Got predictions, building suggested_diagnoses")
         
-        ml_data = ml_response.data
+        # Get top prediction for overall severity
+        top_prediction = predictions[0] if predictions else {}
+        
+        # Build suggested diagnoses from predictions
+        suggested_diagnoses = []
+        for pred in predictions:
+            suggested_diagnoses.append({
+                'condition_name': pred.get('disease', pred.get('label', 'Unknown')),
+                'likelihood_percentage': pred.get('confidence', 0) * 100,
+                'description': pred.get('recommendation', f"AI-suggested condition based on symptoms"),
+                'urgency_level': pred.get('urgency', urgency_level),
+                'contagious': pred.get('contagious', False),
+                'red_flags': pred.get('red_flags', []),
+                'timeline': pred.get('timeline', '')
+            })
+        
+        print("🟢 Step 2: About to create AIDiagnosis record")
         
         # Create AI Diagnosis record
         ai_diagnosis = AIDiagnosis.objects.create(
             user=user_obj,
             pet=pet,
-            symptoms_text=symptoms_text,
-            image_analysis=ml_data.get('image_analysis'),
-            ml_predictions=ml_data['predictions'],
-            ai_explanation=ml_data['ai_explanation'],
-            overall_severity=ml_data['severity'],
-            urgency_level=ml_data['urgency'],
-            pet_context=ml_data['pet_context'],
-            confidence_score=ml_data['confidence_score']
+            symptoms_text=symptoms_text or assessment_data.get('symptoms_text', 'Symptom assessment completed'),
+            image_analysis=None,  # Not using image analysis from symptom checker
+            ml_predictions=predictions,
+            ai_explanation=overall_recommendation,
+            suggested_diagnoses=suggested_diagnoses,
+            overall_severity=triage_assessment.get('overall_urgency', urgency_level),
+            urgency_level=urgency_level,
+            pet_context={
+                'pet_name': pet.name,
+                'species': pet.animal_type,
+                'age': pet.age,
+                'weight': str(pet.weight) if pet.weight else None
+            },
+            confidence_score=top_prediction.get('confidence', 0.0)
         )
+        
+        print(f"🟢 Step 3: AIDiagnosis created with case_id: {ai_diagnosis.case_id}")
+        
+        # Always create SOAP Report
+        # Map urgency to flag level
+        flag_level_map = {
+            'critical': 'critical',
+            'immediate': 'critical',
+            'high': 'urgent',
+            'urgent': 'urgent',
+            'moderate': 'moderate',
+            'low': 'routine'
+        }
+        flag_level = flag_level_map.get(urgency_level, 'moderate')
+        print("🔵 Step 4: Building SOAP data...")
+        
+        # Build SOAP report data
+        subjective_text = soap_data.get('subjective', symptoms_text or 'Symptom assessment completed') if soap_data else (symptoms_text or 'Symptom assessment completed')
+        objective_data = soap_data.get('objective', {
+            'symptoms': predictions[0].get('matching_symptoms', []) if predictions else [],
+            'duration': assessment_data.get('symptoms_text', ''),
+            'severity': assessment_data.get('severity', 'moderate')
+        }) if soap_data else {
+            'symptoms': predictions[0].get('matching_symptoms', []) if predictions else [],
+            'duration': assessment_data.get('symptoms_text', ''),
+            'severity': assessment_data.get('severity', 'moderate')
+        }
+        
+        assessment_soap = soap_data.get('assessment', suggested_diagnoses) if soap_data else suggested_diagnoses
+        
+        plan_data = soap_data.get('plan', {
+            'severityLevel': urgency_level,
+            'careAdvice': [overall_recommendation]
+        }) if soap_data else {
+            'severityLevel': urgency_level,
+            'careAdvice': [overall_recommendation]
+        }
+        
+        # Ensure case_id has # prefix for SOAP report (to match expected format)
+        soap_case_id = ai_diagnosis.case_id
+        if not soap_case_id.startswith('#'):
+            soap_case_id = f'#{soap_case_id}'
+        
+        logger.info(f"🔵 About to create SOAP report for case_id: {soap_case_id}")
+        logger.info(f"🔵 SOAP parameters: case_id={soap_case_id}, pet={pet.id}, flag_level={flag_level}")
+        
+        try:
+            # Check if SOAP report already exists
+            existing_soap = SOAPReport.objects.filter(case_id=soap_case_id).first()
+            if existing_soap:
+                logger.info(f"⚠️ SOAP report already exists for case {soap_case_id}, skipping creation")
+                soap_report = existing_soap
+            else:
+                # Link to conversation if provided
+                conversation = None
+                if conversation_id:
+                    try:
+                        from .models import Conversation
+                        conversation = Conversation.objects.get(id=conversation_id, user=user_obj)
+                        logger.info(f"🔗 Linking SOAP report to conversation {conversation_id}")
+                    except Conversation.DoesNotExist:
+                        logger.warning(f"⚠️ Conversation {conversation_id} not found, creating SOAP report without conversation link")
+                
+                soap_report = SOAPReport.objects.create(
+                    case_id=soap_case_id,
+                    pet=pet,
+                    chat_conversation=conversation,  # Link to conversation if provided
+                    subjective=subjective_text,
+                    objective=objective_data,
+                    assessment=assessment_soap,
+                    plan=plan_data,
+                    flag_level=flag_level
+                )
+                logger.info(f"✅ Created SOAP report for case {soap_case_id}" + (f" linked to conversation {conversation_id}" if conversation else ""))
+        except Exception as soap_error:
+            logger.error(f"❌ Failed to create SOAP report: {soap_error}")
+            logger.error(f"SOAP error type: {type(soap_error).__name__}")
+            import traceback
+            logger.error(f"SOAP error traceback: {traceback.format_exc()}")
+            logger.error(f"SOAP data: subjective={subjective_text[:100]}, objective={objective_data}, assessment={assessment_soap}, plan={plan_data}, flag={flag_level}")
+            # Don't fail the entire request if SOAP creation fails
+            soap_report = None
         
         # Create diagnosis suggestions
         suggestions = []
-        for pred in ml_data['predictions']:
+        for pred in predictions:
             suggestion = DiagnosisSuggestion.objects.create(
                 ai_diagnosis=ai_diagnosis,
-                condition_name=pred['label'],
-                likelihood_percentage=pred['confidence'] * 100,
-                description=f"AI-suggested condition based on symptoms: {symptoms_text}",
-                matched_symptoms=[symptoms_text],
-                urgency_level=ml_data['urgency'],
-                contagious=False,  # This would need to be determined by a knowledge base
-                confidence_score=pred['confidence']
+                condition_name=pred.get('disease', pred.get('label', 'Unknown')),
+                likelihood_percentage=pred.get('confidence', 0) * 100,
+                description=pred.get('recommendation', f"AI-suggested condition based on symptoms"),
+                matched_symptoms=pred.get('matching_symptoms', [symptoms_text]),
+                urgency_level=pred.get('urgency', urgency_level),
+                contagious=pred.get('contagious', False),
+                confidence_score=pred.get('confidence', 0)
             )
             suggestions.append({
                 'id': suggestion.id,
@@ -1572,7 +2809,9 @@ def create_ai_diagnosis(request):
                 'matched_symptoms': suggestion.matched_symptoms,
                 'urgency_level': suggestion.urgency_level,
                 'contagious': suggestion.contagious,
-                'confidence_score': suggestion.confidence_score
+                'confidence_score': suggestion.confidence_score,
+                'red_flags': pred.get('red_flags', []),
+                'timeline': pred.get('timeline', '')
             })
         
         # Generate structured report
@@ -1580,8 +2819,8 @@ def create_ai_diagnosis(request):
             'case_id': ai_diagnosis.case_id,
             'generated_at': ai_diagnosis.generated_at.isoformat(),
             'pet_owner_info': {
-                'name': request.user.username,
-                'email': request.user.email,
+                'name': user_obj.username,
+                'email': user_obj.email,
             },
             'pet_info': {
                 'name': pet.name,
@@ -1592,27 +2831,39 @@ def create_ai_diagnosis(request):
                 'weight': float(pet.weight) if pet.weight else None,
             },
             'medical_info': {
-                'blood_type': 'Unknown',  # Extract from medical_notes if available
+                'blood_type': 'Unknown',
                 'spayed_neutered': 'Unknown',
                 'allergies': 'None',
                 'chronic_diseases': 'None',
             },
-            'symptom_summary': symptoms_text,
+            'symptom_summary': symptoms_text or assessment_data.get('symptoms_text', ''),
             'ai_suggested_diagnoses': suggestions,
             'overall_severity': ai_diagnosis.overall_severity,
             'urgency_level': ai_diagnosis.urgency_level,
             'confidence_score': ai_diagnosis.confidence_score,
-            'ai_explanation': ai_diagnosis.ai_explanation
+            'ai_explanation': ai_diagnosis.ai_explanation,
+            'soap_report': soap_data,
+            'triage_assessment': triage_assessment
         }
         
+        # Return the SOAP report case_id (with # prefix) if it was created, otherwise use AIDiagnosis case_id
+        response_case_id = soap_case_id if soap_report else ai_diagnosis.case_id
+        
         return Response({
+            'success': True,
             'diagnosis_id': ai_diagnosis.id,
-            'case_id': ai_diagnosis.case_id,
+            'case_id': response_case_id,  # Use SOAP case_id format for consistency
+            'ai_diagnosis_case_id': ai_diagnosis.case_id,  # Also include original for reference
+            'soap_report_created': soap_report is not None,
             'report': report
         }, status=status.HTTP_201_CREATED)
         
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        logger.exception(f'Error creating AI diagnosis: {e}')
+        return Response({
+            'success': False,
+            'error': f'Failed to create AI diagnosis: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])
@@ -2022,50 +3273,121 @@ def get_pet_context_dict(pet):
     }
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Allow testing without auth for easier debugging
+@permission_classes([AllowAny])
 def test_gemini_api_key(request):
-    """Test if Gemini API key is working"""
+    """Test if Gemini API key is working - Public endpoint for debugging"""
     try:
         api_key = getattr(settings, 'GEMINI_API_KEY', None)
         
+        # Detailed diagnostics
+        diagnostics = {
+            'api_key_present': api_key is not None,
+            'api_key_length': len(api_key) if api_key else 0,
+            'api_key_starts_with': api_key[:10] if api_key and len(api_key) >= 10 else 'N/A',
+            'api_key_has_whitespace': api_key != api_key.strip() if api_key else False,
+        }
+        
         if not api_key:
             return Response({
+                'success': False,
+                'api_key_valid': False,
                 'error': 'GEMINI_API_KEY not found in settings',
-                'solution': 'Add GEMINI_API_KEY to your settings.py'
-            })
+                'diagnostics': diagnostics,
+                'solution': 'Add GEMINI_API_KEY=your-key-here to your .env file in the project root',
+                'steps': [
+                    '1. Open your .env file (should be in the same folder as manage.py)',
+                    '2. Add this line: GEMINI_API_KEY=your-actual-api-key',
+                    '3. Make sure there are no quotes around the key',
+                    '4. Restart your Django server',
+                    '5. Get a new key from https://aistudio.google.com/app/apikey if needed'
+                ]
+            }, status=400)
+        
+        # Strip whitespace
+        api_key_clean = api_key.strip()
+        if not api_key_clean:
+            return Response({
+                'success': False,
+                'api_key_valid': False,
+                'error': 'GEMINI_API_KEY is empty (only whitespace)',
+                'diagnostics': diagnostics,
+                'solution': 'Check your .env file - the key value is empty'
+            }, status=400)
         
         # Test API key
-        genai.configure(api_key=api_key)
-        
         try:
+            genai.configure(api_key=api_key_clean)
+            
             # Try to list models
             models = list(genai.list_models())
             model_names = [m.name for m in models]
             
+            # Try a simple generation test
+            test_model = genai.GenerativeModel('models/gemini-1.5-flash')
+            test_response = test_model.generate_content("Say 'Hello' if you can read this.")
+            
             return Response({
                 'success': True,
                 'api_key_valid': True,
-                'available_models': model_names,
+                'api_key_preview': f"{api_key_clean[:8]}...{api_key_clean[-4:]}",
+                'available_models': model_names[:5],  # First 5 models
                 'total_models': len(models),
-                'api_key_preview': f"{api_key[:8]}...{api_key[-4:]}"
+                'test_generation': test_response.text if hasattr(test_response, 'text') else 'Failed',
+                'diagnostics': diagnostics
             })
             
         except Exception as api_error:
+            error_str = str(api_error)
+            error_lower = error_str.lower()
+            
+            # Determine the specific issue
+            if '403' in error_str or 'permission' in error_lower or 'forbidden' in error_lower:
+                issue = 'API key is invalid or has been revoked'
+                solutions = [
+                    'Get a new API key from https://aistudio.google.com/app/apikey',
+                    'Make sure you copied the entire key (no spaces, no quotes)',
+                    'Check if the key has expired or been revoked in Google AI Studio'
+                ]
+            elif 'quota' in error_lower or '429' in error_str:
+                issue = 'API quota exceeded'
+                solutions = [
+                    'Wait a few minutes and try again',
+                    'Check your Google Cloud billing account',
+                    'Upgrade your API plan if needed'
+                ]
+            elif 'invalid' in error_lower:
+                issue = 'API key format is invalid'
+                solutions = [
+                    'Verify the key in your .env file has no extra spaces or quotes',
+                    'Get a fresh key from https://aistudio.google.com/app/apikey',
+                    'Make sure the key starts with "AI" (for Gemini API keys)'
+                ]
+            else:
+                issue = 'Unknown API error'
+                solutions = [
+                    'Check the error message below',
+                    'Verify your internet connection',
+                    'Try again in a few minutes'
+                ]
+            
             return Response({
                 'success': False,
                 'api_key_valid': False,
-                'error': str(api_error),
-                'api_key_preview': f"{api_key[:8]}...{api_key[-4:]}",
-                'solutions': [
-                    'Get a new API key from https://aistudio.google.com/app/apikey',
-                    'Check if Gemini is available in your region',
-                    'Verify billing is enabled'
-                ]
-            })
+                'error': error_str,
+                'issue': issue,
+                'api_key_preview': f"{api_key_clean[:8]}...{api_key_clean[-4:]}",
+                'diagnostics': diagnostics,
+                'solutions': solutions,
+                'help_url': 'https://aistudio.google.com/app/apikey'
+            }, status=400)
             
     except Exception as e:
+        logger.exception(f"Error in test_gemini_api_key: {e}")
         return Response({
-            'error': str(e)
+            'success': False,
+            'error': str(e),
+            'error_type': type(e).__name__
         }, status=500)
 
 

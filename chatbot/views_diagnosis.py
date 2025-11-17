@@ -270,8 +270,21 @@ def get_soap_report_by_case_id(request, case_id):
         if not case_id_clean.startswith('#'):
             case_id_clean = f'#{case_id_clean}'
         
-        # Get SOAP report
-        soap_report = get_object_or_404(SOAPReport, case_id=case_id_clean)
+        # Try to get SOAP report with # prefix first
+        try:
+            soap_report = SOAPReport.objects.get(case_id=case_id_clean)
+        except SOAPReport.DoesNotExist:
+            # Try without # prefix (in case it was created without it)
+            case_id_no_hash = case_id_clean.lstrip('#')
+            try:
+                soap_report = SOAPReport.objects.get(case_id=case_id_no_hash)
+            except SOAPReport.DoesNotExist:
+                # Return 404 if not found
+                return Response({
+                    'success': False,
+                    'error': f'SOAP report with case ID {case_id} not found',
+                    'code': 'NOT_FOUND'
+                }, status=status.HTTP_404_NOT_FOUND)
         
         # Role-based access check
         if user_type == 'admin':

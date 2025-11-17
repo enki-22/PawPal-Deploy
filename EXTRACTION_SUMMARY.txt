@@ -1,0 +1,168 @@
+================================================================================
+DISEASE SYMPTOM PROFILES - EXTRACTION SUMMARY
+================================================================================
+
+SCRIPT: extract_canonical_symptoms_per_disease.py
+OUTPUT: disease_symptom_profiles.json
+
+PURPOSE:
+Extract intended symptoms for each disease from pet_disease_dataset_final.csv
+Identifies what symptoms SHOULD be associated with each disease based on 
+veterinary research, even if extraction initially failed to capture them all.
+
+================================================================================
+EXTRACTION RESULTS
+================================================================================
+
+Total Diseases Processed: 235
+Total Symptoms Extracted: 1,568
+Average Symptoms per Disease: 6.7
+Minimum Symptoms per Disease: 1
+Maximum Symptoms per Disease: 18
+
+Output File Size: 186.9 KB
+
+================================================================================
+METHODOLOGY
+================================================================================
+
+STEP 1: Load Dataset
+- Read pet_disease_dataset_final.csv
+- Group records by disease name
+- Collect all raw symptom texts for each disease
+
+STEP 2: Enhanced Symptom Extraction
+- For each disease, analyze ALL raw text descriptions
+- Use canonical symptom indicators to identify intended symptoms
+- Match text patterns against 69 canonical symptoms
+- Extract symptoms that SHOULD have been identified
+
+STEP 3: Disease Profile Generation
+- Create comprehensive symptom profile for each disease
+- Include: species, symptoms, urgency, contagious flag, sources
+- Sort and deduplicate symptoms
+- Calculate most common urgency level
+
+STEP 4: Quality Reporting
+- Identify diseases with <3 symptoms (20 diseases flagged)
+- Generate summary statistics
+- Output JSON with complete disease profiles
+
+================================================================================
+CANONICAL SYMPTOMS (69 total)
+================================================================================
+
+Gastrointestinal:
+  vomiting, diarrhea, loss_of_appetite, constipation, bloating, gas, 
+  difficulty_eating, excessive_eating
+
+Respiratory:
+  coughing, sneezing, wheezing, labored_breathing, difficulty_breathing, 
+  nasal_discharge, nasal_congestion, respiratory_distress
+
+Skin & Coat:
+  scratching, itching, hair_loss, bald_patches, red_skin, irritated_skin, 
+  skin_lesions, rash, scabs, dandruff
+
+Eyes:
+  watery_eyes, eye_discharge, red_eyes, squinting, cloudy_eyes
+
+Ears:
+  ear_discharge, ear_scratching, head_shaking
+
+Urinary:
+  blood_in_urine, frequent_urination, straining_to_urinate, dark_urine, 
+  cloudy_urine
+
+Oral:
+  bad_breath, drooling, difficulty_eating, swollen_gums, red_gums, 
+  mouth_pain, dental_issues, overgrown_teeth
+
+Neurological:
+  seizures, aggression, hiding, restlessness, confusion, circling, head_tilt, 
+  rolling, loss_of_balance, paralysis
+
+Musculoskeletal:
+  limping, lameness, difficulty_walking, stiffness, reluctance_to_move
+
+General:
+  lethargy, weakness, weight_loss, fever, dehydration, swelling, lumps, bumps
+
+Behavioral:
+  aggression, hiding, restlessness, confusion
+
+Avian-Specific:
+  drooping_wing, feather_loss, wing_droop, fluffed_feathers, tail_bobbing
+
+Aquatic-Specific:
+  white_spots, fin_rot, swimming_upside_down, gasping_at_surface, 
+  clamped_fins, rubbing_against_objects
+
+Other:
+  straining, increased_thirst, gasping, visible_parasites, wet_tail
+
+================================================================================
+DATA QUALITY NOTES
+================================================================================
+
+Warnings:
+- 20 diseases have <3 symptoms detected
+  (May indicate sparse data or extraction challenges)
+- Some diseases appear with multiple name variations
+  (e.g., "Sore Hocks" vs "sore hocks")
+- Urgency levels vary (mild, moderate, severe, high, emergency, medium)
+
+Strengths:
+- Average 6.7 symptoms per disease (good coverage)
+- 235 unique diseases covered
+- Contagious status tracked for epidemiological modeling
+- Multiple species associations captured
+- Source tracking maintained
+
+================================================================================
+OUTPUT FILE STRUCTURE
+================================================================================
+
+disease_symptom_profiles.json contains:
+
+{
+  "Disease Name": {
+    "species": ["species1", "species2"],
+    "symptoms": ["symptom1", "symptom2", ...],
+    "symptom_count": N,
+    "urgency": "mild|moderate|severe|high|emergency|medium",
+    "contagious": "yes|no",
+    "sources": ["source1", "source2"],
+    "sample_count": N
+  },
+  ...
+}
+
+================================================================================
+USAGE
+================================================================================
+
+1. Load the profiles:
+   import json
+   with open('disease_symptom_profiles.json') as f:
+       profiles = json.load(f)
+
+2. Access a disease profile:
+   disease_data = profiles['Canine distemper']
+   symptoms = disease_data['symptoms']
+
+3. Filter by criteria:
+   contagious_diseases = [d for d, p in profiles.items() if p['contagious'] == 'yes']
+   severe_diseases = [d for d, p in profiles.items() if p['urgency'] == 'severe']
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Use disease_symptom_profiles.json for training data generation
+2. Validate extracted symptoms with veterinary experts
+3. Address 20 diseases with <3 symptoms (manual review needed)
+4. Standardize disease name variations
+5. Generate training batches using comprehensive symptom profiles
+
+================================================================================

@@ -1,5 +1,4 @@
 
-
 import axios from 'axios';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -9,6 +8,8 @@ import LogoutModal from './LogoutModal';
 import PetSelectionModal from './PetSelectionModal';
 import ProfileButton from './ProfileButton';
 import Sidebar from './Sidebar';
+import ConversationalSymptomChecker from './ConversationalSymptomChecker';
+import AssessmentResults from './AssessmentResults';
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -27,6 +28,9 @@ const Chat = () => {
   
   const [showPetSelection, setShowPetSelection] = useState(false);
   const [currentPetContext, setCurrentPetContext] = useState(null);
+  const [showSymptomChecker, setShowSymptomChecker] = useState(false);
+  const [assessmentData, setAssessmentData] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   
   const chatContainerRef = useRef(null);
   const navigate = useNavigate();
@@ -68,6 +72,34 @@ const Chat = () => {
           sender: msg.sender,
           timestamp: msg.timestamp,
         }));
+        
+        // Check if there's assessment data to restore
+        if (response.data.assessment_data) {
+          const assessmentData = response.data.assessment_data;
+          setAssessmentData(assessmentData);
+          
+          // Add assessment message to the messages array if not already present
+          // Check if there's already an assessment message
+          const hasAssessmentMessage = formattedMessages.some(msg => msg.isAssessment);
+          if (!hasAssessmentMessage) {
+            // Find the position where assessment should be inserted (after the last user message about symptoms)
+            // Or just add it at the end
+            const assessmentMessage = {
+              id: `assessment-${conversationId}-${Date.now()}`,
+              content: '',
+              isUser: false,
+              sender: 'PawPal',
+              timestamp: assessmentData.case_id ? new Date().toISOString() : new Date().toISOString(),
+              isAssessment: true,
+              assessmentData: assessmentData
+            };
+            formattedMessages.push(assessmentMessage);
+          }
+        } else {
+          // Clear assessment data if not present
+          setAssessmentData(null);
+        }
+        
         setMessages(formattedMessages);
         if (response.data.conversation.title.includes('Symptom Check:')) {
           setChatMode('symptom_checker');
@@ -76,9 +108,12 @@ const Chat = () => {
         }
       } else {
         setMessages([]);
+        setAssessmentData(null);
       }
     } catch (err) {
+      console.error('Error loading conversation:', err);
       setMessages([]);
+      setAssessmentData(null);
     }
   }, [API_BASE_URL, token]);
 
@@ -174,6 +209,12 @@ const Chat = () => {
       timestamp: new Date().toISOString(),
     };
     setMessages([initialMessage]);
+    
+    // If this is symptom checker mode, show the questionnaire
+    if (chatMode === 'symptom_checker') {
+      setShowSymptomChecker(true);
+    }
+    
     // Update sidebar only, do not navigate
     fetchConversations();
   };
@@ -286,7 +327,8 @@ const Chat = () => {
           message: message,
           conversation_id: currentConversationId,
           chat_mode: usedChatMode,
-          pet_context: usedPetContext
+          pet_context: usedPetContext,
+          assessment_context: assessmentData
         },
         {
           headers: {
@@ -363,6 +405,146 @@ const Chat = () => {
     setShowLogoutModal(false);
   };
 
+  // Symptom Checker Handlers
+  const handleSymptomCheckerComplete = async (payload) => {
+    setShowSymptomChecker(false);
+    setIsAnalyzing(true);
+    
+    // Add user's final summary as a message
+    const summaryMessage = {
+      id: Date.now() + Math.random(),
+      content: `Assessment completed for ${payload.pet_name}`,
+      isUser: true,
+      sender: 'You',
+      timestamp: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, summaryMessage]);
+    
+    // Add analyzing message
+    const analyzingMessage = {
+      id: Date.now() + Math.random() + 1,
+      content: `Analyzing ${payload.pet_name}'s symptoms...`,
+      isUser: false,
+      sender: 'PawPal',
+      timestamp: new Date().toISOString(),
+      isAnalyzing: true
+    };
+    setMessages(prev => [...prev, analyzingMessage]);
+    
+    try {
+      // Call prediction API
+      const predictionPayload = {
+        ...payload,
+        pet_id: currentPetContext?.id
+      };
+      
+      console.log('Symptom Checker Prediction Payload:', predictionPayload);
+      
+      const response = await axios.post(
+        `${API_BASE_URL}/symptom-checker/predict/`,
+        predictionPayload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Token ${token}` : '',
+          },
+          timeout: 30000,
+        }
+      );
+      
+      if (response.data && response.data.success) {
+        // Remove analyzing message and add assessment results
+        setMessages(prev => prev.filter(msg => !msg.isAnalyzing));
+        setAssessmentData(response.data);
+        
+        const assessmentMessage = {
+          id: Date.now() + Math.random() + 2,
+          content: '', // Will be rendered as assessment component
+          isUser: false,
+          sender: 'PawPal',
+          timestamp: new Date().toISOString(),
+          isAssessment: true,
+          assessmentData: response.data
+        };
+        setMessages(prev => [...prev, assessmentMessage]);
+      } else {
+        throw new Error(response.data?.error || 'Assessment failed');
+      }
+    } catch (error) {
+      console.error('Assessment error:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      setMessages(prev => prev.filter(msg => !msg.isAnalyzing));
+      
+      const errorDetails = error.response?.data?.error || 'Unknown error';
+      const errorMessage = {
+        id: Date.now() + Math.random() + 3,
+        content: `Sorry, I encountered an error while analyzing the symptoms: ${errorDetails}. Please try again.`,
+        isUser: false,
+        sender: 'PawPal',
+        timestamp: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+  
+  const handleSymptomCheckerCancel = () => {
+    setShowSymptomChecker(false);
+  };
+  
+  const handleSaveToAIDiagnosis = async (assessmentData) => {
+    try {
+      // This will trigger SOAP report generation in the backend
+      const response = await axios.post(
+        `${API_BASE_URL}/chatbot/create-ai-diagnosis/`,
+        {
+          pet_id: currentPetContext?.id,
+          symptoms: assessmentData.symptoms_text || 'Symptom assessment completed',
+          assessment_data: assessmentData,
+          conversation_id: currentConversationId  // Link assessment to current conversation
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Token ${token}` : '',
+          },
+        }
+      );
+      
+      if (response.data) {
+        const successMessage = {
+          id: Date.now() + Math.random(),
+          content: `✅ Assessment saved to AI Diagnosis records. Case ID: ${response.data.case_id}`,
+          isUser: false,
+          sender: 'PawPal',
+          timestamp: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, successMessage]);
+      }
+    } catch (error) {
+      console.error('Save to AI Diagnosis error:', error);
+      const errorMessage = {
+        id: Date.now() + Math.random(),
+        content: 'Sorry, there was an error saving the assessment. Please try again.',
+        isUser: false,
+        sender: 'PawPal',
+        timestamp: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
+  };
+  
+  const handleStartNewAssessment = () => {
+    setAssessmentData(null);
+    setShowSymptomChecker(true);
+  };
+  
+  const handleAskFollowUp = () => {
+    // Focus on the input field for follow-up questions
+    document.querySelector('input[type="text"]')?.focus();
+  };
 
   return (
     <div className="min-h-screen bg-[#F0F0F0] flex flex-col md:flex-row overflow-hidden">
@@ -562,8 +744,150 @@ const Chat = () => {
                     Typing...
                   </p>
                 </div>
+<<<<<<< HEAD
               </div>
             )}
+=======
+              )}
+
+              {/* Render Messages */}
+              {messages.map((message) => {
+                // Special rendering for assessment results
+                if (message.isAssessment && message.assessmentData) {
+                  return (
+                    <div key={message.id} className="flex justify-start mb-4">
+                      <AssessmentResults
+                        assessmentData={message.assessmentData}
+                        onSaveToAIDiagnosis={handleSaveToAIDiagnosis}
+                        onStartNewAssessment={handleStartNewAssessment}
+                        onAskFollowUp={handleAskFollowUp}
+                      />
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div
+                    key={message.id}
+                    className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                        message.isUser
+                          ? 'bg-[#815FB3] text-white'
+                          : 'bg-gray-100 text-gray-900'
+                      }`}
+                    >
+                      <p className="text-[14px] leading-relaxed" style={{ fontFamily: 'Raleway' }}>
+                        {message.content}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+              
+              {/* Show ConversationalSymptomChecker when active */}
+              {showSymptomChecker && currentPetContext && (
+                <div className="flex justify-start mb-4">
+                  <div className="w-full max-w-2xl">
+                    <ConversationalSymptomChecker
+                      selectedPet={{
+                        id: currentPetContext.id,
+                        name: currentPetContext.name,
+                        species: currentPetContext.species,
+                        breed: currentPetContext.breed,
+                        age: currentPetContext.age
+                      }}
+                      onComplete={handleSymptomCheckerComplete}
+                      onCancel={handleSymptomCheckerCancel}
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {loading && (
+                <div className="flex justify-start">
+                  <div className="bg-gray-100 text-gray-900 px-4 py-2 rounded-lg">
+                    <p className="text-[14px] animate-pulse" style={{ fontFamily: 'Raleway' }}>
+                      Typing...
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Fixed Input Area - Now always visible */}
+          <div className="p-6 border-t bg-[#F0F0F0] flex-shrink-0">
+            <div className="max-w-4xl mx-auto">
+              
+              {/* This section is only shown if a pet is selected */}
+              {currentPetContext && (
+                <div className="flex items-center justify-between mb-3">
+                  <button
+                    onClick={() => {
+                        setChatMode(null);
+                        setMessages([]);
+                        setCurrentConversationTitle('New Chat');
+                        setCurrentPetContext(null);
+                        setShowSymptomChecker(false);
+                        setAssessmentData(null);
+                        navigate('/chat/new'); // Go back to new chat URL
+                      }}
+                    className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
+                    style={{ fontFamily: 'Raleway' }}
+                  >
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Change Mode
+                  </button>
+                  
+                  <div className="text-sm text-blue-600">
+                    🐾 {currentPetContext.name} ({currentPetContext.species})
+                  </div>
+                </div>
+              )}
+              
+              <form onSubmit={handleSubmit} className="relative">
+                <input
+                  type="text"
+                  value={messageInput}
+                  onChange={(e) => setMessageInput(e.target.value)}
+                  placeholder={
+                    showSymptomChecker
+                      ? "Complete the questionnaire above first..."
+                      : chatMode === 'general' || !chatMode
+                      ? "Ask about your pet's health..."
+                      : assessmentData
+                      ? "Ask a follow-up question about the assessment..."
+                      : "Describe your pet's symptoms..."
+                  }
+                  className="w-full px-6 py-5 pr-16 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#815FB3] text-[18px] bg-[#E4DEED] font-medium"
+                  style={{ fontFamily: 'Raleway' }}
+                  disabled={loading || showSymptomChecker}
+                  required
+                />
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center">
+                  <button
+                    type="submit"
+                    disabled={loading || !messageInput.trim()}
+                    className="p-0 bg-transparent hover:opacity-70 transition-opacity disabled:opacity-30"
+                  >
+                    <img
+                      src="/Vector.png"
+                      alt="Send message"
+                      className="w-8 h-8"
+                    />
+                  </button>
+                </div>
+              </form>
+              
+              <p className="text-[14px] text-gray-500 mt-3 text-center" style={{ fontFamily: 'Raleway' }}>
+                PawPal is an AI-powered assistant designed to provide guidance on pet health and care. It does not replace professional veterinary consultation.
+              </p>
+            </div>
+>>>>>>> e9b7a7a852bd99d2e8a7b544facd265be6eb1322
           </div>
         </div>
 
