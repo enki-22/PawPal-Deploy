@@ -302,7 +302,7 @@ const PetHealthRecords = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 justify-items-center py-4 md:py-8 min-h-[200px] md:min-h-[300px]">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 justify-items-center py-4 md:py-8 min-h-[200px] md:min-h-[300px]">
             {loading ? (
               <div className="col-span-full flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3]"></div>
@@ -311,12 +311,12 @@ const PetHealthRecords = () => {
               pets.map((pet) => (
                 <div 
                   key={pet.id} 
-                  className="cursor-pointer hover:transform hover:scale-105 transition-all duration-300 w-full max-w-xs md:max-w-sm h-auto bg-[#FFFFF2] rounded-xl flex flex-col"
+                  className="cursor-pointer hover:transform hover:scale-105 transition-all duration-200 w-40 md:w-60 h-auto bg-[#FFFFF2] rounded-xl flex flex-col min-h-[230px] md:min-h-[260px]"
                   onClick={() => navigate(`/pet-profile/${pet.id}`)}
-                  style={{ minHeight: '260px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}
+                  style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}
                 >
                   {/* Pet Image Section */}
-                  <div className="relative overflow-hidden w-full h-32 md:h-48 bg-white rounded-t-xl flex items-center justify-center">
+                  <div className="relative overflow-hidden w-full h-28 md:h-48 bg-white rounded-t-xl flex items-center justify-center">
                     {pet.image ? (
                       <img 
                         src={pet.image} 
@@ -341,8 +341,8 @@ const PetHealthRecords = () => {
                     ></div>
                   </div>
                   {/* Pet Info Section - inside card */}
-                  <div className="flex flex-col flex-1 px-4 py-3 md:px-6 md:py-4 justify-between">
-                    <h3 className="font-raleway font-extrabold text-lg md:text-2xl text-black mb-1 break-words">
+                  <div className="flex flex-col flex-1 px-2 py-3 md:px-6 md:py-4 justify-between">
+                    <h3 className="font-raleway font-extrabold text-base md:text-2xl text-black mb-1 break-words">
                       {pet.name}, {pet.age}
                     </h3>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs md:text-sm text-black">
@@ -358,13 +358,13 @@ const PetHealthRecords = () => {
             {/* Add Pet Card */}
             <div 
               onClick={() => setShowAddPetModal(true)}
-              className="cursor-pointer hover:transform hover:scale-105 transition-all duration-300 w-full max-w-xs md:max-w-sm h-auto border-2 border-[#815FB3] rounded-xl bg-transparent flex items-center justify-center min-h-[220px]"
+              className="cursor-pointer hover:transform hover:scale-105 transition-all duration-300 w-40 md:w-60 h-auto border-2 border-[#815FB3] rounded-xl bg-transparent flex items-center justify-center min-h-[230px] md:min-h-[260px]"
             >
               <div className="relative w-full h-full flex items-center justify-center">
                 <img 
                   src="/basil_add-solid.png" 
                   alt="Add Pet" 
-                  className="w-20 h-20 md:w-24 md:h-24"
+                  className="w-16 h-16 md:w-24 md:h-24"
                 />
               </div>
             </div>
