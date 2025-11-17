@@ -287,8 +287,18 @@ const PetProfile = () => {
       </div>
       {/* --- END OF MODIFIED BLOCK --- */}
 
-      {/* Desktop Sidebar - Hidden on mobile */}
-      <div className="hidden md:block h-screen sticky top-0 flex-shrink-0 z-50">
+      {/* Desktop Sidebar - Fixed and stationary */}
+      <div
+        className="hidden md:block"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          height: '100vh',
+          width: '320px',
+          zIndex: 30,
+        }}
+      >
         <Sidebar
           sidebarVisible={sidebarVisible}
           currentPage="pet-profile"
@@ -305,11 +315,31 @@ const PetProfile = () => {
         />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header - Added hamburger button and responsive spacing */}
-        {/* Header - Mobile: logo, sidebar toggle, profile. Desktop: unchanged. */}
-        <div className="border-b p-4 flex items-center justify-between sticky top-0 z-40 bg-[#DCCEF1] md:bg-[#F0F0F0]">
+      {/* Main Content - add left/top margin for fixed sidebar/header on desktop */}
+      <div
+        className="flex-1 flex flex-col"
+        style={{
+          marginLeft: '0px',
+          marginTop: '0px',
+          ...(typeof window !== 'undefined' && window.innerWidth >= 768
+            ? { marginLeft: '320px', marginTop: '72px' } // 320px sidebar, 72px header
+            : {}),
+        }}
+      >
+        {/* Header - Mobile: logo, sidebar toggle, profile. Desktop: fixed and stationary. */}
+        <div
+          className="border-b p-4 flex items-center justify-between md:bg-[#F0F0F0]"
+          style={{
+            position: typeof window !== 'undefined' && window.innerWidth >= 768 ? 'fixed' : 'static',
+            top: typeof window !== 'undefined' && window.innerWidth >= 768 ? 0 : undefined,
+            left: typeof window !== 'undefined' && window.innerWidth >= 768 ? 320 : undefined,
+            right: typeof window !== 'undefined' && window.innerWidth >= 768 ? 0 : undefined,
+            width: typeof window !== 'undefined' && window.innerWidth >= 768 ? 'calc(100% - 320px)' : '100%',
+            height: typeof window !== 'undefined' && window.innerWidth >= 768 ? '72px' : undefined,
+            zIndex: 40,
+            background: typeof window !== 'undefined' && window.innerWidth >= 768 ? '#F0F0F0' : '#DCCEF1',
+          }}
+        >
           {/* Mobile header */}
           <div className="flex items-center gap-2 md:hidden w-full justify-between">
             <div className="flex items-center gap-2">
