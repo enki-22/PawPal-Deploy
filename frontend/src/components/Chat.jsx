@@ -26,7 +26,7 @@ const Chat = () => {
   const [currentPetContext, setCurrentPetContext] = useState(null);
   const [showSymptomChecker, setShowSymptomChecker] = useState(false);
   const [assessmentData, setAssessmentData] = useState(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [ setIsAnalyzing] = useState(false);
   
   const chatContainerRef = useRef(null);
   const navigate = useNavigate();
@@ -577,7 +577,19 @@ const Chat = () => {
 
       <div className="flex-1 flex flex-col bg-[#F0F0F0] h-screen w-full">
         <div className="border-b p-2 md:p-4 flex flex-row items-center justify-between gap-2 md:gap-0 sticky top-0 z-20 bg-[#DCCEF1] md:bg-[#f0f1f1]">
-          <div className="flex items-center gap-2 md:hidden w-full justify-between">
+          <div
+            className="flex items-center gap-2 md:hidden w-full justify-between"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              zIndex: 100,
+              background: '#DCCEF1',
+              padding: '0.5rem 1rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            }}
+          >
             <div className="flex items-center gap-2">
               <img src="/pat-removebg-preview 2.png" alt="PawPal Logo" className="w-8 h-8" />
               <span className="font-bold text-lg text-[#815FB3]" style={{ fontFamily: 'Raleway' }}>PAWPAL</span>
@@ -596,7 +608,7 @@ const Chat = () => {
             <ProfileButton onLogoutClick={handleLogoutClick} />
           </div>
         </div>
-        <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#F0F0F0' }}>
+        <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#F0F0F0', paddingTop: '56px' }}>
           <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
             {currentConversationTitle}
           </h2>
@@ -607,7 +619,8 @@ const Chat = () => {
           className="flex-1 overflow-y-auto bg-[#F0F0F0] p-2 md:p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400"
           style={{
             scrollbarWidth: 'thin',
-            scrollbarColor: '#9CA3AF #F0F0F0'
+            scrollbarColor: '#9CA3AF #F0F0F0',
+            paddingTop: '56px', // Prevent overlap with fixed header on mobile
           }}
         >
           <div className="max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl mx-auto w-full">

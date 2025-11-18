@@ -196,12 +196,23 @@ const PetHealthRecords = () => {
         {/* Header - Mobile: logo, sidebar toggle, profile. Desktop: unchanged. */}
         <div className="border-b p-2 md:p-4 flex flex-row items-center justify-between gap-2 md:gap-0 sticky top-0 z-20 bg-[#DCCEF1] md:bg-[#f0f1f1]">
           {/* Mobile header */}
-          <div className="flex items-center gap-2 md:hidden w-full justify-between">
+          <div
+            className="flex items-center gap-2 md:hidden w-full justify-between"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              zIndex: 100,
+              background: '#DCCEF1',
+              padding: '0.5rem 1rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            }}
+          >
             <div className="flex items-center gap-2">
               <img src="/pat-removebg-preview 2.png" alt="PawPal Logo" className="w-8 h-8" />
               <span className="font-bold text-lg text-[#815FB3]" style={{ fontFamily: 'Raleway' }}>PAWPAL</span>
               <button onClick={() => setIsMobileSidebarOpen(true)} className="p-2 ml-2" aria-label="Open sidebar">
-                {/* Flipped sidebar-expand-icon.png to face right */}
                 <img src="/sidebar-expand-icon.png" alt="Sidebar Toggle" className="w-6 h-6" style={{ transform: 'scaleX(-1)' }} />
               </button>
             </div>
@@ -234,14 +245,14 @@ const PetHealthRecords = () => {
           </div>
         </div>
         {/* Page name below header for mobile */}
-        <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#f0f1f1' }}>
+        <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#f0f1f1', paddingTop: '56px' }}>
           <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
             Pet Health Records
           </h2>
         </div>
 
         {/* Main Content - Pet Cards (Scrollable) */}
-        <div className="flex-1 overflow-y-auto bg-[#f0f1f1] p-2 md:p-8">
+        <div className="flex-1 overflow-y-auto bg-[#f0f1f1] p-2 md:p-8" style={{ paddingTop: '56px' }}>
           {/* Filters */}
           <div className="bg-[#f0f1f1] rounded-lg p-2 md:p-3 mb-4 md:mb-6">
             <div className="flex flex-wrap gap-2 md:gap-4 items-center justify-center">
