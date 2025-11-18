@@ -133,48 +133,48 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
   const diagnoses = Array.isArray(report.assessment) ? report.assessment : (report.assessment?.diagnoses || []);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-[#fffff2] rounded-[10px] max-w-5xl min-w-[600px] w-full my-8 relative max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 md:p-4 z-50">
+      <div className="bg-[#fffff2] rounded-[10px] w-full max-w-full md:max-w-5xl min-w-0 md:min-w-[600px] my-4 md:my-8 relative max-h-[95vh] overflow-y-auto px-2 md:px-0">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-gray-600 hover:text-gray-800 text-3xl z-10 font-bold"
+          className="absolute right-2 top-2 md:right-4 md:top-4 text-gray-600 hover:text-gray-800 text-2xl md:text-3xl z-10 font-bold"
         >
           ×
         </button>
 
         {/* Header with logo */}
-        <div className="relative pt-6 px-8">
-          <div className="flex items-start">
-            <div className="w-[60px] h-[60px] flex-shrink-0 relative">
+        <div className="relative pt-4 md:pt-6 px-2 md:px-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center">
+            <div className="w-[40px] h-[40px] md:w-[60px] md:h-[60px] flex-shrink-0 relative">
               <img src="/pawpalicon.png" alt="PawPal" className="w-full h-full object-contain" />
               <span
                 style={{
                   position: 'absolute',
-                  left: '65px', // 5px right of logo
+                  left: '45px', // 5px right of logo (mobile)
                   top: '50%',
                   transform: 'translateY(-50%)',
                   fontFamily: 'MuseoModerno, sans-serif',
                   fontStyle: 'normal',
                   fontWeight: 900,
-                  fontSize: '30px', // 50% larger than 20px
-                  lineHeight: '44px',
+                  fontSize: '18px',
+                  lineHeight: '24px',
                   textAlign: 'left',
                   color: '#815FB3',
                   letterSpacing: '0.02em',
                   zIndex: 2,
                   whiteSpace: 'nowrap',
                 }}
+                className="md:text-[30px] md:line-[44px]"
               >
                 PAWPAL
               </span>
             </div>
-            {/* Absolute position the right-aligned info to avoid flex restrictions */}
-            <div style={{position: 'absolute', top: 24, right: 48, textAlign: 'right'}}>
-              <p className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)] whitespace-nowrap">
+            <div className="flex flex-col md:absolute md:top-6 md:right-12 md:text-right ml-2 md:ml-0 mt-2 md:mt-0">
+              <p className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)] whitespace-nowrap">
                 Date Generated: <span className="text-black">{formatDate(report.date_generated)}</span>
               </p>
-              <p className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)] whitespace-nowrap">
+              <p className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)] whitespace-nowrap">
                 Case ID: <span className="text-black">#{report.case_id}</span>
               </p>
             </div>
@@ -182,65 +182,65 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
         </div>
 
         {/* Pet and Owner Information Section */}
-        <div className="px-8 mt-6">
-          <div className="bg-[rgba(187,159,228,0.3)] rounded-[10px] p-8 relative">
-            <div className="grid grid-cols-2 gap-x-12">
+        <div className="px-2 md:px-8 mt-4 md:mt-6">
+          <div className="bg-[rgba(187,159,228,0.3)] rounded-[10px] p-3 md:p-8 relative">
+            <div className="flex flex-col md:grid md:grid-cols-2 md:gap-x-12 gap-y-2">
               {/* Left Column */}
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 <div>
-                  <span className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)]">Pet Owner Name: </span>
-                  <span className="font-['Inter'] text-sm text-black">{report.owner?.name || 'N/A'}</span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Pet Owner Name: </span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-black">{report.owner?.name || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)]">City/Province: </span>
-                  <span className="font-['Inter'] text-sm text-black">{report.owner?.location || 'N/A'}</span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">City/Province: </span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-black">{report.owner?.location || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)]">Contact Number: </span>
-                  <span className="font-['Inter'] text-sm text-black">{report.owner?.contact || 'N/A'}</span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Contact Number: </span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-black">{report.owner?.contact || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)]">Pet Name: </span>
-                  <span className="font-['Inter'] text-sm text-black font-bold">{report.pet?.name || 'N/A'}</span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Pet Name: </span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.name || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)]">Animal Type: </span>
-                  <span className="font-['Inter'] text-sm text-black font-bold">{report.pet?.animal_type || 'N/A'}</span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Animal Type: </span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.animal_type || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)]">Breed: </span>
-                  <span className="font-['Inter'] text-sm text-black font-bold">{report.pet?.breed || 'N/A'}</span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Breed: </span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.breed || 'N/A'}</span>
                 </div>
               </div>
 
-              {/* Vertical divider */}
-              <div className="absolute left-1/2 top-6 bottom-6 w-[1px] bg-black opacity-70"></div>
+              {/* Vertical divider (hide on mobile) */}
+              <div className="hidden md:block absolute left-1/2 top-6 bottom-6 w-[1px] bg-black opacity-70"></div>
 
               {/* Right Column */}
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 <div>
-                  <span className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)]">Sex: </span>
-                  <span className="font-['Inter'] text-sm text-black font-bold">{report.pet?.sex || 'N/A'}</span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Sex: </span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.sex || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)]">Blood Type: </span>
-                  <span className="font-['Inter'] text-sm text-black font-bold">{report.pet?.blood_type || 'N/A'}</span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Blood Type: </span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.blood_type || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)]">Spayed/Neutered: </span>
-                  <span className="font-['Inter'] text-sm text-black font-bold">{report.pet?.spayed_neutered || 'N/A'}</span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Spayed/Neutered: </span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.spayed_neutered || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)]">Age: </span>
-                  <span className="font-['Inter'] text-sm text-black font-bold">{report.pet?.age || 'N/A'}</span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Age: </span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.age || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)]">Allergies: </span>
-                  <span className="font-['Inter'] text-sm text-black font-bold">{report.pet?.allergies || 'N/A'}</span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Allergies: </span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.allergies || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="font-['Inter'] text-sm text-[rgba(0,0,0,0.7)]">Chronic Disease: </span>
-                  <span className="font-['Inter'] text-sm text-black font-bold">{report.pet?.chronic_disease || 'N/A'}</span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Chronic Disease: </span>
+                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.chronic_disease || 'N/A'}</span>
                 </div>
               </div>
             </div>
@@ -248,9 +248,9 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
         </div>
 
         {/* Subjective Section */}
-        <div className="px-8 mt-6">
-          <div className="font-['Inter'] text-sm text-black leading-relaxed">
-            <p className="mb-4">{report.subjective || 'No subjective information available.'}</p>
+        <div className="px-2 md:px-8 mt-4 md:mt-6">
+          <div className="font-['Inter'] text-xs md:text-sm text-black leading-relaxed">
+            <p className="mb-2 md:mb-4">{report.subjective || 'No subjective information available.'}</p>
             {report.objective && (
               <p>
                 The symptoms noted include: {Array.isArray(report.objective.symptoms) 
@@ -264,7 +264,7 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
 
         {/* Diagnoses Section */}
         {diagnoses.length > 0 && (
-          <div className="px-8 mt-6 space-y-4">
+          <div className="px-2 md:px-8 mt-4 md:mt-6 space-y-3 md:space-y-4">
             {diagnoses.map((diagnosis, index) => {
               // Handle different field name formats (condition vs name, likelihood as decimal vs percentage)
               const conditionName = diagnosis.condition || diagnosis.name || diagnosis.condition_name || 'Unknown Diagnosis';
@@ -278,20 +278,20 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
                 : (diagnosis.matched_symptoms || '');
               
               return (
-                <div key={index} className="bg-[#f0f0f0] rounded-[10px] p-6 relative">
-                  <div className="absolute top-6 right-6">
-                    <div className={`${getLikelihoodColor(likelihood)} rounded-[5px] px-4 py-2`}>
-                      <span className="font-['Inter'] text-sm text-black font-medium">
+                <div key={index} className="bg-[#f0f0f0] rounded-[10px] p-3 md:p-6 relative">
+                  <div className="absolute top-2 right-2 md:top-6 md:right-6">
+                    <div className={`${getLikelihoodColor(likelihood)} rounded-[5px] px-2 py-1 md:px-4 md:py-2`}>
+                      <span className="font-['Inter'] text-xs md:text-sm text-black font-medium">
                         Likelihood: {Math.round(likelihood)}%
                       </span>
                     </div>
                   </div>
-                  <p className="font-['Inter'] font-medium text-[#815fb3] text-base mb-3 pr-32">
+                  <p className="font-['Inter'] font-medium text-[#815fb3] text-xs md:text-base mb-2 md:mb-3 pr-16 md:pr-32">
                     {conditionName}
                   </p>
-                  <div className="font-['Inter'] text-sm text-black">
-                    <p className="mb-3 leading-relaxed">{diagnosis.description || ''}</p>
-                    <ul className="list-disc ml-6 space-y-2">
+                  <div className="font-['Inter'] text-xs md:text-sm text-black">
+                    <p className="mb-2 md:mb-3 leading-relaxed">{diagnosis.description || ''}</p>
+                    <ul className="list-disc ml-4 md:ml-6 space-y-1 md:space-y-2">
                       {matchedSymptoms && (
                         <li>Matched Symptoms: {matchedSymptoms}</li>
                       )}
@@ -311,12 +311,12 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
 
         {/* Severity Level Section */}
         {report.plan?.severityLevel && (
-          <div className="px-8 mt-6">
-            <div className="flex items-start">
-              <MaterialSymbolsFlagRounded className="size-[60px] flex-shrink-0" />
-              <div className="ml-4 font-['Inter'] text-sm text-black">
-                <p className="mb-2">
-                  <span className="font-bold text-base">Severity Level: {report.plan.severityLevel}</span>
+          <div className="px-2 md:px-8 mt-4 md:mt-6">
+            <div className="flex flex-col md:flex-row items-start">
+              <MaterialSymbolsFlagRounded className="size-[36px] md:size-[60px] flex-shrink-0" />
+              <div className="ml-2 md:ml-4 font-['Inter'] text-xs md:text-sm text-black">
+                <p className="mb-1 md:mb-2">
+                  <span className="font-bold text-xs md:text-base">Severity Level: {report.plan.severityLevel}</span>
                 </p>
                 <p className="leading-relaxed">{report.plan.aiExplanation || ''}</p>
               </div>
@@ -326,10 +326,10 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
 
         {/* Care Advice Section */}
         {report.plan?.careAdvice && report.plan.careAdvice.length > 0 && (
-          <div className="px-8 mt-6">
-            <div className="font-['Inter'] text-sm text-black" style={{marginLeft: '64px'}}>
-              <p className="font-bold mb-3 text-base">Care Advice:</p>
-              <ul className="list-disc ml-6 space-y-2 leading-relaxed">
+          <div className="px-2 md:px-8 mt-4 md:mt-6">
+            <div className="font-['Inter'] text-xs md:text-sm text-black md:ml-16">
+              <p className="font-bold mb-2 md:mb-3 text-xs md:text-base">Care Advice:</p>
+              <ul className="list-disc ml-4 md:ml-6 space-y-1 md:space-y-2 leading-relaxed">
                 {report.plan.careAdvice.map((advice, index) => (
                   <li key={index}>{advice}</li>
                 ))}
@@ -338,8 +338,8 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
           </div>
         )}
 
-        {/* Footer spacing */}
-  <div className="h-10"></div>
+          {/* Footer spacing */}
+          <div className="h-6 md:h-10"></div>
       </div>
     </div>
   );
