@@ -138,10 +138,10 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[1000]">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden z-[1001]">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden z-[1001] flex flex-col">
         {/* Modal Header */}
-        <div className="bg-[#815FB3] text-white p-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold" style={{ fontFamily: 'Raleway' }}>
+        <div className="bg-[#815FB3] text-white p-4 md:p-6 flex items-center justify-between flex-shrink-0">
+          <h2 className="text-xl md:text-2xl font-bold" style={{ fontFamily: 'Raleway' }}>
             Add Pet
           </h2>
           <button
@@ -154,12 +154,15 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
         </div>
 
         {/* Modal Content */}
-        <div className="p-8 overflow-y-auto max-h-[calc(90vh-100px)]">
+        <div className="p-4 md:p-8 overflow-y-auto flex-1">
           <form onSubmit={handleSubmit}>
-            <div className="flex gap-12">
-              {/* Left Column - Pet Photo */}
-              <div className="flex-shrink-0 relative">
-                <div className="w-48 h-48 bg-[#815FB3] rounded-full flex items-center justify-center relative overflow-hidden">
+            {/* Responsive Layout: Stack on mobile, Row on desktop */}
+            <div className="flex flex-col md:flex-row gap-6 md:gap-12">
+              
+              {/* Left Column (Top on Mobile) - Pet Photo */}
+              {/* Added flex justify-center for mobile centering, md:block for desktop alignment */}
+              <div className="flex-shrink-0 relative flex justify-center md:block">
+                <div className="w-32 h-32 md:w-48 md:h-48 bg-[#815FB3] rounded-full flex items-center justify-center relative overflow-hidden">
                   {previewImage ? (
                     <img 
                       src={previewImage} 
@@ -174,8 +177,8 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                     />
                   )}
                 </div>
-                {/* Camera Icon - Top position */}
-                <div className="absolute -top-2 -right-2 w-12 h-12 bg-black bg-opacity-80 rounded-full flex items-center justify-center cursor-pointer border-2 border-white">
+                {/* Camera Icon - Responsive positioning for mobile and desktop */}
+                <div className="absolute top-0 right-20 md:top-[-8px] md:right-[-8px] w-10 h-10 md:w-12 md:h-12 bg-black bg-opacity-80 rounded-full flex items-center justify-center cursor-pointer border-2 border-white">
                   <input
                     type="file"
                     id="petImage"
@@ -183,8 +186,8 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                     onChange={handleImageChange}
                     className="hidden"
                   />
-                  <label htmlFor="petImage" className="cursor-pointer">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <label htmlFor="petImage" className="cursor-pointer flex items-center justify-center w-full h-full">
+                    <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -192,16 +195,17 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                 </div>
               </div>
 
-              {/* Right Column - Form Fields */}
+              {/* Right Column (Bottom on Mobile) - Form Fields */}
               <div className="flex-1">
                 {/* Basic Information Section */}
                 <div className="mb-8">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6" style={{ fontFamily: 'Raleway' }}>
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6 text-center md:text-left" style={{ fontFamily: 'Raleway' }}>
                     Basic Information
                   </h3>
 
                   {/* First Row - Name and Breed */}
-                  <div className="grid grid-cols-2 gap-6 mb-6">
+                  {/* Changed grid-cols-2 to grid-cols-1 md:grid-cols-2 */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Name</label>
                       <input
@@ -228,7 +232,7 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                   </div>
 
                   {/* Second Row - Species */}
-                  <div className="grid grid-cols-2 gap-6 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Species</label>
                       <select
@@ -251,7 +255,7 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                   </div>
 
                   {/* Third Row - Date of Birth and Weight */}
-                  <div className="grid grid-cols-2 gap-6 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Date of Birth</label>
                       <input
@@ -311,12 +315,12 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
 
                 {/* Medical Information Section */}
                 <div className="mb-8">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6" style={{ fontFamily: 'Raleway' }}>
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6 text-center md:text-left" style={{ fontFamily: 'Raleway' }}>
                     Medical Information
                   </h3>
 
                   {/* First Row - Blood Type and Spayed/Neutered */}
-                  <div className="grid grid-cols-2 gap-6 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Blood Type</label>
                       <select
@@ -363,7 +367,7 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                   </div>
 
                   {/* Second Row - Allergies and Chronic Disease */}
-                  <div className="grid grid-cols-2 gap-6 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Allergies</label>
                       <input
@@ -422,7 +426,7 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
               <button
                 type="submit"
                 disabled={addingPet}
-                className="bg-[#815FB3] text-white px-12 py-3 rounded-lg hover:bg-[#6d4a96] transition-colors text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-[#815FB3] text-white px-12 py-3 rounded-lg hover:bg-[#6d4a96] transition-colors text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
                 style={{ fontFamily: 'Raleway' }}
               >
                 {addingPet ? 'Creating Pet...' : 'Create Pet'}

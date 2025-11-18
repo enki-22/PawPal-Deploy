@@ -252,13 +252,13 @@ const PetHealthRecords = () => {
         </div>
 
         {/* Main Content - Pet Cards (Scrollable) */}
-        <div className="flex-1 overflow-y-auto bg-[#f0f1f1] p-2 md:p-8" style={{ paddingTop: '56px' }}>
+        <div className="flex-1 overflow-y-auto bg-[#f0f1f1] p-2 md:p-8" style={{ paddingTop: '20px' }}>
           {/* Filters */}
           <div className="bg-[#f0f1f1] rounded-lg p-2 md:p-3 mb-4 md:mb-6">
-            <div className="flex flex-wrap gap-2 md:gap-4 items-center justify-center">
+            <div className="flex flex-nowrap gap-1 md:gap-4 items-center justify-center px-0 md:px-2">
               {/* Pet Name Filter */}
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
+                className="px-1 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3] md:px-1 md:py-2 md:text-base md:rounded-lg"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
                 value=""
                 onChange={(e) => handleFilterChange('name', e.target.value)}
@@ -271,7 +271,7 @@ const PetHealthRecords = () => {
 
               {/* Animal Type Filter */}
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
+                className="px-1 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3] md:px-1 md:py-2 md:text-base md:rounded-lg"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
                 value={filters.animal_type}
                 onChange={(e) => handleFilterChange('animal_type', e.target.value)}
@@ -287,7 +287,7 @@ const PetHealthRecords = () => {
 
               {/* Sex Filter */}
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
+                className="px-1 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3] md:px-1 md:py-2 md:text-base md:rounded-lg"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
                 value={filters.sex}
                 onChange={(e) => handleFilterChange('sex', e.target.value)}
@@ -299,7 +299,7 @@ const PetHealthRecords = () => {
 
               {/* Age Filter */}
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
+                className="px-1 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3] md:px-1 md:py-2 md:text-base md:rounded-lg"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
                 value={filters.age}
                 onChange={(e) => handleFilterChange('age', e.target.value)}
@@ -352,7 +352,8 @@ const PetHealthRecords = () => {
                     ></div>
                   </div>
                   {/* Pet Info Section - inside card */}
-                  <div className="flex flex-col flex-1 px-2 py-3 md:px-6 md:py-4 justify-between">
+                  {/* Changed justify-between to justify-start (for mobile) and added gap-2 */}
+                  <div className="flex flex-col flex-1 px-2 py-3 md:px-6 md:py-4 justify-start gap-2 md:justify-between md:gap-0">
                     <h3 className="font-raleway font-extrabold text-base md:text-2xl text-black mb-1 break-words">
                       {pet.name}, {pet.age}
                     </h3>
