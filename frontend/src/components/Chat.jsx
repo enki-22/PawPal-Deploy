@@ -191,26 +191,25 @@ const Chat = () => {
   };
 
   const ModeSelection = () => (
-    <div className="flex-1 flex items-center justify-center bg-[#F0F0F0] p-2 md:p-6">
+    <div className="flex-1 flex items-center justify-center bg-[#F0F0F0] p-2 md:pt-2 md:pb-6">
       <div className="max-w-xs md:max-w-2xl lg:max-w-6xl w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-[40px] font-bold text-gray-900 mb-3" style={{ fontFamily: 'Raleway' }}>
+        <div className="text-center mb-4 md:mb-8">
+          <h1 className="text-[32px] font-bold text-gray-900 mb-2 md:text-[40px] md:mb-3" style={{ fontFamily: 'Raleway' }}>
             Hello, {user?.username || 'User'}!
           </h1>
-          <p className="text-[16px] text-gray-600" style={{ fontFamily: 'Raleway' }}>
+          <p className="text-[15px] text-gray-600 md:text-[16px]" style={{ fontFamily: 'Raleway' }}>
             How can I assist you and your furry friend today?
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row items-start justify-center gap-4 md:gap-8 w-full">
-          <div className="flex-shrink-0 mb-4 md:mb-0">
+        <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-4 md:gap-8 w-full"> {/* MODIFIED */}
+          <div className="flex-shrink-0 mb-4 md:mb-0 w-full flex justify-center items-center md:block md:w-auto"> {/* MODIFIED */}
             <img
               src="/amico.png"
               alt="AI Assistant Illustration"
-              className="w-40 h-40 md:w-72 md:h-72 object-contain mx-auto"
+              className="w-40 h-40 md:w-72 md:h-72 object-contain"
             />
           </div>
-          
           <div className="flex flex-col gap-2 md:gap-4 w-full max-w-xs md:max-w-xl">
             <div
               onClick={() => selectMode('general')}
@@ -608,7 +607,7 @@ const Chat = () => {
             <ProfileButton onLogoutClick={handleLogoutClick} />
           </div>
         </div>
-        <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#F0F0F0', paddingTop: '56px' }}>
+        <div className="md:hidden px-4 pt-2 pb-0" style={{ background: '#F0F0F0', paddingTop: '56px' }}>
           <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
             {currentConversationTitle}
           </h2>
@@ -616,16 +615,91 @@ const Chat = () => {
 
         <div 
           ref={chatContainerRef}
-          className="flex-1 overflow-y-auto bg-[#F0F0F0] p-2 md:p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400"
+          className="flex-1 overflow-y-auto bg-[#F0F0F0] px-2 pt-2 pb-40 md:p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400"
           style={{
             scrollbarWidth: 'thin',
             scrollbarColor: '#9CA3AF #F0F0F0',
-            paddingTop: '56px', // Prevent overlap with fixed header on mobile
+            paddingTop: (conversationId === 'new' || !conversationId) ? '20px' : '0', // MODIFIED
           }}
         >
           <div className="max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl mx-auto w-full">
+            {/* Desktop greeting prompt (new chat) */}
             {(conversationId === 'new' || !conversationId) && messages.length === 0 && !currentPetContext && (
-              <ModeSelection />
+              <div className="hidden md:block">
+                <ModeSelection />
+              </div>
+            )}
+
+            {/* Mobile greeting prompt (new chat) */}
+            {(conversationId === 'new' || !conversationId) && messages.length === 0 && !currentPetContext && (
+              <div className="block md:hidden">
+                {/* Mobile-specific greeting UI, initially copied from ModeSelection, you can customize further */}
+                <div className="flex-1 flex items-center justify-center bg-[#F0F0F0] p-2 pt-2 pb-4">
+                  <div className="max-w-xs w-full">
+                    <div className="text-center mb-4">
+                      <h1 className="text-[30px] font-bold text-gray-900 mb-1" style={{ fontFamily: 'Raleway' }}>
+                        Hello, {user?.username || 'User'}!
+                      </h1>
+                      <p className="text-[12px] text-gray-600" style={{ fontFamily: 'Raleway' }}>
+                        How can I assist you and your furry friend today?
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-center gap-4 w-full">
+                      <div className="mb-2 flex justify-center">
+                        <img
+                          src="/amico.png"
+                          alt="AI Assistant Illustration"
+                          className="w-45 h-45 object-contain mx-auto"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2 w-full">
+                        <div
+                          onClick={() => selectMode('general')}
+                          className="rounded-2xl p-4 cursor-pointer w-full min-h-[90px] transition-colors"
+                          style={{ backgroundColor: '#DCCEF1' }}
+                          onMouseEnter={e => e.currentTarget.style.backgroundColor = '#c9b8e8'}
+                          onMouseLeave={e => e.currentTarget.style.backgroundColor = '#DCCEF1'}
+                        >
+                          <div className="flex items-center space-x-2 mb-2">
+                            <div className="w-7 h-7 rounded-full flex items-center justify-center">
+                              <img
+                                src="/Frame.png"
+                                alt="Frame icon"
+                                className="w-4 h-4"
+                                style={{ filter: 'brightness(0) saturate(100%) invert(59%) sepia(23%) saturate(4832%) hue-rotate(278deg) brightness(96%) contrast(90%)' }}
+                              />
+                            </div>
+                            <span className="text-[14px] font-bold" style={{ fontFamily: 'Raleway', color: '#000000' }}>
+                              What&apos;s normal for my pet?
+                            </span>
+                          </div>
+                          <p className="text-[12px] leading-relaxed text-gray-700" style={{ fontFamily: 'Raleway' }}>
+                            Learn about typical behaviors, habits, diet, and health patterns specific to your pet&apos;s breed, age, and species. Perfect for new pet parents or anyone looking to better understand what&apos;s considered &quot;normal&quot; for their furry companion.
+                          </p>
+                        </div>
+                        <div
+                          onClick={() => selectMode('symptom_checker')}
+                          className="bg-[#FFF4C9] rounded-2xl p-4 cursor-pointer hover:bg-[#fff0b3] transition-colors w-full min-h-[90px]"
+                        >
+                          <div className="flex items-center space-x-2 mb-2">
+                            <div className="w-7 h-7 bg-yellow-200 rounded-full flex items-center justify-center">
+                              <svg className="w-3 h-3 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                              </svg>
+                            </div>
+                            <span className="text-[14px] font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
+                              Symptom Checker
+                            </span>
+                          </div>
+                          <p className="text-[12px] text-gray-700 leading-relaxed" style={{ fontFamily: 'Raleway' }}>
+                            Not sure if your pet&apos;s symptoms are serious? Use our AI-powered Symptom Checker to get insights into possible causes based on current signs and behaviors. While not a replacement for a vet, it&apos;s a helpful first step.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
 
             {chatMode && messages.length > 0 && (
@@ -635,7 +709,7 @@ const Chat = () => {
                     ? 'bg-pink-100 text-pink-700'
                     : 'bg-yellow-100 text-yellow-700'
                 }`} style={{ fontFamily: 'Raleway' }}>
-                  {chatMode === 'general' ? '🐾 General Pet Health' : '🔍 Symptom Checker'}
+                  {chatMode === 'general' ? '🐾 General Pet Health' : '� Symptom Checker'}
                 </div>
               </div>
             )}
@@ -728,7 +802,7 @@ const Chat = () => {
           </div>
         </div>
 
-        <div className="p-2 md:p-6 border-t bg-[#F0F0F0] flex-shrink-0">
+        <div className="p-2 md:p-6 md:border-t bg-[#F0F0F0] md:flex-shrink-0 fixed bottom-0 left-0 w-full md:relative md:w-auto z-30"> {/* MODIFIED */}
           <div className="max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl mx-auto">
             {currentPetContext && (
               <div className="flex items-center justify-between mb-3">
@@ -790,7 +864,7 @@ const Chat = () => {
               </div>
             </form>
             
-            <p className="text-xs md:text-[14px] text-gray-500 mt-1 md:mt-2 text-center" style={{ fontFamily: 'Raleway', marginBottom: '-10px' }}>
+            <p className="text-xs md:text-[14px] text-gray-500 mt-1 md:mt-2 text-center" style={{ fontFamily: 'Raleway', marginBottom: '-1px' }}>
               PawPal is an AI-powered assistant designed to provide guidance on pet health and care. It does not replace professional veterinary consultation.
             </p>
           </div>
