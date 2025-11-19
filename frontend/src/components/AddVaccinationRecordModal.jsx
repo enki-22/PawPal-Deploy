@@ -26,7 +26,7 @@ const AddVaccinationRecordModal = ({ isOpen, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
-      <div className="bg-white rounded-xl shadow-xl max-w-xl w-full p-8 relative" style={{ fontFamily: 'Raleway' }}>
+      <div className="bg-white rounded-xl shadow-xl max-w-xl w-full p-6 md:p-8 relative" style={{ fontFamily: 'Raleway' }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Add Vaccination Record</h2>
@@ -34,7 +34,7 @@ const AddVaccinationRecordModal = ({ isOpen, onClose, onSave }) => {
         </div>
         {/* Form */}
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-sm mb-1">Vaccine Type</label>
               <select value={vaccineType} onChange={e => setVaccineType(e.target.value)} className="w-full border rounded px-3 py-2 focus:outline-none focus:ring">
@@ -68,9 +68,9 @@ const AddVaccinationRecordModal = ({ isOpen, onClose, onSave }) => {
             </div>
           </div>
           {/* Footer */}
-          <div className="flex justify-end items-center gap-4 mt-6">
-            <button type="button" onClick={onClose} className="text-gray-500 px-4 py-2 rounded hover:text-gray-700">Cancel</button>
-            <button type="submit" className="bg-[#815FB3] text-white px-6 py-2 rounded font-semibold hover:bg-[#6d4ca1]">Save Record</button>
+          <div className="flex flex-col md:flex-row md:justify-end items-center gap-4 mt-6">
+            <button type="button" onClick={onClose} className="w-full md:w-auto text-gray-500 px-4 py-2 rounded hover:text-gray-700">Cancel</button>
+            <button type="submit" className="w-full md:w-auto bg-[#815FB3] text-white px-6 py-2 rounded font-semibold hover:bg-[#6d4ca1]">Save Record</button>
           </div>
         </form>
       </div>
