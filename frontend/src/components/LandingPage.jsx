@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import PromotionCarousel from "./PromotionCarousel";
+import PrivacyPolicy from "./PrivacyPolicy";
+import TermsOfService from "./TermsOfService";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -12,6 +14,10 @@ export default function LandingPage() {
   
   // State for Mobile Sidebar
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  // State for Privacy Policy Modal
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = React.useState(false);
+  // State for Terms of Service Modal
+  const [showTermsOfService, setShowTermsOfService] = React.useState(false);
 
   // Redirect on mount
   React.useEffect(() => {
@@ -71,7 +77,13 @@ export default function LandingPage() {
     const stored = localStorage.getItem('pawpal_promotions');
     if (stored) {
       setPromotions(JSON.parse(stored));
-    } else {
+                      <button
+                        type="button"
+                        className="text-[15px] hover:underline hover:text-gray-200 transition-colors bg-transparent p-0 m-0 outline-none border-none cursor-pointer"
+                        onClick={() => setShowPrivacyPolicy(true)}
+                      >
+                        Privacy Policy
+                      </button>
       localStorage.setItem('pawpal_promotions', JSON.stringify(DEFAULT_PROMOTIONS));
       setPromotions(DEFAULT_PROMOTIONS);
     }
@@ -84,6 +96,10 @@ export default function LandingPage() {
       element.scrollIntoView({ behavior: 'smooth' });
       setIsMobileMenuOpen(false); // Close sidebar on click
     }
+        {/* Privacy Policy Modal */}
+        {showPrivacyPolicy && (
+          <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
+        )}
   };
 
   return (
@@ -696,8 +712,20 @@ export default function LandingPage() {
                 {/* Right Column */}
                 <div className="flex flex-col items-start md:items-start gap-3">
                     <h4 className="text-lg font-medium mb-1 text-[#e0d7f7]">Legal</h4>
-                    <a href="#" className="text-[15px] hover:underline hover:text-gray-200 transition-colors">Privacy Policy</a>
-                    <a href="#" className="text-[15px] hover:underline hover:text-gray-200 transition-colors">Terms of Service</a>
+                    <button
+                      type="button"
+                      className="text-[15px] hover:underline hover:text-gray-200 transition-colors bg-transparent p-0 m-0 outline-none border-none cursor-pointer"
+                      onClick={() => setShowPrivacyPolicy(true)}
+                    >
+                      Privacy Policy
+                    </button>
+                    <button
+                      type="button"
+                      className="text-[15px] hover:underline hover:text-gray-200 transition-colors bg-transparent p-0 m-0 outline-none border-none cursor-pointer"
+                      onClick={() => setShowTermsOfService(true)}
+                    >
+                      Terms of Service
+                    </button>
                 </div>
             </div>
 
@@ -709,6 +737,18 @@ export default function LandingPage() {
                 © 2025 PuyaTechs. All rights reserved.
             </div>
         </footer>
+                  {/* Privacy Policy Modal */}
+                  {showPrivacyPolicy && (
+                    <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
+                  )}
+                  {/* Terms of Service Modal */}
+                  {showTermsOfService && (
+                    <TermsOfService onClose={() => setShowTermsOfService(false)} />
+                  )}
+            {/* Privacy Policy Modal */}
+            {showPrivacyPolicy && (
+              <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
+            )}
       </main>
     </div>
   );
