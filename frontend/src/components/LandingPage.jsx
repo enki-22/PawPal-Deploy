@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import PromotionCarousel from "./PromotionCarousel";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -14,63 +15,62 @@ export default function LandingPage() {
   }, [user, navigate]);
 
 
-  // --- NEW ANIMATION VARIANTS ---
-  // A. Container variant: orchestrates staggering of children
+  // --- ANIMATION VARIANTS ---
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
+    visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
   };
-
-  // B. Child item variant: Default slide-up + fade-in
   const itemVariants = {
     hidden: { opacity: 0, y: 50 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut",
-      },
-    },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
   };
-
-  // C. Child item variant: Slide-from-left
   const itemVariantsLeft = {
     hidden: { opacity: 0, x: -100 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut",
-      },
-    },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } },
   };
-
-  // D. Child item variant: Slide-from-right
   const itemVariantsRight = {
     hidden: { opacity: 0, x: 100 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut",
-      },
-    },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } },
   };
-
-  // E. Card hover (unchanged)
   const cardHover = {
-    scale: 1.02, // Slight scale for the big cards
+    scale: 1.02,
     boxShadow: "0px 20px 40px -10px rgba(0, 0, 0, 0.2)",
     transition: { type: "spring", stiffness: 300 },
   };
+
+  // --- DEFAULT PROMOTIONS ---
+  const DEFAULT_PROMOTIONS = React.useMemo(() => [
+    {
+      id: 1,
+      title: "Low Cost Bakuna",
+      description: "Affordable care, peace of mind, protection that's easy to find. Safe, simple, and budget-wise, Your pet's health matters—immunize!",
+      image: "/Frame 56.png"
+    },
+    {
+      id: 2,
+      title: "Low Cost Kapon",
+      description: "Affordable spay and neuter services now available in Southvalley! Prevent unwanted litters and improve your pet's health.",
+      image: "/low cost kapon.png"
+    },
+    {
+      id: 3,
+      title: "Holy Week Advisory",
+      description: "In observance of Holy Week, please take note of our adjusted clinic hours. Kindly plan your visits ahead of time.",
+      image: "/holy week advisory.png"
+    }
+  ], []);
+
+  // --- PROMOTIONS STATE ---
+  const [promotions, setPromotions] = React.useState([]);
+  React.useEffect(() => {
+    const stored = localStorage.getItem('pawpal_promotions');
+    if (stored) {
+      setPromotions(JSON.parse(stored));
+    } else {
+      localStorage.setItem('pawpal_promotions', JSON.stringify(DEFAULT_PROMOTIONS));
+      setPromotions(DEFAULT_PROMOTIONS);
+    }
+  }, [DEFAULT_PROMOTIONS]);
 
   // --- HELPER: SCROLL TO SECTION ---
   const scrollToSection = (id) => {
@@ -233,10 +233,10 @@ export default function LandingPage() {
           </div>
         </motion.section>
 
-        {/* Promotions Section */}
+        {/* Promotions Section - Carousel */}
         <motion.section
           id="promotions"
-          className="w-full h-screen snap-start flex flex-col items-center justify-center bg-[#FFFFFF] px-4 pt-20"
+          className="w-full h-screen snap-start flex flex-col items-center justify-center bg-[#FFFFFF] px-4 pt-20 overflow-hidden"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -249,121 +249,25 @@ export default function LandingPage() {
           >
             Special Promotions
           </motion.h2>
-            <motion.span
-              className="text-lg text-[#666] mb-10 text-center max-w-xl"
-              style={{ fontFamily: "'Inter', sans-serif" }}
-              variants={itemVariants}
-            >
-              Check out our current special offers and promotions to help
-              you save while providing the best care for your pets.
-            </motion.span>
-          <div className="flex flex-col md:flex-row gap-6 md:gap-8 w-full max-w-6xl justify-center items-stretch">
-            {/* Card 1 */}
-            <motion.div
-              className="bg-white rounded-[18px] shadow flex flex-col items-stretch p-0 w-full max-w-xs md:max-w-sm min-h-[320px] md:min-h-[480px] border border-[#e0d7f7]"
-              whileHover={cardHover}
-              variants={itemVariants}
-            >
-              <img
-                alt="Low cost vaccination promotion"
-                src="/Frame 56.png"
-                className="rounded-t-[18px] w-full h-[140px] md:h-[240px] object-contain bg-[#f7f6fa]"
-              />
-              <div className="p-5 flex flex-col flex-1">
-                <h3
-                  className="font-bold text-[18px] text-[#181818] mb-2"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  Low Cost Bakuna
-                </h3>
-                <p
-                  className="text-[15px] text-[#181818] mb-4"
-                  style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400 }}
-                >
-                  Affordable care, peace of mind, protection that&apos;s easy to
-                  find. Safe, simple, and budget-wise, Your pet&apos;s health
-                  matters&mdash;immunize!
-                </p>
-                <div className="flex-1"></div>
-                <button
-                  className="bg-[#a084e8] text-white rounded-[8px] px-4 py-2 text-[15px] font-semibold shadow self-end mt-2 hover:bg-[#815fb3] transition-colors"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  Read More
-                </button>
-              </div>
-            </motion.div>
-            
-            {/* Card 2 */}
-            <motion.div
-              className="bg-white rounded-[18px] shadow flex flex-col items-stretch p-0 w-full max-w-xs md:max-w-sm min-h-[320px] md:min-h-[480px] border border-[#e0d7f7]"
-              whileHover={cardHover}
-              variants={itemVariants}
-            >
-              <img
-                alt="Low cost kapon promotion"
-                src="/low cost kapon.png"
-                className="rounded-t-[18px] w-full h-[140px] md:h-[240px] object-contain bg-[#f7f6fa]"
-              />
-              <div className="p-5 flex flex-col flex-1">
-                 <h3
-                  className="font-bold text-[18px] text-[#181818] mb-2"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  Low Cost Kapon
-                </h3>
-                <p
-                  className="text-[15px] text-[#181818] mb-4"
-                  style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400 }}
-                >
-                  Affordable spay and neuter services now available in
-                  Southvalley! ...
-                </p>
-                 <div className="flex-1"></div>
-                 <button
-                  className="bg-[#a084e8] text-white rounded-[8px] px-4 py-2 text-[15px] font-semibold shadow self-end mt-2 hover:bg-[#815fb3] transition-colors"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  Read More
-                </button>
-              </div>
-            </motion.div>
+          <motion.span
+            className="text-lg text-[#666] mb-4 text-center max-w-xl"
+            style={{ fontFamily: "'Inter', sans-serif" }}
+            variants={itemVariants}
+          >
+            Check out our current special offers and announcements.
+          </motion.span>
 
-            {/* Card 3 */}
-            <motion.div
-              className="bg-white rounded-[18px] shadow flex flex-col items-stretch p-0 w-full max-w-xs md:max-w-sm min-h-[320px] md:min-h-[480px] border border-[#e0d7f7]"
-              whileHover={cardHover}
-              variants={itemVariants}
-            >
-              <img
-                alt="Holy Week Advisory promotion"
-                src="/holy week advisory.png"
-                className="rounded-t-[18px] w-full h-[140px] md:h-[240px] object-contain bg-[#f7f6fa]"
-              />
-              <div className="p-5 flex flex-col flex-1">
-                <h3
-                  className="font-bold text-[18px] text-[#181818] mb-2"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  Holy Week Advisory
-                </h3>
-                <p
-                  className="text-[15px] text-[#181818] mb-4"
-                  style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400 }}
-                >
-                  In observance of Holy Week, please take note of our adjusted
-                  clinic hours. Kindly plan your visits ahead of time...
-                </p>
-                <div className="flex-1"></div>
-                 <button
-                  className="bg-[#a084e8] text-white rounded-[8px] px-4 py-2 text-[15px] font-semibold shadow self-end mt-2 hover:bg-[#815fb3] transition-colors"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  Read More
-                </button>
-              </div>
-            </motion.div>
-          </div>
+          {/* WRAPPED IN MOTION.DIV WITH ITEM VARIANTS */}
+          <motion.div 
+            className="w-full flex justify-center"
+            variants={itemVariants}
+          >
+            {promotions.length > 0 ? (
+              <PromotionCarousel promotions={promotions} />
+            ) : (
+              <p>Loading promotions...</p>
+            )}
+          </motion.div>
         </motion.section>
 
         {/* Meet PawPal Section */}

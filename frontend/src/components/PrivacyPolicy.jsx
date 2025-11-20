@@ -1,16 +1,22 @@
+
 import React from "react";
 
-// Placeholder image for logo
-const placeholderImg = "https://via.placeholder.com/80x80?text=Logo";
+// NOTE: Ensure this path is correct based on your project structure
+const logoSrc = "/pat-removebg-preview 2.png";
 
 function Group() {
   return (
     <div className="flex items-center justify-center gap-4 mb-6">
-      <div className="flex items-center justify-center">
-        <p className="font-['MuseoModerno:Black',sans-serif] font-black text-[#815fb3] text-[48px] leading-[normal]">PAWPAL</p>
+      <div className="w-16 h-16">
+        <img alt="Logo" className="w-full h-full object-cover" src={logoSrc} />
       </div>
-      <div className="w-[80px] h-[80px]">
-        <img alt="Logo" className="w-full h-full object-cover" src={placeholderImg} />
+      <div className="flex items-center justify-center">
+        <p 
+          className="font-['MuseoModerno:Black',sans-serif] font-black text-[#815fb3]" 
+          style={{ fontSize: '65px', lineHeight: 'normal' }}
+        >
+          PAWPAL
+        </p>
       </div>
     </div>
   );
@@ -18,34 +24,119 @@ function Group() {
 
 function PrivacyPolicyContent() {
   return (
-    <div className="relative p-8 bg-[#fffff2] rounded-[30px] shadow-[0px_0px_100px_10px_rgba(0,0,0,0.25)] max-w-[900px] w-[90vw] max-h-[85vh] overflow-y-auto">
+    <div className="relative p-8 bg-[#FFFFF2] rounded-[30px] shadow-[0px_0px_100px_10px_rgba(0,0,0,0.25)] max-w-4xl w-full max-h-[85vh] overflow-y-auto font-raleway">
       <Group />
-      <p className="font-['Raleway:Bold',sans-serif] font-bold text-[#815fb3] text-center mb-2 text-[22px]">Your pet&apos;s health companion</p>
-      <div className="font-['Raleway:Bold',sans-serif] font-bold text-[36px] text-black text-center mb-4">
-        📜 Privacy Policy
+      <div className="font-bold text-3xl text-black text-center mb-4">
+        Privacy Policy
       </div>
-      <p className="font-['Raleway:Light',sans-serif] font-light text-center text-black mb-8 text-[18px]">Last Updated: November 2025</p>
-      <div className="space-y-8">
-        <div className="font-['Raleway:Bold',sans-serif] font-bold text-black">
-          <p className="mb-3 text-[28px]">1. Data We Collect</p>
+      <p className="font-normal text-left text-black mb-6 text-sm">
+        Last Updated: November 2025
+      </p>
+
+      <div className="space-y-6 text-black">
+        {/* Intro */}
+        <div className="space-y-3">
+          <p className="text-base font-normal leading-relaxed">
+            At PawPal, we value your privacy and are committed to keeping your information safe.
+          </p>
+          <p className="text-base font-normal leading-relaxed">
+            This Privacy Policy explains what data we collect, how we use it, and how we protect your personal information when you use our web-based chatbot.
+          </p>
+        </div>
+
+        {/* Section 1 */}
+        <div>
+          <p className="text-xl font-bold mb-2">1. Information We Collect</p>
+          <p className="text-base font-normal leading-relaxed mb-3">
+            To make PawPal work properly and provide a better experience, we may collect the following:
+          </p>
           <ul className="list-disc ps-8 space-y-2">
-            <li className="font-['Raleway:Medium',sans-serif] font-medium text-[22px]">Personal info (name, email, contact)</li>
-            <li className="font-['Raleway:Medium',sans-serif] font-medium text-[22px]">Pet details (name, species, age, health data)</li>
-            <li className="font-['Raleway:Medium',sans-serif] font-medium text-[22px]">Chat history for system improvement</li>
+            <li className="text-base font-normal leading-relaxed">
+              <span className="font-semibold">Personal Information:</span> Your name, contact details (such as email or phone number).
+            </li>
+            <li className="text-base font-normal leading-relaxed">
+              <span className="font-semibold">Pet Information:</span> Your pet&apos;s name, species, breed, age, and health-related details shared during chats.
+            </li>
+            <li className="text-base font-normal leading-relaxed">
+              <span className="font-semibold">Chat Data:</span> Messages exchanged with the chatbot to help improve its responses.
+            </li>
+            <li className="text-base font-normal leading-relaxed">
+              <span className="font-semibold">Technical Information:</span> Browser type, device information, and IP address used for system analytics and security.
+            </li>
           </ul>
         </div>
-        <div className="font-['Raleway:Bold',sans-serif] font-bold text-black">
-          <p className="mb-3 text-[28px]">2. Use of Information</p>
-          <p className="font-['Raleway:Medium',sans-serif] font-medium text-[22px]">Your data is used to provide chatbot responses, manage appointments, and improve service quality.</p>
+
+        {/* Section 2 */}
+        <div>
+          <p className="text-xl font-bold mb-2">2. How We Use Your Information</p>
+          <p className="text-base font-normal leading-relaxed mb-3">
+            The information you provide helps us:
+          </p>
+          <ul className="list-disc ps-8 space-y-2 mb-3">
+            <li className="text-base font-normal leading-relaxed">Respond accurately to your pet care questions.</li>
+            <li className="text-base font-normal leading-relaxed">Assist with appointment-related inquiries.</li>
+            <li className="text-base font-normal leading-relaxed">Improve PawPal&apos;s accuracy and user experience.</li>
+            <li className="text-base font-normal leading-relaxed">Maintain records for Southvalley Veterinary Clinic&apos;s internal use and service quality.</li>
+          </ul>
+          <p className="text-base font-normal leading-relaxed">
+            We will never use your information for marketing or share it with third parties.
+          </p>
         </div>
-        <div className="font-['Raleway:Bold',sans-serif] font-bold text-black">
-          <p className="mb-3 text-[28px]">3. Data Security</p>
-          <p className="font-['Raleway:Medium',sans-serif] font-medium text-[22px]">All information is securely stored and accessible only to authorized personnel.</p>
+
+        {/* Section 3 */}
+        <div>
+          <p className="text-xl font-bold mb-2">3. Data Protection and Security</p>
+          <p className="text-base font-normal leading-relaxed mb-3">
+            Your information is stored securely and protected from unauthorized access, alteration, or loss.
+          </p>
+          <p className="text-base font-normal leading-relaxed">
+            Only authorized clinic staff and system administrators can access your data, and only for operational purposes.
+          </p>
         </div>
-        <div className="font-['Raleway:Bold',sans-serif] font-bold text-black">
-          <p className="mb-3 text-[28px]">4. User Rights</p>
-          <p className="font-['Raleway:Medium',sans-serif] font-medium text-[22px]">You can request access, correction, or deletion of your data anytime by emailing <span className="underline">southvalleyvc20@gmail.com</span></p>
+
+        {/* Section 4 */}
+        <div>
+          <p className="text-xl font-bold mb-2">4. Cookies</p>
+          <p className="text-base font-normal leading-relaxed mb-3">
+            PawPal may use temporary cookies or session storage to remember recent chats.
+          </p>
+          <p className="text-base font-normal leading-relaxed">
+            You can disable cookies, but some features may not work properly.
+          </p>
         </div>
+
+        {/* Section 5 */}
+        <div>
+          <p className="text-xl font-bold mb-2">5. Your Rights</p>
+          <p className="text-base font-normal leading-relaxed mb-3">
+            You may:
+          </p>
+          <ul className="list-disc ps-8 space-y-2 mb-3">
+            <li className="text-base font-normal leading-relaxed">View or update your data.</li>
+            <li className="text-base font-normal leading-relaxed">Request data deletion.</li>
+            <li className="text-base font-normal leading-relaxed">Withdraw consent anytime.</li>
+          </ul>
+          <p className="text-base font-normal leading-relaxed">
+            Contact us at <span className="underline">southvalleyvc20@gmail.com</span> for assistance.
+          </p>
+        </div>
+
+        {/* Section 6 */}
+        <div>
+          <p className="text-xl font-bold mb-2">6. Updates</p>
+          <p className="text-base font-normal leading-relaxed">
+            We may update this policy when necessary. Any major changes will be announced through PawPal or the clinic&apos;s website.
+          </p>
+        </div>
+
+        {/* Section 7 */}
+        <div>
+          <p className="text-xl font-bold mb-2">7. Contact</p>
+          <p className="text-base font-normal leading-relaxed">
+            For questions or concerns, email <span className="underline">southvalleyvc20@gmail.com</span>
+          </p>
+        </div>
+
       </div>
     </div>
   );
@@ -53,7 +144,7 @@ function PrivacyPolicyContent() {
 
 export default function PrivacyPolicy({ onClose }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 font-raleway">
       <div className="relative">
         <PrivacyPolicyContent />
         <button

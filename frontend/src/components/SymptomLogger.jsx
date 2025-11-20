@@ -494,7 +494,7 @@ const SymptomLogger = ({ pet, onComplete }) => {
       {/* Severity Selection */}
       <div className="severity-section">
         <h3>📊 Overall Severity</h3>
-        <p className="section-description">How severe are {pet.name}'s symptoms overall?</p>
+        <p className="section-description">How severe are {pet.name}&apos;s symptoms overall?</p>
         <div className="severity-options">
           <label className={`severity-option ${severity === 'mild' ? 'selected' : ''}`}>
             <input
@@ -543,7 +543,7 @@ const SymptomLogger = ({ pet, onComplete }) => {
       {/* Comparison to Yesterday */}
       <div className="comparison-section">
         <h3>📈 Progression</h3>
-        <p className="section-description">How do today's symptoms compare to yesterday?</p>
+        <p className="section-description">How do today&apos;s symptoms compare to yesterday?</p>
         <select
           value={comparedToYesterday}
           onChange={(e) => setComparedToYesterday(e.target.value)}
