@@ -6,14 +6,19 @@ import PromotionCarousel from "./PromotionCarousel";
 export default function LandingPage() {
   const navigate = useNavigate();
   // Auth redirect logic
-  const { user } = require('../context/AuthContext'); // Note: Ensure this path is correct for your file structure
+  // Note: Ensure this path is correct for your file structure
+  // eslint-disable-next-line
+  const { user } = require('../context/AuthContext'); 
+  
+  // State for Mobile Sidebar
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+
   // Redirect on mount
   React.useEffect(() => {
     if (user) {
       navigate('/chat/new', { replace: true });
     }
   }, [user, navigate]);
-
 
   // --- ANIMATION VARIANTS ---
   const containerVariants = {
@@ -77,33 +82,99 @@ export default function LandingPage() {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
+      setIsMobileMenuOpen(false); // Close sidebar on click
     }
   };
 
   return (
-    // 2. Main container is now a fixed h-screen viewport
-  <div className="bg-[#f7f6fa] w-full h-screen flex flex-col relative">
-      {/* 3. Header is now 'absolute' to overlay the scrolling content */}
+    <div className="bg-[#f7f6fa] w-full h-screen flex flex-col relative overflow-hidden">
+      
+      {/* --- MOBILE SIDEBAR OVERLAY --- */}
+      <div
+        className={`
+          fixed inset-0 z-[60] flex justify-end
+          transition-opacity duration-300 ease-in-out
+          ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
+        `}
+        aria-modal="true"
+      >
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-black bg-opacity-50"
+          onClick={() => setIsMobileMenuOpen(false)}
+        ></div>
+
+        {/* Sidebar Drawer */}
+        <div
+          className={`
+            relative w-[280px] h-full bg-white shadow-2xl flex flex-col
+            transition-transform duration-300 ease-in-out transform
+            ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
+          `}
+        >
+          <div className="p-5 border-b flex items-center justify-between bg-[#FDFDFD]">
+             <span className="font-bold text-[#815FB3] text-lg font-['Poppins',sans-serif]">MENU</span>
+             <button onClick={() => setIsMobileMenuOpen(false)} className="p-2">
+                {/* Close Icon */}
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+             </button>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto py-4 flex flex-col gap-2 px-4">
+            <button onClick={() => scrollToSection('home')} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Home</button>
+            <button onClick={() => scrollToSection('meet-pawpal')} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Meet PawPal</button>
+            <button onClick={() => scrollToSection('promotions')} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Promotions</button>
+            <button onClick={() => scrollToSection('help')} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Help</button>
+            <button onClick={() => scrollToSection('find-us')} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Find Us</button>
+          </div>
+
+          <div className="p-5 border-t flex flex-col gap-3 bg-[#f7f6fa]">
+            <button 
+              onClick={() => navigate("/petowner/login")}
+              className="w-full h-[44px] rounded-full bg-white border border-[#7e57c2] text-[#7e57c2] font-bold"
+            >
+              Log In
+            </button>
+            <button 
+              onClick={() => navigate("/petowner/register")}
+              className="w-full h-[44px] rounded-full bg-[#7e57c2] text-white font-bold shadow-md"
+            >
+              Sign Up
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* --- HEADER --- */}
       <div
         className="w-full bg-white h-[56px] flex items-center justify-between px-4 md:px-8 shadow z-50 absolute top-0 left-0"
         data-name="Container"
       >
-        <span
-          style={{
-            fontFamily: "Poppins, sans-serif",
-            fontWeight: 900,
-            fontSize: 20,
-            color: "#815FB3",
-            letterSpacing: 1,
-          }}
-          className="truncate max-w-[200px] lg:max-w-none cursor-pointer"
-          onClick={() => scrollToSection('home')} // Clicking logo goes to top
+        {/* Logo Section */}
+        <div 
+            className="flex items-center cursor-pointer"
+            onClick={() => scrollToSection('home')}
         >
-          SOUTHVALLEY VETERINARY CLINIC
-        </span>
+            {/* Optional: Add small logo icon here if desired */}
+            <span
+            style={{
+                fontFamily: "Poppins, sans-serif",
+                fontWeight: 900,
+                fontSize: 20,
+                color: "#815FB3",
+                letterSpacing: 1,
+            }}
+            className="truncate max-w-[250px] lg:max-w-none"
+            >
+            SOUTHVALLEY
+            <span className="hidden md:inline"> VETERINARY CLINIC</span>
+            </span>
+        </div>
 
-        {/* --- NEW: MIDDLE NAVIGATION LINKS --- */}
-        {/* Hidden on small screens, visible on larger screens */}
+        {/* --- DESKTOP NAVIGATION LINKS (Hidden on mobile) --- */}
         <div className="hidden lg:flex items-center gap-20">
             <button 
               onClick={() => scrollToSection('meet-pawpal')}
@@ -131,8 +202,8 @@ export default function LandingPage() {
             </button>
         </div>
 
-        {/* Buttons Container */}
-  <div className="flex items-center gap-2 md:gap-4">
+        {/* --- DESKTOP BUTTONS (Hidden on mobile) --- */}
+        <div className="hidden lg:flex items-center gap-2 md:gap-4">
           <motion.button
             className="bg-[#7e57c2] h-[44px] rounded-full px-4 md:px-5 flex items-center justify-center gap-2 text-white font-['Inter',sans-serif] text-[15px] md:text-[13.6px]"
             onClick={() => navigate("/petowner/login")}
@@ -160,55 +231,69 @@ export default function LandingPage() {
             <span>Sign Up</span>
           </motion.button>
         </div>
+
+        {/* --- MOBILE TOGGLE BUTTON (Visible only on mobile) --- */}
+        <div className="flex lg:hidden">
+            <button 
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="p-2 text-[#815FB3]"
+                aria-label="Open menu"
+            >
+                 {/* Hamburger Icon SVG */}
+                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+        </div>
       </div>
 
-      {/* 4. This 'main' element is now the scroll container */}
-  <main className="flex-1 w-full h-screen overflow-y-auto snap-y snap-mandatory">
+      {/* Main Content Container */}
+      {/* FIXED: Added overflow-x-hidden here to prevent side dragging */}
+      <main className="flex-1 w-full h-screen overflow-y-auto overflow-x-hidden snap-y snap-mandatory">
         
-        {/* Hero Section - UPDATED */}
+        {/* Hero Section */}
         <motion.section
           id="home"
-          className="w-full min-h-screen snap-start flex flex-col items-center justify-center bg-[#ede9f7] pt-[56px] relative overflow-hidden"
+          className="w-full min-h-screen snap-start flex flex-col items-center justify-start md:justify-center bg-[#ede9f7] pt-[80px] md:pt-[56px] relative overflow-hidden"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ amount: 0.5 }}
         >
-          {/* Wave SVG Background - Absolute Bottom */}
+          {/* Wave SVG Background */}
           <div className="absolute bottom-0 left-0 w-full z-0">
              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full h-auto block">
                 <path fill="#ffffff" fillOpacity="1" d="M0,224L60,213.3C120,203,240,181,360,181.3C480,181,600,203,720,224C840,245,960,267,1080,261.3C1200,256,1320,224,1380,208L1440,192L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
               </svg>
           </div>
 
-          {/* Main Content Container 
-              Using items-stretch to help position columns, but we will control vertical alignment per column 
-          */}
-          <div className="flex flex-col md:flex-row justify-between gap-4 w-full max-w-[95%] px-4 z-10 h-[calc(100vh-56px)]">
+          {/* Main Content Container */}
+          <div className="flex flex-col md:flex-row justify-between gap-6 md:gap-4 w-full max-w-[95%] px-4 z-10 h-auto md:h-[calc(100vh-56px)]">
             
-            {/* Left: Big Logo - Vertically Centered */}
+            {/* Left: Big Logo */}
             <motion.div 
-                className="w-full md:w-[33%] flex justify-center md:justify-center items-center -mt-32"
+                className="w-full md:w-[33%] flex justify-center items-center mt-4 md:-mt-32"
                 variants={itemVariantsLeft}
             >
                 <img
                     src="/96d78afd-a196-47fc-870d-409b03dedb90-removebg-preview 1.png"
                     alt="Southvalley 24h Logo"
-                    className="w-[280px] md:w-full max-w-[500px] object-contain"
+                    className="w-[240px] md:w-full max-w-[500px] object-contain"
                 />
             </motion.div>
 
-            {/* Middle: Text Content - Pushed Up */}
+            {/* Middle: Text Content */}
             <motion.div 
-                // Added self-center but negative margin top to push it "way up"
-                className="w-full md:w-[33%] flex flex-col items-center md:items-start text-center md:text-left self-center md:-mt-32"
+                className="w-full md:w-[33%] flex flex-col items-center md:items-start text-center md:text-left mt-2 md:-mt-32 md:self-center"
                 variants={itemVariants}
             >
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight font-['Inter',sans-serif] text-[#181818]">
                     Caring for your <br/>
                     <span className="text-[#a60da6]">furry family members</span>
                 </h1>
-                <p className="text-base md:text-lg text-[#333] font-['Inter',sans-serif] leading-relaxed max-w-md">
+                <p className="text-base md:text-lg text-[#333] font-['Inter',sans-serif] leading-relaxed max-w-md px-2 md:px-0">
                     Southvalley Veterinary Clinic provides compassionate, 
                     comprehensive care for your pets. 
                     From preventive care to specialized treatments, 
@@ -216,50 +301,50 @@ export default function LandingPage() {
                 </p>
             </motion.div>
 
-            {/* Right: Pets Image - Lower and Bigger */}
+            {/* Right: Pets Image - HIDDEN ON MOBILE */}
             <motion.div 
-                // items-end to push to bottom. translate-y to push it onto the wave.
-                className="w-full md:w-[33%] flex justify-center md:justify-end items-end pb-0 md:pb-0 -mt-16"
+                className="hidden md:flex w-full md:w-[33%] justify-center md:justify-end items-end mt-auto md:-mt-16"
                 variants={itemVariantsRight}
             >
                  <img
                     src="/0392691c88db5749efd321d633a8a9e8 1.png"
                     alt="Cute pets"
-                    // Scale up and translate down to sit on the line
-                    className="w-[300px] md:w-full max-w-[650px] object-contain drop-shadow-xl transform md:translate-y-12 lg:translate-y-16 scale-110 origin-bottom" 
+                    className="w-[280px] md:w-full max-w-[650px] object-contain drop-shadow-xl transform translate-y-8 md:translate-y-12 lg:translate-y-16 scale-110 origin-bottom" 
                 />
             </motion.div>
 
           </div>
         </motion.section>
 
-        {/* Promotions Section - Carousel */}
+        {/* Promotions Section */}
         <motion.section
           id="promotions"
-          className="w-full h-screen snap-start flex flex-col items-center justify-center bg-[#FFFFFF] px-4 pt-20 overflow-hidden"
+          // FIXED: Reduced top padding to pt-14 (56px) and used justify-start for mobile to pull text up.
+          // overflow-hidden handles any banner scaling issues.
+          className="w-full h-screen snap-start flex flex-col items-center justify-start md:justify-center bg-[#FFFFFF] px-4 pt-14 md:pt-20 overflow-hidden"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ amount: 0.3 }}
         >
           <motion.h2
-            className="text-3xl font-bold text-[#181818] mb-2 text-center"
+            className="text-2xl md:text-3xl font-bold text-[#181818] mb-2 text-center pt-8 md:pt-0"
             style={{ fontFamily: "'Inter', sans-serif" }}
             variants={itemVariants}
           >
             Special Promotions
           </motion.h2>
           <motion.span
-            className="text-lg text-[#666] mb-4 text-center max-w-xl"
+            // Increased mb-6 on mobile to push the banner down, ensuring no overlap
+            className="text-sm md:text-lg text-[#666] mb-8 md:mb-8 text-center max-w-xs md:max-w-xl leading-tight md:leading-normal"
             style={{ fontFamily: "'Inter', sans-serif" }}
             variants={itemVariants}
           >
-            Check out our current special offers and announcements.
+            Check out our current special offers and promotions to help you save while providing the best care for your pets.
           </motion.span>
 
-          {/* WRAPPED IN MOTION.DIV WITH ITEM VARIANTS */}
           <motion.div 
-            className="w-full flex justify-center"
+            className="w-[85%] md:w-full flex justify-center flex-1 md:flex-none"
             variants={itemVariants}
           >
             {promotions.length > 0 ? (
@@ -273,16 +358,18 @@ export default function LandingPage() {
         {/* Meet PawPal Section */}
         <motion.section
           id="meet-pawpal"
-          className="w-full h-screen snap-start flex flex-col items-center justify-center bg-[#f8eedc] border-t border-b border-[#e0d7f7] px-4"
+          // FIXED: Added overflow-hidden
+          className="w-full min-h-screen snap-start flex flex-col items-center justify-center bg-[#f8eedc] border-t border-b border-[#e0d7f7] px-4 pt-32 pb-12 md:py-0 overflow-hidden"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ amount: 0.3 }}
         >
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 w-full max-w-6xl px-2 md:px-0">
-            {/* Left: Text Content - Nested stagger */}
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 w-full max-w-6xl px-2 md:px-0">
+            
+            {/* Left: Text Content */}
             <motion.div
-              className="flex flex-col justify-center items-start max-w-xl flex-1"
+              className="flex flex-col justify-center items-center md:items-start max-w-xl flex-1 text-center md:text-left"
               variants={containerVariants}
             >
               <motion.h2
@@ -293,25 +380,25 @@ export default function LandingPage() {
                 Meet PawPal
               </motion.h2>
               <motion.h3
-                className="text-xl text-[#181818] mb-6"
+                className="text-xl text-[#181818] mb-4 md:mb-6"
                 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500 }}
                 variants={itemVariants}
               >
                 Your 24/7 Pet Care Assistant
               </motion.h3>
               <motion.p
-                className="text-xl text-[#181818] mb-8"
+                className="text-base md:text-xl text-[#181818] mb-8 leading-relaxed max-w-sm md:max-w-none"
                 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400 }}
                 variants={itemVariants}
               >
-                Get instant answers to your pet care<br />
-                questions, check symptoms, and receive<br />
-                guidance on when to visit our clinic. PawPal<br />
-                is here to help you provide the best care for<br />
+                Get instant answers to your pet care questions, check symptoms, and receive
+                guidance on when to visit our clinic. PawPal is here to help you provide the best care for
                 your furry friends.
               </motion.p>
+              
+              {/* Desktop Button (Hidden on Mobile) */}
               <motion.button
-                className="bg-[#7e57c2] text-white rounded-[8px] px-7 py-2 text-[15px] font-semibold shadow mb-6 transition-colors"
+                className="hidden md:block bg-[#7e57c2] text-white rounded-[8px] px-7 py-2 text-[15px] font-semibold shadow mb-6 transition-colors"
                 style={{ fontFamily: "'Inter', sans-serif", minWidth: 170 }}
                 onClick={() => navigate("/petowner/login")}
                 whileHover={{ scale: 1.1, backgroundColor: "#815fb3" }}
@@ -321,45 +408,60 @@ export default function LandingPage() {
                 ACCESS PAWPAL
               </motion.button>
             </motion.div>
-            {/* Right: Chat Preview UI - Spacer alignment method */}
+
+            {/* Right: Chat Preview UI (Card Look) */}
             <motion.div
-              className="bg-white rounded-[16px] flex flex-col p-4 md:p-8 border border-[#e0d7f7] w-full max-w-md md:max-w-lg h-auto md:h-[350px] shadow-xl items-start justify-start gap-4"
+              className="bg-[#F2F0E9] md:bg-white rounded-[24px] md:rounded-[16px] flex flex-row md:flex-col p-5 md:p-8 border border-transparent md:border-[#e0d7f7] w-full max-w-sm md:max-w-lg h-auto md:h-[350px] shadow-lg md:shadow-xl items-center md:items-start justify-start gap-4"
               variants={itemVariantsRight}
             >
-              {/* PawPal Chat Bubble 1 */}
-              <div className="flex items-start gap-2 w-full">
-                <img src="/pat-removebg-preview 2.png" alt="PawPal Icon" className="w-16 h-16 object-contain flex-shrink-0" />
-                <div className="bg-[#B192DF] bg-opacity-50 rounded-tl-none rounded-2xl px-4 py-3 text-[15px] text-[#181818] relative flex-grow min-h-[88px]">
-                  <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500 }}>
-                    Hi there! I&apos;m PawPal, your virtual pet care assistant. How can I help you and your furry friend today?
-                  </span>
-                </div>
-              </div>
-              {/* PawPal Chat Bubble 2 (spacer method) */}
-              <div className="flex items-start gap-2 w-full">
-                <div className="w-16 h-16 flex-shrink-0"></div>
-                <div className="bg-[#B192DF] bg-opacity-50 rounded-tl-none rounded-2xl px-4 py-3 text-[15px] text-[#181818] relative flex-grow min-h-[88px]">
-                  <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500 }}>
-                    I can answer questions about pet care, help you identify symptoms, and let you know when it&apos;s time to see a vet.
-                  </span>
-                </div>
-              </div>
-              {/* "Please log in" bubble (spacer method) */}
-              <div className="flex items-start gap-2 w-full">
-                <div className="w-16 h-16 flex-shrink-0"></div>
-                <div className="bg-[#B6ADC4] bg-opacity-50 rounded-tl-none rounded-2xl px-4 py-3 text-[15px] text-[#666] relative flex-grow min-h-[88px] max-w-[80%]">
-                  <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500 }}>
-                    Please log in to start a conversation with PawPal and access personalized advice for your pets.
-                  </span>
-                </div>
-              </div>
-              {/* No input field */}
+               {/* Mobile Layout for Chat Card: Icon on Left, Bubbles on Right */}
+               <div className="flex flex-row md:flex-col w-full h-full gap-4 md:gap-4 items-center md:items-start">
+                  {/* Icon */}
+                  <div className="flex-shrink-0">
+                     <img src="/pat-removebg-preview 2.png" alt="PawPal Icon" className="w-16 h-16 object-contain" />
+                  </div>
+
+                  {/* Chat Bubbles Container */}
+                  <div className="flex flex-col gap-2 flex-grow w-full">
+                      {/* Bubble 1 */}
+                      <div className="bg-[#cec3e8] md:bg-[#B192DF] md:bg-opacity-50 rounded-2xl rounded-tl-none md:rounded-tl-none px-3 py-2 md:px-4 md:py-3 text-xs md:text-[15px] text-[#181818] w-full">
+                        <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500 }}>
+                          Hi there! I&apos;m PawPal, your virtual pet care assistant. How can I help you and your furry friend today?
+                        </span>
+                      </div>
+                      {/* Bubble 2 */}
+                      <div className="bg-[#cec3e8] md:bg-[#B192DF] md:bg-opacity-50 rounded-2xl rounded-tl-none md:rounded-tl-none px-3 py-2 md:px-4 md:py-3 text-xs md:text-[15px] text-[#181818] w-full">
+                         <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500 }}>
+                            I can answer questions about pet care, help you identify symptoms, and let you know when it&apos;s time to see a vet.
+                         </span>
+                      </div>
+                       {/* Bubble 3 (Gray) */}
+                      <div className="bg-[#dcdcdc] md:bg-[#B6ADC4] md:bg-opacity-50 rounded-2xl rounded-tl-none md:rounded-tl-none px-3 py-2 md:px-4 md:py-3 text-xs md:text-[15px] text-[#666] w-full italic md:not-italic">
+                         <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500 }}>
+                            Please log in to start a conversation with PawPal and access personalized advice for your pets.
+                         </span>
+                      </div>
+                  </div>
+               </div>
             </motion.div>
+            
+            {/* Mobile Button (Visible only on Mobile, below the card) */}
+            <motion.button
+              className="md:hidden bg-[#7e57c2] text-white rounded-[8px] px-7 py-3 text-[15px] font-semibold shadow mt-2 transition-colors w-full max-w-xs"
+              style={{ fontFamily: "'Inter', sans-serif" }}
+              onClick={() => navigate("/petowner/login")}
+              whileTap={{ scale: 0.95 }}
+              variants={itemVariants}
+            >
+              ACCESS PAWPAL
+            </motion.button>
+
           </div>
-          {/* --- LOGIN/REGISTER INFO: now relative, inside flex container --- */}
+
+          {/* --- LOGIN/REGISTER INFO --- */}
           <div className="w-full flex justify-center items-end mt-8 mb-2">
             <motion.p
-              className="text-sm md:text-base text-[#444] leading-relaxed text-center px-2"
+              className="text-xs md:text-sm lg:text-base text-[#444] leading-relaxed text-center px-2"
               style={{ fontFamily: "'Raleway', sans-serif", fontWeight: 800 }}
               variants={itemVariants}
             >
@@ -381,7 +483,8 @@ export default function LandingPage() {
         {/* How can PawPal help you? Section */}
         <motion.section
           id="help"
-          className="w-full h-screen snap-start flex flex-col items-center justify-center bg-[#e5d9f6] px-4"
+          // FIXED: Added overflow-hidden
+          className="w-full min-h-screen snap-start flex flex-col items-center justify-center bg-[#e5d9f6] px-4 py-20 md:py-0 overflow-hidden"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -471,11 +574,11 @@ export default function LandingPage() {
           </div>
         </motion.section>
 
-        {/* Find Us Section - UPDATED */}
+        {/* Find Us Section */}
         <motion.section
           id="find-us"
-          // SIZING FIXED: Changed from max-w-[80%] to max-w-6xl for better containment
-          className="w-full h-screen snap-start flex flex-col items-center justify-center bg-[#ede9f7] px-4"
+          // FIXED: Added overflow-hidden
+          className="w-full min-h-screen snap-start flex flex-col items-center justify-center bg-[#ede9f7] px-4 py-20 md:py-0 overflow-hidden"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -496,7 +599,6 @@ export default function LandingPage() {
             Visit our clinic or reach out to us through any of these channels
           </motion.span>
           
-          {/* GRID CONTAINER: Fixed max-w-6xl to prevent it from being too wide */}
           <div className="flex flex-col md:flex-row gap-6 md:gap-8 w-full max-w-6xl justify-center items-stretch mt-2 px-2 md:px-0">
             
             {/* Left: Contact Cards */}
@@ -505,7 +607,7 @@ export default function LandingPage() {
               variants={itemVariantsLeft}
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
-              {/* Contact Information Card - Slightly smaller padding/fonts */}
+              {/* Contact Information Card */}
               <div className="bg-white rounded-[16px] p-5 flex flex-col gap-4 shadow-xl border border-[#f0f0f0]">
                 <h3 className="font-bold text-[18px] text-[#181818]">Contact Information</h3>
                 
@@ -544,9 +646,9 @@ export default function LandingPage() {
               </div>
             </motion.div>
 
-            {/* Right: Map Iframe - HEIGHT REDUCED */}
+            {/* Right: Map Iframe */}
             <motion.div
-              className="bg-white rounded-[16px] shadow-2xl p-2 md:p-4 flex items-center justify-center w-full flex-[2] min-h-[280px] md:min-h-[400px] border border-[#e0d7f7]"
+              className="bg-white rounded-[16px] shadow-2xl p-2 md:p-4 flex items-center justify-center w-full flex-[2] h-[250px] md:h-auto md:min-h-[400px] border border-[#e0d7f7]"
               variants={itemVariantsRight}
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
@@ -565,20 +667,20 @@ export default function LandingPage() {
           </div>
         </motion.section>
 
-        {/* Footer - REDESIGNED */}
-        {/* 7. Footer is the last snap point. It won't be h-screen, just its own content height. */}
+        {/* Footer */}
         <footer className="w-full bg-[#7e57c2] pt-12 pb-8 px-4 md:px-10 snap-start font-['Inter',sans-serif] text-white">
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10 mb-8">
                 {/* Left Column */}
                 <div className="flex flex-col items-start max-w-lg">
-                     <h3 className="font-extrabold text-2xl uppercase tracking-wide mb-4 font-['Poppins',sans-serif] text-[#FFF4C9]">
+                      <h3 className="font-extrabold text-2xl uppercase tracking-wide mb-4 font-['Poppins',sans-serif] text-[#FFF4C9]">
                         SOUTHVALLEY VETERINARY CLINIC
-                     </h3>
-                     <p className="text-[15px] leading-relaxed mb-6 opacity-90">
+                      </h3>
+                      <p className="text-[15px] leading-relaxed mb-6 opacity-90">
                         We take satisfaction in our optimal veterinary services designed to consistently provide for you and your pet companion.
-                     </p>
-                     <div className="flex items-center gap-4">
-                        {/* Socials - placeholder icons */}
+                      </p>
+
+                      <div className="flex items-center gap-4">
+                        {/* Socials */}
                         <a href="https://facebook.com/southvalleyvc" target="_blank" rel="noopener noreferrer">
                           <img src="/facebook.png" alt="fb" className="w-6 h-6 cursor-pointer hover:opacity-80 transition-opacity" />
                         </a>
@@ -588,7 +690,7 @@ export default function LandingPage() {
                         <a href="https://www.tiktok.com/@southvalleyvetclinic" target="_blank" rel="noopener noreferrer">
                           <img src="/tiktok.png" alt="tiktok" className="w-6 h-6 cursor-pointer hover:opacity-80 transition-opacity" />
                         </a>
-                     </div>
+                      </div>
                 </div>
 
                 {/* Right Column */}
