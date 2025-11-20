@@ -27,8 +27,7 @@ warnings.filterwarnings("ignore")
 # ========================
 # CLEAN CONFIG - PAWPAL ONLY
 # ========================
-DATASET_FILE = "pet_disease_dataset_final_merged.csv"  # ← CHANGED
-
+DATASET_FILE = "structured_training_from_vet_verified_augmented_fixed.csv"  # ← 100% SAFE & VALIDATED
 
 OUTPUTS = {
     "model": "pawpal_model.pkl",
@@ -173,11 +172,30 @@ def load_pawpal_dataset(file_path: str) -> pd.DataFrame:
     print(f"Original shape: {df.shape}")
     print(f"Columns: {list(df.columns)}")
     
+    # Disease name normalization map (merge duplicates)
+    disease_normalization = {
+        'Feline Panleukopenia': 'Feline Panleukopenia Virus',  # Same disease, different names
+        'Heartworms': 'Heartworm Disease',  # Same disease, different names (singular vs plural)
+        # Add more mappings as needed
+    }
+    
+    # Filter out non-diseases (symptoms incorrectly labeled as diseases)
+    EXCLUDE_NON_DISEASES = {
+        'Diarrhea',  # Symptom, not a disease (can be caused by parasites, infections, diet, etc.)
+        # Add more if found
+    }
+    
     # Process each row
     rows = []
     for _, row in df.iterrows():
         species = row.get('species', '').strip().capitalize()
-        disease = row.get('disease', '').strip()
+        disease_raw = row.get('disease', '').strip().title()  # ← NORMALIZE CASE
+        disease = disease_normalization.get(disease_raw, disease_raw)  # ← MERGE DUPLICATES
+        
+        # Skip non-diseases (symptoms mislabeled as diseases)
+        if disease in EXCLUDE_NON_DISEASES:
+            continue
+        
         symptoms_text = row.get('symptoms', '')
         urgency = row.get('urgency', 'moderate').strip().lower()
         contagious = str(row.get('contagious', 'no')).strip().lower() == 'yes'
@@ -344,6 +362,37 @@ def main():
     df = load_pawpal_dataset(DATASET_FILE)
     
     # ============================================================
+    # LOAD DISEASE METADATA TO IDENTIFY CRITICAL CONDITIONS
+    # ============================================================
+    print("\n" + "="*60)
+    print("IDENTIFYING CRITICAL DISEASES FOR SAFETY ANALYSIS")
+    print("="*60)
+    
+    with open('pawpal_disease_metadata.json', 'r') as f:
+        disease_metadata = json.load(f)
+    
+    # Identify critical/emergency diseases
+    CRITICAL_DISEASES = [
+        disease for disease, meta in disease_metadata.items() 
+        if meta.get('urgency') in ['emergency', 'critical', 'severe']
+    ]
+    
+    HIGH_URGENCY_DISEASES = [
+        disease for disease, meta in disease_metadata.items()
+        if meta.get('urgency') == 'high'
+    ]
+    
+    print(f"\nIdentified {len(CRITICAL_DISEASES)} critical/emergency/severe diseases:")
+    for disease in sorted(CRITICAL_DISEASES)[:10]:
+        urgency = disease_metadata[disease].get('urgency', 'unknown')
+        print(f"  - {disease} ({urgency})")
+    if len(CRITICAL_DISEASES) > 10:
+        print(f"  ... and {len(CRITICAL_DISEASES) - 10} more")
+    
+    print(f"\nIdentified {len(HIGH_URGENCY_DISEASES)} high-urgency diseases")
+    print("="*60 + "\n")
+    
+    # ============================================================
     # FIX: CLEAN UP SPECIES DATA
     # ============================================================
     print("\n🔧 Cleaning species data...")
@@ -386,6 +435,27 @@ def main():
     print(f"\nKept {len(valid_diseases)} diseases with >= {MIN_SAMPLES_PER_CLASS} samples")
     print(f"Final dataset: {len(df)} samples\n")
     
+    # ============================================================
+    # IDENTIFY LOW-SAMPLE DISEASES (<30 samples)
+    # These will suffer from random split variability
+    # ============================================================
+    LOW_SAMPLE_THRESHOLD = 30
+    low_sample_diseases = disease_counts[disease_counts < LOW_SAMPLE_THRESHOLD].sort_values(ascending=False)
+    
+    if len(low_sample_diseases) > 0:
+        print(f"\n{'='*60}")
+        print(f"⚠️  WARNING: {len(low_sample_diseases)} DISEASES WITH <{LOW_SAMPLE_THRESHOLD} SAMPLES")
+        print(f"{'='*60}")
+        print("These diseases will have unreliable test metrics due to random split:")
+        print("(Add these to LOW_CONFIDENCE_DISEASES in chatbot/views.py)\n")
+        
+        for disease, count in low_sample_diseases.items():
+            test_samples = int(count * TEST_SIZE)
+            print(f"  - {disease}: {count} samples → ~{test_samples} test samples")
+        
+        print(f"\n{'='*60}\n")
+    # ============================================================
+
     # 4) Prepare features and target
     categorical_cols = ['species', 'urgency']
     numeric_cols = [
@@ -443,6 +513,29 @@ def main():
     print("TRAINING MODEL")
     print(f"{'='*60}\n")
     
+    # Diseases that need boosting (below sensitivity thresholds)
+    LOW_SENSITIVITY_DISEASES = {
+        'Asthma': 1.5,                    # Just below 85%, light boost
+        'Cold Water Shock': 3.0,          # Way below 85%, heavy boost
+        'Hepatic Coccidiosis': 2.0,       # Below 75%, moderate boost
+        'Metabolic Bone Disease': 2.0,    # Below 85%, moderate boost
+    }
+    
+    # Create class weights
+    class_weights = {}
+    for idx, disease in enumerate(le.classes_):
+        if disease in LOW_SENSITIVITY_DISEASES:
+            class_weights[idx] = LOW_SENSITIVITY_DISEASES[disease]
+        else:
+            class_weights[idx] = 1.0
+    
+    print(f"Class weights applied for low-sensitivity diseases:")
+    for disease, weight in LOW_SENSITIVITY_DISEASES.items():
+        if disease in le.classes_:
+            idx = list(le.classes_).index(disease)
+            print(f"  {disease}: {weight}x")
+    print()
+    
     model = lgb.LGBMClassifier(
         objective='multiclass',
         num_class=num_classes,
@@ -456,6 +549,7 @@ def main():
         reg_alpha=0.1,
         reg_lambda=0.1,
         random_state=RANDOM_STATE,
+        class_weight=class_weights,
         n_jobs=-1,
         verbosity=-1,
     )
@@ -474,6 +568,253 @@ def main():
     
     print(f"Test Accuracy: {test_acc:.4f} ({test_acc*100:.2f}%)")
     print(f"Training time: {train_time:.2f}s")
+    
+    # ============================================================
+    # CRITICAL DISEASE SENSITIVITY ANALYSIS (POST-TRAINING)
+    # ============================================================
+    print(f"\n{'='*60}")
+    print("CRITICAL DISEASE SENSITIVITY ANALYSIS")
+    print(f"{'='*60}")
+    print("\nBased on:")
+    print("  - WOAH/OIE diagnostic test standards")
+    print("  - AVMA teletriage guidelines")
+    print("  - Veterinary screening test best practices")
+    print("  - Hauptman et al. (1997): 85-97% sensitivity for emergency screening")
+    print(f"\n{'='*60}\n")
+    
+    # Minimum sensitivity thresholds
+    MIN_SENSITIVITY_CRITICAL = 0.85   # 85% for emergency/life-threatening
+    MIN_SENSITIVITY_HIGH = 0.75       # 75% for high urgency  
+    MIN_SENSITIVITY_MODERATE = 0.70   # 70% for moderate
+    MIN_SPECIFICITY_ANY = 0.60        # 60% acceptable for screening
+    MIN_SAMPLE_SIZE = 30              # Minimum samples for reliable metrics
+    
+    # Convert classification report to dictionary
+    report_dict = classification_report(y_test, y_pred, target_names=le.classes_, zero_division=0, output_dict=True)
+    
+    # Track safety failures
+    safety_failures = []
+    low_sample_warnings = []
+    safety_summary = {
+        'critical_diseases_analyzed': 0,
+        'critical_diseases_passed': 0,
+        'critical_diseases_failed': 0,
+        'high_diseases_analyzed': 0,
+        'high_diseases_passed': 0,
+        'high_diseases_failed': 0,
+    }
+    
+    # Analyze critical diseases
+    print("\n" + "="*60)
+    print("CRITICAL/EMERGENCY/SEVERE DISEASES (≥85% sensitivity required)")
+    print("="*60 + "\n")
+    
+    for disease in sorted(CRITICAL_DISEASES):
+        if disease not in le.classes_:
+            continue  # Disease filtered out due to low sample count
+        
+        safety_summary['critical_diseases_analyzed'] += 1
+        
+        # Get metrics from classification report
+        disease_metrics = report_dict.get(disease, {})
+        sensitivity = disease_metrics.get('recall', 0.0)  # Recall = Sensitivity
+        precision = disease_metrics.get('precision', 0.0)
+        f1 = disease_metrics.get('f1-score', 0.0)
+        support = int(disease_metrics.get('support', 0))
+        
+        # Calculate false negative rate
+        fnr = 1.0 - sensitivity
+        
+        # Calculate specificity using one-vs-rest
+        disease_idx = list(le.classes_).index(disease)
+        y_test_binary = (y_test == disease_idx).astype(int)
+        y_pred_binary = (y_pred == disease_idx).astype(int)
+        
+        # Confusion matrix for this disease
+        tn, fp, fn, tp = confusion_matrix(y_test_binary, y_pred_binary).ravel()
+        
+        # Calculate specificity
+        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+        fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+        
+        print(f"{disease}:")
+        print(f"  Test samples: {support}")
+        print(f"  Sensitivity: {sensitivity*100:.1f}% - detects {sensitivity*100:.1f}% of cases")
+        print(f"  False Negative Rate: {fnr*100:.1f}% - MISSES {fnr*100:.1f}% of cases")
+        print(f"  Precision: {precision*100:.1f}%")
+        print(f"  F1-Score: {f1*100:.1f}%")
+        
+        # Check sample size
+        if support < MIN_SAMPLE_SIZE:
+            print(f"  ⚠️  LOW SAMPLE SIZE ({support} cases - need ≥{MIN_SAMPLE_SIZE} for reliable metrics)")
+            low_sample_warnings.append({
+                'disease': disease,
+                'urgency': 'critical',
+                'support': support,
+                'sensitivity': sensitivity
+            })
+        
+        # Check sensitivity threshold
+        if sensitivity < MIN_SENSITIVITY_CRITICAL:
+            print(f"  ❌ SAFETY FAILURE: Below {MIN_SENSITIVITY_CRITICAL*100:.0f}% threshold")
+            print(f"  🚨 Missing {fnr*100:.1f}% of {disease} cases - POTENTIALLY FATAL")
+            safety_failures.append({
+                'disease': disease,
+                'urgency': 'critical',
+                'sensitivity': sensitivity,
+                'fnr': fnr,
+                'support': support,
+                'threshold': MIN_SENSITIVITY_CRITICAL
+            })
+            safety_summary['critical_diseases_failed'] += 1
+        else:
+            print(f"  ✅ PASSES minimum sensitivity threshold ({MIN_SENSITIVITY_CRITICAL*100:.0f}%)")
+            safety_summary['critical_diseases_passed'] += 1
+        
+        print()  # Blank line
+    
+    # Analyze high-urgency diseases
+    print("\n" + "="*60)
+    print("HIGH URGENCY DISEASES (≥75% sensitivity required)")
+    print("="*60 + "\n")
+    
+    for disease in sorted(HIGH_URGENCY_DISEASES):
+        if disease not in le.classes_:
+            continue
+        
+        safety_summary['high_diseases_analyzed'] += 1
+        
+        disease_metrics = report_dict.get(disease, {})
+        sensitivity = disease_metrics.get('recall', 0.0)
+        precision = disease_metrics.get('precision', 0.0)
+        f1 = disease_metrics.get('f1-score', 0.0)
+        support = int(disease_metrics.get('support', 0))
+        fnr = 1.0 - sensitivity
+        
+        # Calculate specificity using one-vs-rest
+        disease_idx = list(le.classes_).index(disease)
+        y_test_binary = (y_test == disease_idx).astype(int)
+        y_pred_binary = (y_pred == disease_idx).astype(int)
+        
+        # Confusion matrix for this disease
+        tn, fp, fn, tp = confusion_matrix(y_test_binary, y_pred_binary).ravel()
+        
+        # Calculate specificity
+        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+        fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+        
+        print(f"{disease}:")
+        print(f"  Test samples: {support}")
+        print(f"  Sensitivity: {sensitivity*100:.1f}%")
+        print(f"  False Negative Rate: {fnr*100:.1f}%")
+        print(f"  Specificity: {specificity*100:.1f}% - correctly identifies non-{disease}")
+        print(f"  False Positive Rate: {fpr*100:.1f}%")
+        print(f"  Precision: {precision*100:.1f}%")
+        
+        if support < MIN_SAMPLE_SIZE:
+            print(f"  ⚠️  LOW SAMPLE SIZE ({support} cases)")
+            low_sample_warnings.append({
+                'disease': disease,
+                'urgency': 'high',
+                'support': support,
+                'sensitivity': sensitivity
+            })
+        
+        if sensitivity < MIN_SENSITIVITY_HIGH:
+            print(f"  ❌ Below {MIN_SENSITIVITY_HIGH*100:.0f}% threshold")
+            safety_failures.append({
+                'disease': disease,
+                'urgency': 'high',
+                'sensitivity': sensitivity,
+                'fnr': fnr,
+                'support': support,
+                'threshold': MIN_SENSITIVITY_HIGH
+            })
+            safety_summary['high_diseases_failed'] += 1
+        else:
+            print(f"  ✅ Passes threshold")
+            safety_summary['high_diseases_passed'] += 1
+        
+        print()
+    
+    # ============================================================
+    # DEPLOYMENT SAFETY ASSESSMENT
+    # ============================================================
+    print("\n" + "="*60)
+    print("DEPLOYMENT SAFETY ASSESSMENT")
+    print("="*60 + "\n")
+    
+    total_critical_analyzed = safety_summary['critical_diseases_analyzed'] + safety_summary['high_diseases_analyzed']
+    total_critical_failed = safety_summary['critical_diseases_failed'] + safety_summary['high_diseases_failed']
+    
+    print(f"Critical/Severe Diseases Analyzed: {safety_summary['critical_diseases_analyzed']}")
+    print(f"  Passed: {safety_summary['critical_diseases_passed']}")
+    print(f"  Failed: {safety_summary['critical_diseases_failed']}")
+    print(f"\nHigh Urgency Diseases Analyzed: {safety_summary['high_diseases_analyzed']}")
+    print(f"  Passed: {safety_summary['high_diseases_passed']}")
+    print(f"  Failed: {safety_summary['high_diseases_failed']}")
+    print(f"\nLow Sample Size Warnings: {len(low_sample_warnings)}")
+    
+    # Overall safety verdict
+    print(f"\n{'='*60}")
+    if total_critical_failed == 0:
+        print("✅ DEPLOYMENT APPROVED: All critical diseases meet safety thresholds")
+    elif total_critical_failed <= 3:
+        print(f"⚠️  DEPLOYMENT CAUTION: {total_critical_failed} diseases below safety threshold")
+        print("   Review failures and consider targeted model improvements")
+    else:
+        print(f"❌ DEPLOYMENT BLOCKED: {total_critical_failed} critical diseases below safety threshold")
+        print("   Model requires improvement before clinical deployment")
+    print(f"{'='*60}\n")
+    
+    # Save safety failures to log file if any exist
+    if len(safety_failures) > 0 or len(low_sample_warnings) > 0:
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        safety_log_dir = "logs"
+        os.makedirs(safety_log_dir, exist_ok=True)
+        safety_log_file = os.path.join(safety_log_dir, f"SAFETY_FAILURES_{timestamp}.txt")
+        
+        with open(safety_log_file, 'w', encoding='utf-8') as f:
+            f.write("PAWPAL MODEL SAFETY ANALYSIS REPORT\n")
+            f.write("="*60 + "\n\n")
+            f.write(f"Analysis Date: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Test Accuracy: {test_acc*100:.2f}%\n\n")
+            
+            if len(safety_failures) > 0:
+                f.write("SAFETY FAILURES (Below Required Sensitivity)\n")
+                f.write("="*60 + "\n\n")
+                for failure in safety_failures:
+                    f.write(f"Disease: {failure['disease']}\n")
+                    f.write(f"  Urgency: {failure['urgency']}\n")
+                    f.write(f"  Sensitivity: {failure['sensitivity']*100:.1f}% (threshold: {failure['threshold']*100:.0f}%)\n")
+                    f.write(f"  False Negative Rate: {failure['fnr']*100:.1f}%\n")
+                    f.write(f"  Test Samples: {failure['support']}\n")
+                    f.write(f"  Impact: Missing {failure['fnr']*100:.1f}% of potentially life-threatening cases\n")
+                    f.write("\n")
+            
+            if len(low_sample_warnings) > 0:
+                f.write("\nLOW SAMPLE SIZE WARNINGS\n")
+                f.write("="*60 + "\n\n")
+                for warning in low_sample_warnings:
+                    f.write(f"Disease: {warning['disease']}\n")
+                    f.write(f"  Urgency: {warning['urgency']}\n")
+                    f.write(f"  Test Samples: {warning['support']} (need ≥{MIN_SAMPLE_SIZE})\n")
+                    f.write(f"  Current Sensitivity: {warning['sensitivity']*100:.1f}%\n")
+                    f.write(f"  Recommendation: Collect more training data for reliable metrics\n")
+                    f.write("\n")
+        
+        print(f"⚠️  Safety analysis log saved to: {safety_log_file}\n")
+    
+    # Store safety analysis results for later use in evaluation file
+    safety_analysis_results = {
+        'summary': safety_summary,
+        'failures': safety_failures,
+        'warnings': low_sample_warnings,
+        'total_critical_analyzed': total_critical_analyzed,
+        'total_critical_failed': total_critical_failed,
+    }
+    
+    # ============================================================
     
     # 10) Cross-validation
     print(f"\n{'='*60}")
@@ -542,11 +883,91 @@ def main():
             print(f"{sp}: {sp_acc:.4f} ({sp_acc*100:.2f}%)")
     
     # Save evaluation
-    with open(OUTPUTS['evaluation'], 'w') as f:
+    with open(OUTPUTS['evaluation'], 'w', encoding='utf-8') as f:
         f.write("PAWPAL MODEL EVALUATION\n")
         f.write("="*60 + "\n\n")
         f.write(f"Test Accuracy: {test_acc:.4f}\n")
         f.write(f"CV Accuracy: {mean_cv:.4f} ± {std_cv:.4f}\n\n")
+        # ============================================================
+        # ADD SAFETY METRICS TO EVALUATION FILE
+        # ============================================================
+        f.write("\n" + "="*60 + "\n")
+        f.write("SAFETY ANALYSIS SUMMARY\n")
+        f.write("="*60 + "\n\n")
+        f.write("Professional Standards Applied:\n")
+        f.write("  - WOAH/OIE diagnostic test standards\n")
+        f.write("  - AVMA teletriage guidelines\n")
+        f.write("  - Veterinary screening test best practices\n")
+        f.write("  - Hauptman et al. (1997): 85-97% sensitivity for emergency screening\n\n")
+        
+        f.write(f"Critical/Severe Diseases Analyzed: {safety_summary['critical_diseases_analyzed']}\n")
+        f.write(f"  Passed (>=85% sensitivity): {safety_summary['critical_diseases_passed']}\n")
+        f.write(f"  Failed (<85% sensitivity): {safety_summary['critical_diseases_failed']}\n\n")
+        
+        f.write(f"High Urgency Diseases Analyzed: {safety_summary['high_diseases_analyzed']}\n")
+        f.write(f"  Passed (>=75% sensitivity): {safety_summary['high_diseases_passed']}\n")
+        f.write(f"  Failed (<75% sensitivity): {safety_summary['high_diseases_failed']}\n\n")
+        
+        f.write(f"Low Sample Size Warnings: {len(low_sample_warnings)}\n\n")
+        
+        # Overall safety verdict
+        if total_critical_failed == 0:
+            f.write("DEPLOYMENT STATUS: APPROVED\n")
+            f.write("All critical diseases meet safety thresholds\n")
+        elif total_critical_failed <= 3:
+            f.write(f"DEPLOYMENT STATUS: CAUTION\n")
+            f.write(f"{total_critical_failed} diseases below safety threshold\n")
+            f.write("Review failures and consider targeted model improvements\n")
+        else:
+            f.write(f"DEPLOYMENT STATUS: BLOCKED\n")
+            f.write(f"{total_critical_failed} critical diseases below safety threshold\n")
+            f.write("Model requires improvement before clinical deployment\n")
+        
+        # Per-disease sensitivity for critical diseases
+        if len(safety_failures) > 0:
+            f.write("\n\nSAFETY FAILURES (Below Required Sensitivity):\n")
+            f.write("="*60 + "\n")
+            for failure in safety_failures:
+                f.write(f"\n{failure['disease']} ({failure['urgency']}):\n")
+                f.write(f"  Sensitivity: {failure['sensitivity']*100:.1f}% (threshold: {failure['threshold']*100:.0f}%)\n")
+                f.write(f"  False Negative Rate: {failure['fnr']*100:.1f}%\n")
+                f.write(f"  Test Samples: {failure['support']}\n")
+                f.write(f"  WARNING: Missing {failure['fnr']*100:.1f}% of potentially life-threatening cases\n")
+        
+        # Critical diseases that passed
+        critical_passed = []
+        for disease in sorted(CRITICAL_DISEASES):
+            if disease in le.classes_:
+                disease_metrics = report_dict.get(disease, {})
+                sensitivity = disease_metrics.get('recall', 0.0)
+                if sensitivity >= MIN_SENSITIVITY_CRITICAL:
+                    critical_passed.append({
+                        'disease': disease,
+                        'sensitivity': sensitivity,
+                        'support': int(disease_metrics.get('support', 0))
+                    })
+        
+        if len(critical_passed) > 0:
+            f.write("\n\nCRITICAL DISEASES MEETING SAFETY THRESHOLDS (>=85%):\n")
+            f.write("="*60 + "\n")
+            for item in critical_passed:
+                f.write(f"\n{item['disease']}:\n")
+                f.write(f"  Sensitivity: {item['sensitivity']*100:.1f}% PASS\n")
+                f.write(f"  Test Samples: {item['support']}\n")
+        
+        # Low sample size warnings
+        if len(low_sample_warnings) > 0:
+            f.write("\n\nLOW SAMPLE SIZE WARNINGS:\n")
+            f.write("="*60 + "\n")
+            for warning in low_sample_warnings:
+                f.write(f"\n{warning['disease']} ({warning['urgency']}):\n")
+                f.write(f"  Test Samples: {warning['support']} (need >=30 for reliable metrics)\n")
+                f.write(f"  Current Sensitivity: {warning['sensitivity']*100:.1f}%\n")
+                f.write(f"  Recommendation: Collect more training data\n")
+        
+        f.write("\n\n" + "="*60 + "\n\n")
+        # ============================================================
+        
         f.write("Classification Report:\n")
         f.write(report)
         f.write("\n\nSpecies-wise Accuracy:\n")

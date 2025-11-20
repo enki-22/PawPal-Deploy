@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAssessment, onAskFollowUp }) => {
+const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAssessment, onAskFollowUp, onLogSymptoms }) => {
   const { pet_name, predictions = [], overall_recommendation, urgency_level, symptoms_text } = assessmentData;
 
   const getUrgencyColor = (urgency) => {
@@ -114,6 +114,14 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
                 </div>
               )}
 
+              {/* Low Confidence Warning */}
+              {prediction.low_confidence_warning && (
+                <div className="mb-2 p-3 bg-orange-50 border-2 border-orange-400 rounded">
+                  <p className="text-xs font-bold text-orange-800 mb-1">⚠️ IMPORTANT NOTICE:</p>
+                  <p className="text-xs text-orange-700">{prediction.low_confidence_warning}</p>
+                </div>
+              )}
+
               {/* Recommendation */}
               {prediction.recommendation && (
                 <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded">
@@ -167,19 +175,25 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
               onClick={() => onSaveToAIDiagnosis(assessmentData)}
               className="px-4 py-2 bg-[#815FB3] text-white rounded-lg text-sm font-semibold hover:bg-[#6d4c96] transition-colors"
             >
-              Save to AI Diagnosis
+              💾 Save to AI Diagnosis
+            </button>
+            <button
+              onClick={onLogSymptoms}
+              className="px-4 py-2 bg-[#3498db] text-white rounded-lg text-sm font-semibold hover:bg-[#2980b9] transition-colors"
+            >
+              📝 Log Daily Symptoms
             </button>
             <button
               onClick={onStartNewAssessment}
               className="px-4 py-2 bg-[#F4D06F] text-gray-800 rounded-lg text-sm font-semibold hover:bg-[#f0c659] transition-colors"
             >
-              Start New Assessment
+              🔄 New Assessment
             </button>
             <button
               onClick={onAskFollowUp}
               className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300 transition-colors"
             >
-              Ask Follow-up Question
+              💬 Ask Follow-up
             </button>
           </div>
         </div>
@@ -193,6 +207,7 @@ AssessmentResults.propTypes = {
   onSaveToAIDiagnosis: PropTypes.func.isRequired,
   onStartNewAssessment: PropTypes.func.isRequired,
   onAskFollowUp: PropTypes.func.isRequired,
+  onLogSymptoms: PropTypes.func.isRequired,
 };
 
 export default AssessmentResults;

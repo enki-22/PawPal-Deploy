@@ -1,0 +1,101 @@
+species,disease,symptoms,urgency,contagious,source
+Rabbit,Pneumonia,"coughing, difficulty_breathing, fever, drooling",moderate,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, fever",moderate,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, loss_of_appetite, lethargy",moderate,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, respiratory_distress, lethargy",moderate,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, labored_breathing, nasal_discharge",moderate,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, weight_loss, gas",moderate,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, weight_loss",moderate,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, loss_of_appetite, lethargy",severe,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, wheezing, loss_of_appetite",severe,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, loss_of_appetite, respiratory_distress, red_eyes",severe,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, weight_loss, drooling",severe,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, loss_of_appetite, weight_loss",severe,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, drooling, labored_breathing, weight_loss",severe,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, eye_discharge, wheezing, labored_breathing, lethargy",severe,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, gasping_at_surface, sneezing, drooling, swelling",severe,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, nasal_discharge, sneezing, respiratory_distress, gasping, wheezing",severe,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, swelling, lethargy, wheezing, gas",severe,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, red_eyes, gasping_at_surface, eye_discharge, wheezing",severe,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, loss_of_appetite, sneezing, gasping, weight_loss",severe,yes,augmented_round2_validated
+Rabbit,Pneumonia,"coughing, difficulty_breathing, drooling, labored_breathing, weight_loss, fever, gasping",severe,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, fever, nasal_discharge",moderate,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, lethargy",moderate,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, loss_of_appetite, vomiting",moderate,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, watery_eyes",moderate,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, loss_of_appetite, vomiting",moderate,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, watery_eyes",moderate,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, fever, nasal_discharge",moderate,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, weakness, lethargy, vomiting, watery_eyes",high,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, nasal_discharge, vomiting",high,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, fever, watery_eyes, nasal_discharge",high,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, loss_of_appetite, weakness, fever",high,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, watery_eyes, loss_of_appetite, lethargy",high,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, vomiting, weakness, fever",high,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, loss_of_appetite, watery_eyes",high,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, watery_eyes, vomiting, nasal_discharge, loss_of_appetite",high,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, lethargy, loss_of_appetite, fever",high,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, loss_of_appetite, vomiting, nasal_discharge, watery_eyes",high,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, watery_eyes, lethargy, loss_of_appetite",high,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, loss_of_appetite, watery_eyes, lethargy, fever, weakness",high,yes,augmented_round2_validated
+Dog,Canine Distemper,"coughing, diarrhea, vomiting, fever, nasal_discharge, loss_of_appetite",high,yes,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, swelling",moderate,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, seizures",moderate,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, seizures",moderate,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, swelling",moderate,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, loss_of_appetite",moderate,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, weakness, seizures",moderate,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, swelling, weakness",moderate,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, seizures, swelling, loss_of_appetite, weakness",high,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, seizures, loss_of_appetite, weakness",high,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, loss_of_appetite, seizures, swelling",high,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, swelling, seizures",high,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, seizures, loss_of_appetite, swelling",high,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, seizures, weakness, loss_of_appetite",high,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, seizures, swelling",high,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, weakness, seizures, swelling",high,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, seizures, loss_of_appetite, weakness, swelling",high,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, seizures, weakness, swelling, loss_of_appetite",high,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, weakness, seizures, loss_of_appetite, swelling",high,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, swelling, seizures, weakness, loss_of_appetite",high,no,augmented_round2_validated
+Turtle,Metabolic Bone Disease,"difficulty_walking, lethargy, loss_of_appetite, swelling, weakness, seizures",high,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, gasping, limping",moderate,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, limping, labored_breathing",moderate,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, lethargy, labored_breathing",moderate,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, loss_of_appetite",moderate,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, lameness",moderate,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, labored_breathing",moderate,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, gasping_at_surface",moderate,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, labored_breathing, lameness, weight_loss, gasping_at_surface",emergency,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, labored_breathing, gasping",emergency,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, weight_loss, lethargy",emergency,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, weight_loss, gasping_at_surface, limping, gasping",emergency,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, gasping_at_surface, weight_loss, loss_of_appetite, limping",emergency,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, lameness, lethargy",emergency,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, loss_of_appetite, gasping_at_surface, weight_loss, labored_breathing",emergency,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, gasping_at_surface, lethargy, lameness",emergency,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, gasping, gasping_at_surface, limping",emergency,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, labored_breathing, gasping_at_surface, limping, loss_of_appetite",emergency,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, limping, lethargy, weight_loss",emergency,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, lameness, gasping, weight_loss, gasping_at_surface",emergency,no,augmented_round2_validated
+Fish,Ammonia Poisoning,"clamped_fins, gas, labored_breathing, gasping_at_surface, lethargy, limping",emergency,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, weakness",moderate,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, lethargy, loss_of_appetite",moderate,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, lethargy",moderate,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, hiding",moderate,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, hiding",moderate,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, gasping",moderate,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, hiding, gasping_at_surface",moderate,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, loss_of_appetite, weakness, lethargy, gasping",emergency,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, gasping, hiding",emergency,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, loss_of_appetite, gasping_at_surface, lethargy, weakness",emergency,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, weakness, gasping",emergency,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, loss_of_appetite, hiding, gasping",emergency,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, loss_of_appetite, gasping",emergency,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, hiding, lethargy",emergency,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, lethargy, hiding, loss_of_appetite",emergency,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, hiding, gasping, lethargy",emergency,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, loss_of_appetite, hiding",emergency,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, hiding, gasping_at_surface, lethargy, gasping",emergency,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, loss_of_appetite, lethargy",emergency,no,augmented_round2_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping, weakness, hiding, lethargy, loss_of_appetite",emergency,no,augmented_round2_validated

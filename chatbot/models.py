@@ -154,3 +154,151 @@ class SOAPReport(models.Model):
 
     def __str__(self):
         return f"SOAP {self.case_id} - {self.pet.name}"
+
+
+class SymptomLog(models.Model):
+    """Daily symptom logging for pets"""
+    
+    SEVERITY_CHOICES = [
+        ('mild', 'Mild'),
+        ('moderate', 'Moderate'),
+        ('severe', 'Severe'),
+    ]
+    
+    PROGRESSION_CHOICES = [
+        ('worse', 'Getting Worse'),
+        ('same', 'About the Same'),
+        ('better', 'Getting Better'),
+        ('new', 'First Occurrence'),
+    ]
+    
+    RISK_LEVEL_CHOICES = [
+        ('low', 'Low'),
+        ('moderate', 'Moderate'),
+        ('high', 'High'),
+        ('critical', 'Critical'),
+    ]
+    
+    # Relationships
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='symptom_logs')
+    pet = models.ForeignKey('pets.Pet', on_delete=models.CASCADE, related_name='symptom_logs')
+    
+    # Symptom data
+    logged_date = models.DateTimeField(auto_now_add=True)
+    symptom_date = models.DateField(help_text="Actual date symptoms occurred")
+    
+    # Symptoms (stored as JSON for flexibility)
+    symptoms = models.JSONField(help_text="List of symptom names. Example: ['vomiting', 'lethargy', 'loss_of_appetite']")
+    
+    # Severity assessment
+    overall_severity = models.CharField(
+        max_length=20,
+        choices=SEVERITY_CHOICES,
+        help_text="Overall severity of symptoms"
+    )
+    
+    # Symptom-specific severity (optional)
+    symptom_details = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Symptom-specific details. Example: {'vomiting': {'count': 3, 'notes': 'After eating'}}"
+    )
+    
+    # Progression
+    compared_to_yesterday = models.CharField(
+        max_length=20,
+        choices=PROGRESSION_CHOICES,
+        blank=True,
+        null=True,
+        help_text="How symptoms compare to previous day"
+    )
+    
+    # Additional notes
+    notes = models.TextField(blank=True, help_text="Additional observations or context")
+    
+    # Risk assessment (calculated)
+    risk_score = models.IntegerField(
+        default=0,
+        help_text="Calculated risk score (0-100)"
+    )
+    risk_level = models.CharField(
+        max_length=20,
+        choices=RISK_LEVEL_CHOICES,
+        blank=True,
+        help_text="Calculated risk level based on score"
+    )
+    
+    class Meta:
+        ordering = ['-symptom_date', '-logged_date']
+        indexes = [
+            models.Index(fields=['pet', '-symptom_date']),
+            models.Index(fields=['user', '-logged_date']),
+        ]
+        verbose_name = 'Symptom Log'
+        verbose_name_plural = 'Symptom Logs'
+    
+    def __str__(self):
+        return f"{self.pet.name} - {self.symptom_date} - {self.overall_severity}"
+
+
+class SymptomAlert(models.Model):
+    """Alerts for concerning symptom patterns"""
+    
+    ALERT_TYPE_CHOICES = [
+        ('rapid_deterioration', 'Rapid Deterioration'),
+        ('new_critical_symptom', 'New Critical Symptom'),
+        ('prolonged_symptoms', 'Prolonged Symptoms'),
+        ('risk_escalation', 'Risk Level Increased'),
+    ]
+    
+    # Relationships
+    symptom_log = models.ForeignKey(
+        SymptomLog,
+        on_delete=models.CASCADE,
+        related_name='alerts',
+        help_text="The symptom log that triggered this alert"
+    )
+    pet = models.ForeignKey(
+        'pets.Pet',
+        on_delete=models.CASCADE,
+        related_name='symptom_alerts'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='symptom_alerts'
+    )
+    
+    # Alert details
+    alert_type = models.CharField(
+        max_length=50,
+        choices=ALERT_TYPE_CHOICES,
+        help_text="Type of alert triggered"
+    )
+    alert_message = models.TextField(help_text="Detailed alert message for the user")
+    
+    # Tracking
+    created_at = models.DateTimeField(auto_now_add=True)
+    acknowledged = models.BooleanField(
+        default=False,
+        help_text="Whether the user has acknowledged this alert"
+    )
+    acknowledged_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the alert was acknowledged"
+    )
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Symptom Alert'
+        verbose_name_plural = 'Symptom Alerts'
+    
+    def __str__(self):
+        return f"{self.pet.name} - {self.alert_type} - {self.created_at.strftime('%Y-%m-%d')}"
+    
+    def acknowledge(self):
+        """Mark alert as acknowledged"""
+        self.acknowledged = True
+        self.acknowledged_at = timezone.now()
+        self.save()

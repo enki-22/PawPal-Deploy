@@ -1,161 +1,918 @@
 PAWPAL MODEL EVALUATION
 ============================================================
 
-Test Accuracy: 0.9569
-CV Accuracy: 0.9547 ± 0.0044
+Test Accuracy: 0.9763
+CV Accuracy: 0.9787 Â± 0.0025
+
+
+============================================================
+SAFETY ANALYSIS SUMMARY
+============================================================
+
+Professional Standards Applied:
+  - WOAH/OIE diagnostic test standards
+  - AVMA teletriage guidelines
+  - Veterinary screening test best practices
+  - Hauptman et al. (1997): 85-97% sensitivity for emergency screening
+
+Critical/Severe Diseases Analyzed: 46
+  Passed (>=85% sensitivity): 45
+  Failed (<85% sensitivity): 1
+
+High Urgency Diseases Analyzed: 43
+  Passed (>=75% sensitivity): 40
+  Failed (<75% sensitivity): 3
+
+Low Sample Size Warnings: 89
+
+DEPLOYMENT STATUS: BLOCKED
+4 critical diseases below safety threshold
+Model requires improvement before clinical deployment
+
+
+SAFETY FAILURES (Below Required Sensitivity):
+============================================================
+
+Ph Shock (critical):
+  Sensitivity: 50.0% (threshold: 85%)
+  False Negative Rate: 50.0%
+  Test Samples: 6
+  WARNING: Missing 50.0% of potentially life-threatening cases
+
+Columnaris (high):
+  Sensitivity: 66.7% (threshold: 75%)
+  False Negative Rate: 33.3%
+  Test Samples: 6
+  WARNING: Missing 33.3% of potentially life-threatening cases
+
+Hepatic Coccidiosis (Liver Coccidiosis) (high):
+  Sensitivity: 66.7% (threshold: 75%)
+  False Negative Rate: 33.3%
+  Test Samples: 6
+  WARNING: Missing 33.3% of potentially life-threatening cases
+
+Metabolic Bone Disease (high):
+  Sensitivity: 60.0% (threshold: 75%)
+  False Negative Rate: 40.0%
+  Test Samples: 10
+  WARNING: Missing 40.0% of potentially life-threatening cases
+
+
+CRITICAL DISEASES MEETING SAFETY THRESHOLDS (>=85%):
+============================================================
+
+Ammonia Poisoning:
+  Sensitivity: 90.0% PASS
+  Test Samples: 10
+
+Asthma:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Avian Influenza:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Bladder Stones:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Bloat/Gastric Dilation:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Breathing Difficulties:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Broken Bones:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Calcium Deficiency:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Canine Parvovirus:
+  Sensitivity: 100.0% PASS
+  Test Samples: 16
+
+Cloacal Prolapse:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Coccidiosis:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Cold Water Shock:
+  Sensitivity: 87.5% PASS
+  Test Samples: 16
+
+Cystitis:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Dropsy:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Dystocia:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Egg Binding:
+  Sensitivity: 91.7% PASS
+  Test Samples: 12
+
+Egg Retention:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Enteritis:
+  Sensitivity: 100.0% PASS
+  Test Samples: 12
+
+Feline Immunodeficiency Virus:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Feline Infectious Peritonitis:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Feline Leukemia Virus:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Feline Panleukopenia Virus:
+  Sensitivity: 100.0% PASS
+  Test Samples: 22
+
+Flystrike:
+  Sensitivity: 90.0% PASS
+  Test Samples: 10
+
+Flystrike (Myiasis):
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Fractures:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Gastrointestinal Stasis:
+  Sensitivity: 100.0% PASS
+  Test Samples: 16
+
+Heat Shock:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Heat Stress:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Heatstroke:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Heavy Metal Poisoning:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Koi Herpes Virus:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Mast Cell Tumor:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Myxomatosis:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Newcastle Disease:
+  Sensitivity: 100.0% PASS
+  Test Samples: 12
+
+Pneumonia:
+  Sensitivity: 100.0% PASS
+  Test Samples: 10
+
+Protrusion Of The Eyeball:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Pyometra:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Rabbit Hemorrhagic Disease Virus:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Rabies:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Septicemia:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Squamous Cell Carcinoma:
+  Sensitivity: 100.0% PASS
+  Test Samples: 12
+
+Urethral Obstruction:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Urinary Blockage:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Vent Prolapse:
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+Wet Tail (Proliferative Ileitis):
+  Sensitivity: 100.0% PASS
+  Test Samples: 6
+
+
+LOW SAMPLE SIZE WARNINGS:
+============================================================
+
+Ammonia Poisoning (critical):
+  Test Samples: 10 (need >=30 for reliable metrics)
+  Current Sensitivity: 90.0%
+  Recommendation: Collect more training data
+
+Asthma (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Avian Influenza (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Bladder Stones (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Bloat/Gastric Dilation (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Breathing Difficulties (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Broken Bones (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Calcium Deficiency (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Canine Parvovirus (critical):
+  Test Samples: 16 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Cloacal Prolapse (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Coccidiosis (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Cold Water Shock (critical):
+  Test Samples: 16 (need >=30 for reliable metrics)
+  Current Sensitivity: 87.5%
+  Recommendation: Collect more training data
+
+Cystitis (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Dropsy (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Dystocia (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Egg Binding (critical):
+  Test Samples: 12 (need >=30 for reliable metrics)
+  Current Sensitivity: 91.7%
+  Recommendation: Collect more training data
+
+Egg Retention (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Enteritis (critical):
+  Test Samples: 12 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Feline Immunodeficiency Virus (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Feline Infectious Peritonitis (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Feline Leukemia Virus (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Feline Panleukopenia Virus (critical):
+  Test Samples: 22 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Flystrike (critical):
+  Test Samples: 10 (need >=30 for reliable metrics)
+  Current Sensitivity: 90.0%
+  Recommendation: Collect more training data
+
+Flystrike (Myiasis) (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Fractures (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Gastrointestinal Stasis (critical):
+  Test Samples: 16 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Heat Shock (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Heat Stress (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Heatstroke (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Heavy Metal Poisoning (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Koi Herpes Virus (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Mast Cell Tumor (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Myxomatosis (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Newcastle Disease (critical):
+  Test Samples: 12 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Ph Shock (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 50.0%
+  Recommendation: Collect more training data
+
+Pneumonia (critical):
+  Test Samples: 10 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Protrusion Of The Eyeball (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Pyometra (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Rabbit Hemorrhagic Disease Virus (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Rabies (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Septicemia (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Squamous Cell Carcinoma (critical):
+  Test Samples: 12 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Urethral Obstruction (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Urinary Blockage (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Vent Prolapse (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Wet Tail (Proliferative Ileitis) (critical):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+(Hemorrhagic Septicemia / Ulcerative Syndromes) (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Abscesses (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Addisonâ€™S Disease (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 83.3%
+  Recommendation: Collect more training data
+
+Anaplasmosis (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Anchor Worms (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Aspergillosis (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Avian Polyomavirus (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Babesiosis (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Campylobacteriosis (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Canine Distemper (high):
+  Test Samples: 16 (need >=30 for reliable metrics)
+  Current Sensitivity: 93.8%
+  Recommendation: Collect more training data
+
+Chronic Egg Laying (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Chronic Kidney Disease (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Columnaris (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 66.7%
+  Recommendation: Collect more training data
+
+Cotton Wool Disease (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Dental Disease (Malocclusion) (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+E. Cuniculi (Encephalitozoon) (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Encephalitozoonosis (Encephalitozoon Cuniculi) (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Feline Lower Urinary Tract Disease (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Fish Tuberculosis (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Gastroenteritis (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 83.3%
+  Recommendation: Collect more training data
+
+Gram-Positive Bacterial Infections (Streptococcus, Lactococcus, Enterococcus, Vagococcus) (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Heartworm Disease (high):
+  Test Samples: 12 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Hepatic Coccidiosis (Liver Coccidiosis) (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 66.7%
+  Recommendation: Collect more training data
+
+Hypovitaminosis D (Vitamin D3 Deficiency) (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Ich (White Spot Disease) (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Infectious Canine Hepatitis (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 83.3%
+  Recommendation: Collect more training data
+
+Intestinal Coccidiosis (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Kidney Stones (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Liver Disease (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Malocclusion (Dental Overgrowth) (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Metabolic Bone Disease (high):
+  Test Samples: 10 (need >=30 for reliable metrics)
+  Current Sensitivity: 60.0%
+  Recommendation: Collect more training data
+
+Nitrate Poisoning (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Overgrown Incisors (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Psittacosis (Chlamydiosis) (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Respiratory Infections (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Sarcoptic Mange (Sarcoptes Scabiei Or Notoedres Cati) (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Shell Injuries/Trauma (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Soft Shell Disease (Metabolic Bone Disease) (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Tick Fever (Ehrlichiosis) (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Toxoplasmosis (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Uterine Cancer (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+Velvet Disease (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+[Leptospirosis] (high):
+  Test Samples: 6 (need >=30 for reliable metrics)
+  Current Sensitivity: 100.0%
+  Recommendation: Collect more training data
+
+
+============================================================
 
 Classification Report:
                                                                                            precision    recall  f1-score   support
 
                                           (Hemorrhagic Septicemia / Ulcerative Syndromes)       1.00      1.00      1.00         6
-                                                                                 ACL Tear       1.00      1.00      1.00         6
-                                                                                Abscesses       1.00      1.00      1.00         9
+                                                                                Abscesses       1.00      1.00      1.00         6
+                                                                                 Acl Tear       1.00      0.83      0.91         6
                                                                                      Acne       1.00      1.00      1.00         6
-                                                                        Addison’s Disease       1.00      0.83      0.91         6
-                                                                Air sac mites / gapeworms       1.00      1.00      1.00         8
-                                                                        Ammonia Poisoning       1.00      1.00      1.00         6
+                                                                        Addisonâ€™S Disease       1.00      0.83      0.91         6
+                                                                Air Sac Mites / Gapeworms       1.00      1.00      1.00         6
+                                                                        Ammonia Poisoning       1.00      0.90      0.95        10
                                                                              Anaplasmosis       1.00      1.00      1.00         6
                                                                              Anchor Worms       1.00      1.00      1.00         6
-                                                                                Arthritis       1.00      0.89      0.94         9
-                                                                            Aspergillosis       0.93      0.93      0.93        15
+                                                                                Arthritis       1.00      1.00      1.00         6
+                                                                            Aspergillosis       1.00      1.00      1.00         6
                                                                                    Asthma       1.00      1.00      1.00         6
-                                                                      Avian Gastric Yeast       1.00      0.89      0.94         9
-                                                                          Avian Influenza       1.00      1.00      1.00         9
+                                                                      Avian Gastric Yeast       1.00      1.00      1.00         6
+                                                                          Avian Influenza       1.00      1.00      1.00         6
                                                                        Avian Polyomavirus       1.00      1.00      1.00         6
-                                                                                Avian Pox       1.00      1.00      1.00        12
-                                                                               Babesiosis       1.00      0.67      0.80         6
-                                                                           Bladder Sludge       1.00      1.00      1.00         6
+                                                                                Avian Pox       1.00      0.50      0.67         6
+                                                                               Babesiosis       1.00      1.00      1.00         6
+                                                                           Bladder Sludge       0.86      1.00      0.92         6
                                                                            Bladder Stones       1.00      1.00      1.00         6
                                                                    Bloat/Gastric Dilation       1.00      1.00      1.00         6
-                                                                   Breathing difficulties       0.89      0.89      0.89         9
-                                                                             Broken bones       0.88      0.78      0.82         9
-                                                                               Bumblefoot       1.00      0.93      0.96        14
-                                                                       Calcium Deficiency       1.00      1.00      1.00         6
+                                                                   Breathing Difficulties       1.00      1.00      1.00         6
+                                                                             Broken Bones       0.86      1.00      0.92         6
+                                                                               Bumblefoot       1.00      1.00      1.00         6
+                                                                       Calcium Deficiency       0.67      1.00      0.80         6
                                                                        Campylobacteriosis       1.00      1.00      1.00         6
-                                                                              Candidiasis       0.90      1.00      0.95         9
-                                                                     Candidiasis (Thrush)       0.92      1.00      0.96        12
-                                                                         Canine Distemper       0.80      1.00      0.89        12
-                                                               Canine Enteric Coronavirus       1.00      1.00      1.00         6
-                                                                        Canine Parvovirus       1.00      1.00      1.00        12
-                                                                         Canine distemper       0.80      1.00      0.89         8
-                                                                         Canine influenza       1.00      1.00      1.00         7
-                                                                        Canine parvovirus       1.00      1.00      1.00         7
-                                                           Canine respiratory coronavirus       1.00      1.00      1.00         6
-                                                                                 Cat Acne       0.90      1.00      0.95         9
-                                                                                 Cataract       1.00      1.00      1.00         8
-                                                                                Cataracts       1.00      1.00      1.00         9
-                                                                    Cheek Pouch Impaction       1.00      1.00      1.00        12
+                                                                              Candidiasis       1.00      1.00      1.00         6
+                                                                     Candidiasis (Thrush)       1.00      1.00      1.00         6
+                                                                         Canine Distemper       1.00      0.94      0.97        16
+                                                               Canine Enteric Coronavirus       1.00      0.67      0.80         6
+                                                                         Canine Influenza       1.00      1.00      1.00         6
+                                                                        Canine Parvovirus       0.89      1.00      0.94        16
+                                                           Canine Respiratory Coronavirus       1.00      1.00      1.00         6
+                                                                                 Cat Acne       1.00      1.00      1.00         6
+                                                                                 Cataract       1.00      1.00      1.00         6
+                                                                                Cataracts       1.00      1.00      1.00         6
+                                                                    Cheek Pouch Impaction       1.00      1.00      1.00         6
                                                                        Chronic Egg Laying       1.00      1.00      1.00         6
-                                                                   Chronic Kidney Disease       0.78      0.78      0.78         9
-                                                                         Cloacal prolapse       0.75      1.00      0.86         9
+                                                                   Chronic Kidney Disease       1.00      1.00      1.00         6
+                                                                         Cloacal Prolapse       1.00      1.00      1.00         6
                                                                               Coccidiosis       1.00      1.00      1.00         6
-                                                                         Cold Water Shock       1.00      1.00      1.00         6
-                                                                               Columnaris       1.00      1.00      1.00        12
-                                                                           Conjunctivitis       1.00      0.95      0.97        20
+                                                                         Cold Water Shock       0.82      0.88      0.85        16
+                                                                               Columnaris       1.00      0.67      0.80         6
+                                                                           Conjunctivitis       1.00      1.00      1.00         6
                                                                        Contact Dermatitis       1.00      1.00      1.00         6
-                                                                       Corneal ulceration       0.69      1.00      0.82         9
-                                                                      Cotton wool disease       1.00      1.00      1.00         6
-                                                                        Cushing’s Disease       1.00      0.83      0.91         6
+                                                                       Corneal Ulceration       1.00      1.00      1.00         6
+                                                                      Cotton Wool Disease       0.86      1.00      0.92         6
+                                                                        Cushingâ€™S Disease       1.00      1.00      1.00         6
                                                                                  Cystitis       1.00      1.00      1.00         6
                                                                          Demodectic Mange       1.00      1.00      1.00         6
-                                                                           Dental Disease       1.00      1.00      1.00        12
-                                                            Dental Disease (Malocclusion)       1.00      1.00      1.00        12
-                                                                                 Diabetes       0.90      0.82      0.86        11
+                                                                           Dental Disease       1.00      1.00      1.00         6
+                                                            Dental Disease (Malocclusion)       1.00      1.00      1.00         6
+                                                                                 Diabetes       1.00      1.00      1.00         6
                                                                         Diabetes Mellitus       1.00      1.00      1.00         6
-                                                                                 Diarrhea       0.82      0.82      0.82        11
-                                                                                   Dropsy       0.92      0.92      0.92        12
-                                                                     Drowning/Hypothermia       1.00      1.00      1.00         6
-                                                                                 Dystocia       1.00      1.00      1.00         9
-                                                            E. cuniculi (Encephalitozoon)       1.00      1.00      1.00        12
-                                                                  Ear Infections (Otitis)       0.92      1.00      0.96        12
-                                                Ear Mite Infestation (Psoroptes cuniculi)       1.00      1.00      1.00         6
-                                                                                Ear Mites       1.00      1.00      1.00        18
-                                                                           Ear infections       0.92      1.00      0.96        11
-                                                                                Ear mites       0.80      0.89      0.84         9
-                                                                              Egg Binding       1.00      1.00      1.00        12
-                                                                            Egg Retention       1.00      1.00      1.00         9
-                                                                              Egg binding       0.89      0.89      0.89         9
-                                           Encephalitozoonosis (Encephalitozoon cuniculi)       1.00      1.00      1.00         6
-                                                                                Enteritis       1.00      0.83      0.91         6
+                                                                                   Dropsy       1.00      1.00      1.00         6
+                                                                     Drowning/Hypothermia       0.75      1.00      0.86         6
+                                                                                 Dystocia       1.00      1.00      1.00         6
+                                                            E. Cuniculi (Encephalitozoon)       1.00      1.00      1.00         6
+                                                                           Ear Infections       1.00      1.00      1.00         6
+                                                                  Ear Infections (Otitis)       1.00      1.00      1.00         6
+                                                Ear Mite Infestation (Psoroptes Cuniculi)       1.00      1.00      1.00         6
+                                                                                Ear Mites       1.00      1.00      1.00        12
+                                                                              Egg Binding       1.00      0.92      0.96        12
+                                                                            Egg Retention       1.00      1.00      1.00         6
+                                           Encephalitozoonosis (Encephalitozoon Cuniculi)       1.00      1.00      1.00         6
+                                                                                Enteritis       1.00      1.00      1.00        12
                                      External Parasites (Mites, Ticks, Leeches, Botflies)       1.00      1.00      1.00         6
-                                                                           Eye Infections       1.00      1.00      1.00        10
-                                                           Eye abscesses / conjunctivitis       1.00      1.00      1.00         9
-                                                                         Feather Plucking       1.00      1.00      1.00        12
-                                                                            Feather cysts       1.00      1.00      1.00         8
-                                                                       Feline Calicivirus       1.00      1.00      1.00        12
-                                                               Feline Herpesvirus (FHV-1)       1.00      0.67      0.80         6
-                                                            Feline Immunodeficiency Virus       0.88      0.78      0.82         9
-                                                            Feline Infectious Peritonitis       0.80      0.89      0.84         9
-                                                                    Feline Leukemia Virus       0.89      0.89      0.89         9
-                                                       Feline Lower Urinary Tract Disease       0.93      0.93      0.93        14
-                                                                     Feline Panleukopenia       0.83      0.83      0.83        12
-                                                               Feline Panleukopenia Virus       0.67      0.67      0.67         9
-                                                                                  Fin Rot       0.88      1.00      0.94        15
-                                                                      Fish Lice and Leech       1.00      1.00      1.00         6
+                                                           Eye Abscesses / Conjunctivitis       1.00      1.00      1.00         6
+                                                                           Eye Infections       1.00      1.00      1.00         6
+                                                                            Feather Cysts       1.00      1.00      1.00         6
+                                                                         Feather Plucking       1.00      1.00      1.00         6
+                                                                       Feline Calicivirus       1.00      1.00      1.00         6
+                                                               Feline Herpesvirus (Fhv-1)       1.00      1.00      1.00         6
+                                                            Feline Immunodeficiency Virus       1.00      1.00      1.00         6
+                                                            Feline Infectious Peritonitis       1.00      1.00      1.00         6
+                                                                    Feline Leukemia Virus       1.00      1.00      1.00         6
+                                                       Feline Lower Urinary Tract Disease       1.00      1.00      1.00         6
+                                                               Feline Panleukopenia Virus       1.00      1.00      1.00        22
+                                                                                  Fin Rot       1.00      1.00      1.00         6
+                                                                      Fish Lice And Leech       1.00      0.83      0.91         6
                                                                         Fish Tuberculosis       1.00      1.00      1.00         6
                                                                   Flea Allergy Dermatitis       1.00      1.00      1.00         6
-                                                                                    Fleas       0.92      0.86      0.89        14
-                                                                                Flystrike       1.00      0.89      0.94         9
-                                                                      Flystrike (Myiasis)       1.00      1.00      1.00        12
+                                                                                    Fleas       1.00      1.00      1.00         6
+                                                                                Flystrike       1.00      0.90      0.95        10
+                                                                      Flystrike (Myiasis)       1.00      1.00      1.00         6
                                                                            Food Allergies       1.00      1.00      1.00         6
-                                                                                Fractures       1.00      0.67      0.80         9
-                                                                                   Fungus       1.00      0.89      0.94         9
-                                        Fur Mite Infestation (Cheyletiella parasitovorax)       1.00      1.00      1.00         6
-                                                                                Fur Mites       1.00      1.00      1.00        12
-                                                                          Gastroenteritis       1.00      1.00      1.00        12
-                                                                  Gastrointestinal Stasis       0.92      1.00      0.96        12
-                                                                  Gastrointestinal stasis       1.00      0.89      0.94         9
+                                                                                Fractures       1.00      1.00      1.00         6
+                                                                                   Fungus       0.75      1.00      0.86         6
+                                        Fur Mite Infestation (Cheyletiella Parasitovorax)       1.00      1.00      1.00         6
+                                                                                Fur Mites       1.00      1.00      1.00         6
+                                                                          Gastroenteritis       1.00      0.83      0.91         6
+                                                                  Gastrointestinal Stasis       1.00      1.00      1.00        16
                                                                                    Giarda       1.00      1.00      1.00         6
                                                                                   Giardia       1.00      1.00      1.00         6
-                                                                               Giardiasis       1.00      0.89      0.94         9
-                                                                               Gingivitis       1.00      0.89      0.94         9
-                                                                                     Gout       0.82      1.00      0.90         9
-Gram-positive Bacterial Infections (Streptococcus, Lactococcus, Enterococcus, Vagococcus)       1.00      1.00      1.00         6
+                                                                               Giardiasis       1.00      1.00      1.00         6
+                                                                               Gingivitis       1.00      0.67      0.80         6
+                                                                                     Gout       1.00      1.00      1.00         6
+Gram-Positive Bacterial Infections (Streptococcus, Lactococcus, Enterococcus, Vagococcus)       1.00      1.00      1.00         6
                                                                      Hair Loss (Alopecia)       1.00      1.00      1.00         6
-                                                                     Hair loss / alopecia       0.82      1.00      0.90         9
-                                                                                Hairballs       1.00      0.78      0.88         9
-                                                                        Heartworm Disease       1.00      1.00      1.00         6
-                                                                               Heartworms       1.00      1.00      1.00         9
-                                                                               Heat Shock       1.00      0.83      0.91         6
+                                                                     Hair Loss / Alopecia       1.00      1.00      1.00         6
+                                                                                Hairballs       1.00      1.00      1.00         6
+                                                                        Heartworm Disease       1.00      1.00      1.00        12
+                                                                               Heat Shock       1.00      1.00      1.00         6
                                                                               Heat Stress       1.00      1.00      1.00         6
+                                                                               Heatstroke       1.00      1.00      1.00         6
+                                                                    Heavy Metal Poisoning       0.60      1.00      0.75         6
+                                                  Hepatic Coccidiosis (Liver Coccidiosis)       1.00      0.67      0.80         6
+                                                                                Hookworms       0.86      1.00      0.92         6
+                                                                                Hot Spots       0.86      1.00      0.92         6
+                                                                               Hutch Burn       1.00      1.00      1.00         6
+                                                                          Hyperthyroidism       1.00      1.00      1.00         6
+                                                                           Hypothyroidism       1.00      1.00      1.00         6
+                                                Hypovitaminosis D (Vitamin D3 Deficiency)       1.00      1.00      1.00         6
+                                                                                      Ich       1.00      1.00      1.00         6
                                                                  Ich (White Spot Disease)       1.00      1.00      1.00         6
-                                                                     Intestinal Parasites       1.00      1.00      1.00         9
+                                                              Infectious Canine Hepatitis       1.00      0.83      0.91         6
+                                                                    Infectious Stomatitis       1.00      1.00      1.00         6
+                                                               Inflammatory Bowel Disease       1.00      1.00      1.00         6
+                                     Internal Parasites (Roundworms, Tapeworms, Protozoa)       1.00      1.00      1.00         6
+                                                                   Intestinal Coccidiosis       1.00      1.00      1.00         6
+                                                                     Intestinal Parasites       1.00      1.00      1.00         6
                                                              Intestinal Parasites (Worms)       1.00      1.00      1.00         6
-                                                                             Kennel Cough       1.00      1.00      1.00         6
+                                                                 Iodine Deficiency/Goiter       1.00      1.00      1.00         6
+                                                                             Kennel Cough       1.00      1.00      1.00        12
+                                                                            Kidney Stones       1.00      1.00      1.00         6
+                                                                         Koi Herpes Virus       1.00      1.00      1.00         6
+                                                                                  Lernaea       1.00      1.00      1.00         6
+                                                                            Lice And Mite       1.00      1.00      1.00         6
+                                                                            Liver Disease       1.00      1.00      1.00         6
+                                                                             Lyme Disease       1.00      1.00      1.00         6
+                                                         Malocclusion (Dental Overgrowth)       1.00      1.00      1.00         6
+                                                                                    Mange       1.00      1.00      1.00         6
                                                                           Mange (Scabies)       1.00      1.00      1.00         6
-                                                                   Metabolic Bone Disease       1.00      1.00      1.00         6
+                                                                          Mast Cell Tumor       1.00      1.00      1.00         6
+                                                                   Metabolic Bone Disease       1.00      0.60      0.75        10
                                                                                     Mites       1.00      1.00      1.00         6
-                                                                 Nutritional Deficiencies       1.00      0.80      0.89         5
-                                                                                  Obesity       0.67      0.80      0.73         5
-                                                                Pasteurellosis (Snuffles)       1.00      1.00      1.00         6
-                                                                                Pneumonia       1.00      1.00      1.00         8
+                                                         Mycoplasma Respiratory Infection       1.00      1.00      1.00         6
+                                                                              Myxomatosis       0.86      1.00      0.92         6
+                                                                        Newcastle Disease       1.00      1.00      1.00        12
+                                                                        Nitrate Poisoning       0.86      1.00      0.92         6
+                                                                 Nutritional Deficiencies       1.00      1.00      1.00         6
+                                                                                  Obesity       1.00      1.00      1.00         6
+                                                                           Osteoarthritis       1.00      0.83      0.91         6
+                                                                     Otitis Media/Interna       1.00      1.00      1.00         6
+                                                                       Overgrown Incisors       0.86      1.00      0.92         6
+                                                                          Overgrown Teeth       0.83      0.83      0.83         6
+                                                                        Pachecoâ€™S Disease       1.00      1.00      1.00         6
+                                                                             Pancreatitis       1.00      1.00      1.00         6
+                                                                Pasteurellosis (Snuffles)       0.86      1.00      0.92         6
+                                                                        Patellar Luxation       0.86      1.00      0.92         6
+                                                                      Periodontal Disease       1.00      1.00      1.00         6
+                                                                                 Ph Shock       0.50      0.50      0.50         6
+                                                                        Pinworm Infection       1.00      1.00      1.00         6
+                                                Pinworm Infestation (Passalurus Ambiguus)       1.00      1.00      1.00         6
+                                                                                Pneumonia       1.00      1.00      1.00        10
+                                                                    Popeye / Exophthalmia       1.00      1.00      1.00         6
+                                                                      Protozoal Infection       1.00      1.00      1.00         6
+                                                                Protrusion Of The Eyeball       1.00      1.00      1.00         6
                                                                Psittacosis (Chlamydiosis)       1.00      1.00      1.00         6
-                                                                                   Rabies       1.00      1.00      1.00         9
-                                                                   Respiratory Infections       1.00      1.00      1.00        18
-                                                                                 Ringworm       1.00      1.00      1.00        11
+                                                                                 Pyoderma       1.00      1.00      1.00         6
+                                                                                 Pyometra       1.00      1.00      1.00         6
+                                                         Rabbit Hemorrhagic Disease Virus       1.00      1.00      1.00         6
+                                                                                   Rabies       1.00      1.00      1.00         6
+                                                                   Respiratory Infections       1.00      1.00      1.00         6
+                                                                                 Rhinitis       1.00      1.00      1.00         6
+                                                                   Rickettsial Infections       1.00      1.00      1.00         6
+                                                                                 Ringworm       1.00      1.00      1.00         6
+                                                                               Roundworms       1.00      1.00      1.00         6
+                                                                    Roundworms (Ascarids)       1.00      1.00      1.00         6
+                                    Sarcoptic Mange (Sarcoptes Scabiei Or Notoedres Cati)       1.00      1.00      1.00         6
+                                                              Scale Rot / Blister Disease       1.00      1.00      1.00         6
+                                                 Scaly Face / Tassel Foot / Feather Mites       1.00      1.00      1.00         6
+                                                                               Septicemia       1.00      1.00      1.00         6
+                                                                    Shell Injuries/Trauma       1.00      1.00      1.00         6
                                                                                 Shell Rot       1.00      1.00      1.00         6
                                                                            Skin Allergies       1.00      1.00      1.00         6
-                                                       Skin Allergies (Atopic Dermatitis)       1.00      1.00      1.00         6
+                                                       Skin Allergies (Atopic Dermatitis)       1.00      0.83      0.91         6
+                                                                       Skin And Fur Mites       1.00      1.00      1.00         6
+                                                                     Skin And Gill Flukes       1.00      1.00      1.00         6
                                                                                Skin Mites       1.00      1.00      1.00         6
-                                                                               Sore Hocks       1.00      0.83      0.91         6
-                                                                     Swim Bladder Disease       1.00      1.00      1.00         9
+                                                                           Skin Parasites       1.00      1.00      1.00         6
+                                                                                 Snuffles       1.00      1.00      1.00         6
+                                              Soft Shell Disease (Metabolic Bone Disease)       1.00      1.00      1.00         6
+                                                                               Sore Hocks       1.00      1.00      1.00         6
+                                                                  Squamous Cell Carcinoma       0.92      1.00      0.96        12
+                                                                               Stomatitis       1.00      1.00      1.00         6
+                                                                     Swim Bladder Disease       1.00      1.00      1.00         6
+                                                                       Tapeworm Infection       1.00      1.00      1.00         6
+                                                                                Tapeworms       1.00      1.00      1.00         6
                                                                 Tick Fever (Ehrlichiosis)       1.00      1.00      1.00         6
+                                                                                    Ticks       1.00      1.00      1.00         6
+                                                                     Tooth Root Abscesses       1.00      1.00      1.00         6
+                                                                            Toxoplasmosis       1.00      1.00      1.00         6
+                                                                           Trichomoniasis       1.00      1.00      1.00         6
                                                                                    Tumors       1.00      1.00      1.00         6
-                                                              Upper Respiratory Infection       0.90      1.00      0.95         9
+                                                              Upper Respiratory Infection       1.00      1.00      1.00         6
+                                                                     Urethral Obstruction       1.00      1.00      1.00         6
+                                                                         Urinary Blockage       1.00      1.00      1.00         6
+                                                                  Urinary Tract Infection       1.00      1.00      1.00         6
                                                                            Uterine Cancer       1.00      1.00      1.00         6
+                                                                           Velvet Disease       1.00      1.00      1.00         6
+                                                                            Vent Prolapse       1.00      1.00      1.00         6
                                                                      Vitamin A Deficiency       1.00      1.00      1.00         6
+                                                                     Vitamin C Deficiency       1.00      1.00      1.00         6
                                                          Wet Tail (Proliferative Ileitis)       1.00      1.00      1.00         6
+                                                                                Whipworms       0.86      1.00      0.92         6
+                                                                          [Leptospirosis]       1.00      1.00      1.00         6
 
-                                                                                 accuracy                           0.96      1161
-                                                                                macro avg       0.97      0.96      0.96      1161
-                                                                             weighted avg       0.96      0.96      0.96      1161
+                                                                                 accuracy                           0.98      1350
+                                                                                macro avg       0.98      0.98      0.98      1350
+                                                                             weighted avg       0.98      0.98      0.98      1350
 
 
 Species-wise Accuracy:
-  Turtle: 1.0000
-  Cat: 0.9144
-  Fish: 0.9762
-  Dog: 0.9703
-  Rabbit: 0.9510
-  Bird: 0.9583
-  Hamster: 0.9740
+  Dog: 0.9716
+  Rabbit: 0.9835
+  Cat: 0.9885
+  Fish: 0.9471
+  Turtle: 0.9649
+  Hamster: 1.0000
+  Bird: 0.9800

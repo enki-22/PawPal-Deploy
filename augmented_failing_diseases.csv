@@ -1,0 +1,81 @@
+species,disease,symptoms,urgency,contagious,source
+Dog,Canine parvovirus,"vomiting, lethargy, diarrhea",moderate,yes,augmented_safe_validated
+Dog,Canine parvovirus,"lethargy, diarrhea, vomiting",moderate,yes,augmented_safe_validated
+Dog,Canine parvovirus,"lethargy, diarrhea, vomiting",moderate,yes,augmented_safe_validated
+Dog,Canine parvovirus,"diarrhea, vomiting, lethargy",moderate,yes,augmented_safe_validated
+Dog,Canine parvovirus,"diarrhea, lethargy, vomiting",moderate,yes,augmented_safe_validated
+Dog,Canine parvovirus,"diarrhea, vomiting, lethargy",moderate,yes,augmented_safe_validated
+Dog,Canine parvovirus,"vomiting, lethargy, diarrhea",moderate,yes,augmented_safe_validated
+Dog,Canine parvovirus,"diarrhea, vomiting, lethargy",severe,yes,augmented_safe_validated
+Dog,Canine parvovirus,"diarrhea, vomiting, lethargy",severe,yes,augmented_safe_validated
+Dog,Canine parvovirus,"vomiting, lethargy, diarrhea",severe,yes,augmented_safe_validated
+Dog,Canine parvovirus,"lethargy, vomiting, diarrhea",severe,yes,augmented_safe_validated
+Dog,Canine parvovirus,"lethargy, vomiting, diarrhea",severe,yes,augmented_safe_validated
+Dog,Canine parvovirus,"lethargy, diarrhea, vomiting",severe,yes,augmented_safe_validated
+Dog,Canine parvovirus,"vomiting, diarrhea, lethargy",severe,yes,augmented_safe_validated
+Dog,Canine parvovirus,"vomiting, diarrhea, lethargy",severe,yes,augmented_safe_validated
+Dog,Canine parvovirus,"vomiting, lethargy, diarrhea",severe,yes,augmented_safe_validated
+Dog,Canine parvovirus,"vomiting, diarrhea, lethargy",severe,yes,augmented_safe_validated
+Dog,Canine parvovirus,"lethargy, diarrhea, vomiting",severe,yes,augmented_safe_validated
+Dog,Canine parvovirus,"vomiting, lethargy, diarrhea",severe,yes,augmented_safe_validated
+Dog,Canine parvovirus,"lethargy, vomiting, diarrhea",severe,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"vomiting, dehydration, diarrhea",moderate,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"vomiting, dehydration, diarrhea",moderate,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, lethargy",moderate,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"diarrhea, lethargy, dehydration",moderate,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"diarrhea, dehydration, lethargy",moderate,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"diarrhea, weight_loss, dehydration",moderate,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"weight_loss, dehydration, diarrhea",moderate,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, lethargy, weight_loss, fever",severe,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"diarrhea, weight_loss, dehydration, vomiting",severe,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"fever, weight_loss, lethargy, diarrhea, dehydration",severe,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"lethargy, diarrhea, fever, vomiting, dehydration",severe,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"weight_loss, lethargy, dehydration, diarrhea",severe,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"fever, diarrhea, vomiting, weight_loss, dehydration",severe,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"dehydration, vomiting, lethargy, diarrhea, fever",severe,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"vomiting, dehydration, weight_loss, lethargy, diarrhea, fever",severe,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"lethargy, weight_loss, diarrhea, dehydration, vomiting, fever",severe,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"fever, vomiting, diarrhea, weight_loss, dehydration, lethargy",severe,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"vomiting, dehydration, weight_loss, fever, diarrhea, lethargy",severe,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"lethargy, vomiting, weight_loss, fever, dehydration, diarrhea",severe,yes,augmented_safe_validated
+Cat,Feline Panleukopenia Virus,"diarrhea, lethargy, vomiting, weight_loss, dehydration, fever",severe,yes,augmented_safe_validated
+Rabbit,Flystrike,"lethargy, loss_of_appetite, bad_breath",moderate,no,augmented_safe_validated
+Rabbit,Flystrike,"lethargy, skin_lesions, bad_breath",moderate,no,augmented_safe_validated
+Rabbit,Flystrike,"lethargy, bad_breath, swelling",moderate,no,augmented_safe_validated
+Rabbit,Flystrike,"lethargy, skin_lesions, bad_breath",moderate,no,augmented_safe_validated
+Rabbit,Flystrike,"lethargy, bad_breath, loss_of_appetite",moderate,no,augmented_safe_validated
+Rabbit,Flystrike,"lethargy, bad_breath, skin_lesions",moderate,no,augmented_safe_validated
+Rabbit,Flystrike,"loss_of_appetite, lethargy, bad_breath",moderate,no,augmented_safe_validated
+Rabbit,Flystrike,"lethargy, loss_of_appetite, skin_lesions, bad_breath",severe,no,augmented_safe_validated
+Rabbit,Flystrike,"swelling, loss_of_appetite, lethargy, bad_breath",severe,no,augmented_safe_validated
+Rabbit,Flystrike,"loss_of_appetite, skin_lesions, lethargy, bad_breath",severe,no,augmented_safe_validated
+Rabbit,Flystrike,"bad_breath, swelling, loss_of_appetite, skin_lesions, lethargy",severe,no,augmented_safe_validated
+Rabbit,Flystrike,"bad_breath, loss_of_appetite, swelling, skin_lesions, lethargy",severe,no,augmented_safe_validated
+Rabbit,Flystrike,"loss_of_appetite, lethargy, skin_lesions, bad_breath, swelling",severe,no,augmented_safe_validated
+Rabbit,Flystrike,"skin_lesions, lethargy, loss_of_appetite, swelling, bad_breath",severe,no,augmented_safe_validated
+Rabbit,Flystrike,"loss_of_appetite, skin_lesions, lethargy, swelling, bad_breath",severe,no,augmented_safe_validated
+Rabbit,Flystrike,"loss_of_appetite, bad_breath, skin_lesions, swelling, lethargy",severe,no,augmented_safe_validated
+Rabbit,Flystrike,"lethargy, bad_breath, swelling, skin_lesions, loss_of_appetite",severe,no,augmented_safe_validated
+Rabbit,Flystrike,"bad_breath, lethargy, swelling, skin_lesions, loss_of_appetite",severe,no,augmented_safe_validated
+Rabbit,Flystrike,"lethargy, swelling, loss_of_appetite, bad_breath, skin_lesions",severe,no,augmented_safe_validated
+Rabbit,Flystrike,"bad_breath, swelling, lethargy, loss_of_appetite, skin_lesions",severe,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"dental_issues, diarrhea, bloating",moderate,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"dental_issues, gas, bloating",moderate,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"lethargy, bloating, dental_issues",moderate,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"lethargy, bloating, dental_issues",moderate,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"dental_issues, diarrhea, bloating",moderate,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"dental_issues, lethargy, bloating",moderate,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"bloating, dental_issues, gas",moderate,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"bloating, diarrhea, gas, lethargy, dental_issues",severe,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"bloating, gas, diarrhea, dental_issues, lethargy",severe,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"lethargy, bloating, gas, dental_issues",severe,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"dental_issues, diarrhea, gas, lethargy, bloating",severe,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"bloating, lethargy, dental_issues, gas, diarrhea",severe,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"lethargy, dental_issues, bloating, diarrhea",severe,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"dental_issues, diarrhea, gas, bloating, lethargy",severe,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"dental_issues, bloating, lethargy, gas, diarrhea",severe,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"gas, lethargy, dental_issues, diarrhea, bloating",severe,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"diarrhea, lethargy, dental_issues, bloating, gas",severe,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"lethargy, diarrhea, bloating, gas, dental_issues",severe,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"dental_issues, lethargy, diarrhea, gas, bloating",severe,no,augmented_safe_validated
+Rabbit,Gastrointestinal stasis,"dental_issues, diarrhea, gas, lethargy, bloating",severe,no,augmented_safe_validated

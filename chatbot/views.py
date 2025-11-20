@@ -2449,9 +2449,51 @@ def symptom_checker_predict(request):
 
         X_df = pd.DataFrame([{k: feature_row.get(k) for k in ordered_cols}])
 
+        # ============================================================
+        # 🔍 FIX 2: PREDICTION DEBUG LOGGING
+        # ============================================================
+        pet_name_debug = cleaned.get('pet_name', 'Unknown Pet')
+        logger.warning(f"{'='*60}")
+        logger.warning(f"🔍 PREDICTION DEBUG FOR {pet_name_debug}")
+        logger.warning(f"{'='*60}")
+        logger.warning(f"Input symptoms from user: {cleaned.get('symptoms_list', [])}")
+        logger.warning(f"Canonical symptoms matched: {[s for s in cleaned.get('symptoms_list', []) if s in CANONICAL_SYMPTOMS]}")
+        logger.warning(f"Non-canonical symptoms (ignored): {[s for s in cleaned.get('symptoms_list', []) if s not in CANONICAL_SYMPTOMS]}")
+        logger.warning(f"Feature vector shape: {X_df.shape}")
+        logger.warning(f"Species: {feature_row.get('species')}")
+        logger.warning(f"Age category: {feature_row.get('age_category')}")
+        logger.warning(f"Severity score: {feature_row.get('severity_score')}")
+        logger.warning(f"Duration days: {feature_row.get('duration_days')}")
+        
+        # Count active symptom features
+        active_symptoms = [k.replace('has_', '') for k, v in feature_row.items() if k.startswith('has_') and v == 1]
+        logger.warning(f"Active symptom features ({len(active_symptoms)}): {active_symptoms}")
+
         try:
             X_transformed = preprocessor.transform(X_df)
+            logger.warning(f"Transformed feature shape: {X_transformed.shape}")
+            logger.warning(f"Non-zero features: {(X_transformed != 0).sum()}")
+            
             proba = model.predict_proba(X_transformed)[0]
+            
+            # Detailed probability analysis
+            logger.warning(f"\n📊 Probability Distribution Analysis:")
+            logger.warning(f"  Sum: {proba.sum():.4f} (should be ~1.0)")
+            logger.warning(f"  Max: {proba.max():.4f} ({proba.max()*100:.2f}%)")
+            logger.warning(f"  Min: {proba.min():.8f}")
+            logger.warning(f"  Mean: {proba.mean():.6f}")
+            logger.warning(f"  Std Dev: {proba.std():.6f}")
+            logger.warning(f"  Median: {np.median(proba):.6f}")
+            
+            # Show top 10 predictions to see distribution
+            top_10_indices = proba.argsort()[::-1][:10]
+            logger.warning(f"\n🎯 Top 10 Predictions:")
+            for rank, idx in enumerate(top_10_indices, 1):
+                disease = label_encoder.inverse_transform([idx])[0]
+                confidence = proba[idx]
+                logger.warning(f"  {rank}. {disease}: {confidence*100:.2f}%")
+            
+            logger.warning(f"{'='*60}\n")
         except Exception as e:
             logger.exception('Error during LightGBM prediction: %s', e)
             return Response(
@@ -2487,8 +2529,89 @@ def symptom_checker_predict(request):
 
             matching_symptoms = [s for s in symptoms_list if s in sample_symptoms] if sample_symptoms else list(sympt_set)
 
-            # Calculate dynamic urgency based on user input + red flags
-            dynamic_urgency = calculate_dynamic_urgency(cleaned, disease_name, meta)
+            # ============================================================
+            # 🚨 CRITICAL SAFETY OVERRIDE - EMERGENCY DISEASES
+            # ============================================================
+            # These diseases MUST ALWAYS be marked as EMERGENCY regardless
+            # of confidence or symptom matching to prevent dangerous
+            # misclassification (e.g., Canine Parvovirus as LOW urgency)
+            EMERGENCY_DISEASES = {
+                # Dogs
+                'Gastric Dilation (Bloat)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Bloat/GDV': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Bloat/Gastric Dilation': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Canine Parvovirus': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Heatstroke': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Heat Stroke': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Drowning/Hypothermia': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Urethral Obstruction': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Urinary Obstruction': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Urinary Blockage': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Pyometra': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Breathing Difficulties': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Rabies': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Infectious Canine Hepatitis': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Pancreatitis (Acute)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                
+                # Cats
+                'Feline Panleukopenia Virus': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Urinary Blockage': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Feline Infectious Peritonitis (Wet form)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                
+                # Rabbits
+                'Rabbit Hemorrhagic Disease Virus': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Heat Stress': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Flystrike (Myiasis)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Dystocia (Egg Binding equivalent)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                
+                # Hamsters
+                'Wet Tail (Proliferative Ileitis)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Wet Tail': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                
+                # Turtles
+                'Heat Shock': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Cold Water Shock': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Shell Injuries/Trauma (Severe)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Prolapse (Cloacal/Vent)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Dystocia (Egg Binding)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                
+                # Fish
+                'Ammonia Poisoning': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Nitrate Poisoning (Severe)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'pH Shock': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Oxygen Deprivation': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Hemorrhagic Septicemia': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                '(Hemorrhagic Septicemia / Ulcerative Syndromes)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Dropsy (Advanced)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Koi Herpes Virus': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                
+                # Birds
+                'Avian Influenza': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Newcastle Disease': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Psittacosis (Chlamydiosis, Severe)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                "Pacheco's Disease": {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Egg Binding': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Dystocia': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Heavy Metal Poisoning': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Vent Prolapse': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Cloacal Prolapse': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                
+                # General
+                'Internal Bleeding': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Respiratory Distress Syndrome': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Toxicity': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                'Seizures': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+            }
+            
+            # 🚨 SAFETY OVERRIDE: Check if this is an emergency disease
+            if disease_name in EMERGENCY_DISEASES:
+                logger.warning(f"🚨 SAFETY OVERRIDE: {disease_name} forced to EMERGENCY urgency")
+                emergency_override = EMERGENCY_DISEASES[disease_name].copy()
+                emergency_override['red_flags'] = ['🚨 CRITICAL CONDITION - This is a life-threatening emergency']
+                dynamic_urgency = emergency_override
+            else:
+                # Calculate dynamic urgency based on user input + red flags
+                dynamic_urgency = calculate_dynamic_urgency(cleaned, disease_name, meta)
 
             prediction_obj = {
                 'disease': disease_name,
@@ -2505,6 +2628,42 @@ def symptom_checker_predict(request):
                 'care_guidelines': '',
                 'when_to_see_vet': '',
             }
+            
+            # ============================================================
+            # SAFETY CHECK: Low-confidence diseases with insufficient training data
+            # Updated: 2024-11-18 based on training run output
+            # These diseases fail sensitivity thresholds and require warnings
+            # ============================================================
+            LOW_CONFIDENCE_DISEASES = [
+                # CRITICAL/EMERGENCY FAILURES (Below 85% sensitivity threshold)
+                "Asthma",  # 83.3% sensitivity, 6 test samples, CRITICAL - Missing 16.7% of cases
+                "Cold Water Shock",  # 56.2% sensitivity, 16 test samples, CRITICAL ⚠️ WORST - Missing 43.8% of cases
+                
+                # HIGH URGENCY FAILURES (Below 75% sensitivity threshold)
+                "Hepatic Coccidiosis (Liver Coccidiosis)",  # 66.7% sensitivity, 6 test samples - Missing 33.3% of cases
+                "Metabolic Bone Disease",  # 70.0% sensitivity, 10 test samples - Missing 30.0% of cases
+                
+                # Note: Ammonia Poisoning now PASSES (90% sensitivity) after "Heartworms" merge.
+                # Hypovitaminosis D and Ich both passed (100% sensitivity) in this run.
+            ]
+            
+            if disease_name in LOW_CONFIDENCE_DISEASES:
+                # Add safety warning to this prediction
+                prediction_obj['low_confidence_warning'] = (
+                    "⚠️ INSUFFICIENT TRAINING DATA: This disease has limited data in our model. "
+                    "Prediction reliability is lower than our safety standards. "
+                    "Veterinary consultation is STRONGLY RECOMMENDED for accurate diagnosis."
+                )
+                prediction_obj['recommendation'] = "Immediate veterinary consultation required"
+                # Upgrade urgency if not already critical
+                if prediction_obj['urgency'] not in ['critical', 'emergency', 'immediate']:
+                    prediction_obj['urgency'] = 'high'
+                    prediction_obj['urgency_score'] = max(prediction_obj['urgency_score'], 7)
+                logger.warning(
+                    f"LOW CONFIDENCE PREDICTION: {disease_name} - confidence: {conf:.2%} - "
+                    f"Insufficient training data (sensitivity <85%). User warned."
+                )
+            # ============================================================
 
             predictions.append(prediction_obj)
 

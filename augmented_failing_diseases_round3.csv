@@ -1,0 +1,151 @@
+species,disease,symptoms,urgency,contagious,source
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, drooling",moderate,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, lumps, drooling",moderate,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, drooling",moderate,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, weight_loss",moderate,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, drooling",moderate,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, lumps",moderate,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, drooling",moderate,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, weight_loss",moderate,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, weight_loss",moderate,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, drooling, weight_loss",moderate,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, weight_loss, lumps, skin_lesions, drooling",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, skin_lesions, drooling",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, weight_loss, drooling",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, skin_lesions, weight_loss, lumps",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, weight_loss, skin_lesions",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, weight_loss, drooling",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, skin_lesions, weight_loss, lumps, drooling",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, drooling, weight_loss, skin_lesions, lumps",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, lumps, drooling",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, skin_lesions, lumps, weight_loss",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, skin_lesions, lumps, drooling",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, skin_lesions, weight_loss, drooling, lumps",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, lumps, drooling, weight_loss, skin_lesions",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, lumps, skin_lesions, weight_loss, drooling",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, drooling, lumps, skin_lesions",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, drooling, weight_loss, lumps, skin_lesions",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, weight_loss, lumps, skin_lesions, drooling",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, lumps, drooling, weight_loss, skin_lesions",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, weight_loss, lumps, drooling, skin_lesions",severe,no,augmented_round3_validated
+Cat,Squamous Cell Carcinoma,"bad_breath, dental_issues, weight_loss, drooling, skin_lesions, lumps",severe,no,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, nasal_discharge",moderate,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, weight_loss, eye_discharge",moderate,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, sneezing, weight_loss",moderate,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, weight_loss, eye_discharge",moderate,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, weight_loss",moderate,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, paralysis, eye_discharge",moderate,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, sneezing, nasal_discharge",moderate,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, eye_discharge, paralysis",moderate,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, weight_loss",moderate,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, paralysis",moderate,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, weight_loss, nasal_discharge, eye_discharge, sneezing",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, weight_loss, eye_discharge",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, paralysis, sneezing, eye_discharge, weight_loss",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, paralysis, nasal_discharge, eye_discharge",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, weight_loss, eye_discharge",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, sneezing, eye_discharge",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, nasal_discharge, weight_loss, paralysis, sneezing",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, nasal_discharge, paralysis, sneezing, weight_loss",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, weight_loss, nasal_discharge",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, paralysis, sneezing, weight_loss, nasal_discharge",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, weight_loss, sneezing, eye_discharge, paralysis",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, eye_discharge, paralysis, weight_loss",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, weight_loss, nasal_discharge, paralysis, eye_discharge, sneezing",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, eye_discharge, nasal_discharge, weight_loss",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, paralysis, eye_discharge, weight_loss",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, paralysis, sneezing, eye_discharge",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, nasal_discharge, sneezing, eye_discharge, weight_loss, paralysis",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, eye_discharge, weight_loss, paralysis",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, paralysis, sneezing, nasal_discharge, weight_loss",severe,yes,augmented_round3_validated
+Bird,Newcastle Disease,"diarrhea, difficulty_breathing, eye_discharge, weight_loss, sneezing, nasal_discharge, paralysis",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, lethargy",moderate,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, lethargy",moderate,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, lethargy, weight_loss",moderate,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, vomiting",moderate,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, lethargy, fever",moderate,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, fever, weight_loss",moderate,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, fever",moderate,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, lethargy",moderate,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, weight_loss, lethargy",moderate,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, weight_loss",moderate,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, lethargy, weight_loss",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, weight_loss, lethargy",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, vomiting, lethargy, weight_loss",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, lethargy, weight_loss",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, fever, vomiting",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, fever, vomiting, lethargy, weight_loss",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, weight_loss, vomiting",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, lethargy, fever, vomiting, weight_loss",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, fever, vomiting",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, weight_loss, fever",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, lethargy, vomiting, fever, weight_loss",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, vomiting, lethargy, fever, weight_loss",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, vomiting, lethargy, fever",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, vomiting, lethargy, weight_loss, fever",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, weight_loss, vomiting, fever",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, lethargy, vomiting, weight_loss",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, vomiting, fever, weight_loss",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, vomiting, fever, lethargy, weight_loss",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, fever, vomiting, lethargy, weight_loss",severe,yes,augmented_round3_validated
+Cat,Feline Panleukopenia Virus,"dehydration, diarrhea, vomiting, fever, weight_loss",severe,yes,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, gas",moderate,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, restlessness, diarrhea",moderate,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, diarrhea, gas",moderate,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, gas, dental_issues",moderate,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, weight_loss",moderate,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, gas, dental_issues",moderate,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, gas",moderate,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, weight_loss",moderate,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, diarrhea, loss_of_appetite",moderate,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, restlessness, dental_issues",moderate,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, dental_issues, diarrhea",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, dental_issues, gas, diarrhea, loss_of_appetite",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, dental_issues, gas",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, dental_issues, gas, diarrhea",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, diarrhea, dental_issues, gas, loss_of_appetite",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, restlessness, diarrhea, weight_loss",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, diarrhea, loss_of_appetite",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, diarrhea, gas",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, weight_loss, diarrhea, gas",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, weight_loss, dental_issues",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, dental_issues, loss_of_appetite, diarrhea, weight_loss",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, gas, weight_loss, diarrhea, dental_issues",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, weight_loss, diarrhea, loss_of_appetite",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, gas, dental_issues, weight_loss, diarrhea",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, restlessness, loss_of_appetite, gas, dental_issues, weight_loss",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, diarrhea, restlessness, gas, dental_issues",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, restlessness, loss_of_appetite, gas",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, gas, loss_of_appetite, dental_issues, diarrhea, restlessness",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, dental_issues, loss_of_appetite, weight_loss, gas",emergency,no,augmented_round3_validated
+Rabbit,Enteritis,"bloating, dehydration, weight_loss, diarrhea, gas, restlessness, dental_issues",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, loss_of_appetite, hiding",moderate,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, weakness",moderate,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, loss_of_appetite, hiding",moderate,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, hiding, lethargy",moderate,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, loss_of_appetite, gasping_at_surface",moderate,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, lethargy",moderate,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, weakness, gasping_at_surface",moderate,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, lethargy, loss_of_appetite",moderate,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, hiding",moderate,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, lethargy",moderate,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, loss_of_appetite, hiding, lethargy, gasping_at_surface",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, weakness, gasping_at_surface, lethargy",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, gasping, hiding, lethargy",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, weakness, loss_of_appetite, hiding, gasping",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, weakness, hiding",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, weakness",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping, gasping_at_surface",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, loss_of_appetite, gasping, lethargy",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, weakness, loss_of_appetite, gasping_at_surface",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, weakness, lethargy, loss_of_appetite, gasping_at_surface",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, gasping, loss_of_appetite",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, weakness, lethargy, gasping",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, gasping, lethargy, loss_of_appetite, weakness",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, loss_of_appetite, weakness, hiding, gasping_at_surface, lethargy",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, lethargy, gasping_at_surface, weakness, loss_of_appetite, hiding",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, weakness, hiding, lethargy",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, hiding, lethargy, gasping, weakness",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, hiding, weakness, loss_of_appetite",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping, gasping_at_surface, loss_of_appetite, weakness, lethargy",emergency,no,augmented_round3_validated
+Fish,Cold Water Shock,"clamped_fins, gas, gasping_at_surface, weakness, gasping, loss_of_appetite, hiding",emergency,no,augmented_round3_validated

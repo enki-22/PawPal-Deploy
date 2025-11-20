@@ -2,7 +2,7 @@
 Serializers for chatbot and diagnosis endpoints
 """
 from rest_framework import serializers
-from .models import SOAPReport, Conversation, Message, AIDiagnosis
+from .models import SOAPReport, Conversation, Message, AIDiagnosis, SymptomLog, SymptomAlert
 from pets.models import Pet
 from django.contrib.auth.models import User
 
@@ -243,4 +243,196 @@ class AIDiagnosisSerializer(serializers.ModelSerializer):
             'confidence_score'
         ]
         read_only_fields = ['id', 'case_id', 'generated_at']
+
+
+class SymptomLogSerializer(serializers.ModelSerializer):
+    """Serializer for SymptomLog model"""
+    pet_name = serializers.CharField(source='pet.name', read_only=True)
+    pet_animal_type = serializers.CharField(source='pet.animal_type', read_only=True)
+    symptom_count = serializers.SerializerMethodField()
+    risk_level_display = serializers.SerializerMethodField()
+    days_since_logged = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = SymptomLog
+        fields = [
+            'id',
+            'pet',
+            'pet_name',
+            'pet_animal_type',
+            'logged_date',
+            'symptom_date',
+            'symptoms',
+            'symptom_count',
+            'overall_severity',
+            'symptom_details',
+            'compared_to_yesterday',
+            'notes',
+            'risk_score',
+            'risk_level',
+            'risk_level_display',
+            'days_since_logged'
+        ]
+        read_only_fields = ['id', 'logged_date', 'risk_score', 'risk_level']
+    
+    def get_symptom_count(self, obj):
+        """Get number of symptoms"""
+        return len(obj.symptoms) if isinstance(obj.symptoms, list) else 0
+    
+    def get_risk_level_display(self, obj):
+        """Get user-friendly risk level with emoji"""
+        risk_map = {
+            'critical': '🚨 CRITICAL',
+            'high': '⚠️ HIGH',
+            'moderate': '📋 MODERATE',
+            'low': '👁️ LOW'
+        }
+        return risk_map.get(obj.risk_level, '❓ UNKNOWN')
+    
+    def get_days_since_logged(self, obj):
+        """Get days since symptom was logged"""
+        from django.utils import timezone
+        delta = timezone.now().date() - obj.symptom_date
+        return delta.days
+    
+    def validate_symptoms(self, value):
+        """Validate symptoms list"""
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Symptoms must be a list")
+        
+        if not value:
+            raise serializers.ValidationError("At least one symptom is required")
+        
+        # Validate against canonical symptoms
+        from utils.risk_calculator import CANONICAL_SYMPTOMS
+        invalid_symptoms = [s for s in value if s not in CANONICAL_SYMPTOMS]
+        
+        if invalid_symptoms:
+            raise serializers.ValidationError(
+                f"Invalid symptoms: {', '.join(invalid_symptoms)}. "
+                f"Must be from the canonical symptom list."
+            )
+        
+        return value
+    
+    def validate_overall_severity(self, value):
+        """Validate severity choice"""
+        valid_choices = ['mild', 'moderate', 'severe']
+        if value not in valid_choices:
+            raise serializers.ValidationError(
+                f"Invalid severity. Must be one of: {', '.join(valid_choices)}"
+            )
+        return value
+
+
+class SymptomLogCreateSerializer(serializers.Serializer):
+    """Serializer for creating symptom logs with automatic risk calculation"""
+    pet_id = serializers.IntegerField(required=True)
+    symptom_date = serializers.DateField(required=False)
+    symptoms = serializers.ListField(
+        child=serializers.CharField(max_length=100),
+        required=True,
+        min_length=1,
+        help_text="List of symptoms from canonical symptom list"
+    )
+    overall_severity = serializers.ChoiceField(
+        choices=['mild', 'moderate', 'severe'],
+        required=True
+    )
+    symptom_details = serializers.JSONField(
+        required=False,
+        default=dict,
+        help_text="Optional detailed information about specific symptoms"
+    )
+    compared_to_yesterday = serializers.ChoiceField(
+        choices=['worse', 'same', 'better', 'new'],
+        required=False,
+        allow_null=True
+    )
+    notes = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        max_length=1000,
+        help_text="Additional notes or observations"
+    )
+    
+    def validate_pet_id(self, value):
+        """Validate that pet exists and belongs to requesting user"""
+        request = self.context.get('request')
+        if not request:
+            raise serializers.ValidationError("Request context is required")
+        
+        try:
+            pet = Pet.objects.get(id=value, owner=request.user)
+            return value
+        except Pet.DoesNotExist:
+            raise serializers.ValidationError("Pet not found or does not belong to you")
+    
+    def validate_symptoms(self, value):
+        """Validate symptoms against canonical list"""
+        from utils.risk_calculator import CANONICAL_SYMPTOMS
+        
+        invalid_symptoms = [s for s in value if s not in CANONICAL_SYMPTOMS]
+        
+        if invalid_symptoms:
+            raise serializers.ValidationError(
+                f"Invalid symptoms: {', '.join(invalid_symptoms)}. "
+                f"Please use symptoms from the canonical list."
+            )
+        
+        return value
+
+
+class SymptomAlertSerializer(serializers.ModelSerializer):
+    """Serializer for SymptomAlert model"""
+    pet_name = serializers.CharField(source='pet.name', read_only=True)
+    pet_id = serializers.IntegerField(source='pet.id', read_only=True)
+    symptom_log_id = serializers.IntegerField(source='symptom_log.id', read_only=True)
+    symptom_date = serializers.DateField(source='symptom_log.symptom_date', read_only=True)
+    alert_type_display = serializers.SerializerMethodField()
+    time_since_created = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = SymptomAlert
+        fields = [
+            'id',
+            'pet_id',
+            'pet_name',
+            'symptom_log_id',
+            'symptom_date',
+            'alert_type',
+            'alert_type_display',
+            'alert_message',
+            'created_at',
+            'time_since_created',
+            'acknowledged',
+            'acknowledged_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'acknowledged_at']
+    
+    def get_alert_type_display(self, obj):
+        """Get user-friendly alert type"""
+        alert_map = {
+            'rapid_deterioration': '⚠️ Rapid Deterioration',
+            'new_critical_symptom': '🚨 Critical Symptom',
+            'prolonged_symptoms': '📅 Prolonged Symptoms',
+            'risk_escalation': '⬆️ Risk Escalation'
+        }
+        return alert_map.get(obj.alert_type, obj.alert_type)
+    
+    def get_time_since_created(self, obj):
+        """Get human-readable time since alert was created"""
+        from django.utils import timezone
+        delta = timezone.now() - obj.created_at
+        
+        if delta.days > 0:
+            return f"{delta.days} day{'s' if delta.days > 1 else ''} ago"
+        elif delta.seconds >= 3600:
+            hours = delta.seconds // 3600
+            return f"{hours} hour{'s' if hours > 1 else ''} ago"
+        elif delta.seconds >= 60:
+            minutes = delta.seconds // 60
+            return f"{minutes} minute{'s' if minutes > 1 else ''} ago"
+        else:
+            return "Just now"
 

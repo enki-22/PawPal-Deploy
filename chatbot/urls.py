@@ -1,6 +1,11 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
+from .views_symptom_tracker import SymptomTrackerViewSet
 
+# Create router for symptom tracker
+router = DefaultRouter()
+router.register(r'symptom-tracker', SymptomTrackerViewSet, basename='symptom-tracker')
 
 urlpatterns = [
     # Template-based URL
@@ -42,6 +47,9 @@ urlpatterns = [
     # Commented out for future use
     #path('test-models/', views.test_gemini_models, name='test_gemini_models'),
 ]
+
+# Include symptom tracker router URLs
+urlpatterns += router.urls
 
 # Diagnosis SOAP endpoints (Chunk 2 - High Priority)
 # CONSOLIDATED: These endpoints now support both Pet Owners and Admins

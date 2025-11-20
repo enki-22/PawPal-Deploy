@@ -1,28 +1,28 @@
 {
   "(Hemorrhagic Septicemia / Ulcerative Syndromes)": {
-    "urgency": "high",
+    "urgency": "severe",
     "contagious": true,
     "species": [
       "Fish"
     ],
     "sample_symptoms": "lethargy, skin_lesions, weight_loss, weakness"
   },
-  "ACL Tear": {
+  "Abscesses": {
+    "urgency": "high",
+    "contagious": false,
+    "species": [
+      "Rabbit",
+      "Turtle"
+    ],
+    "sample_symptoms": "bumps, dental_issues, lumps, lethargy"
+  },
+  "Acl Tear": {
     "urgency": "medium",
     "contagious": false,
     "species": [
       "Dog"
     ],
     "sample_symptoms": "lameness, limping, stiffness, swelling"
-  },
-  "Abscesses": {
-    "urgency": "moderate",
-    "contagious": false,
-    "species": [
-      "Turtle",
-      "Rabbit"
-    ],
-    "sample_symptoms": "My turtle has ruptured abscess with pus discharge, also lumps, swelling."
   },
   "Acne": {
     "urgency": "low",
@@ -32,7 +32,7 @@
     ],
     "sample_symptoms": "bumps, lameness, scabs"
   },
-  "Addison\u2019s Disease": {
+  "Addison\u2019S Disease": {
     "urgency": "high",
     "contagious": false,
     "species": [
@@ -40,13 +40,13 @@
     ],
     "sample_symptoms": "diarrhea, increased_thirst, weight_loss, vomiting"
   },
-  "Air sac mites / gapeworms": {
-    "urgency": "moderate",
+  "Air Sac Mites / Gapeworms": {
+    "urgency": "mild",
     "contagious": false,
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "My bird has excessive salivation, also open-mouth breathing, tail bobbing."
+    "sample_symptoms": "difficulty_breathing, drooling, tail_bobbing, weight_loss"
   },
   "Ammonia Poisoning": {
     "urgency": "emergency",
@@ -78,7 +78,7 @@
     "species": [
       "Dog"
     ],
-    "sample_symptoms": "My dog has joint swelling and slowing down."
+    "sample_symptoms": "lameness, limping, stiffness"
   },
   "Aspergillosis": {
     "urgency": "high",
@@ -86,7 +86,7 @@
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "My bird has bone changes or misshaping of the upper respiratory tract, also lack of appetite."
+    "sample_symptoms": "bumps, difficulty_breathing, labored_breathing"
   },
   "Asthma": {
     "urgency": "emergency",
@@ -97,12 +97,12 @@
     "sample_symptoms": "coughing, difficulty_breathing, wheezing"
   },
   "Avian Gastric Yeast": {
-    "urgency": "moderate",
+    "urgency": "mild",
     "contagious": false,
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "My bird has excessive food intake followed by loss of appetite, also vomiting, weight loss, undigested seeds."
+    "sample_symptoms": "loss_of_appetite, vomiting, weight_loss"
   },
   "Avian Influenza": {
     "urgency": "severe",
@@ -110,7 +110,7 @@
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "My bird has huddling or drooping posture and loss of appetite."
+    "sample_symptoms": "coughing, diarrhea, lethargy"
   },
   "Avian Polyomavirus": {
     "urgency": "high",
@@ -126,7 +126,7 @@
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "reduced appetite, difficulty breathing if lesions in throat, wart-like lesions on featherless areas, scabs on feet and face, lesions around eyes beak and legs, lethargy"
+    "sample_symptoms": "difficulty_breathing, gas, skin_lesions, scabs"
   },
   "Babesiosis": {
     "urgency": "high",
@@ -160,21 +160,21 @@
     ],
     "sample_symptoms": "bloating, gas, lethargy, loss_of_appetite"
   },
-  "Breathing difficulties": {
+  "Breathing Difficulties": {
     "urgency": "severe",
     "contagious": false,
     "species": [
       "Rabbit"
     ],
-    "sample_symptoms": "My rabbit has reduced appetite, also wheezing, labored breathing."
+    "sample_symptoms": "eye_discharge, labored_breathing, sneezing"
   },
-  "Broken bones": {
+  "Broken Bones": {
     "urgency": "severe",
     "contagious": false,
     "species": [
       "Cat"
     ],
-    "sample_symptoms": "My cat has broken bone protruding from the skin, also limping, swelling."
+    "sample_symptoms": "lameness, limping, swelling"
   },
   "Bumblefoot": {
     "urgency": "medium",
@@ -182,7 +182,7 @@
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "My bird has changes in behavior, also swelling on feet."
+    "sample_symptoms": "difficulty_walking, lameness, loss_of_appetite"
   },
   "Calcium Deficiency": {
     "urgency": "emergency",
@@ -201,12 +201,12 @@
     "sample_symptoms": "fever, loss_of_appetite, straining"
   },
   "Candidiasis": {
-    "urgency": "moderate",
+    "urgency": "mild",
     "contagious": true,
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "My bird has difficulty swallowing, also white patches in mouth, regurgitation."
+    "sample_symptoms": "difficulty_breathing, fluffed_feathers, vomiting"
   },
   "Candidiasis (Thrush)": {
     "urgency": "medium",
@@ -214,7 +214,7 @@
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "difficulty swallowing, white plaques in mouth and crop, lethargy, slowed crop emptying"
+    "sample_symptoms": "lethargy, loss_of_appetite, weakness"
   },
   "Canine Distemper": {
     "urgency": "high",
@@ -222,7 +222,7 @@
     "species": [
       "Dog"
     ],
-    "sample_symptoms": "loss of appetite, lethargy and depression, high fever"
+    "sample_symptoms": "coughing, diarrhea, vomiting, nasal_discharge"
   },
   "Canine Enteric Coronavirus": {
     "urgency": "medium",
@@ -232,39 +232,23 @@
     ],
     "sample_symptoms": "bloating, dehydration, lethargy"
   },
+  "Canine Influenza": {
+    "urgency": "mild",
+    "contagious": true,
+    "species": [
+      "Dog"
+    ],
+    "sample_symptoms": "coughing, lethargy, sneezing"
+  },
   "Canine Parvovirus": {
-    "urgency": "emergency",
-    "contagious": true,
-    "species": [
-      "Dog"
-    ],
-    "sample_symptoms": "severe dehydration with sunken eyes, severe bloody diarrhea with foul odor, extreme lethargy and weakness"
-  },
-  "Canine distemper": {
     "urgency": "severe",
     "contagious": true,
     "species": [
       "Dog"
     ],
-    "sample_symptoms": "I noticed my dog has coughing, discharge, seizures, fever."
+    "sample_symptoms": "bad_breath, bloating, vomiting"
   },
-  "Canine influenza": {
-    "urgency": "moderate",
-    "contagious": true,
-    "species": [
-      "Dog"
-    ],
-    "sample_symptoms": "I'm worried, my dog has coughing, sneezing, lethargy."
-  },
-  "Canine parvovirus": {
-    "urgency": "severe",
-    "contagious": true,
-    "species": [
-      "Dog"
-    ],
-    "sample_symptoms": "I'm worried, my dog has vomiting, diarrhea, lethargy."
-  },
-  "Canine respiratory coronavirus": {
+  "Canine Respiratory Coronavirus": {
     "urgency": "medium",
     "contagious": true,
     "species": [
@@ -278,7 +262,7 @@
     "species": [
       "Cat"
     ],
-    "sample_symptoms": "My cat has scabs and crusts, also chin blackheads, bumps."
+    "sample_symptoms": "bumps, red_skin, scabs"
   },
   "Cataract": {
     "urgency": "mild",
@@ -286,7 +270,7 @@
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "My bird has feather damage: excessive rubbing can lead to feather displacement over the eye., also cloudy eye."
+    "sample_symptoms": "cloudy_eyes, squinting, watery_eyes"
   },
   "Cataracts": {
     "urgency": "mild",
@@ -294,7 +278,7 @@
     "species": [
       "Dog"
     ],
-    "sample_symptoms": "My dog has rubbing face/head along the furniture and bulging of dog\u00e2\u0080\u0099s eye globe."
+    "sample_symptoms": "bumps, cloudy_eyes, squinting"
   },
   "Cheek Pouch Impaction": {
     "urgency": "medium",
@@ -302,7 +286,7 @@
     "species": [
       "Hamster"
     ],
-    "sample_symptoms": "drooling, swollen cheek that doesn't empty, selective eating"
+    "sample_symptoms": "difficulty_eating, drooling, swelling, weight_loss"
   },
   "Chronic Egg Laying": {
     "urgency": "high",
@@ -316,18 +300,18 @@
     "urgency": "high",
     "contagious": false,
     "species": [
-      "Cat",
-      "Dog"
+      "Dog",
+      "Cat"
     ],
-    "sample_symptoms": "My cat has changes in behavior and muscle wasting."
+    "sample_symptoms": "bad_breath, constipation, lethargy, skin_lesions"
   },
-  "Cloacal prolapse": {
+  "Cloacal Prolapse": {
     "urgency": "severe",
     "contagious": false,
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "My bird has signs of discomfort or distress when eliminating, also tissue protruding from vent."
+    "sample_symptoms": "red_skin, straining, swelling"
   },
   "Coccidiosis": {
     "urgency": "emergency",
@@ -351,18 +335,18 @@
     "species": [
       "Fish"
     ],
-    "sample_symptoms": "lethargy, rapid breathing, white or gray patches on body, gill discoloration, loss of appetite"
+    "sample_symptoms": "difficulty_breathing, gas, lethargy"
   },
   "Conjunctivitis": {
     "urgency": "mild",
     "contagious": true,
     "species": [
-      "Rabbit",
-      "Hamster",
+      "Cat",
       "Bird",
-      "Cat"
+      "Rabbit",
+      "Hamster"
     ],
-    "sample_symptoms": "My rabbit has swelling in eye, also red, runny eyes."
+    "sample_symptoms": "cloudy_eyes, ear_discharge, swelling"
   },
   "Contact Dermatitis": {
     "urgency": "medium",
@@ -372,15 +356,15 @@
     ],
     "sample_symptoms": "hair_loss, irritated_skin, itching, scabs"
   },
-  "Corneal ulceration": {
-    "urgency": "moderate",
+  "Corneal Ulceration": {
+    "urgency": "mild",
     "contagious": false,
     "species": [
       "Rabbit"
     ],
-    "sample_symptoms": "My rabbit has pawing or rubbing and redness and swelling."
+    "sample_symptoms": "cloudy_eyes, eye_discharge, red_skin"
   },
-  "Cotton wool disease": {
+  "Cotton Wool Disease": {
     "urgency": "high",
     "contagious": true,
     "species": [
@@ -388,7 +372,7 @@
     ],
     "sample_symptoms": "lethargy, loss_of_appetite, weakness"
   },
-  "Cushing\u2019s Disease": {
+  "Cushing\u2019S Disease": {
     "urgency": "medium",
     "contagious": false,
     "species": [
@@ -418,7 +402,7 @@
     "species": [
       "Cat"
     ],
-    "sample_symptoms": "drooling, red inflamed gums, visible tartar on teeth, bad breath with foul odor, difficulty eating or dropping food, pawing at mouth"
+    "sample_symptoms": "bad_breath, dental_issues, lameness, limping"
   },
   "Dental Disease (Malocclusion)": {
     "urgency": "high",
@@ -426,16 +410,16 @@
     "species": [
       "Rabbit"
     ],
-    "sample_symptoms": "selective eating preferring soft foods, swelling of jaw, overgrown teeth visible, weight loss despite trying to eat, difficulty eating or dropping food, drooling or wet chin"
+    "sample_symptoms": "dental_issues, difficulty_eating, eye_discharge"
   },
   "Diabetes": {
-    "urgency": "moderate",
+    "urgency": "mild",
     "contagious": false,
     "species": [
       "Dog",
       "Cat"
     ],
-    "sample_symptoms": "My dog has cataracts, also increased thirst."
+    "sample_symptoms": "dehydration, increased_thirst, weakness"
   },
   "Diabetes Mellitus": {
     "urgency": "medium",
@@ -445,26 +429,16 @@
     ],
     "sample_symptoms": "dehydration, frequent_urination, weakness, loss_of_appetite"
   },
-  "Diarrhea": {
-    "urgency": "moderate",
-    "contagious": false,
-    "species": [
-      "Dog",
-      "Hamster",
-      "Rabbit"
-    ],
-    "sample_symptoms": "My dog has frequent vomiting, also visible stool change."
-  },
   "Dropsy": {
     "urgency": "emergency",
     "contagious": true,
     "species": [
       "Fish"
     ],
-    "sample_symptoms": "bulging eyes, scales sticking out like pinecone, complete loss of appetite, pale gills, staying at bottom of tank"
+    "sample_symptoms": "dandruff, lethargy, swelling, loss_of_appetite"
   },
   "Drowning/Hypothermia": {
-    "urgency": "critical/emergency",
+    "urgency": "severe",
     "contagious": false,
     "species": [
       "Turtle"
@@ -477,15 +451,24 @@
     "species": [
       "Turtle"
     ],
-    "sample_symptoms": "My turtle has restlessness, also egg retention, swollen body."
+    "sample_symptoms": "bloating, lethargy, loss_of_appetite, weight_loss"
   },
-  "E. cuniculi (Encephalitozoon)": {
+  "E. Cuniculi (Encephalitozoon)": {
     "urgency": "high",
     "contagious": true,
     "species": [
       "Rabbit"
     ],
-    "sample_symptoms": "weakness in hind legs, seizures, loss of balance and rolling"
+    "sample_symptoms": "cloudy_eyes, confusion, lethargy"
+  },
+  "Ear Infections": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Dog",
+      "Turtle"
+    ],
+    "sample_symptoms": "bad_breath, ear_discharge, head_tilt, red_skin"
   },
   "Ear Infections (Otitis)": {
     "urgency": "medium",
@@ -493,9 +476,9 @@
     "species": [
       "Dog"
     ],
-    "sample_symptoms": "foul odor from ears, head shaking and tilting, scratching at ears, discharge from ears (yellow, loss of balance, redness and swelling of ear canal"
+    "sample_symptoms": "bad_breath, ear_discharge, swelling, red_skin"
   },
-  "Ear Mite Infestation (Psoroptes cuniculi)": {
+  "Ear Mite Infestation (Psoroptes Cuniculi)": {
     "urgency": "medium",
     "contagious": true,
     "species": [
@@ -507,35 +490,18 @@
     "urgency": "medium",
     "contagious": true,
     "species": [
-      "Cat",
-      "Rabbit"
+      "Rabbit",
+      "Cat"
     ],
-    "sample_symptoms": "intense scratching at ears, head shaking, strong odor from ears, inflammation of ear canal, dark brown or black ear discharge resembling coffee grounds, hair loss around ears from scratching"
-  },
-  "Ear infections": {
-    "urgency": "moderate",
-    "contagious": false,
-    "species": [
-      "Dog",
-      "Turtle"
-    ],
-    "sample_symptoms": "My dog has head tilt, also scratching ears, head shaking, discharge."
-  },
-  "Ear mites": {
-    "urgency": "mild",
-    "contagious": true,
-    "species": [
-      "Rabbit"
-    ],
-    "sample_symptoms": "My rabbit has neck, also intense itching."
+    "sample_symptoms": "bad_breath, ear_discharge, skin_lesions"
   },
   "Egg Binding": {
-    "urgency": "emergency",
+    "urgency": "severe",
     "contagious": false,
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "sitting at bottom of cage, weakness, wide stance, straining to lay egg"
+    "sample_symptoms": "fluffed_feathers, lethargy, weakness, loss_of_appetite"
   },
   "Egg Retention": {
     "urgency": "severe",
@@ -543,17 +509,9 @@
     "species": [
       "Fish"
     ],
-    "sample_symptoms": "My fish has hiding behavior, also swollen abdomen."
+    "sample_symptoms": "bloating, hiding, loss_of_appetite, lumps"
   },
-  "Egg binding": {
-    "urgency": "severe",
-    "contagious": false,
-    "species": [
-      "Bird"
-    ],
-    "sample_symptoms": "My bird has sudden death in untreated or prolonged cases and wide-legged stance."
-  },
-  "Encephalitozoonosis (Encephalitozoon cuniculi)": {
+  "Encephalitozoonosis (Encephalitozoon Cuniculi)": {
     "urgency": "high",
     "contagious": true,
     "species": [
@@ -577,21 +535,29 @@
     ],
     "sample_symptoms": "lethargy, lumps, visible_parasites"
   },
+  "Eye Abscesses / Conjunctivitis": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Turtle"
+    ],
+    "sample_symptoms": "cloudy_eyes, eye_discharge, red_skin"
+  },
   "Eye Infections": {
     "urgency": "medium",
     "contagious": true,
     "species": [
       "Turtle"
     ],
-    "sample_symptoms": "loss of appetite due to inability to see food, swollen puffy eyelids, discharge from eyes, unable to open eyes, lethargy"
+    "sample_symptoms": "eye_discharge, lethargy, loss_of_appetite, swelling"
   },
-  "Eye abscesses / conjunctivitis": {
-    "urgency": "moderate",
+  "Feather Cysts": {
+    "urgency": "mild",
     "contagious": false,
     "species": [
-      "Turtle"
+      "Bird"
     ],
-    "sample_symptoms": "My turtle has nasal discharge and eye that protrudes or bulges."
+    "sample_symptoms": "irritated_skin, lameness, lumps"
   },
   "Feather Plucking": {
     "urgency": "medium",
@@ -599,15 +565,7 @@
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "irritated red skin in plucked areas, missing feathers due to self-plucking, damaged or broken feathers"
-  },
-  "Feather cysts": {
-    "urgency": "mild",
-    "contagious": false,
-    "species": [
-      "Bird"
-    ],
-    "sample_symptoms": "My bird has discomfort: birds with feather cysts may exhibit signs of discomfort,, also lump under skin."
+    "sample_symptoms": "bald_patches, feather_loss, red_skin"
   },
   "Feline Calicivirus": {
     "urgency": "medium",
@@ -615,9 +573,9 @@
     "species": [
       "Cat"
     ],
-    "sample_symptoms": "ulcers on tongue and gums, difficulty eating due to mouth pain, drooling, loss of appetite, fever"
+    "sample_symptoms": "difficulty_eating, drooling, limping"
   },
-  "Feline Herpesvirus (FHV-1)": {
+  "Feline Herpesvirus (Fhv-1)": {
     "urgency": "medium",
     "contagious": true,
     "species": [
@@ -631,7 +589,7 @@
     "species": [
       "Cat"
     ],
-    "sample_symptoms": "My cat has neurologic problems like weakness, seizures, or odd behaviors and redness or sores in the mouth."
+    "sample_symptoms": "coughing, difficulty_breathing, weakness, sneezing"
   },
   "Feline Infectious Peritonitis": {
     "urgency": "severe",
@@ -639,7 +597,7 @@
     "species": [
       "Cat"
     ],
-    "sample_symptoms": "My cat has incoordination, also swollen abdomen, fever, lethargy."
+    "sample_symptoms": "circling, difficulty_breathing, lethargy"
   },
   "Feline Leukemia Virus": {
     "urgency": "severe",
@@ -647,7 +605,7 @@
     "species": [
       "Cat"
     ],
-    "sample_symptoms": "My cat has chronic skin, eye, respiratory, or urinary tract infections and inflamed gums and mouth."
+    "sample_symptoms": "diarrhea, fever, red_gums, weight_loss"
   },
   "Feline Lower Urinary Tract Disease": {
     "urgency": "high",
@@ -655,15 +613,7 @@
     "species": [
       "Cat"
     ],
-    "sample_symptoms": "My cat has vocalizing while urinating, also straining to urinate, blood in urine."
-  },
-  "Feline Panleukopenia": {
-    "urgency": "emergency",
-    "contagious": true,
-    "species": [
-      "Cat"
-    ],
-    "sample_symptoms": "severe dehydration, complete loss of appetite, severe vomiting, hiding behavior and depression, high fever then hypothermia"
+    "sample_symptoms": "blood_in_urine, frequent_urination, straining"
   },
   "Feline Panleukopenia Virus": {
     "urgency": "severe",
@@ -671,7 +621,7 @@
     "species": [
       "Cat"
     ],
-    "sample_symptoms": "My cat has fever, also vomiting, lethargy, diarrhea."
+    "sample_symptoms": "dehydration, diarrhea, hiding, fever"
   },
   "Fin Rot": {
     "urgency": "medium",
@@ -679,9 +629,9 @@
     "species": [
       "Fish"
     ],
-    "sample_symptoms": "My fish has milky appearance at fin margins and redness at base of fins."
+    "sample_symptoms": "clamped_fins, lethargy, weakness"
   },
-  "Fish Lice and Leech": {
+  "Fish Lice And Leech": {
     "urgency": "medium",
     "contagious": true,
     "species": [
@@ -709,11 +659,11 @@
     "urgency": "mild",
     "contagious": true,
     "species": [
-      "Dog",
       "Cat",
-      "Rabbit"
+      "Rabbit",
+      "Dog"
     ],
-    "sample_symptoms": "My dog has chewing at their skin, also frequent itching."
+    "sample_symptoms": "bumps, dandruff, hair_loss"
   },
   "Flystrike": {
     "urgency": "severe",
@@ -721,7 +671,7 @@
     "species": [
       "Rabbit"
     ],
-    "sample_symptoms": "My rabbit has presence of fly larvae, also maggots, skin wounds."
+    "sample_symptoms": "bad_breath, lethargy, swelling"
   },
   "Flystrike (Myiasis)": {
     "urgency": "emergency",
@@ -729,7 +679,7 @@
     "species": [
       "Rabbit"
     ],
-    "sample_symptoms": "open wounds or ulcers, lethargy and shock, foul smell, visible fly larvae (maggots) on skin"
+    "sample_symptoms": "lethargy, loss_of_appetite, skin_lesions"
   },
   "Food Allergies": {
     "urgency": "medium (high if anaphylaxis symptoms like facial swelling or hives are present)",
@@ -745,17 +695,17 @@
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "My bird has inability to fly and inability to move a limb."
+    "sample_symptoms": "drooping_wing, lameness, swelling"
   },
   "Fungus": {
-    "urgency": "moderate",
+    "urgency": "mild",
     "contagious": true,
     "species": [
       "Fish"
     ],
-    "sample_symptoms": "My fish has loss of appetite and patches that look like cotton balls."
+    "sample_symptoms": "lethargy, loss_of_appetite, skin_lesions, lumps"
   },
-  "Fur Mite Infestation (Cheyletiella parasitovorax)": {
+  "Fur Mite Infestation (Cheyletiella Parasitovorax)": {
     "urgency": "low",
     "contagious": true,
     "species": [
@@ -769,7 +719,7 @@
     "species": [
       "Rabbit"
     ],
-    "sample_symptoms": "crusts on skin, hair loss especially on back and neck, secondary skin infections"
+    "sample_symptoms": "dandruff, hair_loss, scratching, restlessness"
   },
   "Gastroenteritis": {
     "urgency": "high",
@@ -777,23 +727,15 @@
     "species": [
       "Dog"
     ],
-    "sample_symptoms": "loss of appetite, lethargy and weakness, abdominal pain and cramping, vomiting multiple times"
+    "sample_symptoms": "dehydration, diarrhea, vomiting, loss_of_appetite"
   },
   "Gastrointestinal Stasis": {
-    "urgency": "emergency",
-    "contagious": false,
-    "species": [
-      "Rabbit"
-    ],
-    "sample_symptoms": "obvious pain, no fecal pellets for 12 hours or more, small dry fecal pellets if any, grinding teeth due to discomfort, bloated or hard distended abdomen, loss of appetite"
-  },
-  "Gastrointestinal stasis": {
     "urgency": "severe",
     "contagious": false,
     "species": [
       "Rabbit"
     ],
-    "sample_symptoms": "My rabbit has abdominal pain when touched, also no droppings, lethargy."
+    "sample_symptoms": "bloating, dental_issues, reluctance_to_move, lethargy"
   },
   "Giarda": {
     "urgency": "medium",
@@ -812,12 +754,12 @@
     "sample_symptoms": "diarrhea, gas, weight_loss"
   },
   "Giardiasis": {
-    "urgency": "moderate",
+    "urgency": "mild",
     "contagious": true,
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "My bird has increased vocalization in the infected bird and weight loss."
+    "sample_symptoms": "diarrhea, feather_loss, itching"
   },
   "Gingivitis": {
     "urgency": "mild",
@@ -825,17 +767,17 @@
     "species": [
       "Cat"
     ],
-    "sample_symptoms": "My cat has dropping food, also red, swollen gums."
+    "sample_symptoms": "bad_breath, dental_issues, mouth_pain"
   },
   "Gout": {
-    "urgency": "moderate",
+    "urgency": "mild",
     "contagious": false,
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "My bird has makes noise when walking due to discomfort, also swollen joints, white deposits."
+    "sample_symptoms": "dehydration, diarrhea, swelling"
   },
-  "Gram-positive Bacterial Infections (Streptococcus, Lactococcus, Enterococcus, Vagococcus)": {
+  "Gram-Positive Bacterial Infections (Streptococcus, Lactococcus, Enterococcus, Vagococcus)": {
     "urgency": "high",
     "contagious": false,
     "species": [
@@ -851,13 +793,13 @@
     ],
     "sample_symptoms": "dandruff, hair_loss, lumps, weakness"
   },
-  "Hair loss / alopecia": {
-    "urgency": "moderate",
+  "Hair Loss / Alopecia": {
+    "urgency": "mild",
     "contagious": false,
     "species": [
       "Hamster"
     ],
-    "sample_symptoms": "My hamster has lethargy and patches of short hair."
+    "sample_symptoms": "bald_patches, dandruff, scabs"
   },
   "Hairballs": {
     "urgency": "medium",
@@ -866,7 +808,7 @@
       "Rabbit",
       "Cat"
     ],
-    "sample_symptoms": "My rabbit has lethargy, also loss of appetite, small droppings."
+    "sample_symptoms": "bloating, coughing, lethargy"
   },
   "Heartworm Disease": {
     "urgency": "high",
@@ -876,14 +818,6 @@
       "Dog"
     ],
     "sample_symptoms": "coughing, difficulty_breathing, vomiting"
-  },
-  "Heartworms": {
-    "urgency": "severe",
-    "contagious": false,
-    "species": [
-      "Dog"
-    ],
-    "sample_symptoms": "My dog has excessive panting, also coughing, fatigue, exercise intolerance \u00e2\u0080\u0094 still visible symptoms."
   },
   "Heat Shock": {
     "urgency": "emergency",
@@ -899,7 +833,89 @@
     "species": [
       "Rabbit"
     ],
-    "sample_symptoms": "drooling, rapid panting and open-mouth breathing, trembling or seizures, loss of appetite, lethargy and weakness, lying stretched out"
+    "sample_symptoms": "difficulty_breathing, drooling, loss_of_appetite, gasping"
+  },
+  "Heatstroke": {
+    "urgency": "emergency",
+    "contagious": false,
+    "species": [
+      "Hamster",
+      "Dog"
+    ],
+    "sample_symptoms": "confusion, dehydration, fever, red_skin"
+  },
+  "Heavy Metal Poisoning": {
+    "urgency": "severe",
+    "contagious": false,
+    "species": [
+      "Turtle"
+    ],
+    "sample_symptoms": "difficulty_walking, lethargy, seizures, vomiting"
+  },
+  "Hepatic Coccidiosis (Liver Coccidiosis)": {
+    "urgency": "high",
+    "contagious": true,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "lethargy, loss_of_appetite, weight_loss, lumps"
+  },
+  "Hookworms": {
+    "urgency": "medium",
+    "contagious": true,
+    "species": [
+      "Dog",
+      "Cat"
+    ],
+    "sample_symptoms": "coughing, diarrhea, rash, weakness"
+  },
+  "Hot Spots": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Dog"
+    ],
+    "sample_symptoms": "hair_loss, lameness, limping"
+  },
+  "Hutch Burn": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "hair_loss, itching, lameness, skin_lesions"
+  },
+  "Hyperthyroidism": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Cat"
+    ],
+    "sample_symptoms": "aggression, diarrhea, weight_loss, vomiting"
+  },
+  "Hypothyroidism": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Dog"
+    ],
+    "sample_symptoms": "lethargy, weakness, weight_loss"
+  },
+  "Hypovitaminosis D (Vitamin D3 Deficiency)": {
+    "urgency": "high",
+    "contagious": false,
+    "species": [
+      "Turtle"
+    ],
+    "sample_symptoms": "lethargy, loss_of_appetite, lumps"
+  },
+  "Ich": {
+    "urgency": "mild",
+    "contagious": true,
+    "species": [
+      "Fish"
+    ],
+    "sample_symptoms": "clamped_fins, dandruff, loss_of_appetite"
   },
   "Ich (White Spot Disease)": {
     "urgency": "high",
@@ -907,7 +923,47 @@
     "species": [
       "Fish"
     ],
-    "sample_symptoms": "clamped fins held close to body, rubbing against objects (flashing), rapid gill movement, gasping at water surface"
+    "sample_symptoms": "clamped_fins, gas, gasping, white_spots"
+  },
+  "Infectious Canine Hepatitis": {
+    "urgency": "severe",
+    "contagious": true,
+    "species": [
+      "Dog"
+    ],
+    "sample_symptoms": "ear_discharge, eye_discharge, weakness, increased_thirst"
+  },
+  "Infectious Stomatitis": {
+    "urgency": "mild",
+    "contagious": true,
+    "species": [
+      "Turtle"
+    ],
+    "sample_symptoms": "bad_breath, dental_issues, difficulty_eating, weight_loss"
+  },
+  "Inflammatory Bowel Disease": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Cat"
+    ],
+    "sample_symptoms": "diarrhea, lethargy, weight_loss, vomiting"
+  },
+  "Internal Parasites (Roundworms, Tapeworms, Protozoa)": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Turtle"
+    ],
+    "sample_symptoms": "diarrhea, lethargy, visible_parasites"
+  },
+  "Intestinal Coccidiosis": {
+    "urgency": "high",
+    "contagious": true,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "dehydration, lethargy, weight_loss, loss_of_appetite"
   },
   "Intestinal Parasites": {
     "urgency": "medium",
@@ -915,7 +971,7 @@
     "species": [
       "Cat"
     ],
-    "sample_symptoms": "My cat has pale mucous membranes, also worms in stool, diarrhea."
+    "sample_symptoms": "coughing, diarrhea, visible_parasites, vomiting"
   },
   "Intestinal Parasites (Worms)": {
     "urgency": "medium",
@@ -923,7 +979,15 @@
     "species": [
       "Dog"
     ],
-    "sample_symptoms": "dull coat, scooting rear end on ground, visible worms in feces or vomit, vomiting, pot-bellied appearance, weight loss despite eating"
+    "sample_symptoms": "diarrhea, visible_parasites, vomiting, weight_loss"
+  },
+  "Iodine Deficiency/Goiter": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Bird"
+    ],
+    "sample_symptoms": "difficulty_breathing, gas, vomiting, lumps"
   },
   "Kennel Cough": {
     "urgency": "low",
@@ -931,7 +995,71 @@
     "species": [
       "Dog"
     ],
-    "sample_symptoms": "dry hacking cough that sounds like honking, normal appetite and energy, coughing worsens with excitement or exercise, clear nasal discharge"
+    "sample_symptoms": "coughing, loss_of_appetite, nasal_discharge"
+  },
+  "Kidney Stones": {
+    "urgency": "high",
+    "contagious": false,
+    "species": [
+      "Cat"
+    ],
+    "sample_symptoms": "frequent_urination, lethargy, loss_of_appetite"
+  },
+  "Koi Herpes Virus": {
+    "urgency": "emergency",
+    "contagious": true,
+    "species": [
+      "Fish"
+    ],
+    "sample_symptoms": "confusion, dandruff, loss_of_appetite, gasping"
+  },
+  "Lernaea": {
+    "urgency": "mild",
+    "contagious": true,
+    "species": [
+      "Fish"
+    ],
+    "sample_symptoms": "lameness, lethargy, skin_lesions, scratching"
+  },
+  "Lice And Mite": {
+    "urgency": "medium",
+    "contagious": true,
+    "species": [
+      "Bird"
+    ],
+    "sample_symptoms": "difficulty_breathing, feather_loss, lethargy, scratching"
+  },
+  "Liver Disease": {
+    "urgency": "high",
+    "contagious": false,
+    "species": [
+      "Dog"
+    ],
+    "sample_symptoms": "confusion, diarrhea, vomiting"
+  },
+  "Lyme Disease": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Dog"
+    ],
+    "sample_symptoms": "diarrhea, fever, stiffness"
+  },
+  "Malocclusion (Dental Overgrowth)": {
+    "urgency": "high",
+    "contagious": false,
+    "species": [
+      "Hamster"
+    ],
+    "sample_symptoms": "dental_issues, drooling, weight_loss, loss_of_appetite"
+  },
+  "Mange": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Cat"
+    ],
+    "sample_symptoms": "bumps, dandruff, skin_lesions"
   },
   "Mange (Scabies)": {
     "urgency": "medium",
@@ -939,7 +1067,15 @@
     "species": [
       "Dog"
     ],
-    "sample_symptoms": "intense itching especially at night, unpleasant skin odor, hair loss starting at ears and elbows, secondary bacterial skin infections, thick crusty skin lesions"
+    "sample_symptoms": "bad_breath, hair_loss, skin_lesions"
+  },
+  "Mast Cell Tumor": {
+    "urgency": "severe",
+    "contagious": false,
+    "species": [
+      "Cat"
+    ],
+    "sample_symptoms": "hair_loss, itching, swelling, lumps"
   },
   "Metabolic Bone Disease": {
     "urgency": "high",
@@ -947,7 +1083,7 @@
     "species": [
       "Turtle"
     ],
-    "sample_symptoms": "extreme lethargy, jaw that appears rubbery or flexible, tremors or seizures, soft or deformed shell, swollen limbs"
+    "sample_symptoms": "difficulty_walking, lethargy, swelling, loss_of_appetite"
   },
   "Mites": {
     "urgency": "medium",
@@ -955,7 +1091,39 @@
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "constant scratching and preening, feather loss, restlessness at night, tiny mites visible on skin, crusty lesions around beak and eyes"
+    "sample_symptoms": "feather_loss, restlessness, visible_parasites"
+  },
+  "Mycoplasma Respiratory Infection": {
+    "urgency": "medium",
+    "contagious": true,
+    "species": [
+      "Bird"
+    ],
+    "sample_symptoms": "coughing, difficulty_breathing, swelling, labored_breathing"
+  },
+  "Myxomatosis": {
+    "urgency": "severe",
+    "contagious": true,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "fever, lethargy, weight_loss"
+  },
+  "Newcastle Disease": {
+    "urgency": "severe",
+    "contagious": true,
+    "species": [
+      "Bird"
+    ],
+    "sample_symptoms": "diarrhea, difficulty_breathing, eye_discharge, nasal_discharge"
+  },
+  "Nitrate Poisoning": {
+    "urgency": "high",
+    "contagious": false,
+    "species": [
+      "Fish"
+    ],
+    "sample_symptoms": "lameness, lethargy, weakness, red_skin"
   },
   "Nutritional Deficiencies": {
     "urgency": "medium",
@@ -963,16 +1131,65 @@
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "muscle tremors, difficulty perching, poor feather quality, beak overgrowth or deformities, seizures, complete exhaustion, skeletal deformities"
+    "sample_symptoms": "lethargy, lumps, seizures, weakness"
   },
   "Obesity": {
-    "urgency": "mild",
+    "urgency": "medium",
     "contagious": false,
     "species": [
       "Dog",
+      "Cat",
+      "Bird"
+    ],
+    "sample_symptoms": "bloating, gas, labored_breathing"
+  },
+  "Osteoarthritis": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
       "Cat"
     ],
-    "sample_symptoms": "My dog has being unable to feel the ribs, also visible weight gain."
+    "sample_symptoms": "lameness, limping, stiffness, swelling"
+  },
+  "Otitis Media/Interna": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "dental_issues, ear_discharge, reluctance_to_move, head_tilt"
+  },
+  "Overgrown Incisors": {
+    "urgency": "high",
+    "contagious": false,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "dental_issues, drooling, lethargy"
+  },
+  "Overgrown Teeth": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "dental_issues, drooling, watery_eyes, weight_loss"
+  },
+  "Pacheco\u2019S Disease": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Bird"
+    ],
+    "sample_symptoms": "eye_discharge, fluffed_feathers, nasal_discharge, lethargy"
+  },
+  "Pancreatitis": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Cat"
+    ],
+    "sample_symptoms": "diarrhea, loss_of_appetite, vomiting"
   },
   "Pasteurellosis (Snuffles)": {
     "urgency": "medium",
@@ -980,17 +1197,81 @@
     "species": [
       "Rabbit"
     ],
-    "sample_symptoms": "matted fur on front paws from wiping nose, eye discharge, loss of appetite and lethargy, labored breathing"
+    "sample_symptoms": "ear_discharge, eye_discharge, sneezing, head_tilt"
+  },
+  "Patellar Luxation": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Dog"
+    ],
+    "sample_symptoms": "lameness, limping, stiffness"
+  },
+  "Periodontal Disease": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Cat"
+    ],
+    "sample_symptoms": "bad_breath, dental_issues, loss_of_appetite, red_gums"
+  },
+  "Ph Shock": {
+    "urgency": "emergency",
+    "contagious": false,
+    "species": [
+      "Fish"
+    ],
+    "sample_symptoms": "clamped_fins, gas, hiding"
+  },
+  "Pinworm Infection": {
+    "urgency": "medium",
+    "contagious": true,
+    "species": [
+      "Hamster"
+    ],
+    "sample_symptoms": "diarrhea, irritated_skin, itching"
+  },
+  "Pinworm Infestation (Passalurus Ambiguus)": {
+    "urgency": "low",
+    "contagious": true,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "itching, restlessness, visible_parasites"
   },
   "Pneumonia": {
     "urgency": "severe",
     "contagious": true,
     "species": [
       "Rabbit",
-      "Hamster",
-      "Turtle"
+      "Turtle",
+      "Hamster"
     ],
-    "sample_symptoms": "My rabbit has coughing is not usually a symptom seen in rabbits and excessive salivation."
+    "sample_symptoms": "coughing, difficulty_breathing, gasping_at_surface, nasal_discharge"
+  },
+  "Popeye / Exophthalmia": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Fish"
+    ],
+    "sample_symptoms": "cloudy_eyes, red_skin, swelling"
+  },
+  "Protozoal Infection": {
+    "urgency": "medium",
+    "contagious": true,
+    "species": [
+      "Hamster"
+    ],
+    "sample_symptoms": "dehydration, diarrhea, weight_loss"
+  },
+  "Protrusion Of The Eyeball": {
+    "urgency": "severe",
+    "contagious": false,
+    "species": [
+      "Hamster"
+    ],
+    "sample_symptoms": "red_skin, scabs, swelling"
   },
   "Psittacosis (Chlamydiosis)": {
     "urgency": "high",
@@ -998,7 +1279,31 @@
     "species": [
       "Bird"
     ],
-    "sample_symptoms": "weakness and inability to perch, loss of appetite, conjunctivitis with swollen eyes, labored breathing and tail bobbing, complete exhaustion, nasal discharge"
+    "sample_symptoms": "difficulty_breathing, ear_discharge, swelling, lethargy"
+  },
+  "Pyoderma": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Dog"
+    ],
+    "sample_symptoms": "dandruff, hair_loss, scratching, scabs"
+  },
+  "Pyometra": {
+    "urgency": "severe",
+    "contagious": false,
+    "species": [
+      "Cat"
+    ],
+    "sample_symptoms": "bloating, dehydration, lethargy, diarrhea"
+  },
+  "Rabbit Hemorrhagic Disease Virus": {
+    "urgency": "emergency",
+    "contagious": true,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "difficulty_breathing, fever, weakness, gasping_at_surface"
   },
   "Rabies": {
     "urgency": "emergency",
@@ -1006,27 +1311,101 @@
     "species": [
       "Dog"
     ],
-    "sample_symptoms": "My dog has difficulty breathing, also behavioral change, aggression, paralysis."
+    "sample_symptoms": "aggression, confusion, drooling"
   },
   "Respiratory Infections": {
     "urgency": "high",
     "contagious": true,
     "species": [
-      "Bird",
+      "Turtle",
       "Hamster",
-      "Turtle"
+      "Bird"
     ],
-    "sample_symptoms": "sneezing and nasal discharge, tail bobbing, lethargy and fluffed feathers, wheezing sounds, reduced appetite"
+    "sample_symptoms": "difficulty_breathing, ear_discharge, eye_discharge"
+  },
+  "Rhinitis": {
+    "urgency": "mild",
+    "contagious": true,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "dental_issues, drooling, nasal_discharge, sneezing"
+  },
+  "Rickettsial Infections": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Dog"
+    ],
+    "sample_symptoms": "coughing, fever, weight_loss, lethargy"
   },
   "Ringworm": {
     "urgency": "medium",
     "contagious": true,
     "species": [
-      "Hamster",
+      "Rabbit",
       "Bird",
+      "Dog",
+      "Cat",
+      "Hamster"
+    ],
+    "sample_symptoms": "bald_patches, dandruff, scabs"
+  },
+  "Roundworms": {
+    "urgency": "medium",
+    "contagious": true,
+    "species": [
       "Cat"
     ],
-    "sample_symptoms": "My hamster has scaly or crusty skin, also circular bald patches."
+    "sample_symptoms": "bloating, coughing, weight_loss"
+  },
+  "Roundworms (Ascarids)": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Dog"
+    ],
+    "sample_symptoms": "bloating, coughing, diarrhea, gasping_at_surface"
+  },
+  "Sarcoptic Mange (Sarcoptes Scabiei Or Notoedres Cati)": {
+    "urgency": "high",
+    "contagious": false,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "hair_loss, itching, scabs"
+  },
+  "Scale Rot / Blister Disease": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Fish"
+    ],
+    "sample_symptoms": "bumps, dandruff, skin_lesions"
+  },
+  "Scaly Face / Tassel Foot / Feather Mites": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Bird"
+    ],
+    "sample_symptoms": "dandruff, feather_loss, lethargy, itching"
+  },
+  "Septicemia": {
+    "urgency": "severe",
+    "contagious": false,
+    "species": [
+      "Turtle"
+    ],
+    "sample_symptoms": "difficulty_breathing, lethargy, respiratory_distress, seizures"
+  },
+  "Shell Injuries/Trauma": {
+    "urgency": "high",
+    "contagious": false,
+    "species": [
+      "Turtle"
+    ],
+    "sample_symptoms": "ear_discharge, lameness, limping"
   },
   "Shell Rot": {
     "urgency": "medium",
@@ -1034,7 +1413,7 @@
     "species": [
       "Turtle"
     ],
-    "sample_symptoms": "soft spots on shell, discolored patches on shell, complete loss of appetite, pitting or holes in shell, lethargy, foul smell from shell, discharge from affected areas"
+    "sample_symptoms": "ear_discharge, lethargy, weakness"
   },
   "Skin Allergies": {
     "urgency": "medium",
@@ -1042,7 +1421,7 @@
     "species": [
       "Cat"
     ],
-    "sample_symptoms": "overgrooming leading to bald patches, red inflamed skin, hair loss especially on belly and legs, small scabs on skin, excessive grooming and licking"
+    "sample_symptoms": "bald_patches, hair_loss, red_skin"
   },
   "Skin Allergies (Atopic Dermatitis)": {
     "urgency": "medium",
@@ -1050,7 +1429,23 @@
     "species": [
       "Dog"
     ],
-    "sample_symptoms": "red inflamed skin especially on paws and belly, constant scratching and licking, hair loss in patches, skin rashes and hot spots"
+    "sample_symptoms": "hair_loss, lameness, limping, scratching"
+  },
+  "Skin And Fur Mites": {
+    "urgency": "mild",
+    "contagious": true,
+    "species": [
+      "Bird"
+    ],
+    "sample_symptoms": "dandruff, hair_loss, skin_lesions, scratching"
+  },
+  "Skin And Gill Flukes": {
+    "urgency": "mild",
+    "contagious": true,
+    "species": [
+      "Fish"
+    ],
+    "sample_symptoms": "clamped_fins, gas, labored_breathing, swelling"
   },
   "Skin Mites": {
     "urgency": "medium",
@@ -1058,7 +1453,31 @@
     "species": [
       "Hamster"
     ],
-    "sample_symptoms": "dry flaky skin, restlessness and inability to sleep, intense scratching"
+    "sample_symptoms": "hair_loss, irritated_skin, scratching"
+  },
+  "Skin Parasites": {
+    "urgency": "mild",
+    "contagious": true,
+    "species": [
+      "Turtle"
+    ],
+    "sample_symptoms": "dandruff, lethargy, visible_parasites"
+  },
+  "Snuffles": {
+    "urgency": "mild",
+    "contagious": true,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "difficulty_breathing, head_tilt, loss_of_appetite, weight_loss"
+  },
+  "Soft Shell Disease (Metabolic Bone Disease)": {
+    "urgency": "high",
+    "contagious": false,
+    "species": [
+      "Turtle"
+    ],
+    "sample_symptoms": "lethargy, loss_of_appetite, weakness, swelling"
   },
   "Sore Hocks": {
     "urgency": "medium",
@@ -1066,7 +1485,23 @@
     "species": [
       "Rabbit"
     ],
-    "sample_symptoms": "hair loss on bottom of hind feet, reluctance to move, weight shifting when sitting, scabs or open sores on feet"
+    "sample_symptoms": "hair_loss, lameness, swelling, red_skin"
+  },
+  "Squamous Cell Carcinoma": {
+    "urgency": "severe",
+    "contagious": false,
+    "species": [
+      "Cat"
+    ],
+    "sample_symptoms": "bad_breath, dental_issues, drooling, weight_loss"
+  },
+  "Stomatitis": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Cat"
+    ],
+    "sample_symptoms": "bad_breath, difficulty_eating, loss_of_appetite, drooling"
   },
   "Swim Bladder Disease": {
     "urgency": "medium",
@@ -1074,7 +1509,24 @@
     "species": [
       "Fish"
     ],
-    "sample_symptoms": "My fish has struggling to swim normally, also abnormal floating or sinking."
+    "sample_symptoms": "bloating, loss_of_appetite, loss_of_balance"
+  },
+  "Tapeworm Infection": {
+    "urgency": "medium",
+    "contagious": true,
+    "species": [
+      "Hamster"
+    ],
+    "sample_symptoms": "diarrhea, lethargy, weight_loss, weakness"
+  },
+  "Tapeworms": {
+    "urgency": "medium",
+    "contagious": true,
+    "species": [
+      "Dog",
+      "Cat"
+    ],
+    "sample_symptoms": "diarrhea, lethargy, weakness"
   },
   "Tick Fever (Ehrlichiosis)": {
     "urgency": "high",
@@ -1082,7 +1534,39 @@
     "species": [
       "Dog"
     ],
-    "sample_symptoms": "lethargy and weakness, high fever that comes and goes, swollen lymph nodes"
+    "sample_symptoms": "fever, lethargy, stiffness"
+  },
+  "Ticks": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Cat"
+    ],
+    "sample_symptoms": "bumps, fever, loss_of_appetite, visible_parasites"
+  },
+  "Tooth Root Abscesses": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "dental_issues, ear_discharge, sneezing"
+  },
+  "Toxoplasmosis": {
+    "urgency": "high",
+    "contagious": false,
+    "species": [
+      "Cat"
+    ],
+    "sample_symptoms": "circling, confusion, seizures"
+  },
+  "Trichomoniasis": {
+    "urgency": "mild",
+    "contagious": true,
+    "species": [
+      "Bird"
+    ],
+    "sample_symptoms": "drooling, skin_lesions, vomiting"
   },
   "Tumors": {
     "urgency": "medium",
@@ -1090,7 +1574,7 @@
     "species": [
       "Hamster"
     ],
-    "sample_symptoms": "loss of appetite, visible lump under skin, lethargy"
+    "sample_symptoms": "lethargy, loss_of_appetite, weight_loss"
   },
   "Upper Respiratory Infection": {
     "urgency": "medium",
@@ -1098,7 +1582,32 @@
     "species": [
       "Cat"
     ],
-    "sample_symptoms": "My cat has difficulty breathing and decreased or absent appetite."
+    "sample_symptoms": "coughing, difficulty_breathing, lethargy, sneezing"
+  },
+  "Urethral Obstruction": {
+    "urgency": "severe",
+    "contagious": false,
+    "species": [
+      "Rabbit"
+    ],
+    "sample_symptoms": "blood_in_urine, loss_of_appetite, straining_to_urinate, straining"
+  },
+  "Urinary Blockage": {
+    "urgency": "emergency",
+    "contagious": false,
+    "species": [
+      "Cat"
+    ],
+    "sample_symptoms": "blood_in_urine, diarrhea, loss_of_appetite, straining_to_urinate"
+  },
+  "Urinary Tract Infection": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Dog",
+      "Rabbit"
+    ],
+    "sample_symptoms": "bad_breath, cloudy_urine, dental_issues"
   },
   "Uterine Cancer": {
     "urgency": "high",
@@ -1106,15 +1615,40 @@
     "species": [
       "Rabbit"
     ],
-    "sample_symptoms": "lethargy and weakness, increased urination frequency, selective eating, mammary gland cysts or tumors, enlarged abdomen, blood in urine, difficulty breathing"
+    "sample_symptoms": "blood_in_urine, difficulty_breathing, weight_loss"
+  },
+  "Velvet Disease": {
+    "urgency": "high",
+    "contagious": true,
+    "species": [
+      "Fish"
+    ],
+    "sample_symptoms": "lethargy, weakness, weight_loss"
+  },
+  "Vent Prolapse": {
+    "urgency": "severe",
+    "contagious": false,
+    "species": [
+      "Turtle"
+    ],
+    "sample_symptoms": "red_skin, straining, swelling"
   },
   "Vitamin A Deficiency": {
     "urgency": "medium",
     "contagious": false,
     "species": [
+      "Bird",
       "Turtle"
     ],
-    "sample_symptoms": "thickened skin, difficulty seeing or blindness, reduced appetite, swollen eyelids unable to open, respiratory infections"
+    "sample_symptoms": "bad_breath, diarrhea, nasal_discharge"
+  },
+  "Vitamin C Deficiency": {
+    "urgency": "mild",
+    "contagious": false,
+    "species": [
+      "Fish"
+    ],
+    "sample_symptoms": "lethargy, loss_of_appetite, lumps"
   },
   "Wet Tail (Proliferative Ileitis)": {
     "urgency": "emergency",
@@ -1122,6 +1656,22 @@
     "species": [
       "Hamster"
     ],
-    "sample_symptoms": "dehydration, watery diarrhea with foul odor, loss of appetite, wet matted fur around tail, irritability when handled, weight loss, complete exhaustion"
+    "sample_symptoms": "bad_breath, dehydration, weight_loss, loss_of_appetite"
+  },
+  "Whipworms": {
+    "urgency": "medium",
+    "contagious": false,
+    "species": [
+      "Dog"
+    ],
+    "sample_symptoms": "dehydration, diarrhea, visible_parasites, weakness"
+  },
+  "[Leptospirosis]": {
+    "urgency": "high",
+    "contagious": false,
+    "species": [
+      "Dog"
+    ],
+    "sample_symptoms": "bad_breath, coughing, diarrhea, loss_of_appetite"
   }
 }
