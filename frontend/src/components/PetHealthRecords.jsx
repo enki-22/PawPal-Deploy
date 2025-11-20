@@ -196,12 +196,23 @@ const PetHealthRecords = () => {
         {/* Header - Mobile: logo, sidebar toggle, profile. Desktop: unchanged. */}
         <div className="border-b p-2 md:p-4 flex flex-row items-center justify-between gap-2 md:gap-0 sticky top-0 z-20 bg-[#DCCEF1] md:bg-[#f0f1f1]">
           {/* Mobile header */}
-          <div className="flex items-center gap-2 md:hidden w-full justify-between">
+          <div
+            className="flex items-center gap-2 md:hidden w-full justify-between"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              zIndex: 100,
+              background: '#DCCEF1',
+              padding: '0.5rem 1rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            }}
+          >
             <div className="flex items-center gap-2">
               <img src="/pat-removebg-preview 2.png" alt="PawPal Logo" className="w-8 h-8" />
               <span className="font-bold text-lg text-[#815FB3]" style={{ fontFamily: 'Raleway' }}>PAWPAL</span>
               <button onClick={() => setIsMobileSidebarOpen(true)} className="p-2 ml-2" aria-label="Open sidebar">
-                {/* Flipped sidebar-expand-icon.png to face right */}
                 <img src="/sidebar-expand-icon.png" alt="Sidebar Toggle" className="w-6 h-6" style={{ transform: 'scaleX(-1)' }} />
               </button>
             </div>
@@ -234,20 +245,20 @@ const PetHealthRecords = () => {
           </div>
         </div>
         {/* Page name below header for mobile */}
-        <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#f0f1f1' }}>
+        <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#f0f1f1', paddingTop: '56px' }}>
           <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
             Pet Health Records
           </h2>
         </div>
 
         {/* Main Content - Pet Cards (Scrollable) */}
-        <div className="flex-1 overflow-y-auto bg-[#f0f1f1] p-2 md:p-8">
+        <div className="flex-1 overflow-y-auto bg-[#f0f1f1] p-2 md:p-8" style={{ paddingTop: '20px' }}>
           {/* Filters */}
           <div className="bg-[#f0f1f1] rounded-lg p-2 md:p-3 mb-4 md:mb-6">
-            <div className="flex flex-wrap gap-2 md:gap-4 items-center justify-center">
+            <div className="flex flex-nowrap gap-1 md:gap-4 items-center justify-center px-0 md:px-2">
               {/* Pet Name Filter */}
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
+                className="px-1 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3] md:px-1 md:py-2 md:text-base md:rounded-lg"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
                 value=""
                 onChange={(e) => handleFilterChange('name', e.target.value)}
@@ -260,7 +271,7 @@ const PetHealthRecords = () => {
 
               {/* Animal Type Filter */}
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
+                className="px-1 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3] md:px-1 md:py-2 md:text-base md:rounded-lg"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
                 value={filters.animal_type}
                 onChange={(e) => handleFilterChange('animal_type', e.target.value)}
@@ -276,7 +287,7 @@ const PetHealthRecords = () => {
 
               {/* Sex Filter */}
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
+                className="px-1 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3] md:px-1 md:py-2 md:text-base md:rounded-lg"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
                 value={filters.sex}
                 onChange={(e) => handleFilterChange('sex', e.target.value)}
@@ -288,7 +299,7 @@ const PetHealthRecords = () => {
 
               {/* Age Filter */}
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
+                className="px-1 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3] md:px-1 md:py-2 md:text-base md:rounded-lg"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
                 value={filters.age}
                 onChange={(e) => handleFilterChange('age', e.target.value)}
@@ -302,7 +313,7 @@ const PetHealthRecords = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 justify-items-center py-4 md:py-8 min-h-[200px] md:min-h-[300px]">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 justify-items-center py-4 md:py-8 min-h-[200px] md:min-h-[300px]">
             {loading ? (
               <div className="col-span-full flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3]"></div>
@@ -311,12 +322,12 @@ const PetHealthRecords = () => {
               pets.map((pet) => (
                 <div 
                   key={pet.id} 
-                  className="cursor-pointer hover:transform hover:scale-105 transition-all duration-300 w-full max-w-xs md:max-w-sm h-auto bg-[#FFFFF2] rounded-xl flex flex-col"
+                  className="cursor-pointer hover:transform hover:scale-105 transition-all duration-200 w-40 md:w-60 h-auto bg-[#FFFFF2] rounded-xl flex flex-col min-h-[230px] md:min-h-[260px]"
                   onClick={() => navigate(`/pet-profile/${pet.id}`)}
-                  style={{ minHeight: '260px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}
+                  style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}
                 >
                   {/* Pet Image Section */}
-                  <div className="relative overflow-hidden w-full h-32 md:h-48 bg-white rounded-t-xl flex items-center justify-center">
+                  <div className="relative overflow-hidden w-full h-28 md:h-48 bg-white rounded-t-xl flex items-center justify-center">
                     {pet.image ? (
                       <img 
                         src={pet.image} 
@@ -341,8 +352,9 @@ const PetHealthRecords = () => {
                     ></div>
                   </div>
                   {/* Pet Info Section - inside card */}
-                  <div className="flex flex-col flex-1 px-4 py-3 md:px-6 md:py-4 justify-between">
-                    <h3 className="font-raleway font-extrabold text-lg md:text-2xl text-black mb-1 break-words">
+                  {/* Changed justify-between to justify-start (for mobile) and added gap-2 */}
+                  <div className="flex flex-col flex-1 px-2 py-3 md:px-6 md:py-4 justify-start gap-2 md:justify-between md:gap-0">
+                    <h3 className="font-raleway font-extrabold text-base md:text-2xl text-black mb-1 break-words">
                       {pet.name}, {pet.age}
                     </h3>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs md:text-sm text-black">
@@ -358,13 +370,13 @@ const PetHealthRecords = () => {
             {/* Add Pet Card */}
             <div 
               onClick={() => setShowAddPetModal(true)}
-              className="cursor-pointer hover:transform hover:scale-105 transition-all duration-300 w-full max-w-xs md:max-w-sm h-auto border-2 border-[#815FB3] rounded-xl bg-transparent flex items-center justify-center min-h-[220px]"
+              className="cursor-pointer hover:transform hover:scale-105 transition-all duration-300 w-40 md:w-60 h-auto border-2 border-[#815FB3] rounded-xl bg-transparent flex items-center justify-center min-h-[230px] md:min-h-[260px]"
             >
               <div className="relative w-full h-full flex items-center justify-center">
                 <img 
                   src="/basil_add-solid.png" 
                   alt="Add Pet" 
-                  className="w-20 h-20 md:w-24 md:h-24"
+                  className="w-16 h-16 md:w-24 md:h-24"
                 />
               </div>
             </div>

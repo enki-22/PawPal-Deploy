@@ -14,7 +14,7 @@ const AIDiagnosis = () => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
   const [filters, setFilters] = useState({
     search: '',
     severity: '',
@@ -206,12 +206,23 @@ const AIDiagnosis = () => {
         {/* Header - Mobile: logo, sidebar toggle, profile. Desktop: unchanged. */}
         <div className="border-b p-4 flex items-center justify-between sticky top-0 z-20 bg-[#DCCEF1] md:bg-[#f0f1f1]">
           {/* Mobile header */}
-          <div className="flex items-center gap-2 md:hidden w-full justify-between">
+          <div
+            className="flex items-center gap-2 md:hidden w-full justify-between"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              zIndex: 100,
+              background: '#DCCEF1',
+              padding: '0.5rem 1rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            }}
+          >
             <div className="flex items-center gap-2">
               <img src="/pat-removebg-preview 2.png" alt="PawPal Logo" className="w-8 h-8" />
               <span className="font-bold text-lg text-[#815FB3]" style={{ fontFamily: 'Raleway' }}>PAWPAL</span>
               <button onClick={() => setIsMobileSidebarOpen(true)} className="p-2 ml-2" aria-label="Open sidebar">
-                {/* Flipped sidebar-expand-icon.png to face right */}
                 <img src="/sidebar-expand-icon.png" alt="Sidebar Toggle" className="w-6 h-6" style={{ transform: 'scaleX(-1)' }} />
               </button>
             </div>
@@ -244,20 +255,37 @@ const AIDiagnosis = () => {
           </div>
         </div>
         {/* Page name below header for mobile */}
-        <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#fff' }}>
+        <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#F2F4F7', paddingTop: '56px' }}>
           <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
             AI Diagnosis
           </h2>
         </div>
 
+        {/* Mobile search bar - only visible on mobile, above filters */}
+        <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#F2F4F7' }}>
+          <div className="relative w-full">
+            <svg className="w-5 h-5 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search"
+              className="w-full pl-10 pr-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] text-[14px] bg-[#f0f1f1]"
+              style={{ fontFamily: 'Raleway', borderColor: '#888888' }}
+              value={filters.search}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
+            />
+          </div>
+        </div>
+
         {/* Main Content - Diagnoses (Scrollable) */}
-        <div className="flex-1 p-4 overflow-y-auto bg-[#f0f1f1]">
+        <div className="flex-1 p-4 overflow-y-auto bg-[#f0f1f1]" style={{ paddingTop: '20px' }}>
           {/* Filters */}
           <div className="bg-[#f0f1f1] rounded-lg p-3 mb-3">
-            <div className="flex flex-wrap gap-4 items-center justify-center">
+            <div className="flex flex-wrap gap-2 items-center justify-center">
               {/* Severity Filter */}
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
+                className="px-1 py-1 text-xs md:px-4 md:py-2 md:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
                 value={filters.severity}
                 onChange={(e) => handleFilterChange('severity', e.target.value)}
@@ -271,7 +299,7 @@ const AIDiagnosis = () => {
 
               {/* Species Filter */}
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
+                className="px-1 py-1 text-xs md:px-4 md:py-2 md:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
                 value={filters.species}
                 onChange={(e) => handleFilterChange('species', e.target.value)}
@@ -287,7 +315,7 @@ const AIDiagnosis = () => {
 
               {/* Date Range Filter */}
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
+                className="px-1 py-1 text-xs md:px-4 md:py-2 md:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3]"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
                 value={filters.dateRange}
                 onChange={(e) => handleFilterChange('dateRange', e.target.value)}
@@ -306,33 +334,36 @@ const AIDiagnosis = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3]" />
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto w-full">
               <table
-                className="min-w-full bg-[#fffde7] rounded-xl shadow border text-[15px]"
-                style={{ fontFamily: 'Raleway', tableLayout: 'fixed' }}
+                className="w-full md:min-w-[1100px] rounded-xl shadow border text-[10px] md:text-[15px] md:table-fixed"
+                style={{ fontFamily: 'Raleway', background: '#FFFFF2' }}
               >
                 <colgroup>
                   <col style={{ width: '18%' }} />
                   <col style={{ width: '14%' }} />
                   <col style={{ width: '14%' }} />
                   <col style={{ width: '14%' }} />
-                  <col style={{ width: '14%' }} />
+                  <col style={{ width: '20%' }} />
                   <col style={{ width: '26%' }} />
                 </colgroup>
                 <thead>
-                  <tr className="bg-[#fffde7] text-gray-700">
-                    <th className="px-4 py-3 text-left font-semibold">Pet Name</th>
-                    <th className="px-4 py-3 text-left font-semibold">Animal</th>
-                    <th className="px-4 py-3 text-left font-semibold">Breed</th>
-                    <th className="px-4 py-3 text-left font-semibold">Severity</th>
-                    <th className="px-4 py-3 text-left font-semibold">Case ID</th>
-                    <th className="px-4 py-3 text-left font-semibold">Date Generated</th>
+                  <tr className="text-gray-700" style={{ background: '#FFFFF2' }}>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left font-semibold text-[10px] md:text-[15px]">Pet Name</th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left font-semibold text-[10px] md:text-[15px]">Animal</th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left font-semibold text-[10px] md:text-[15px]">Breed</th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left font-semibold text-[10px] md:text-[15px]">Severity</th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left font-semibold text-[10px] md:text-[15px]">Case ID</th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left font-semibold text-[10px] md:text-[15px]">Date Generated</th>
                   </tr>
                 </thead>
                 <tbody>
                   {diagnoses.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-gray-400" style={{ fontFamily: 'Raleway', fontSize: '16px' }}>
+                      <td colSpan={6} 
+                        className="px-4 py-8 text-center text-gray-400 text-sm md:text-base" 
+                        style={{ fontFamily: 'Raleway' }}
+                      >
                         There are no data yet.
                       </td>
                     </tr>
@@ -343,21 +374,24 @@ const AIDiagnosis = () => {
                         className="border-b last:border-b-0 hover:bg-[#f7f6fa] cursor-pointer"
                         onClick={() => diagnosis.case_id && setSelectedCaseId(diagnosis.case_id)}
                       >
-                        <td className="px-4 py-3 flex items-center gap-2">
+                        <td className="px-2 py-2 md:px-4 md:py-3 flex items-center gap-1 md:gap-2 text-[10px] md:text-[15px]">
                           {diagnosis.pet_photo_url && (
-                            <img src={diagnosis.pet_photo_url} alt={diagnosis.pet_name} className="w-8 h-8 rounded-full object-cover" />
+                            <img src={diagnosis.pet_photo_url} alt={diagnosis.pet_name} className="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover" />
                           )}
-                          <span className="font-semibold">{diagnosis.pet_name || 'Pet Diagnosis'}</span>
+                          <span className="font-semibold break-words">{diagnosis.pet_name || 'Pet Diagnosis'}</span>
                         </td>
-                        <td className="px-4 py-3">{diagnosis.animal_type || diagnosis.species}</td>
-                        <td className="px-4 py-3">{diagnosis.breed || '-'}</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${severityColors[diagnosis.severity?.toLowerCase()] || 'bg-gray-100 text-gray-800'}`}>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-[10px] md:text-[15px]">{diagnosis.animal_type || diagnosis.species}</td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 break-words text-[10px] md:text-[15px]">{diagnosis.breed || '-'}</td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-[10px] md:text-[15px]">
+                          <span
+                            className={`px-1 py-0.5 md:px-3 md:py-1 rounded-[10px] md:rounded-full text-[8px] md:text-xs font-medium ${severityColors[diagnosis.severity?.toLowerCase()] || 'bg-gray-100 text-gray-800'}`}
+                            style={{ minWidth: '32px', display: 'inline-block', textAlign: 'center' }}
+                          >
                             {diagnosis.severity}
                           </span>
                         </td>
-                        <td className="px-4 py-3 font-mono text-sm text-gray-700">{diagnosis.case_id || '-'}</td>
-                        <td className="px-4 py-3">{diagnosis.created_at ? new Date(diagnosis.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 font-mono text-[8px] md:text-sm text-gray-700 break-all">{diagnosis.case_id || '-'}</td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-[10px] md:text-[15px]">{diagnosis.created_at ? new Date(diagnosis.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</td>
                       </tr>
                     ))
                   )}
@@ -366,90 +400,28 @@ const AIDiagnosis = () => {
             </div>
           )}
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex flex-col md:flex-row justify-center items-center space-y-2 md:space-y-0 md:space-x-2 mt-6">
-              <button
-                onClick={() => handlePageChange(1)}
-                disabled={currentPage === 1}
-                className="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ fontFamily: 'Raleway' }}
-              >
-                First
-              </button>
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ fontFamily: 'Raleway' }}
-              >
-                Previous
-              </button>
-              {[...Array(totalPages)].map((_, index) => {
-                const page = index + 1;
-                // Only show first, last, current, and neighbors for large page sets
-                if (
-                  page === 1 ||
-                  page === totalPages ||
-                  Math.abs(page - currentPage) <= 2
-                ) {
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`px-3 py-2 text-sm border rounded-lg ${
-                        currentPage === page
-                          ? 'border-[#815FB3] bg-[#815FB3] text-white'
-                          : 'border-gray-300 hover:bg-gray-50'
-                      }`}
-                      style={{ fontFamily: 'Raleway' }}
-                    >
-                      {page}
-                    </button>
-                  );
-                }
-                // Show ellipsis for skipped pages
-                if (
-                  (page === currentPage - 3 && page > 1) ||
-                  (page === currentPage + 3 && page < totalPages)
-                ) {
-                  return (
-                    <span key={page} className="px-2">...</span>
-                  );
-                }
-                return null;
-              })}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ fontFamily: 'Raleway' }}
-              >
-                Next
-              </button>
-              <button
-                onClick={() => handlePageChange(totalPages)}
-                disabled={currentPage === totalPages}
-                className="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ fontFamily: 'Raleway' }}
-              >
-                Last
-              </button>
-              {/* Page size selector */}
-              <select
-                value={pageSize}
-                onChange={e => setPageSize(Number(e.target.value))}
-                className="ml-4 px-2 py-1 border rounded-lg text-sm"
-                style={{ fontFamily: 'Raleway' }}
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-              </select>
-              <span className="ml-2 text-xs text-gray-500">per page</span>
+          {/* Pagination - always visible, even if only one page */}
+          <div className="flex justify-center items-center mt-6 gap-4">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-500 hover:text-[#815FB3] hover:border-[#815FB3] disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+              aria-label="Previous page"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+            </button>
+            <div className="w-8 h-8 flex items-center justify-center rounded bg-[#815FB3] text-white text-base font-semibold" style={{ fontFamily: 'Raleway' }}>
+              {currentPage}
             </div>
-          )}
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-500 hover:text-[#815FB3] hover:border-[#815FB3] disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+              aria-label="Next page"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18" /></svg>
+            </button>
+          </div>
         </div>
 
         {/* Modals are outside the main layout */}
