@@ -1,0 +1,214 @@
+species,disease,symptoms,urgency,contagious,source
+Dog,Canine distemper,"fever, coughing, nasal_discharge, eye_discharge, vomiting, diarrhea, seizures",medium,no,overhaul_simple
+Dog,Canine influenza,"coughing, _which_often_persists_for_weeks, fever, eye_discharge, sneezing, loss_of_appetite, lethargy",medium,no,overhaul_simple
+Dog,Canine parvovirus,"lethargy, loss_of_appetite, fever, vomiting, diarrhea",high,yes,overhaul_simple
+Dog,Heartworms,"coughing, lethargy, exercise_intolerance, collapse, sudden_death, weight_loss, difficulty_breathing, heart_failure, ascites",medium,no,overhaul_simple
+Dog,Kennel cough,"coughing, labored_breathing, nasal_discharge, sneezing, lethargy, vomiting",medium,no,overhaul_simple
+Dog,Rabies,"fever, lethargy, loss_of_appetite, weakness, seizures, difficulty_breathing, hypersalivation, abnormal_head_posture, aggression, paralysis",medium,no,overhaul_simple
+Cat,Obesity,"difficulty_jumping, loss_of_waistline, dirty, _messy, _unkempt_hair_coat, collar_keeps_getting_tighter",medium,no,overhaul_simple
+Dog,Cataracts,"bumping_into_objects, red_eyes, bulging_of_dog’s_eye_globe, squinting, pawing_at_mouth, rubbing_face_or_head_along_the_furniture",medium,no,overhaul_simple
+Dog,Arthritis,"stiffness, limping, difficulty_walking, swimming_upside_down, inability_to_groom, muscle_loss, joint_swelling",medium,no,overhaul_simple
+Turtle,Ear infections,"bulging_tympanic_membrane, lumps, pain_when_mouth_is_opened, head_shaking, sensitivity_around_the_ears, loss_of_appetite, lethargy",medium,no,overhaul_simple
+Fish,Diarrhea,"urgency:_emergency, contagious:_no, disease:_cystitis, species:_cat, status:_[_]_missing, primary_sources_:, 1._source:_petmd, symptoms_extracted:",medium,no,overhaul_simple
+Cat,Broken bones,"lameness, pain, joint_swelling, crepitus, abnormal_conformation_of_the_affected_limb, tissue_protruding_from_vent, swelling, ✅_14_retained_—_all_relevant_and_observable.",medium,no,overhaul_simple
+Cat,Chronic Kidney Disease,"increased_thirst, vomiting, dehydration, skin_lesions, difficulty_breathing, weight_loss, loss_of_appetite, changes_in_body_temperature, urinary_accidents, swelling, constipation, changes_in_behavior, high_blood_pressure",medium,no,overhaul_simple
+Cat,Cat Acne,"swelling, bumps_and_pustules, scabs, pain_around_the_chin",medium,no,overhaul_simple
+Cat,Diabetes,"increased_thirst, increase_in_frequency_and_volume_of_urination, urinating_outside_litter_box, weight_loss, vomiting, lethargy, poor_coat_condition, behavioral_changes, plantigrade_stance",medium,no,overhaul_simple
+Cat,Eosinophilic Granuloma Complex,"skin_lesions, itching",medium,no,overhaul_simple
+Cat,Feline Immunodeficiency Virus,"acute_phase, fever, lethargy, enlarged_lymph_nodes, acquired_immunodeficiency_syndrome, loss_of_appetite, weight_loss, skin_lesions, vomiting, diarrhea, red_eyes, coughing, difficulty_breathing",medium,no,overhaul_simple
+Cat,Feline Infectious Peritonitis,"wet_fip, distended_abdomen, increased_appetite, difficulty_breathing, swollen_gums, enlarged_lymph_nodes, yellow_discoloration_of_the_skin, dry_fip, redness, cloudy_eyes, bleeding_gums, squinting, seizures, incoordination, circling, head_tilt",medium,no,overhaul_simple
+Cat,Feline Leukemia Virus,"pale_gums, loss_of_appetite, weight_loss, unthrifty_coat, swollen_gums, fever, enlarged_lymph_nodes, diarrhea",medium,no,overhaul_simple
+Cat,Feline Lower Urinary Tract Disease,"frequent_urination, blood_in_urine, vocalization_during_urination",medium,no,overhaul_simple
+Cat,Feline Panleukopenia Virus,"lethargy, depression, vomiting, diarrhea, dehydration, weight_loss, rough_or_unkempt_hair_coat, fever, loss_of_appetite, mild_to_severe_intention_tremors, poor_coat_condition",medium,no,overhaul_simple
+Rabbit,Fleas,"self_biting_or_chewing, itching, visible_bite_marks_or_evidence_of_fleas, hair_loss, scaling_on_the_skin, pale_mucous_membranes, increased_appetite, secondary_bacterial_infections",medium,no,overhaul_simple
+Cat,Hyperthyroidism,"weight_loss, increased_appetite, unkempt_appearance, poor_coat_condition, vomiting, diarrhea, increased_thirst, peeing_more_than_usual, rapid_breathing, difficulty_breathing, restlessness, aggression, thickened_nails",medium,no,overhaul_simple
+Cat,Inflammatory Bowel Disease,"diarrhea, weight_loss, lethargy, vomiting, bloating, abdominal_pain, rumbling_and_gurgling_abdominal_sounds, bloody_diarrhea, increased_thirst",medium,no,overhaul_simple
+Cat,Intestinal Parasites,"dull_coat, coughing, vomiting, diarrhea, bloody_diarrhea, loss_of_appetite, pale_mucous_membranes, potbellied_appearance, anemia",medium,no,overhaul_simple
+Cat,Mammary Tumors,"skin_lesions, discharge",medium,no,overhaul_simple
+Cat,Mast Cell Tumor,"lumps, itching, skin_lesions, vomiting, weight_loss, loss_of_appetite, bloody_diarrhea, black_or_tarry_stool, _indicating_digested_blood",medium,no,overhaul_simple
+Cat,Obesity,"difficulty_jumping, loss_of_waistline, dirty, _messy, _unkempt_hair_coat, collar_keeps_getting_tighter",medium,no,overhaul_simple
+Cat,Osteoarthritis,"limping, swollen_eyes, weight_loss, hesitant_to_jump_or_play, lethargy",medium,no,overhaul_simple
+Cat,Pancreatitis,"acute_cases, vomiting, weight_loss, loss_of_appetite, diarrhea, abdominal_pain, chronic_cases",medium,no,overhaul_simple
+Cat,Periodontal Disease,"loose_stool, tooth_loss, loss_of_appetite, swollen_gums, exposed_tooth_roots, teeth_grinding, tooth_resorption",medium,no,overhaul_simple
+Cat,Pyometra,"loss_of_appetite, fever, itching, increased_thirst, lethargy, dehydration, bloating, vomiting, increased_appetite, difficulty_breathing, unkempt_haircoat",medium,no,overhaul_simple
+Cat,Squamous Cell Carcinoma,"drooling, lumps, loose_stool, bad_breath, loss_of_appetite, blood_coming_from_the_mouth, weight_loss",medium,no,overhaul_simple
+Cat,Upper Respiratory Infection,"sneezing, drainage_from_the_eyes, red_eyes, squinting, scabs, nasal_congestion, loss_of_appetite, coughing, lethargy, fever, skin_lesions, swelling, difficulty_breathing",medium,no,overhaul_simple
+Rabbit,Urethral Obstruction,"blood_in_urine, straining_to_urinate, frequent_urination, urinating_outside_litter_box, licking_the_genital_area, vocalization_as_if_in_pain_or_distress, lethargy, loss_of_appetite",medium,no,overhaul_simple
+Rabbit,Overgrown teeth,"loss_of_appetite, drooling, weight_loss, eye_discharge, swelling, teeth_grinding",medium,no,overhaul_simple
+Rabbit,Hairballs,"loss_of_appetite, decreased_activity, diarrhea, lethargy, abdominal_distention_–_stomach_looks_enlarged",medium,no,overhaul_simple
+Rabbit,Snuffles,"nasal_discharge, sneezing, loss_of_appetite, weight_loss, lethargy, red_eyes, head_tilt, eye_inflammation, abscesses, difficulty_breathing, lameness, reproductive_difficulties, sudden_death",medium,no,overhaul_simple
+Rabbit,Myxomatosis,"early_signs_of_myxomatosis_include:, eye_discharge, ear_droop, purple_or_blue_spots_on_the_skin, severe_signs_of_myxomatosis_include:, fever, lethargy, loss_of_appetite, difficulty_breathing, skin_hemorrhage, seizures, secondary_bacterial_infections, _pneumonia, septicemia_within_10_14_days_of_infection, acute_death_in_5_7_days_of_infection",medium,no,overhaul_simple
+Rabbit,Ear mites,"signs_of_ear_mites_in_rabbits_include:, itching, ear_scratching, drooling, head_shaking, head_tilt, scabs, limping, restlessness, lethargy, loss_of_appetite, face, dewlap, neck, trunk, lumps, fever, swollen_abdomen",medium,no,overhaul_simple
+Rabbit,Fleas,"self_biting_or_chewing, itching, visible_bite_marks_or_evidence_of_fleas, hair_loss, scaling_on_the_skin, pale_mucous_membranes, increased_appetite, secondary_bacterial_infections",medium,no,overhaul_simple
+Rabbit,Sore hocks,"skin_lesions, reluctance_to_move, pain, hair_loss, swelling",medium,no,overhaul_simple
+Rabbit,Flystrike,"lethargy, loss_of_appetite, decreased_activity, foul_odor, skin_lesions, presence_of_fly_larvae, redness, swollen_eyes",medium,no,overhaul_simple
+Rabbit,Breathing difficulties,"difficulty_breathing, eye_discharge, sneezing, changes_in_behavior, loss_of_appetite, stained_fur, emergency_signs, open_mouth_breathing, blue_tinted_lips_or_tongue, head_tilt",medium,no,overhaul_simple
+Rabbit,Gastrointestinal stasis,"loss_of_appetite, diarrhea, grinding_teeth, _or_bruxism, bloating, abdominal_pain, hunched_posture",medium,no,overhaul_simple
+Bird,Conjunctivitis,"redness, swelling, squinting, cloudy_eyes, rapid_head_movements, itching, rubbing_the_eye, loss_of_appetite, lethargy",medium,no,overhaul_simple
+Rabbit,Corneal ulceration,"squinting, eye_discharge, swelling, cloudy_eyes, light_sensitivity, tail_bobbing",medium,no,overhaul_simple
+Rabbit,Otitis media/interna,"loss_of_balance, _dizziness, head_tilt, loss_of_appetite, reluctance_to_move, _digging_at_the_cage_floor, discharge, red_eyes, _throat_infection",medium,no,overhaul_simple
+Rabbit,Splay leg,"legs_splayed_outward, inability_to_groom, difficulty_walking, gagging",medium,no,overhaul_simple
+Rabbit,Rhinitis,"sneezing, nasal_discharge, reduced_airflow, loss_of_appetite, slobbering_or_excessive_saliva, dental_disease, discharge_from_the_eyes_or_other_orifices",medium,no,overhaul_simple
+Turtle,Pneumonia,"open_mouth_breathing, difficulty_breathing, nasal_discharge, bubbles_in_mouth, _nose, red_eyes, excess_mucus_in_mouth, lethargy, loss_of_appetite, tilting_to_one_side_while_swimming, gagging, coughing, swollen_gums, eye_discharge",medium,no,overhaul_simple
+Rabbit,Hutch burn,"red_skin, hair_loss, wet_or_matted_fur, scabs, bleeding, skin_lesions, itching",medium,no,overhaul_simple
+Rabbit,Wet dewlap,"damp_or_matted_fur, skin_irritation, odor, incoordination",medium,no,overhaul_simple
+Bird,Ringworm,hair_loss,medium,yes,overhaul_detailed
+Fish,Diarrhea,"urgency:_emergency, contagious:_no, disease:_cystitis, species:_cat, status:_[_]_missing, primary_sources_:, 1._source:_petmd, symptoms_extracted:",medium,no,overhaul_simple
+Hamster,Constipation,"abdominal_pain, straining_to_urinate, hard, _dry_feces, _often_small_in_volume, worms_in_feces",medium,no,overhaul_simple
+Bird,Conjunctivitis,"redness, swelling, squinting, cloudy_eyes, rapid_head_movements, itching, rubbing_the_eye, loss_of_appetite, lethargy",medium,no,overhaul_simple
+Hamster,Protrusion of the eyeball,"visible_bulging_or_protrusion, discharge, swelling, scabs, squinting, cloudiness_or_discoloration, behavioral_changes, loss_of_appetite",medium,no,overhaul_simple
+Turtle,Pneumonia,"open_mouth_breathing, difficulty_breathing, nasal_discharge, bubbles_in_mouth, _nose, red_eyes, excess_mucus_in_mouth, lethargy, loss_of_appetite, tilting_to_one_side_while_swimming, gagging, coughing, swollen_gums, eye_discharge",medium,no,overhaul_simple
+Hamster,Milk gland infection,"enlarged_lymph_nodes, mammary_gland_are_warm, _firm_to_touch, hamster_exhibits_pain_when_the_gland_is_touched",medium,no,overhaul_simple
+Hamster,Skin abscesses,"lumps, swelling, discharge, pain, lethargy",medium,no,overhaul_simple
+Hamster,Hair loss / alopecia,"thinning_hair, hair_loss, patches_of_short_hair, scabs, dandruff, lethargy",medium,no,overhaul_simple
+Bird,Ringworm,hair_loss,medium,no,overhaul_simple
+Bird,Skin and fur mites,"scaling_or_dandruff, scabs, skin_lesions, _hindlimbs, potbelly, itching, head_shaking, ✅_10_retained.",medium,no,overhaul_simple
+Bird,Avian Gastric Yeast,"continuous_loss_of_weight, loss_of_appetite, undigested_seeds_or_pellets_in_the_droppings",medium,no,overhaul_simple
+Bird,Candidiasis,"lethargy, loss_of_appetite, ruffled_feathers, lumps, difficulty_swallowing, thickened_crop",medium,no,overhaul_simple
+Bird,Pacheco’s Disease,"yellow, _watery_urates, lethargy, depression, loss_of_appetite, ruffled_feathers, eye_discharge, nasal_discharge, green_feces, vomiting, sudden_death",medium,no,overhaul_simple
+Bird,Giardiasis,"malnutrition, diarrhea, faulty_absorption_of_nutrients, weight_loss, itching, feather_loss, excessive_weight, increased_vocalization_in_the_infected_bird",medium,no,overhaul_simple
+Bird,Trichomoniasis,"skin_lesions, drooling, pale_yellow, vomiting",medium,no,overhaul_simple
+Bird,Roundworms / Tapeworms,roundworms,medium,no,overhaul_simple
+Bird,Conjunctivitis,"redness, swelling, squinting, cloudy_eyes, rapid_head_movements, itching, rubbing_the_eye, loss_of_appetite, lethargy",medium,no,overhaul_simple
+Bird,Cataract,"squinting, _tearing, _or_rubbing_the_eye",medium,no,overhaul_simple
+Bird,Fractures,"inability_to_bear_weight, limping, swelling, wing_droop_or_slight_droop, inability_to_groom",medium,no,overhaul_simple
+Bird,Gout,"articular_gout, makes_noise_when_walking_due_to_discomfort, dehydration, diarrhea",medium,no,overhaul_simple
+Bird,Aspergillosis,"acute_aspergillosis, loss_of_appetite, difficulty_breathing, sudden_death_if_untreated, airsacculitis, lungs_and_air_sacs_congested_with_white_mucus, nodules_in_lungs, chronic_aspergillosis, restlessness, depression, weakness, fever, spread_of_infection_to_other_organs_and_systems, tremors, loss_of_coordination, paralysis",medium,no,overhaul_simple
+Bird,Avian Influenza,"difficulty_breathing, coughing, nasal_discharge, swelling, _head, _or_neck, digestive_and_physical_changes, loss_of_appetite, diarrhea, sudden_drop_in_egg_production, soft_shelled_or_misshapen_eggs, behavioral_changes, lethargy, reluctance_to_move, huddling_or_drooping_posture, unusual_isolation_from_the_group, lack_of_vocalization_in_typically_noisy_species",medium,no,overhaul_simple
+Bird,Newcastle Disease,"loss_of_appetite, weight_loss, sneezing, nasal_discharge, eye_discharge, difficulty_breathing, diarrhea, loss_of_coordination, spasms, tail_bobbing, advanced_stages, jerky, _involuntary_movements, paralysis, twisted_neck, abnormal_head_posture, dilation_of_pupils",medium,no,overhaul_simple
+Bird,Air sac mites / gapeworms,"open_mouth_breathing, bobbing_of_the_tail, drooling",medium,no,overhaul_simple
+Bird,Cloacal prolapse,"loss_of_waistline, _cloaca, _or_uterus, swelling, straining_during_defecation_or_egg_laying, frequent_or_prolonged_attempts_to_pass_droppings, signs_of_discomfort_or_distress_when_eliminating, holding_in_feces_for_long_periods_of_time, crying_or_vocalizing, often_seen_in_hand_raised_or_hand_fed_cockatoos",medium,no,overhaul_simple
+Bird,Egg binding,"fluffed_up_feathers, reduced_or_no_vocalizations, straining_or_frequent_attempts_to_lay_an_egg, bloating, cloacal_prolapse, wide_legged_stance, tail_bobbing, difficulty_breathing, weakness, sudden_death_in_untreated_or_prolonged_cases",medium,no,overhaul_simple
+Bird,Feather cysts,"lumps, feather_loss, swelling, incoordination, gasping_at_surface",medium,no,overhaul_simple
+Bird,Bumblefoot,"swelling, skin_lesions, limping, changes_in_behavior, loss_of_appetite, abnormal_foot_appearance",medium,no,overhaul_simple
+Bird,Ringworm,hair_loss,medium,no,overhaul_simple
+Bird,Scaly face / tassel foot / feather mites,"scaly_face, scabs, loss_of_feathers_near_affected_areas, beak_deformities_or_crooked_beak, leg_mites, crooked_or_deformed_legs_and_toes, feather_loss_around_leg_areas, itching, feather_loss, restlessness, increased_activity_or_discomfort_at_night, pale_appearance_or_signs_of_anemia, lethargy",medium,no,overhaul_simple
+Bird,Psittacine Beak and Feather Disease,nails:_brittle_and_malformed,medium,no,overhaul_simple
+Turtle,Heavy metal poisoning,"increased_thirst, loss_of_appetite, weakness, lethargy, head_shaking, loss_of_coordination, seizures, pale_or_discolored_beak_and_legs, ✅_21_retained.",medium,no,overhaul_simple
+Turtle,Septicemia,"pink_or_red_discoloration_of_the_plastron, pink_flushing_on_skin, _especially_between_scutes, red_or_purple_spots_on_the_ventrum_or_belly, lethargy, loss_of_appetite, respiratory_distress, seizures, incoordination, red_skin",medium,no,overhaul_simple
+Turtle,Infectious stomatitis,"small_red_spots_in_the_oral_cavity, swollen_eyes, _red, swollen_gums, mucus_or_thick_discharge_in_the_mouth, foul_or_sour_odor_from_the_mouth, loss_of_appetite, open_mouth_breathing, swelling",medium,no,overhaul_simple
+Turtle,Eye abscesses / conjunctivitis,"swollen_eyes, cloudy_eyes, eye_discharge, red_eyes, eye_that_protrudes_or_bulges, pawing_or_rubbing_at_the_eyes, squinting, blood_in_urine, swelling, itching, lethargy, inappetence",medium,no,overhaul_simple
+Turtle,Ear infections,"bulging_tympanic_membrane, lumps, pain_when_mouth_is_opened, head_shaking, sensitivity_around_the_ears, loss_of_appetite, lethargy",medium,no,overhaul_simple
+Turtle,Abnormal beak growth,"overgrown_beak, misshapen_or_crooked_beak, beak_deformity, difficulty_eating",medium,no,overhaul_simple
+Turtle,Stargazing,"head_tilt, abnormal_head_posture, loss_of_coordination, neurological_signs",medium,no,overhaul_simple
+Turtle,Pneumonia,"open_mouth_breathing, difficulty_breathing, nasal_discharge, bubbles_in_mouth, _nose, red_eyes, excess_mucus_in_mouth, lethargy, loss_of_appetite, tilting_to_one_side_while_swimming, gagging, coughing, swollen_gums, eye_discharge",medium,no,overhaul_simple
+Turtle,Dystocia,"bloating, loss_of_appetite, lethargy, straining, wide_legged_stance, restlessness, weight_loss",medium,no,overhaul_simple
+Turtle,Vent prolapse,"redness_around_vent_area, swelling, straining, eye_discharge",medium,no,overhaul_simple
+Turtle,Abscesses,"hard, swelling, lumps, red_skin, ruptured_abscess_with_pus_discharge, pain_when_area_is_touched",medium,no,overhaul_simple
+Turtle,Dysecdysis,"patches_of_old_skin_that_havent_shed, skin_stuck_on_body, _tail, _or_toes, constriction_of_limbs_from_retained_shed, dull_or_patchy_appearance, difficulty_standing",medium,no,overhaul_simple
+Turtle,Skin parasites,"visible_parasites, ticks_embedded_in_skin, itching, restlessness, lethargy, pale_appearance",medium,no,overhaul_simple
+Fish,Scale rot / blister disease,"red_skin, fluid_filled_blisters_or_pustules, skin_lesions, bleeding_gums, pus_filled_bumps, discharge, scabs, brown_or_black_discoloration_of_scales, ❌_removed:, ✅_13_retained.",medium,no,overhaul_simple
+Fish,Papilloma,lumps,medium,no,overhaul_simple
+Fish,Lymphocystis,"lumps, cauliflower_like_appearance, red_skin, _or_mouth, skin_lesions",medium,no,overhaul_simple
+Fish,Fin Rot,"ragged, frayed_fins, fin_edges_appear_torn_or_disintegrating, redness_at_base_of_fins, white_spots, fins_progressively_shortening, milky_appearance_at_fin_margins",medium,no,overhaul_simple
+Fish,Ich,"white_spots, frayed_fins, _and_gills, white_spots_about_0.5_1mm_in_diameter, spots_appear_raised, itching, increased_urination, lethargy, loss_of_appetite, clamped_fins, difficulty_breathing, pale_gums",medium,no,overhaul_simple
+Fish,Fungus,"white_spots, _gray, lumps, fluffy_or_fuzzy_patches_on_skin, frayed_fins, _or_mouth, patches_that_look_like_cotton_balls, lethargy, loss_of_appetite",medium,no,overhaul_simple
+Fish,Popeye / Exophthalmia,"one_or_both_eyes_protruding_or_bulging, swelling, cloudy_eyes, eye_appears_to_stick_out_from_socket, red_eyes, nasal_discharge",medium,no,overhaul_simple
+Fish,Skin and Gill Flukes,"scratching_against_objects, fainting, rapid_gill_movements, labored_breathing, gasping_at_surface, excess_mucus_on_skin_or_gills, swollen_gums, clamped_fins, lethargy, loss_of_appetite, skin_appears_cloudy_or_hazy",medium,no,overhaul_simple
+Fish,Lernaea,"visible_thread_like_parasites_attached_to_body, worm_like_structures_protruding_from_skin, redness, limping, skin_lesions, itching, fainting, lethargy",medium,no,overhaul_simple
+Fish,Swim Bladder Disease,"swimming_upside_down, floating_at_the_surface_uncontrollably, sinking_to_the_bottom, difficulty_maintaining_position_in_water, struggling_to_swim_normally, loss_of_balance, bloating",medium,no,overhaul_simple
+Fish,Vitamin C Deficiency,"curved_or_bent_spine, deformed_body_shape, lethargy, loss_of_appetite, darkening_of_skin_color, lumps, skin_lesions, hemorrhaging_under_skin",medium,no,overhaul_simple
+Fish,Egg Retention,"bloating, lumps, lethargy, loss_of_appetite, difficulty_jumping, hiding, straining, disease:_[leptospirosis], species:_[dog], status:_[_]_missing, primary_sources_:, 1._source:petmd",medium,no,overhaul_simple
+Dog,Leptospirosis,"lethargy, weight_loss, vomiting, diarrhea, fever, abdominal_pain, swelling, bruising, swollen_gums, bloody_diarrhea, stiffness, increased_thirst, skin_lesions, red_eyes, dehydration, sudden_miscarriage",high,yes,overhaul_detailed
+Dog,Giarda,"foul_odor, lethargy, loss_of_appetite, abdominal_pain, weight_loss",medium,yes,overhaul_detailed
+Dog,Tapeworms,"scooting_the_rear_end_along_the_ground, itching, worm_segments_in_stool, weight_loss, vomiting, possible_intestinal_blockage",medium,yes,overhaul_detailed
+Dog,Whipworms,"diarrhea, weight_loss, dehydration, anemia, electrolyte_imbalances, visible_small_thread",medium,yes,overhaul_detailed
+Dog,Canine Enteric Coronavirus,"diarrhea, vomiting, loss_of_appetite, abdominal_pain, lethargy, dehydration, fever, seizures",medium,yes,overhaul_detailed
+Dog,Canine respiratory coronavirus,"coughing, sneezing, labored_breathing, diarrhea, nasal_discharge, gagging, fever, lethargy, loss_of_appetite",medium,yes,overhaul_detailed
+Dog,Infectious Canine Hepatitis,"lethargy, increased_thirst, loss_of_appetite, eye_discharge, cloudy_eyes, abdominal_pain, vomiting, small_red, enlarged_lymph_nodes, fever, swelling",high,yes,overhaul_detailed
+Dog,Pyoderma,"limping, scabs, dandruff, hair_loss, raised_scales, skin_lesions, thickened, swelling, lethargy, loss_of_appetite, abdominal_pain",medium,no,overhaul_detailed
+Dog,Hot Spots,"skin_lesions, moist, bleeding_from_the_affected_area, abdominal_pain, licking_biting, hair_loss",medium,no,overhaul_detailed
+Dog,Urinary Tract Infection,"straining_to_urinate, pain, passing_small_amounts_of_urine, frequent_urination, urinary_accidents_indoors, itching, swelling, drooling, blood_in_urine, discharge, straining, increased_thirst, lethargy, fever, loss_of_appetite",medium,no,overhaul_detailed
+Bird,Ringworm,hair_loss,medium,yes,overhaul_detailed
+Dog,Cushing’s Disease,"increased_appetite, increased_thirst, frequent_urination, heavy, weight_loss, lethargy, potbelly, hair_loss, lumps",medium,no,overhaul_detailed
+Dog,Addison's Disease,"waxing_waning_symptoms, tremors, head_shaking, slow_heart_rate, increased_thirst, weakness, vomiting, weight_loss",high,no,overhaul_detailed
+Dog,Hypothyroidism,"weight_gain, lethargy, prefers_warm_places, skin_lesions, frequent_urination, dry_brittle, darkened, hair_not_regrowing_after_shaving, reproductive_issues, weakness, eye_fat_deposits, cloudy_eyes, drooping_facial_expression_due_to_thickened_facial_skin",medium,no,overhaul_detailed
+Cat,Chronic Kidney Disease,"increased_thirst, vomiting, dehydration, skin_lesions, difficulty_breathing, weight_loss, loss_of_appetite, changes_in_body_temperature, urinary_accidents, swelling, constipation, changes_in_behavior, high_blood_pressure",high,no,overhaul_detailed
+Dog,Liver Disease,"swollen_gums, confusion, seizures, depression, head_shaking, sudden_blindness, behavioral_changes, loss_of_appetite, vomiting, diarrhea, weight_loss, increased_thirst, frequent_urination, pale_gums, distended_abdomen",high,no,overhaul_detailed
+Dog,Hip Dysplasia,"limping, difficulty_walking, difficulty_standing, abnormal_head_posture, difficulty_jumping",medium,no,overhaul_detailed
+Dog,Patellar Luxation,"limping, bowlegged_stance_in_the_hind_limbs, arched, stiffness, short_yelp",medium,no,overhaul_detailed
+Dog,ACL Tear,"limping, difficulty_standing, stiffness, swelling, change_in_walking_pattern, trouble_walking_upstairs, loss_of_appetite, sitting_awkwardly_with_legs_extended_outward, growling_snapping",medium,no,overhaul_detailed
+Dog,Food Allergies,"itching, frequent_urination, hair_loss, constant_licking, diarrhea, vomiting, bloating, weight_loss, lethargy, lumps",high,no,overhaul_detailed
+Dog,Flea Allergy Dermatitis,"hair_loss, itching, scabs, red_skin, presence_of_visible_fleas, pale_gums",high,yes,overhaul_detailed
+Dog,Contact Dermatitis,"limping, localized, hardened, darkened, pustules_pimples, scratching",medium,no,overhaul_detailed
+Dog,Demodectic Mange,"patchy, dry_flaky, lumps, darkened, thickened, itching, abdominal_pain, lethargy, fever, skin_lesions, ear_infections_if_mites_invade_the_ear_canal",high,no,overhaul_detailed
+Dog,Anaplasmosis,"limping, lethargy, loss_of_appetite, fever, coughing, seizures, vomiting, diarrhea",high,no,overhaul_detailed
+Dog,Babesiosis,"lethargy, loss_of_appetite, pale_gums, fever, enlarged_lymph_nodes, diarrhea, yellow, distended_abdomen, weight_loss, loose_stool, difficulty_walking, seizures, joint_pain, tick_infestation",high,no,overhaul_detailed
+Dog,Hookworms,"dark_tar, weight_loss, dull, pale_gums, weakness, anemia, coughing, rash",medium,yes,overhaul_detailed
+Dog,Heartworm Disease,"coughing, lethargy, exercise_intolerance, weakness, sudden_death, weight_loss, difficulty_breathing, swelling",high,no,overhaul_detailed
+Dog,Heatstroke,"difficulty_breathing, lethargy, rapid_breathing, dehydration, fever, vomiting, diarrhea, confusion, weakness, seizures, sudden_death",emergency,no,overhaul_detailed
+Dog,Lyme Disease,"joint_pain, limping, fever, lethargy, weakness, loss_of_appetite, enlarged_lymph_nodes, vomiting, diarrhea, increased_thirst, frequent_urination, weight_loss, swollen_gums",medium,no,overhaul_detailed
+Dog,Roundworms (Ascarids),"diarrhea, vomiting, white_spots, weight_loss, dull, coughing, weakness",medium,yes,overhaul_detailed
+Dog,Rickettsial Infections,"fever, loss_of_appetite, depression, low_stamina, lameness, coughing, weight_loss, weakness, in_severe",medium,no,overhaul_detailed
+Cat,Heartworm Disease,"lethargy, coughing, loss_of_appetite, weight_loss, intolerance_to_physical_activity, vomiting, labored_breathing, open_mouth_breathing, difficulty_walking, seizures, weakness",high,no,overhaul_detailed
+Cat,Roundworms,"lumps, diarrhea, circling, distended_abdomen, weight_loss, dull, vomiting, coughing",medium,yes,overhaul_detailed
+Cat,Tapeworms,"presence_of_white_rice, scratching, itching, diarrhea, vomiting, loss_of_appetite, lethargy, weight_loss, intestinal_blockage",medium,yes,overhaul_detailed
+Cat,Hookworms,"bloody_diarrhea, weight_loss, pale_gums, odor, lethargy, diarrhea, vomiting",medium,yes,overhaul_detailed
+Cat,Giardia,"watery_foul, vomiting, bloating, loss_of_appetite, lethargy, litter_box_use, hypersalivation, weight_loss",medium,yes,overhaul_detailed
+Cat,Urinary Blockage,"blood_in_urine, straining_to_urinate, urinating_small_amounts_frequently, increased_frequency_of_trips_to_the_litter_box, urinating_outside_litter_box, itching, vomiting, lethargy, loss_of_appetite, diarrhea",emergency,no,overhaul_detailed
+Cat,Cystitis,"straining_to_urinate, urinating_small_amounts_frequently, increased_frequency_of_trips_to_the_litter_box, blood_in_urine, urinating_outside_litter_box, itching, vomiting, lethargy, loss_of_appetite, diarrhea, increased_urination",emergency,no,overhaul_detailed
+Cat,Kidney Stones,"blood_in_urine, vomiting, frequent_urination, pain, urination_with_small_volume, lethargy, loss_of_appetite",high,no,overhaul_detailed
+Cat,Stomatitis,"foul_odor_from_the_mouth, drooling, reduced_grooming_leading_to_matted, difficulty_eating, crying_out, loss_of_appetite, weight_loss",medium,no,overhaul_detailed
+Cat,Tooth Resorption,"drooling, difficulty_eating, loss_of_appetite, no_outward_signs_of_pain_in_some_cats",medium,no,overhaul_detailed
+Cat,Asthma,"coughing, difficulty_breathing, weight_loss, blue, wheezing",emergency,no,overhaul_detailed
+Rabbit,Hairballs,"loss_of_appetite, decreased_activity, diarrhea, lethargy, abdominal_distention_–_stomach_looks_enlarged",medium,no,overhaul_detailed
+Cat,Toxoplasmosis,"lethargy, loss_of_appetite, weight_loss, fever, labored_breathing, yellowing_of_eyes_skin, behavioral_changes, hair_loss, weakness, loss_of_balance, stiffness, seizures",high,yes,overhaul_detailed
+Cat,Feline Herpesvirus (FHV-1),"sneezing, nasal_discharge, fever, loss_of_appetite, coughing, diarrhea, lethargy, swelling, change_in_eye_color, skin_lesions, limping, scabs, hair_loss",medium,yes,overhaul_detailed
+Cat,Mange,"patchy, scratching, lethargy, skin_lesions, lumps, oozing_red_patches, drooling, chin_acne, scabs, dandruff",medium,yes,overhaul_detailed
+Dog,Ticks,"fever, swollen_eyes, limping, loss_of_appetite, vomiting, diarrhea, visible_parasites",medium,yes,overhaul_detailed
+Cat,Campylobacteriosis,"fever, vomiting, straining_to_urinate, loss_of_appetite, distended_abdomen",high,yes,overhaul_detailed
+Cat,Acne,"limping, lumps, scabs, abdominal_pain",medium,no,overhaul_detailed
+Bird,Mycoplasma Respiratory Infection,"sneezing, watery_swollen, coughing, difficulty_breathing, head_shaking, lethargy, loss_of_appetite, poor_coat_condition, swelling",medium,yes,overhaul_detailed
+Bird,Vitamin A Deficiency,"white_spots, weight_loss, nasal_discharge, discharge, wheezing, sneezing, scabs, loss_of_appetite, diarrhea, gagging, foul_odor_from_the_mouth, slimy_coating_in_the_mouth, tail_bobbing, dull, restlessness, depression, potential_internal_organ_disorders_affecting_reproductive_digestive",high,no,overhaul_detailed
+Bird,Calcium Deficiency,"tremors, weakness, difficulty_walking, abnormal, seizures, loss_of_appetite, weight_loss",emergency,no,overhaul_detailed
+Bird,Iodine Deficiency/Goiter,"lumps, loud_harsh, wheezing, limping, difficulty_swallowing, loss_of_appetite, reluctance_to_move, sudden_irritability",medium,no,overhaul_detailed
+Cat,Obesity,"difficulty_jumping, loss_of_waistline, dirty, _messy, _unkempt_hair_coat, collar_keeps_getting_tighter",medium,no,overhaul_detailed
+Bird,Chronic Egg Laying,"frequent_urination, weakness, loss_of_appetite, difficulty_eating, distended_abdomen, seizures, abnormal, straining_to_urinate, aggression, vomiting, feather_loss, loss_of_coordination",high,no,overhaul_detailed
+Bird,Avian Polyomavirus,"sudden_death_in_young_birds, lethargy, distended_abdomen, crop_stasis, feather_loss, bruising, lumps, bleeding, difficulty_eating, loss_of_appetite, delayed_fledging",high,yes,overhaul_detailed
+Bird,Lice and Mite,"scratching, feather_loss, restlessness, scabs, difficulty_breathing, pale_gums, weakness, tiny_crawling_insects, reduced_egg_production",medium,yes,overhaul_detailed
+Fish,Diarrhea,"urgency:_emergency, contagious:_no, disease:_cystitis, species:_cat, status:_[_]_missing, primary_sources_:, 1._source:_petmd, symptoms_extracted:",emergency,no,overhaul_detailed
+Rabbit,Bloat/Gastric Dilation,"weakness, loss_of_appetite, depression, irregular_heart_rate, low_blood_pressure, abdominal_pain, bloating",emergency,no,overhaul_detailed
+Rabbit,Enteritis,"mucus, soiled_hindquarters, bloating, teeth_grinding, loss_of_appetite, weight_loss, dehydration, restlessness, dull, low_body_temperature, intestinal_blockage",emergency,no,overhaul_detailed
+Rabbit,Coccidiosis,"diarrhea, lethargy, weakness, loss_of_appetite, weight_loss, dehydration",emergency,yes,overhaul_detailed
+Rabbit,Hepatic Coccidiosis (Liver Coccidiosis),"loss_of_appetite, dull, lumps, lethargy, sudden_death",high,yes,overhaul_detailed
+Rabbit,Intestinal Coccidiosis,"diarrhea, loss_of_appetite, weight_loss, lethargy, dehydration",high,yes,overhaul_detailed
+Rabbit,Ear Mite Infestation (Psoroptes cuniculi),"scratching, scabs, head_tilt, weight_loss",medium,yes,overhaul_detailed
+Rabbit,Fur Mite Infestation (Cheyletiella parasitovorax),"white_spots, itching, hair_loss, dry",medium,yes,overhaul_detailed
+Rabbit,Sarcoptic Mange (Sarcoptes scabiei or Notoedres cati),"scratching, scabs, hair_loss, skin_thickening",high,yes,overhaul_detailed
+Rabbit,Flea Infestation (Ctenocephalides spp.),"scratching, tiny_dark_specks, fleas_jumping_on_fur, pale_gums, restlessness",medium,yes,overhaul_detailed
+Rabbit,Encephalitozoonosis (Encephalitozoon cuniculi),"head_tilt, incoordination, seizures, increased_thirst, weight_loss, cloudy_eyes",high,yes,overhaul_detailed
+Rabbit,Tooth root abscesses,"diarrhea, overgrown_beak, swelling, loss_of_appetite, weight_loss, eye_discharge, nasal_discharge, lethargy, hunched_posture, hiding",medium,no,overhaul_detailed
+Rabbit,Overgrown Incisors,"overgrown_beak, drooling, grinding_teeth, nasal_discharge, loss_of_appetite, increased_thirst, weight_loss, eye_discharge, uneven_face_shape, lethargy, lameness",high,no,overhaul_detailed
+Rabbit,Rabbit Hemorrhagic Disease Virus,"sudden_death_without_warning, bleeding_from_the_nose_mouth_rectum, fever, difficulty_breathing, incoordination, weakness, loss_of_appetite, pale_gums, weight_loss",emergency,yes,overhaul_detailed
+Rabbit,Urinary Tract Infection,"urinary_incontinence, blood_in_urine, urinating_outside_litter_box, lethargy, loss_of_appetite, urine_scalding, itching, hunched_posture, teeth_grinding, hiding, reacting_with_discomfort_when_the_lower_abdomen_is_touched, darker",medium,no,overhaul_detailed
+Rabbit,Bladder Stones,"blood_in_urine, straining_to_urinate, but_small_urine_output, distended_abdomen, lethargy, loss_of_appetite",emergency,no,overhaul_detailed
+Rabbit,Bladder Sludge,"straining, darker, sandy, thick_sludgy_urine_consistency, urine_dribbling_down_the_inner_thighs, matted, red_irritated, straining_to_urinate, lethargy",medium,no,overhaul_detailed
+Turtle,Abscesses,"hard, swelling, lumps, red_skin, ruptured_abscess_with_pus_discharge, pain_when_area_is_touched",high,no,overhaul_detailed
+Fish,Velvet Disease,"fine_dust, lethargy, weight_loss, spending_excessive_time_near_the_surface_of_the_water, labored_breathing, pale_gums",high,yes,overhaul_detailed
+Fish,Anchor Worms,"skin_lesions, thread, fish_rubbing, swelling",high,yes,overhaul_detailed
+Fish,Fish Lice and Leech,"small_droppings, scratching_against_objects, limping, loss_of_appetite, lethargy, pale_gums, hiding",medium,yes,overhaul_detailed
+Fish,Fish Tuberculosis,"sunken, enlarged, lethargy, weakness, loss_of_appetite, weight_loss, skin_lesions, beak_deformity, loss_of_balance, nodules_in_muscles, signs_of_organ_failure_in_advanced_stages",high,yes,overhaul_detailed
+Fish,(Hemorrhagic Septicemia / Ulcerative Syndromes),"red_skin, ulcers, lethargy, loss_of_appetite, abnormal_swimming",high,yes,overhaul_detailed
+Fish,"Gram-positive Bacterial Infections (Streptococcus, Lactococcus, Enterococcus, Vagococcus)","neurologic_symptoms_spinning_spiraling, red_skin, stomatitis, lethargy, high_mortality_in_severe_outbreaks",high,yes,overhaul_detailed
+Fish,Cotton wool disease,"pale_raised_fluffy, pale_gums, lethargy, difficulty_standing, loss_of_appetite",high,yes,overhaul_detailed
+Fish,Ammonia Poisoning,"gasping_at_surface, red_gums, lethargy, loss_of_appetite, rapid_breathing",emergency,no,overhaul_detailed
+Fish,Nitrate Poisoning,"lethargy, loss_of_appetite, redness, rapid, sudden_death_in_severe",high,no,overhaul_detailed
+Fish,pH shock,"difficulty_breathing, erratic_swimming_darting, lethargy, loss_of_appetite, faded_coloration_stress_stripes, clamped_fins, mucus, sudden_death_following_abrupt_water_changes",emergency,no,overhaul_detailed
+Fish,Cold Water Shock,"lethargy, clamped_fins, difficulty_breathing, loss_of_appetite, disruption_of_schooling_behavior_in_species_that_normally_swim_in_groups, faded, slowed_metabolism_affecting_digestion_and_immune_response, increased_susceptibility_to_secondary_infections, labored_breathing, sudden_death_in_extreme_cases",emergency,no,overhaul_detailed
+Fish,Heat Shock,"fainting, loss_of_appetite, difficulty_breathing, disruption_of_schooling_behavior_in_species_that_normally_swim_in_groups, lethargy, clamped_fins, faded, labored_breathing, white_spots, potential_organ_damage_with_prolonged_exposure, sudden_death_in_severe_cases",emergency,no,overhaul_detailed
+Fish,Koi herpes virus,"limping, fish_congregating_near_oxygen, mucous_production_from_gills, distended_abdomen, gill_necrosis, skin_lesions, red_skin, pale_patches_on_the_body, coughing, sandpaper_texture_of_the_skin, frequent_urination, loss_of_appetite, lethargy, sunken, ear_scratching, hanging_with_head",emergency,yes,overhaul_detailed
+Hamster,Protozoal Infection,"diarrhea, loss_of_appetite, dehydration, lethargy, weight_loss, occasionally_sudden_death_in_severe_cases",medium,yes,overhaul_detailed
+Hamster,Pinworm Infection,"diarrhea, anal_irritation, presence_of_worms_in_feces, weight_loss, rarely_intestinal_blockage, lethargy",medium,yes,overhaul_detailed
+Hamster,Tapeworm Infection,"usually_no_signs_in_mild_cases, diarrhea, weight_loss, eye_inflammation, enlarged_lymph_nodes, decreased_activity",medium,yes,overhaul_detailed
+Hamster,Diabetes Mellitus,"increased_thirst, frequent_urination, increased_appetite, weight_loss, irritability, weakness, dehydration",medium,no,overhaul_detailed
+Hamster,Malocclusion (Dental Overgrowth),"overgrown_beak, weight_loss, drooling, pawing_at_mouth, loss_of_appetite, oral_discomfort, potential_development_of_oral_abscesses",high,no,overhaul_detailed
+Hamster,Heatstroke,"protruding, reddened_swollen, hair_loss, collapse, nosebleeds, sneezing, restlessness",emergency,no,overhaul_detailed
+Hamster,Hair Loss (Alopecia),"weight_loss, hair_loss, lumps, scabs, dandruff, lethargy",medium,no,overhaul_detailed
+Turtle,Pyramiding,"lumps, distorted_skull_shape_as_it_develops, improper_positioning_of_upper_and_lower_beaks_when_jaw_is_closed, abnormal_wear_patterns_on_the_beaks, difficulty_eating, deformity_of_jaw_structure, progressive_worsening_requiring_repeated_beak_trimming",medium,no,overhaul_detailed
+Turtle,Soft Shell Disease (Metabolic Bone Disease),"distended_abdomen, diarrhea, loss_of_appetite, weakness, fractures_of_the_spine, cloacal_prolapse, muscle_spasms",high,no,overhaul_detailed
+Turtle,Shell Injuries/Trauma,"cracks, skin_lesions, exposed_tissue_underneath_damaged_shell, itching, scutes_sloughing_off, discharge, redness",high,no,overhaul_detailed
+Turtle,Hypovitaminosis D (Vitamin D3 Deficiency),"distorted_skull_development, lumps, diarrhea, weakness, swollen_eyes, fractures_occurring_easily, loss_of_appetite",high,no,overhaul_detailed
+Turtle,"Internal Parasites (Roundworms, Tapeworms, Protozoa)","weight_loss, vomiting, mucus, worms_in_feces, lethargy, loss_of_appetite, swelling",medium,yes,overhaul_detailed
+Turtle,"External Parasites (Mites, Ticks, Leeches, Botflies)","parasites_on_skin_around_eyes, time_spent_soaking_in_water, collapse, abnormal_head_posture, lethargy, lumps, anemia",medium,yes,overhaul_detailed
+Turtle,Thermal Burns,"fluid, redness, damaged, raw, pustules_that_may_rupture, swelling, reluctance_to_move",high,no,overhaul_detailed
+Turtle,Drowning/Hypothermia,"lethargy, inability_to_groom, cold_to_the_touch, floating_abnormally, difficulty_breathing, loss_of_coordination, seizures",emergency,no,overhaul_detailed

@@ -2418,126 +2418,54 @@ def symptom_checker_predict(request):
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
-        try:
-            model, preprocessor, label_encoder, disease_metadata = load_pawpal_lightgbm()
-        except Exception as e:
-            return Response(
-                {
-                    'success': False,
-                    'error': 'Disease prediction model is not available. Please try again later.',
-                    'details': str(e),
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-        feature_row = _build_feature_row_from_payload(cleaned)
-
-        categorical_cols = ['species', 'urgency']
-        numeric_cols = [
-            'symptom_count',
-            'urgency_encoded',
-            'contagious_flag',
-            'respiratory_count',
-            'digestive_count',
-            'skin_count',
-            'severity_score',
-            'duration_days',
-        ] + [f'has_{s}' for s in CANONICAL_SYMPTOMS]
-        text_col = 'symptoms_text'
-
-        ordered_cols = categorical_cols + numeric_cols + [text_col]
-
-        X_df = pd.DataFrame([{k: feature_row.get(k) for k in ordered_cols}])
-
         # ============================================================
-        # 🔍 FIX 2: PREDICTION DEBUG LOGGING
+        # VECTOR SIMILARITY PREDICTION (Replaces LightGBM)
         # ============================================================
-        pet_name_debug = cleaned.get('pet_name', 'Unknown Pet')
-        logger.warning(f"{'='*60}")
-        logger.warning(f"🔍 PREDICTION DEBUG FOR {pet_name_debug}")
-        logger.warning(f"{'='*60}")
-        logger.warning(f"Input symptoms from user: {cleaned.get('symptoms_list', [])}")
-        logger.warning(f"Canonical symptoms matched: {[s for s in cleaned.get('symptoms_list', []) if s in CANONICAL_SYMPTOMS]}")
-        logger.warning(f"Non-canonical symptoms (ignored): {[s for s in cleaned.get('symptoms_list', []) if s not in CANONICAL_SYMPTOMS]}")
-        logger.warning(f"Feature vector shape: {X_df.shape}")
-        logger.warning(f"Species: {feature_row.get('species')}")
-        logger.warning(f"Age category: {feature_row.get('age_category')}")
-        logger.warning(f"Severity score: {feature_row.get('severity_score')}")
-        logger.warning(f"Duration days: {feature_row.get('duration_days')}")
+        from vector_similarity_django_integration import predict_with_vector_similarity
         
-        # Count active symptom features
-        active_symptoms = [k.replace('has_', '') for k, v in feature_row.items() if k.startswith('has_') and v == 1]
-        logger.warning(f"Active symptom features ({len(active_symptoms)}): {active_symptoms}")
-
         try:
-            X_transformed = preprocessor.transform(X_df)
-            logger.warning(f"Transformed feature shape: {X_transformed.shape}")
-            logger.warning(f"Non-zero features: {(X_transformed != 0).sum()}")
+            # Debug logging
+            pet_name_debug = cleaned.get('pet_name', 'Unknown Pet')
+            logger.info(f"{'='*60}")
+            logger.info(f"🔍 VECTOR SIMILARITY PREDICTION FOR {pet_name_debug}")
+            logger.info(f"{'='*60}")
+            logger.info(f"Species: {cleaned.get('species')}")
+            logger.info(f"Input symptoms: {cleaned.get('symptoms_list', [])}")
+            logger.info(f"Severity: {cleaned.get('severity')}")
+            logger.info(f"Progression: {cleaned.get('progression')}")
             
-            proba = model.predict_proba(X_transformed)[0]
+            # Run vector similarity prediction
+            vector_result = predict_with_vector_similarity(cleaned)
             
-            # Detailed probability analysis
-            logger.warning(f"\n📊 Probability Distribution Analysis:")
-            logger.warning(f"  Sum: {proba.sum():.4f} (should be ~1.0)")
-            logger.warning(f"  Max: {proba.max():.4f} ({proba.max()*100:.2f}%)")
-            logger.warning(f"  Min: {proba.min():.8f}")
-            logger.warning(f"  Mean: {proba.mean():.6f}")
-            logger.warning(f"  Std Dev: {proba.std():.6f}")
-            logger.warning(f"  Median: {np.median(proba):.6f}")
+            if not vector_result.get('success'):
+                raise Exception(vector_result.get('error', 'Prediction failed'))
             
-            # Show top 10 predictions to see distribution
-            top_10_indices = proba.argsort()[::-1][:10]
-            logger.warning(f"\n🎯 Top 10 Predictions:")
-            for rank, idx in enumerate(top_10_indices, 1):
-                disease = label_encoder.inverse_transform([idx])[0]
-                confidence = proba[idx]
-                logger.warning(f"  {rank}. {disease}: {confidence*100:.2f}%")
+            # Convert vector similarity results to existing prediction format
+            predictions = []
+            symptoms_list = list(cleaned.get('symptoms_list') or [])
             
-            logger.warning(f"{'='*60}\n")
-        except Exception as e:
-            logger.exception('Error during LightGBM prediction: %s', e)
-            return Response(
-                {
-                    'success': False,
-                    'error': 'Prediction failed. Please try again later.',
-                    'details': str(e),
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-        classes = list(label_encoder.classes_)
-        probs = np.array(proba)
-        top_indices = probs.argsort()[::-1][:3]
-        
-        logger.info(f"Top 3 indices: {top_indices}")
-        logger.info(f"Top 3 probabilities: {[probs[idx] for idx in top_indices]}")
-        logger.info(f"Top 3 diseases: {[classes[idx] for idx in top_indices]}")
-
-        predictions = []
-        symptoms_list = list(cleaned.get('symptoms_list') or [])
-        sympt_set = set(symptoms_list)
-
-        for idx in top_indices:
-            conf = float(probs[idx])
-            logger.info(f"Processing disease {classes[idx]} with confidence {conf:.4f}")
-            # Always include top 3 predictions regardless of confidence
-            disease_name = str(classes[idx])
-            meta = (disease_metadata or {}).get(disease_name, {})
-            contagious = bool(meta.get('contagious', False))
-            sample_symptoms_text = meta.get('sample_symptoms', '') or ''
-            sample_symptoms = extract_symptoms_from_text(sample_symptoms_text) or []
-
-            matching_symptoms = [s for s in symptoms_list if s in sample_symptoms] if sample_symptoms else list(sympt_set)
-
-            # ============================================================
-            # 🚨 CRITICAL SAFETY OVERRIDE - EMERGENCY DISEASES
-            # ============================================================
-            # These diseases MUST ALWAYS be marked as EMERGENCY regardless
-            # of confidence or symptom matching to prevent dangerous
-            # misclassification (e.g., Canine Parvovirus as LOW urgency)
-            EMERGENCY_DISEASES = {
-                # Dogs
-                'Gastric Dilation (Bloat)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+            for match in vector_result['predictions']:
+                disease_name = match['disease']
+                conf = match['probability']  # Already 0-1 range
+                
+                logger.info(f"Processing disease {disease_name} with match: {match['confidence']:.1f}%")
+                
+                # Build prediction object in existing format
+                matching_symptoms = match.get('matched_symptoms', [])
+                
+                # Determine urgency (vector similarity provides base urgency)
+                base_urgency = match.get('urgency', 'moderate')
+                contagious = match.get('contagious', False)
+                
+                # ============================================================
+                # 🚨 CRITICAL SAFETY OVERRIDE - EMERGENCY DISEASES
+                # ============================================================
+                # These diseases MUST ALWAYS be marked as EMERGENCY regardless
+                # of confidence or symptom matching to prevent dangerous
+                # misclassification (e.g., Canine Parvovirus as LOW urgency)
+                EMERGENCY_DISEASES = {
+                    # Dogs
+                    'Gastric Dilation (Bloat)': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
                 'Bloat/GDV': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
                 'Bloat/Gastric Dilation': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
                 'Canine Parvovirus': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
@@ -2596,80 +2524,80 @@ def symptom_checker_predict(request):
                 'Vent Prolapse': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
                 'Cloacal Prolapse': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
                 
-                # General
-                'Internal Bleeding': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
-                'Respiratory Distress Syndrome': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
-                'Toxicity': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
-                'Seizures': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
-            }
-            
-            # 🚨 SAFETY OVERRIDE: Check if this is an emergency disease
-            if disease_name in EMERGENCY_DISEASES:
-                logger.warning(f"🚨 SAFETY OVERRIDE: {disease_name} forced to EMERGENCY urgency")
-                emergency_override = EMERGENCY_DISEASES[disease_name].copy()
-                emergency_override['red_flags'] = ['🚨 CRITICAL CONDITION - This is a life-threatening emergency']
-                dynamic_urgency = emergency_override
-            else:
-                # Calculate dynamic urgency based on user input + red flags
-                dynamic_urgency = calculate_dynamic_urgency(cleaned, disease_name, meta)
-
-            prediction_obj = {
-                'disease': disease_name,
-                'confidence': conf,
-                'confidence_pct': f"{conf*100:.0f}%",
-                'urgency': dynamic_urgency['urgency'],
-                'urgency_score': dynamic_urgency['urgency_score'],
-                'red_flags': dynamic_urgency['red_flags'],
-                'recommendation': dynamic_urgency['recommendation'],
-                'timeline': dynamic_urgency['timeline'],
-                'contagious': contagious,
-                'matching_symptoms': matching_symptoms,
-                'common_symptoms': sample_symptoms,
-                'care_guidelines': '',
-                'when_to_see_vet': '',
-            }
-            
-            # ============================================================
-            # SAFETY CHECK: Low-confidence diseases with insufficient training data
-            # Updated: 2024-11-18 based on training run output
-            # These diseases fail sensitivity thresholds and require warnings
-            # ============================================================
-            LOW_CONFIDENCE_DISEASES = [
-                # CRITICAL/EMERGENCY FAILURES (Below 85% sensitivity threshold)
-                "Asthma",  # 83.3% sensitivity, 6 test samples, CRITICAL - Missing 16.7% of cases
-                "Cold Water Shock",  # 56.2% sensitivity, 16 test samples, CRITICAL ⚠️ WORST - Missing 43.8% of cases
+                    # General
+                    'Internal Bleeding': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                    'Respiratory Distress Syndrome': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                    'Toxicity': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                    'Seizures': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE - Life threatening', 'recommendation': 'SEEK EMERGENCY VET CARE IMMEDIATELY'},
+                }
                 
-                # HIGH URGENCY FAILURES (Below 75% sensitivity threshold)
-                "Hepatic Coccidiosis (Liver Coccidiosis)",  # 66.7% sensitivity, 6 test samples - Missing 33.3% of cases
-                "Metabolic Bone Disease",  # 70.0% sensitivity, 10 test samples - Missing 30.0% of cases
+                # 🚨 SAFETY OVERRIDE: Check if this is an emergency disease
+                # Special case: Heatstroke only if heat-related symptoms present
+                should_override = False
+                if disease_name in ['Heatstroke', 'Heat Stroke', 'Heat shock']:
+                    # Only trigger if actual heat symptoms present
+                    heat_symptoms = {'panting', 'excessive_heat', 'collapse', 'rapid_heartbeat', 'fever'}
+                    if any(sym in matching_symptoms for sym in heat_symptoms):
+                        should_override = True
+                        logger.warning(f"🚨 SAFETY OVERRIDE: {disease_name} with heat symptoms detected")
+                elif disease_name in EMERGENCY_DISEASES:
+                    should_override = True
+                    logger.warning(f"🚨 SAFETY OVERRIDE: {disease_name} forced to EMERGENCY urgency")
                 
-                # Note: Ammonia Poisoning now PASSES (90% sensitivity) after "Heartworms" merge.
-                # Hypovitaminosis D and Ich both passed (100% sensitivity) in this run.
-            ]
+                if should_override:
+                    emergency_override = EMERGENCY_DISEASES[disease_name].copy()
+                    emergency_override['red_flags'] = ['🚨 CRITICAL CONDITION - This is a life-threatening emergency']
+                    dynamic_urgency = emergency_override
+                else:
+                    # Use vector similarity urgency or calculate dynamic urgency
+                    # Map vector similarity urgency levels to urgency scores
+                    urgency_map = {
+                        'critical': {'urgency': 'critical', 'urgency_score': 10, 'timeline': 'IMMEDIATE', 'recommendation': 'Seek emergency veterinary care immediately'},
+                        'high': {'urgency': 'high', 'urgency_score': 8, 'timeline': 'Within 2-4 hours', 'recommendation': 'Contact veterinarian urgently'},
+                        'moderate': {'urgency': 'moderate', 'urgency_score': 5, 'timeline': '24-48 hours', 'recommendation': 'Schedule veterinary appointment'},
+                        'medium': {'urgency': 'moderate', 'urgency_score': 5, 'timeline': '24-48 hours', 'recommendation': 'Schedule veterinary appointment'},
+                        'mild': {'urgency': 'low', 'urgency_score': 3, 'timeline': '2-7 days', 'recommendation': 'Monitor and schedule routine appointment'},
+                        'low': {'urgency': 'low', 'urgency_score': 3, 'timeline': '2-7 days', 'recommendation': 'Monitor and schedule routine appointment'},
+                    }
+                    dynamic_urgency = urgency_map.get(base_urgency.lower(), urgency_map['moderate']).copy()
+                    dynamic_urgency['red_flags'] = []
+
+                prediction_obj = {
+                    'disease': disease_name,
+                    'confidence': conf,
+                    'confidence_pct': f"{conf*100:.0f}%",
+                    'urgency': dynamic_urgency['urgency'],
+                    'urgency_score': dynamic_urgency['urgency_score'],
+                    'red_flags': dynamic_urgency['red_flags'],
+                    'recommendation': dynamic_urgency['recommendation'],
+                    'timeline': dynamic_urgency['timeline'],
+                    'contagious': contagious,
+                    'matching_symptoms': matching_symptoms,
+                    'common_symptoms': matching_symptoms,  # Vector similarity shows matched symptoms
+                    'care_guidelines': match.get('match_explanation', ''),
+                    'when_to_see_vet': dynamic_urgency['recommendation'],
+                    'match_explanation': match.get('match_explanation', ''),  # NEW: Explainability
+                    'user_coverage': match.get('user_coverage', 0),  # NEW: % of user symptoms matched
+                }
+                
+                predictions.append(prediction_obj)
+
+            predictions.sort(key=lambda x: x['confidence'], reverse=True)
             
-            if disease_name in LOW_CONFIDENCE_DISEASES:
-                # Add safety warning to this prediction
-                prediction_obj['low_confidence_warning'] = (
-                    "⚠️ INSUFFICIENT TRAINING DATA: This disease has limited data in our model. "
-                    "Prediction reliability is lower than our safety standards. "
-                    "Veterinary consultation is STRONGLY RECOMMENDED for accurate diagnosis."
-                )
-                prediction_obj['recommendation'] = "Immediate veterinary consultation required"
-                # Upgrade urgency if not already critical
-                if prediction_obj['urgency'] not in ['critical', 'emergency', 'immediate']:
-                    prediction_obj['urgency'] = 'high'
-                    prediction_obj['urgency_score'] = max(prediction_obj['urgency_score'], 7)
-                logger.warning(
-                    f"LOW CONFIDENCE PREDICTION: {disease_name} - confidence: {conf:.2%} - "
-                    f"Insufficient training data (sensitivity <85%). User warned."
-                )
-            # ============================================================
-
-            predictions.append(prediction_obj)
-
-        predictions.sort(key=lambda x: x['confidence'], reverse=True)
+            logger.info(f"Vector similarity returned {len(predictions)} predictions")
+            
+        except Exception as e:
+            logger.exception('Error during vector similarity prediction: %s', e)
+            return Response(
+                {
+                    'success': False,
+                    'error': 'Disease prediction failed. Please try again later.',
+                    'details': str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
         
-        logger.info(f"After filtering and sorting: {len(predictions)} predictions collected. Top indices were: {top_indices}")
+        logger.info(f"After filtering and sorting: {len(predictions)} predictions collected")
         for i, pred in enumerate(predictions):
             logger.info(f"  Prediction {i+1}: {pred.get('disease')} - confidence: {pred.get('confidence'):.4f}")
 

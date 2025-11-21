@@ -1,0 +1,209 @@
+species,disease,symptoms,urgency,contagious,source
+Dog,Canine Distemper,"fever, coughing, nasal_discharge, eye_discharge, vomiting, diarrhea, seizures, weakness, paralysis, lethargy",high,yes,vet_verified
+Dog,Canine Influenza,"coughing, fever, nasal_discharge, eye_discharge, sneezing, loss_of_appetite, lethargy",medium,yes,vet_verified
+Dog,Canine Parvovirus,"lethargy, loss_of_appetite, fever, vomiting, diarrhea, difficulty_breathing, dehydration, weakness",high,yes,vet_verified
+Dog,Ticks,"fever, stiffness, limping, loss_of_appetite, vomiting, diarrhea, bumps, lumps",medium,no,vet_verified
+Dog,Fleas,"itching, scratching, red_skin, irritated_skin, skin_lesions, bumps, rash",medium,yes,vet_verified
+Dog,Heartworm Disease,"coughing, lethargy, weakness, difficulty_breathing, bloating, weight_loss",high,no,vet_verified
+Dog,Kennel Cough,"coughing, nasal_discharge, sneezing, lethargy, vomiting",medium,yes,vet_verified
+Dog,Rabies,"fever, lethargy, loss_of_appetite, weakness, seizures, difficulty_breathing, aggression, paralysis, drooling, confusion",high,no,vet_verified
+Dog,Obesity,"weight_gain, lethargy, reluctance_to_move, difficulty_walking, bloating",medium,no,vet_verified
+Dog,Diabetes,"excessive_eating, frequent_urination, weight_loss, lethargy, dehydration, cloudy_eyes, bad_breath",medium,no,vet_verified
+Dog,Cataracts,"cloudy_eyes, red_eyes, squinting, head_shaking",medium,no,vet_verified
+Dog,Arthritis,"stiffness, limping, lameness, difficulty_walking, lethargy, reluctance_to_move",medium,no,vet_verified
+Dog,Ear Infections,"red_skin, itching, ear_scratching, head_shaking, mouth_pain, head_tilt, ear_discharge, scabs",medium,no,vet_verified
+Dog,Broken Bones,"limping, lameness, mouth_pain, stiffness, swelling, reluctance_to_move",high,no,vet_verified
+Dog,Food Allergies,"itching, scratching, red_skin, irritated_skin, rash, hair_loss, vomiting, diarrhea, gas, bloating, weight_loss, lethargy, skin_lesions",medium,no,vet_verified
+Dog,Flea Allergy Dermatitis,"hair_loss, bald_patches, itching, scratching, scabs, red_skin, irritated_skin, rash, lethargy",medium,yes,vet_verified
+Dog,Contact Dermatitis,"red_skin, irritated_skin, hair_loss, scabs, rash, itching, scratching",medium,no,vet_verified
+Dog,Demodectic Mange,"hair_loss, bald_patches, scabs, dandruff, itching, scratching, red_skin, irritated_skin, rash, lethargy, skin_lesions",medium,no,vet_verified
+Dog,Anaplasmosis,"limping, stiffness, lethargy, loss_of_appetite, fever, coughing, seizures, vomiting, diarrhea",high,no,vet_verified
+Dog,Babesiosis,"lethargy, loss_of_appetite, fever, diarrhea, bloating, weight_loss, weakness, seizures",high,no,vet_verified
+Dog,Hookworms,"diarrhea, dark_urine, weight_loss, weakness, lethargy, coughing, difficulty_breathing, red_skin, itching",medium,yes,vet_verified
+Dog,Heatstroke,"difficulty_breathing, respiratory_distress, lethargy, dehydration, fever, vomiting, diarrhea, confusion, weakness, seizures",emergency,no,vet_verified
+Dog,Lyme Disease,"limping, stiffness, fever, lethargy, weakness, loss_of_appetite, vomiting, diarrhea, frequent_urination, weight_loss",medium,no,vet_verified
+Dog,Roundworms,"diarrhea, vomiting, bloating, weight_loss, coughing, weakness",medium,yes,vet_verified
+Dog,Rickettsial Infections,"fever, loss_of_appetite, lethargy, weakness, limping, coughing, weight_loss",medium,no,vet_verified
+Dog,Leptospirosis,"lethargy, loss_of_appetite, vomiting, diarrhea, fever, mouth_pain, blood_in_urine, stiffness, red_eyes, dehydration",high,yes,vet_verified
+Dog,Giardia,"diarrhea, lethargy, loss_of_appetite, bloating, weight_loss",medium,yes,vet_verified
+Dog,Tapeworms,"scratching, itching, weight_loss, vomiting, constipation",medium,yes,vet_verified
+Dog,Whipworms,"diarrhea, weight_loss, dehydration, weakness, lethargy",medium,yes,vet_verified
+Dog,Canine Enteric Coronavirus,"diarrhea, vomiting, loss_of_appetite, bloating, lethargy, dehydration, fever, seizures",medium,yes,vet_verified
+Dog,Canine Respiratory Coronavirus,"coughing, sneezing, difficulty_breathing, eye_discharge, nasal_discharge, fever, lethargy, loss_of_appetite",medium,yes,vet_verified
+Dog,Infectious Canine Hepatitis,"lethargy, excessive_eating, loss_of_appetite, red_eyes, eye_discharge, cloudy_eyes, mouth_pain, vomiting, fever",high,yes,vet_verified
+Dog,Pyoderma,"red_skin, itching, scabs, dandruff, hair_loss, bumps, lethargy, loss_of_appetite, mouth_pain",medium,no,vet_verified
+Dog,Hot Spots,"red_skin, irritated_skin, itching, scratching, hair_loss",medium,no,vet_verified
+Dog,Urinary Tract Infection,"straining_to_urinate, mouth_pain, frequent_urination, itching, drooling, blood_in_urine, lethargy, fever, loss_of_appetite",medium,no,vet_verified
+Dog,Ringworm,"hair_loss, dandruff, red_skin, itching, scratching",medium,yes,vet_verified
+Dog,Cushings Disease,"excessive_eating, frequent_urination, difficulty_breathing, weight_loss, lethargy, bloating, hair_loss, bumps",medium,no,vet_verified
+Dog,Addisons Disease,"frequent_urination, seizures, lethargy, weakness, loss_of_appetite, diarrhea, vomiting, weight_loss, mouth_pain",high,no,vet_verified
+Dog,Hypothyroidism,"weight_gain, lethargy, hair_loss, ear_scratching, ear_discharge, red_skin, weakness, cloudy_eyes",medium,no,vet_verified
+Dog,Chronic Kidney Disease,"frequent_urination, excessive_eating, loss_of_appetite, dehydration, weight_loss, drooling, vomiting, bad_breath, weakness, lethargy",high,no,vet_verified
+Dog,Liver Disease,"red_eyes, confusion, seizures, lethargy, head_shaking, loss_of_appetite, vomiting, diarrhea, weight_loss, excessive_eating, frequent_urination, bloating",high,no,vet_verified
+Dog,Hip Dysplasia,"limping, difficulty_walking, difficulty_standing, stiffness, reluctance_to_move",medium,no,vet_verified
+Dog,Patellar Luxation,"limping, stiffness, difficulty_walking, mouth_pain",medium,no,vet_verified
+Dog,ACL Tear,"limping, stiffness, difficulty_walking, reluctance_to_move",medium,no,vet_verified
+Cat,Chronic Kidney Disease,"excessive_eating, frequent_urination, vomiting, dehydration, mouth_pain, bad_breath, weight_loss, lethargy, weakness",high,no,vet_verified
+Cat,Cat Acne,"red_skin, bumps, scabs, mouth_pain",medium,no,vet_verified
+Cat,Diabetes,"excessive_eating, frequent_urination, weight_loss, vomiting, lethargy, weakness",medium,no,vet_verified
+Cat,Eosinophilic Granuloma Complex,"skin_lesions, itching, scratching, red_skin",medium,no,vet_verified
+Cat,FIV (Feline Immunodeficiency Virus),"fever, lethargy, lumps, loss_of_appetite, weight_loss, redness, mouth_pain, vomiting, diarrhea, red_eyes, coughing, sneezing, difficulty_breathing, weakness, seizures",high,yes,vet_verified
+Cat,FIP (Feline Infectious Peritonitis),"bloating, difficulty_breathing, lumps, red_eyes, cloudy_eyes, squinting, seizures, circling, head_tilt, lethargy",high,yes,vet_verified
+Cat,FeLV (Feline Leukemia Virus),"loss_of_appetite, weight_loss, swollen_gums, fever, lumps, diarrhea, lethargy",high,yes,vet_verified
+Cat,FLUTD (Lower Urinary Tract Disease),"frequent_urination, blood_in_urine, straining_to_urinate",high,no,vet_verified
+Cat,Panleukopenia,"lethargy, vomiting, diarrhea, dehydration, weight_loss, fever, loss_of_appetite, weakness",high,yes,vet_verified
+Cat,Fleas,"head_shaking, ear_scratching, itching, scratching, hair_loss, red_skin",medium,yes,vet_verified
+Cat,Hyperthyroidism,"weight_loss, excessive_eating, vomiting, diarrhea, frequent_urination, difficulty_breathing, restlessness, aggression",medium,no,vet_verified
+Cat,Inflammatory Bowel Disease,"diarrhea, weight_loss, lethargy, vomiting, bloating, gas",medium,no,vet_verified
+Cat,Intestinal Parasites,"coughing, vomiting, diarrhea, loss_of_appetite, bloating",medium,yes,vet_verified
+Cat,Mammary Tumors,"lumps, swelling",medium,no,vet_verified
+Cat,Mast Cell Tumor,"lumps, itching, scratching, vomiting, weight_loss, loss_of_appetite, diarrhea",medium,no,vet_verified
+Cat,Obesity,"difficulty_walking, reluctance_to_move, bloating, gas",medium,no,vet_verified
+Cat,Osteoarthritis,"limping, stiffness, reluctance_to_move, lethargy",medium,no,vet_verified
+Cat,Pancreatitis,"vomiting, weight_loss, loss_of_appetite, diarrhea",medium,no,vet_verified
+Cat,Periodontal Disease,"loss_of_appetite, swollen_gums, drooling, bad_breath, difficulty_eating",medium,no,vet_verified
+Cat,Pyometra,"loss_of_appetite, fever, lethargy, dehydration, bloating, vomiting, diarrhea, excessive_eating, difficulty_breathing",high,no,vet_verified
+Cat,Squamous Cell Carcinoma,"drooling, lumps, bad_breath, difficulty_eating, loss_of_appetite, weight_loss, mouth_pain",medium,no,vet_verified
+Cat,Upper Respiratory Infection,"sneezing, eye_discharge, red_eyes, squinting, nasal_congestion, nasal_discharge, loss_of_appetite, coughing, lethargy, fever, difficulty_breathing",medium,yes,vet_verified
+Cat,Urethral Obstruction,"blood_in_urine, straining_to_urinate, frequent_urination, lethargy, loss_of_appetite, vomiting",emergency,no,vet_verified
+Cat,Roundworms,"bloating, diarrhea, weight_loss, vomiting, coughing",medium,yes,vet_verified
+Cat,Tapeworms,"itching, scratching, diarrhea, vomiting, loss_of_appetite, lethargy, weight_loss",medium,yes,vet_verified
+Cat,Hookworms,"blood_in_urine, weight_loss, lethargy, diarrhea, vomiting",medium,yes,vet_verified
+Cat,Giardia,"diarrhea, vomiting, gas, loss_of_appetite, lethargy, weight_loss",medium,yes,vet_verified
+Cat,Cystitis,"straining_to_urinate, frequent_urination, blood_in_urine, lethargy, loss_of_appetite, vomiting, diarrhea",high,no,vet_verified
+Cat,Stomatitis,"bad_breath, drooling, difficulty_eating, mouth_pain, loss_of_appetite, weight_loss",medium,no,vet_verified
+Cat,Asthma,"coughing, difficulty_breathing, wheezing, respiratory_distress",emergency,no,vet_verified
+Cat,Hairballs,"vomiting, loss_of_appetite, lethargy",medium,no,vet_verified
+Cat,Toxoplasmosis,"lethargy, loss_of_appetite, weight_loss, fever, difficulty_breathing, confusion, weakness, loss_of_balance, seizures",high,yes,vet_verified
+Rabbit,Overgrown Teeth,"loss_of_appetite, drooling, weight_loss, watery_eyes, dental_issues, difficulty_eating",medium,no,vet_verified
+Rabbit,Hairballs,"loss_of_appetite, lethargy, bloating, diarrhea",medium,no,vet_verified
+Rabbit,Snuffles,"nasal_discharge, sneezing, loss_of_appetite, weight_loss, lethargy, red_eyes, head_tilt, lumps, difficulty_breathing, lameness",medium,yes,vet_verified
+Rabbit,Myxomatosis,"swelling, nasal_discharge, eye_discharge, fever, lethargy, loss_of_appetite, difficulty_breathing, seizures",high,yes,vet_verified
+Rabbit,Ear Mites,"itching, scratching, ear_scratching, head_shaking, head_tilt, scabs, restlessness, lethargy, loss_of_appetite",medium,yes,vet_verified
+Rabbit,Fleas,"itching, scratching, hair_loss, skin_lesions, scabs",medium,yes,vet_verified
+Rabbit,Sore Hocks,"hair_loss, swelling, reluctance_to_move, skin_lesions",medium,no,vet_verified
+Rabbit,Flystrike,"lethargy, loss_of_appetite, skin_lesions, red_skin, swelling",emergency,no,vet_verified
+Rabbit,Breathing Difficulties,"difficulty_breathing, eye_discharge, sneezing, loss_of_appetite, head_tilt",emergency,no,vet_verified
+Rabbit,GI Stasis,"loss_of_appetite, bloating, diarrhea, lethargy",emergency,no,vet_verified
+Rabbit,Conjunctivitis,"red_eyes, eye_discharge, squinting",medium,yes,vet_verified
+Rabbit,Corneal Ulceration,"squinting, eye_discharge, cloudy_eyes, red_eyes",medium,no,vet_verified
+Rabbit,Otitis,"loss_of_balance, head_tilt, loss_of_appetite, reluctance_to_move, ear_discharge",medium,no,vet_verified
+Rabbit,Splay Leg,"limping, difficulty_walking, lameness",medium,no,vet_verified
+Rabbit,Rhinitis,"sneezing, nasal_discharge, loss_of_appetite, drooling, dental_issues",medium,yes,vet_verified
+Rabbit,Pneumonia,"loss_of_appetite, weight_loss, lethargy, fever, sneezing, drooling, nasal_discharge, eye_discharge, difficulty_breathing",high,yes,vet_verified
+Rabbit,Hutch Burn,"red_skin, hair_loss, scabs, itching, scratching, irritated_skin",medium,no,vet_verified
+Rabbit,Wet Dewlap,"red_skin, irritated_skin",medium,no,vet_verified
+Rabbit,Ringworm,"hair_loss, red_skin, scabs, itching, scratching, bald_patches",medium,yes,vet_verified
+Rabbit,Coccidiosis,"diarrhea, lethargy, weakness, loss_of_appetite, weight_loss, dehydration",emergency,yes,vet_verified
+Rabbit,Heatstroke,"lethargy, difficulty_breathing, red_skin, seizures, weakness",emergency,no,vet_verified
+Rabbit,Bloat,"bloating, lethargy, loss_of_appetite, mouth_pain, weakness",emergency,no,vet_verified
+Rabbit,Enteritis,"bloating, constipation, dandruff, dehydration, drooling, loss_of_appetite, mouth_pain, restlessness, tail_bobbing, weight_loss",emergency,no,vet_verified
+Rabbit,Hepatic Coccidiosis,"lethargy, loss_of_appetite, lumps",high,yes,vet_verified
+Rabbit,Intestinal Coccidiosis,"dehydration, lethargy, loss_of_appetite, weight_loss",high,yes,vet_verified
+Rabbit,Ear Mite Infestation,"head_tilt, irritated_skin, loss_of_appetite, red_skin, scratching, seizures, weight_loss",medium,yes,vet_verified
+Rabbit,Fur Mite Infestation,"dandruff, hair_loss, irritated_skin, itching, red_skin, scratching",low,yes,vet_verified
+Rabbit,Sarcoptic Mange,"hair_loss, irritated_skin, itching, red_skin, scabs, scratching, skin_lesions",high,yes,vet_verified
+Rabbit,Flea Infestation,"dandruff, hair_loss, irritated_skin, red_skin, restlessness, scratching",medium,yes,vet_verified
+Rabbit,Encephalitozoonosis,"cloudy_eyes, difficulty_eating, excessive_eating, head_tilt, loss_of_appetite, seizures, swimming_upside_down, weight_loss",high,yes,vet_verified
+Rabbit,Pinworm Infestation,"irritated_skin, itching, red_skin, restlessness",low,yes,vet_verified
+Rabbit,Tooth Root Abscesses,"dental_issues, hiding, lethargy, loss_of_appetite, lumps, mouth_pain, nasal_discharge, overgrown_teeth, weight_loss",medium,no,vet_verified
+Rabbit,Overgrown Incisors,"difficulty_eating, drooling, excessive_eating, lameness, lethargy, loss_of_appetite, mouth_pain, nasal_discharge, overgrown_teeth, weight_loss",high,no,vet_verified
+Rabbit,Rabbit Hemorrhagic Disease,"difficulty_breathing, difficulty_eating, fever, loss_of_appetite, weakness, weight_loss",emergency,yes,vet_verified
+Rabbit,Urinary Tract Infection,"hiding, irritated_skin, itching, lethargy, loss_of_appetite, mouth_pain, red_skin",medium,no,vet_verified
+Rabbit,Bladder Stones,"bloating, lethargy, loss_of_appetite, straining_to_urinate",emergency,no,vet_verified
+Rabbit,Bladder Sludge,"lethargy, straining_to_urinate",medium,no,vet_verified
+Rabbit,Abscesses,"dental_issues, head_tilt, lethargy, loss_of_appetite, lumps, mouth_pain",high,no,vet_verified
+Hamster,Wet Tail (Diarrhea),"wet_tail, diarrhea, lethargy, loss_of_appetite, dehydration",emergency,yes,vet_verified
+Hamster,Constipation,"straining_to_urinate, bloating, lethargy",medium,no,vet_verified
+Hamster,Conjunctivitis,"red_eyes, eye_discharge, squinting, scratching",medium,yes,vet_verified
+Hamster,Protrusion of Eyeball,"squinting, eye_discharge, red_eyes, scabs",medium,no,vet_verified
+Hamster,Pneumonia,"fever, loss_of_appetite, weight_loss, sneezing, coughing, respiratory_distress, nasal_discharge",high,yes,vet_verified
+Hamster,Milk Gland Infection,"lumps, red_skin, swelling",medium,no,vet_verified
+Hamster,Skin Abscesses,"lumps, swelling, red_skin, lethargy",medium,no,vet_verified
+Hamster,Hair Loss,"hair_loss, bald_patches, scabs, dandruff, lethargy",medium,no,vet_verified
+Hamster,Ringworm,"bald_patches, hair_loss, dandruff, scabs, red_skin, rash",medium,yes,vet_verified
+Hamster,Skin Mites,"hair_loss, itching, scratching, dandruff, scabs, head_shaking",medium,yes,vet_verified
+Hamster,Diabetes,"excessive_eating, frequent_urination, weight_loss, lethargy, dehydration",medium,no,vet_verified
+Hamster,Malocclusion,"overgrown_teeth, weight_loss, drooling, difficulty_eating, lumps, mouth_pain",high,no,vet_verified
+Hamster,Protozoal Infection,"dehydration, lethargy, loss_of_appetite, weight_loss",medium,yes,vet_verified
+Hamster,Pinworm Infection,"constipation, lethargy, weight_loss",medium,yes,vet_verified
+Hamster,Tapeworm Infection,"lethargy, lumps, weight_loss",medium,yes,vet_verified
+Hamster,Diabetes Mellitus,"dehydration, difficulty_eating, excessive_eating, restlessness, weakness, weight_loss",medium,no,vet_verified
+Hamster,Heatstroke,"hair_loss, red_skin, restlessness, weakness",emergency,no,vet_verified
+Hamster,Alopecia,"dandruff, hair_loss, lethargy, scabs",medium,no,vet_verified
+Bird,Avian Gastric Yeast,"vomiting, weight_loss, excessive_eating, loss_of_appetite",medium,yes,vet_verified
+Bird,Candidiasis,"lethargy, loss_of_appetite, fluffed_feathers, lumps, vomiting, difficulty_breathing",medium,no,vet_verified
+Bird,Pacheco's Disease,"lethargy, loss_of_appetite, fluffed_feathers, eye_discharge, nasal_discharge, vomiting, diarrhea",high,yes,vet_verified
+Bird,Giardiasis,"diarrhea, weight_loss, itching, feather_loss",medium,yes,vet_verified
+Bird,Trichomoniasis,"drooling, vomiting, difficulty_eating",medium,yes,vet_verified
+Bird,Roundworms,"weight_loss, weakness",medium,yes,vet_verified
+Bird,Conjunctivitis,"eye_discharge, red_eyes, swelling, squinting, cloudy_eyes, head_shaking, itching, lethargy",medium,no,vet_verified
+Bird,Cataract,"cloudy_eyes, squinting",medium,no,vet_verified
+Bird,Fractures,"drooping_wing, wing_droop, limping, swelling",high,no,vet_verified
+Bird,Gout,"swelling, difficulty_walking, dehydration, diarrhea",medium,no,vet_verified
+Bird,Aspergillosis,"loss_of_appetite, difficulty_breathing, lethargy, weakness, fever, seizures, paralysis",high,no,vet_verified
+Bird,Avian Influenza,"coughing, sneezing, difficulty_breathing, nasal_discharge, swelling, loss_of_appetite, diarrhea, lethargy, reluctance_to_move, hiding",high,yes,vet_verified
+Bird,Newcastle Disease,"loss_of_appetite, weight_loss, sneezing, nasal_discharge, eye_discharge, difficulty_breathing, diarrhea, head_shaking, paralysis, seizures",high,yes,vet_verified
+Bird,Air Sac Mites,"difficulty_breathing, tail_bobbing, drooling",medium,yes,vet_verified
+Bird,Cloacal Prolapse,"swelling, straining_to_urinate, bloating",emergency,no,vet_verified
+Bird,Egg Binding,"fluffed_feathers, straining_to_urinate, bloating, tail_bobbing, difficulty_breathing, weakness, paralysis",emergency,no,vet_verified
+Bird,Feather Cysts,"lumps, feather_loss, swelling, scratching",medium,no,vet_verified
+Bird,Bumblefoot,"swelling, skin_lesions, limping, loss_of_appetite",medium,no,vet_verified
+Bird,Ringworm,"feather_loss, red_skin, scabs, bald_patches",medium,yes,vet_verified
+Bird,Scaly Face Mites,"scabs, feather_loss, itching, restlessness, lethargy",medium,yes,vet_verified
+Bird,PBFD (Beak and Feather Disease),"feather_loss, skin_lesions",high,yes,vet_verified
+Bird,Heavy Metal Poisoning,"excessive_eating, vomiting, weakness, lethargy, tremors, seizures",emergency,no,vet_verified
+Bird,Bird Calcium Deficiency,"tremors, weakness, difficulty_walking, seizures, loss_of_appetite, respiratory_distress",emergency,no,vet_verified
+Bird,Mycoplasma Respiratory Infection,"coughing, difficulty_breathing, difficulty_eating, lethargy, loss_of_appetite, nasal_discharge, seizures, weight_loss",medium,yes,vet_verified
+Bird,Vitamin A Deficiency,"difficulty_breathing, difficulty_eating, lethargy, loss_of_appetite, mouth_pain, nasal_discharge, scabs, tail_bobbing, weight_loss, wheezing",high,no,vet_verified
+Bird,Iodine Deficiency,"difficulty_eating, excessive_eating, limping, lumps, restlessness, vomiting, wheezing",medium,no,vet_verified
+Bird,Obesity,"bloating, difficulty_breathing, difficulty_eating, lethargy, weight_loss",medium,no,vet_verified
+Bird,Chronic Egg Laying,"aggression, bloating, difficulty_eating, excessive_eating, feather_loss, loss_of_appetite, seizures, straining_to_urinate, vomiting, weakness",high,no,vet_verified
+Bird,Avian Polyomavirus,"bloating, difficulty_eating, excessive_eating, feather_loss, lethargy, loss_of_appetite, lumps",high,yes,vet_verified
+Bird,Lice and Mite,"difficulty_breathing, difficulty_eating, feather_loss, irritated_skin, red_skin, restlessness, scabs, scratching, weakness, weight_loss",medium,yes,vet_verified
+Turtle,Septicemia,"red_skin, lethargy, loss_of_appetite, respiratory_distress, seizures",emergency,no,vet_verified
+Turtle,Stomatitis,"mouth_pain, red_gums, swelling, difficulty_eating, respiratory_distress",medium,no,vet_verified
+Turtle,Eye Abscesses,"swelling, cloudy_eyes, eye_discharge, red_eyes, squinting, itching, lethargy",medium,no,vet_verified
+Turtle,Ear Infections,"lumps, mouth_pain, head_shaking, loss_of_appetite, lethargy",medium,no,vet_verified
+Turtle,Stargazing,"head_tilt, confusion, loss_of_balance",medium,no,vet_verified
+Turtle,Pneumonia,"respiratory_distress, difficulty_breathing, nasal_discharge, red_eyes, mouth_pain, lethargy, loss_of_appetite, coughing",high,no,vet_verified
+Turtle,Dystocia,"bloating, loss_of_appetite, lethargy, straining_to_urinate, restlessness, weight_loss",high,no,vet_verified
+Turtle,Vent Prolapse,"red_skin, swelling, straining_to_urinate",high,no,vet_verified
+Turtle,Abscesses,"lumps, swelling, red_skin",medium,no,vet_verified
+Turtle,Dysecdysis,"skin_lesions",medium,no,vet_verified
+Turtle,Skin Parasites,"itching, restlessness, lethargy",medium,yes,vet_verified
+Turtle,Scale Rot,"red_skin, skin_lesions, scabs",medium,yes,vet_verified
+Turtle,Shell Trauma,"skin_lesions, red_skin, scabs",high,no,vet_verified
+Turtle,Vitamin D Deficiency,"lumps, weakness, swollen_gums, loss_of_appetite",medium,no,vet_verified
+Turtle,Infectious Stomatitis,"difficulty_breathing, difficulty_eating, loss_of_appetite, mouth_pain, red_skin, swollen_gums, weight_loss",medium,no,vet_verified
+Turtle,Abnormal Beak Growth,"dental_issues, difficulty_eating, excessive_eating",medium,no,vet_verified
+Turtle,Pyramiding,"dental_issues, difficulty_eating, excessive_eating, lumps",medium,no,vet_verified
+Turtle,Soft Shell Disease,"bloating, circling, loss_of_appetite, seizures, weakness",high,no,vet_verified
+Turtle,Internal Parasites,"lethargy, loss_of_appetite, vomiting, weight_loss",medium,yes,vet_verified
+Turtle,External Parasites,"head_tilt, irritated_skin, itching, lethargy, lumps, red_skin, rubbing_against_objects, weakness",medium,yes,vet_verified
+Turtle,Thermal Burns,"red_skin, reluctance_to_move, skin_lesions",high,no,vet_verified
+Turtle,Drowning,"difficulty_breathing, difficulty_eating, difficulty_walking, lethargy, seizures, weight_loss",emergency,no,vet_verified
+Fish,Papilloma,"lumps, bumps",medium,no,vet_verified
+Fish,Lymphocystis,"lumps, white_spots",medium,yes,vet_verified
+Fish,Fin Rot,"fin_rot, red_skin, white_spots",medium,yes,vet_verified
+Fish,Ich,"white_spots, itching, scratching, lethargy, loss_of_appetite, clamped_fins, difficulty_breathing, gasping_at_surface, rubbing_against_objects",high,yes,vet_verified
+Fish,Fungus,"white_spots, lumps, fin_rot, lethargy, loss_of_appetite",medium,yes,vet_verified
+Fish,Popeye,"swelling, cloudy_eyes, red_eyes",medium,no,vet_verified
+Fish,Flukes,"rubbing_against_objects, gasping_at_surface, clamped_fins, lethargy, loss_of_appetite, cloudy_eyes",medium,yes,vet_verified
+Fish,Lernaea (Anchor Worms),"skin_lesions, red_skin, rubbing_against_objects, lethargy, white_spots",medium,yes,vet_verified
+Fish,Swim Bladder Disease,"swimming_upside_down, loss_of_balance, bloating, difficulty_walking",medium,no,vet_verified
+Fish,Vitamin C Deficiency,"lethargy, loss_of_appetite, fin_rot",medium,no,vet_verified
+Fish,Egg Retention,"bloating, lumps, lethargy, loss_of_appetite, hiding",medium,no,vet_verified
+Fish,Ammonia Poisoning,"gasping_at_surface, respiratory_distress, loss_of_appetite, lethargy, red_gums, clamped_fins",emergency,no,vet_verified
+Fish,Nitrate Poisoning,"lethargy, loss_of_appetite, red_skin, respiratory_distress",high,no,vet_verified
+Fish,pH Shock,"gasping_at_surface, respiratory_distress, lethargy, loss_of_appetite, clamped_fins",emergency,no,vet_verified
+Fish,Koi Herpes Virus,"gasping_at_surface, bloating, skin_lesions, red_skin, loss_of_appetite, lethargy, swimming_upside_down",emergency,yes,vet_verified
+Fish,Velvet Disease,"difficulty_breathing, difficulty_eating, labored_breathing, lethargy, red_skin, weight_loss",high,yes,vet_verified
+Fish,Anchor Worms,"irritated_skin, itching, red_skin, rubbing_against_objects, skin_lesions",high,yes,vet_verified
+Fish,Fish Lice,"hiding, lethargy, limping, loss_of_appetite, rubbing_against_objects",medium,yes,vet_verified
+Fish,Fish Tuberculosis,"fin_rot, lethargy, loss_of_appetite, loss_of_balance, lumps, skin_lesions, weakness",high,yes,vet_verified
+Fish,Hemorrhagic Septicemia,"lethargy, loss_of_appetite, red_skin, skin_lesions",high,yes,vet_verified
+Fish,Bacterial Infections,"circling, lethargy, red_skin",high,yes,vet_verified
+Fish,Cotton Wool Disease,"lethargy, loss_of_appetite, loss_of_balance, white_spots",high,yes,vet_verified
+Fish,Cold Water Shock,"clamped_fins, gasping_at_surface, labored_breathing, lethargy, loss_of_appetite",emergency,no,vet_verified
+Fish,Heat Shock,"clamped_fins, confusion, difficulty_breathing, labored_breathing, lethargy, loss_of_appetite, white_spots",emergency,no,vet_verified

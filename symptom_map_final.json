@@ -1,0 +1,2007 @@
+{
+  "lethargy": {
+    "question": "Is your pet unusually tired or lethargic?",
+    "category": "general",
+    "severity": 2
+  },
+  "loss_of_appetite": {
+    "question": "Has your pet stopped eating or eating much less than normal?",
+    "category": "digestive",
+    "severity": 2
+  },
+  "weight_loss": {
+    "question": "Has your pet lost weight recently?",
+    "category": "general",
+    "severity": 2
+  },
+  "vomiting": {
+    "question": "Is your pet throwing up or vomiting?",
+    "category": "digestive",
+    "severity": 2
+  },
+  "diarrhea": {
+    "question": "Does your pet have diarrhea or loose stool?",
+    "category": "digestive",
+    "severity": 2
+  },
+  "bloody_diarrhea": {
+    "question": "Is there blood in your pet's diarrhea?",
+    "category": "digestive",
+    "severity": 4
+  },
+  "swelling": {
+    "question": "Is there swelling anywhere on your pet's body?",
+    "category": "skin",
+    "severity": 2
+  },
+  "fever": {
+    "question": "Does your pet feel hot or seem to have a fever?",
+    "category": "general",
+    "severity": 2
+  },
+  "weakness": {
+    "question": "Does your pet seem weak or unable to move normally?",
+    "category": "general",
+    "severity": 3
+  },
+  "abdominal_pain": {
+    "question": "Does your pet seem to have stomach or belly pain?",
+    "category": "digestive",
+    "severity": 3
+  },
+  "coughing": {
+    "question": "Is your pet coughing?",
+    "category": "respiratory",
+    "severity": 2
+  },
+  "nasal_discharge": {
+    "question": "Does your pet have discharge or liquid coming from their nose?",
+    "category": "respiratory",
+    "severity": 2
+  },
+  "itching": {
+    "question": "Does your pet seem itchy?",
+    "category": "skin",
+    "severity": 1
+  },
+  "difficulty_breathing": {
+    "question": "Is your pet having trouble breathing or struggling to breathe?",
+    "category": "respiratory",
+    "severity": 4
+  },
+  "discharge": {
+    "question": "Does your pet have unusual discharge from any body opening?",
+    "category": "general",
+    "severity": 2
+  },
+  "seizures": {
+    "question": "Is your pet having seizures or convulsions?",
+    "category": "neurological",
+    "severity": 5
+  },
+  "dehydration": {
+    "question": "Does your pet seem dehydrated?",
+    "category": "general",
+    "severity": 3
+  },
+  "hair_loss": {
+    "question": "Is your pet losing hair or has bald patches?",
+    "category": "skin",
+    "severity": 1
+  },
+  "distended_abdomen": {
+    "question": "Is your pet's belly swollen or bloated?",
+    "category": "digestive",
+    "severity": 3
+  },
+  "pale_gums": {
+    "question": "Are your pet's gums pale or white instead of pink?",
+    "category": "general",
+    "severity": 3
+  },
+  "scratching": {
+    "question": "Is your pet scratching excessively?",
+    "category": "skin",
+    "severity": 1
+  },
+  "skin_lesions": {
+    "question": "Does your pet have sores or lesions on their skin?",
+    "category": "skin",
+    "severity": 2
+  },
+  "sneezing": {
+    "question": "Is your pet sneezing?",
+    "category": "respiratory",
+    "severity": 1
+  },
+  "difficulty_eating": {
+    "question": "Is your pet having trouble eating?",
+    "category": "oral",
+    "severity": 2
+  },
+  "eye_discharge": {
+    "question": "Does your pet have discharge from their eyes?",
+    "category": "eyes",
+    "severity": 1
+  },
+  "limping": {
+    "question": "Is your pet limping?",
+    "category": "musculoskeletal",
+    "severity": 2
+  },
+  "straining_to_urinate": {
+    "question": "Is your pet straining or having difficulty urinating?",
+    "category": "urinary",
+    "severity": 4
+  },
+  "labored_breathing": {
+    "question": "Does your pet seem to be struggling or working hard to breathe?",
+    "category": "respiratory",
+    "severity": 4
+  },
+  "drooling": {
+    "question": "Is your pet drooling excessively?",
+    "category": "oral",
+    "severity": 2
+  },
+  "feather_loss": {
+    "question": "Is your bird losing feathers?",
+    "category": "skin",
+    "severity": 2
+  },
+  "squinting": {
+    "question": "Is your pet squinting or keeping their eyes partially closed?",
+    "category": "eyes",
+    "severity": 2
+  },
+  "pain": {
+    "question": "Does your pet seem to be in pain?",
+    "category": "general",
+    "severity": 3
+  },
+  "increased_thirst": {
+    "question": "Is your pet drinking more water than usual?",
+    "category": "general",
+    "severity": 2
+  },
+  "wheezing": {
+    "question": "Is your pet wheezing or making whistling sounds when breathing?",
+    "category": "respiratory",
+    "severity": 2
+  },
+  "lumps": {
+    "question": "Have you noticed any lumps or bumps on your pet?",
+    "category": "skin",
+    "severity": 2
+  },
+  "head_tilt": {
+    "question": "Is your pet's head tilted to one side?",
+    "category": "neurological",
+    "severity": 3
+  },
+  "frequent_urination": {
+    "question": "Is your pet urinating more often than usual?",
+    "category": "urinary",
+    "severity": 2
+  },
+  "open_mouth_breathing": {
+    "question": "Is your pet breathing with their mouth open?",
+    "category": "respiratory",
+    "severity": 3
+  },
+  "depression": {
+    "question": "Does your pet seem depressed or withdrawn?",
+    "category": "behavioral",
+    "severity": 2
+  },
+  "decreased_activity": {
+    "question": "Is your pet less active than usual?",
+    "category": "general",
+    "severity": 1
+  },
+  "cloudy_eyes": {
+    "question": "Are your pet's eyes cloudy?",
+    "category": "eyes",
+    "severity": 2
+  },
+  "stiffness": {
+    "question": "Does your pet seem stiff when moving?",
+    "category": "musculoskeletal",
+    "severity": 2
+  },
+  "bleeding": {
+    "question": "Is your pet bleeding from anywhere?",
+    "category": "general",
+    "severity": 4
+  },
+  "red_skin": {
+    "question": "Is your pet's skin red or inflamed?",
+    "category": "skin",
+    "severity": 1
+  },
+  "dandruff": {
+    "question": "Does your pet have dandruff or flaky skin?",
+    "category": "skin",
+    "severity": 1
+  },
+  "restlessness": {
+    "question": "Is your pet restless or unable to settle down?",
+    "category": "behavioral",
+    "severity": 1
+  },
+  "increased_appetite": {
+    "question": "Is your pet eating more than usual?",
+    "category": "digestive",
+    "severity": 1
+  },
+  "enlarged_lymph_nodes": {
+    "question": "Are your pet's lymph nodes swollen?",
+    "category": "general",
+    "severity": 3
+  },
+  "blood_in_urine": {
+    "question": "Is there blood in your pet's urine?",
+    "category": "urinary",
+    "severity": 3
+  },
+  "hunched_posture": {
+    "question": "Is your pet sitting or standing in a hunched position?",
+    "category": "digestive",
+    "severity": 2
+  },
+  "red_eyes": {
+    "question": "Are your pet's eyes red?",
+    "category": "eyes",
+    "severity": 2
+  },
+  "tremors": {
+    "question": "Is your pet trembling or shaking?",
+    "category": "neurological",
+    "severity": 3
+  },
+  "incoordination": {
+    "question": "Does your pet seem clumsy or uncoordinated?",
+    "category": "neurological",
+    "severity": 3
+  },
+  "straining": {
+    "question": "Is your pet straining to poop, urinate, or lay eggs?",
+    "category": "general",
+    "severity": 3
+  },
+  "paralysis": {
+    "question": "Is your pet unable to move part or all of their body?",
+    "category": "neurological",
+    "severity": 5
+  },
+  "behavioral_changes": {
+    "question": "Has your pet's behavior changed recently?",
+    "category": "behavioral",
+    "severity": 2
+  },
+  "aggression": {
+    "question": "Is your pet more aggressive than usual?",
+    "category": "behavioral",
+    "severity": 3
+  },
+  "difficulty_swallowing": {
+    "question": "Is your pet having trouble swallowing?",
+    "category": "oral",
+    "severity": 3
+  },
+  "excessive_weight": {
+    "question": "Is your pet overweight or obese?",
+    "category": "general",
+    "severity": 1
+  },
+  "difficulty_jumping": {
+    "question": "Is your pet having difficulty jumping?",
+    "category": "musculoskeletal",
+    "severity": 2
+  },
+  "reluctance_to_move": {
+    "question": "Is your pet reluctant to move or get up?",
+    "category": "musculoskeletal",
+    "severity": 2
+  },
+  "loose_stool": {
+    "question": "Is your pet's stool loose or watery?",
+    "category": "digestive",
+    "severity": 2
+  },
+  "collapse": {
+    "question": "Has your pet collapsed or fainted?",
+    "category": "general",
+    "severity": 5
+  },
+  "dry_cough": {
+    "question": "Does your pet have a dry, hacking cough?",
+    "category": "respiratory",
+    "severity": 2
+  },
+  "gagging": {
+    "question": "Is your pet gagging or trying to vomit but nothing comes up?",
+    "category": "respiratory",
+    "severity": 2
+  },
+  "retching": {
+    "question": "Is your pet retching or making vomiting motions?",
+    "category": "respiratory",
+    "severity": 2
+  },
+  "exercise_intolerance": {
+    "question": "Does your pet get tired easily during exercise?",
+    "category": "general",
+    "severity": 2
+  },
+  "fainting": {
+    "question": "Has your pet fainted or passed out?",
+    "category": "general",
+    "severity": 5
+  },
+  "hydrophobia": {
+    "question": "Is your pet afraid of water?",
+    "category": "neurological",
+    "severity": 4
+  },
+  "joint_swelling": {
+    "question": "Are your pet's joints swollen?",
+    "category": "musculoskeletal",
+    "severity": 2
+  },
+  "ear_scratching": {
+    "question": "Is your pet scratching their ears?",
+    "category": "ears",
+    "severity": 1
+  },
+  "head_shaking": {
+    "question": "Is your pet shaking their head?",
+    "category": "ears",
+    "severity": 2
+  },
+  "ear_discharge": {
+    "question": "Is there discharge from your pet's ears?",
+    "category": "ears",
+    "severity": 2
+  },
+  "odor": {
+    "question": "Does your pet or a specific area smell bad?",
+    "category": "general",
+    "severity": 1
+  },
+  "redness": {
+    "question": "Is there redness on your pet's skin?",
+    "category": "skin",
+    "severity": 1
+  },
+  "no_fecal_output": {
+    "question": "Has your pet stopped pooping?",
+    "category": "digestive",
+    "severity": 3
+  },
+  "jaundice": {
+    "question": "Does your pet's skin or eyes look yellow?",
+    "category": "general",
+    "severity": 4
+  },
+  "increased_urination": {
+    "question": "Is your pet producing more urine than normal?",
+    "category": "urinary",
+    "severity": 2
+  },
+  "urinating_outside_litter_box": {
+    "question": "Is your cat urinating outside the litter box?",
+    "category": "urinary",
+    "severity": 2
+  },
+  "crying_during_urination": {
+    "question": "Does your pet cry or vocalize when urinating?",
+    "category": "urinary",
+    "severity": 4
+  },
+  "vocalization_during_urination": {
+    "question": "Does your pet make sounds of pain when urinating?",
+    "category": "urinary",
+    "severity": 4
+  },
+  "visible_parasites": {
+    "question": "Can you see parasites (fleas, ticks, mites) on your pet?",
+    "category": "skin",
+    "severity": 2
+  },
+  "poor_coat_condition": {
+    "question": "Does your pet's coat look dull or unhealthy?",
+    "category": "skin",
+    "severity": 1
+  },
+  "ulcers": {
+    "question": "Does your pet have open sores or ulcers?",
+    "category": "skin",
+    "severity": 3
+  },
+  "crusty_skin": {
+    "question": "Does your pet have crusty or scaly skin?",
+    "category": "skin",
+    "severity": 1
+  },
+  "swollen_eyes": {
+    "question": "Are your pet's eyes swollen?",
+    "category": "eyes",
+    "severity": 2
+  },
+  "vision_impairment": {
+    "question": "Does your pet seem to have trouble seeing?",
+    "category": "eyes",
+    "severity": 2
+  },
+  "bumping_into_objects": {
+    "question": "Is your pet bumping into things?",
+    "category": "eyes",
+    "severity": 2
+  },
+  "eye_inflammation": {
+    "question": "Are your pet's eyes inflamed or irritated?",
+    "category": "eyes",
+    "severity": 2
+  },
+  "bad_breath": {
+    "question": "Does your pet have bad breath?",
+    "category": "oral",
+    "severity": 1
+  },
+  "red_gums": {
+    "question": "Are your pet's gums red or inflamed?",
+    "category": "oral",
+    "severity": 2
+  },
+  "swollen_gums": {
+    "question": "Are your pet's gums swollen?",
+    "category": "oral",
+    "severity": 2
+  },
+  "bleeding_gums": {
+    "question": "Are your pet's gums bleeding?",
+    "category": "oral",
+    "severity": 2
+  },
+  "tooth_loss": {
+    "question": "Has your pet lost any teeth?",
+    "category": "oral",
+    "severity": 2
+  },
+  "vaginal_discharge": {
+    "question": "Does your pet have discharge from their vulva/vagina?",
+    "category": "reproductive",
+    "severity": 3
+  },
+  "breast_lumps": {
+    "question": "Does your pet have lumps in their mammary glands/breasts?",
+    "category": "reproductive",
+    "severity": 2
+  },
+  "hyperactivity": {
+    "question": "Is your pet more active or hyper than normal?",
+    "category": "behavioral",
+    "severity": 1
+  },
+  "difficulty_standing": {
+    "question": "Is your pet having trouble standing up?",
+    "category": "musculoskeletal",
+    "severity": 3
+  },
+  "lameness": {
+    "question": "Is your pet lame or unable to use a limb properly?",
+    "category": "musculoskeletal",
+    "severity": 3
+  },
+  "inability_to_bear_weight": {
+    "question": "Can your pet not put weight on a leg?",
+    "category": "musculoskeletal",
+    "severity": 3
+  },
+  "deformity": {
+    "question": "Is there visible deformity or abnormal shape?",
+    "category": "musculoskeletal",
+    "severity": 3
+  },
+  "difficulty_walking": {
+    "question": "Is your pet having trouble walking?",
+    "category": "musculoskeletal",
+    "severity": 2
+  },
+  "reluctance_to_jump": {
+    "question": "Is your pet reluctant to jump?",
+    "category": "musculoskeletal",
+    "severity": 2
+  },
+  "loss_of_coordination": {
+    "question": "Is your pet uncoordinated or stumbling?",
+    "category": "neurological",
+    "severity": 3
+  },
+  "circling": {
+    "question": "Is your pet walking in circles?",
+    "category": "neurological",
+    "severity": 3
+  },
+  "loss_of_balance": {
+    "question": "Is your pet having trouble balancing?",
+    "category": "neurological",
+    "severity": 3
+  },
+  "twisted_neck": {
+    "question": "Is your pet's neck twisted abnormally?",
+    "category": "neurological",
+    "severity": 4
+  },
+  "rapid_breathing": {
+    "question": "Is your pet breathing faster than normal?",
+    "category": "respiratory",
+    "severity": 3
+  },
+  "noisy_breathing": {
+    "question": "Does your pet make noises when breathing?",
+    "category": "respiratory",
+    "severity": 2
+  },
+  "respiratory_distress": {
+    "question": "Is your pet in obvious breathing distress?",
+    "category": "respiratory",
+    "severity": 5
+  },
+  "tail_bobbing": {
+    "question": "Is your bird's tail bobbing with each breath?",
+    "category": "respiratory",
+    "severity": 3
+  },
+  "gasping_at_surface": {
+    "question": "Is your fish gasping at the water surface?",
+    "category": "respiratory",
+    "severity": 4
+  },
+  "white_spots": {
+    "question": "Does your fish have white spots on its body?",
+    "category": "skin",
+    "severity": 2
+  },
+  "clamped_fins": {
+    "question": "Are your fish's fins clamped close to its body?",
+    "category": "aquatic",
+    "severity": 2
+  },
+  "frayed_fins": {
+    "question": "Are your fish's fins frayed or deteriorating?",
+    "category": "aquatic",
+    "severity": 2
+  },
+  "swimming_upside_down": {
+    "question": "Is your fish swimming upside down?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "scratching_against_objects": {
+    "question": "Is your fish rubbing or scratching against objects?",
+    "category": "aquatic",
+    "severity": 2
+  },
+  "raised_scales": {
+    "question": "Are your fish's scales raised or sticking out?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "swollen_abdomen": {
+    "question": "Is your fish's belly swollen?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "egg_retention": {
+    "question": "Is your bird or reptile retaining eggs?",
+    "category": "reproductive",
+    "severity": 4
+  },
+  "tissue_protruding_from_vent": {
+    "question": "Is tissue protruding from your bird/reptile's vent?",
+    "category": "reproductive",
+    "severity": 4
+  },
+  "overgrown_beak": {
+    "question": "Is your pet's beak overgrown?",
+    "category": "oral",
+    "severity": 2
+  },
+  "beak_deformity": {
+    "question": "Does your pet's beak look abnormal or deformed?",
+    "category": "oral",
+    "severity": 2
+  },
+  "facial_swelling": {
+    "question": "Is your pet's face swollen?",
+    "category": "oral",
+    "severity": 2
+  },
+  "inability_to_right_self": {
+    "question": "Is your pet unable to turn over if placed on their back?",
+    "category": "neurological",
+    "severity": 3
+  },
+  "abnormal_head_posture": {
+    "question": "Is your pet holding their head in an unusual position?",
+    "category": "neurological",
+    "severity": 3
+  },
+  "maggots_on_skin": {
+    "question": "Are there maggots on your pet's skin?",
+    "category": "skin",
+    "severity": 5
+  },
+  "foul_odor": {
+    "question": "Does your pet have a foul or unusual odor?",
+    "category": "general",
+    "severity": 2
+  },
+  "shock": {
+    "question": "Is your pet in shock (weak, cold, pale)?",
+    "category": "general",
+    "severity": 5
+  },
+  "teeth_grinding": {
+    "question": "Is your pet grinding their teeth?",
+    "category": "oral",
+    "severity": 2
+  },
+  "small_droppings": {
+    "question": "Are your pet's droppings smaller than normal?",
+    "category": "digestive",
+    "severity": 2
+  },
+  "potbelly": {
+    "question": "Does your pet have a pot-bellied appearance?",
+    "category": "digestive",
+    "severity": 2
+  },
+  "loss_of_waistline": {
+    "question": "Has your pet lost their waistline (looks round)?",
+    "category": "general",
+    "severity": 1
+  },
+  "difficulty_grooming": {
+    "question": "Is your pet having trouble grooming themselves?",
+    "category": "general",
+    "severity": 1
+  },
+  "inability_to_groom": {
+    "question": "Is your pet unable to groom themselves?",
+    "category": "general",
+    "severity": 2
+  },
+  "joint_pain": {
+    "question": "Does your pet seem to have joint pain?",
+    "category": "musculoskeletal",
+    "severity": 2
+  },
+  "hiding": {
+    "question": "Is your pet hiding more than usual?",
+    "category": "behavioral",
+    "severity": 1
+  },
+  "hypersalivation": {
+    "question": "Is your pet producing excessive saliva?",
+    "category": "oral",
+    "severity": 2
+  },
+  "pawing_at_mouth": {
+    "question": "Is your pet pawing at their mouth?",
+    "category": "oral",
+    "severity": 2
+  },
+  "_and_gills": {
+    "question": "Does your fish have and gills?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "_watery_urates": {
+    "question": "Does your fish have watery urates?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "abnormal_swimming": {
+    "question": "Does your fish have abnormal swimming?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "acute_aspergillosis": {
+    "question": "Does your fish have acute aspergillosis?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "brown_or_black_discoloration_of_scales": {
+    "question": "Does your fish have brown or black discoloration of scales?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "chronic_aspergillosis": {
+    "question": "Does your fish have chronic aspergillosis?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "difficulty_maintaining_position_in_water": {
+    "question": "Does your fish have difficulty maintaining position in water?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "disruption_of_schooling_behavior_in_species_that_normally_swim_in_groups": {
+    "question": "Does your fish have disruption of schooling behavior in species that normally swim in groups?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "erratic_swimming_darting": {
+    "question": "Does your fish have erratic swimming darting?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "excess_mucus_on_skin_or_gills": {
+    "question": "Does your fish have excess mucus on skin or gills?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "fin_edges_appear_torn_or_disintegrating": {
+    "question": "Does your fish have fin edges appear torn or disintegrating?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "fine_dust": {
+    "question": "Does your fish have fine dust?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "fins_progressively_shortening": {
+    "question": "Does your fish have fins progressively shortening?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "fish_congregating_near_oxygen": {
+    "question": "Does your fish have fish congregating near oxygen?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "fish_rubbing": {
+    "question": "Does your fish have fish rubbing?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "floating_abnormally": {
+    "question": "Does your fish have floating abnormally?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "floating_at_the_surface_uncontrollably": {
+    "question": "Does your fish have floating at the surface uncontrollably?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "gill_necrosis": {
+    "question": "Does your fish have gill necrosis?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "milky_appearance_at_fin_margins": {
+    "question": "Does your fish have milky appearance at fin margins?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "mucous_production_from_gills": {
+    "question": "Does your fish have mucous production from gills?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "rapid_gill_movements": {
+    "question": "Does your fish have rapid gill movements?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "redness_at_base_of_fins": {
+    "question": "Does your fish have redness at base of fins?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "spending_excessive_time_near_the_surface_of_the_water": {
+    "question": "Does your fish have spending excessive time near the surface of the water?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "struggling_to_swim_normally": {
+    "question": "Does your fish have struggling to swim normally?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "sudden_death_following_abrupt_water_changes": {
+    "question": "Does your fish have sudden death following abrupt water changes?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "tilting_to_one_side_while_swimming": {
+    "question": "Does your fish have tilting to one side while swimming?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "time_spent_soaking_in_water": {
+    "question": "Does your fish have time spent soaking in water?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "watery_foul": {
+    "question": "Does your fish have watery foul?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "watery_swollen": {
+    "question": "Does your fish have watery swollen?",
+    "category": "aquatic",
+    "severity": 3
+  },
+  "_cloaca": {
+    "question": "Does your bird have cloaca?",
+    "category": "avian",
+    "severity": 3
+  },
+  "abnormal_wear_patterns_on_the_beaks": {
+    "question": "Does your bird have abnormal wear patterns on the beaks?",
+    "category": "avian",
+    "severity": 3
+  },
+  "beak_deformities_or_crooked_beak": {
+    "question": "Does your bird have beak deformities or crooked beak?",
+    "category": "avian",
+    "severity": 3
+  },
+  "bowlegged_stance_in_the_hind_limbs": {
+    "question": "Does your bird have bowlegged stance in the hind limbs?",
+    "category": "avian",
+    "severity": 3
+  },
+  "cloacal_prolapse": {
+    "question": "Does your bird have cloacal prolapse?",
+    "category": "avian",
+    "severity": 3
+  },
+  "crop_stasis": {
+    "question": "Does your bird have crop stasis?",
+    "category": "avian",
+    "severity": 3
+  },
+  "feather_loss_around_leg_areas": {
+    "question": "Does your bird have feather loss around leg areas?",
+    "category": "avian",
+    "severity": 3
+  },
+  "fluffed_up_feathers": {
+    "question": "Does your bird have fluffed up feathers?",
+    "category": "avian",
+    "severity": 3
+  },
+  "frequent_or_prolonged_attempts_to_pass_droppings": {
+    "question": "Does your bird have frequent or prolonged attempts to pass droppings?",
+    "category": "avian",
+    "severity": 3
+  },
+  "hair_not_regrowing_after_shaving": {
+    "question": "Does your bird have hair not regrowing after shaving?",
+    "category": "avian",
+    "severity": 3
+  },
+  "improper_positioning_of_upper_and_lower_beaks_when_jaw_is_closed": {
+    "question": "Does your bird have improper positioning of upper and lower beaks when jaw is closed?",
+    "category": "avian",
+    "severity": 3
+  },
+  "increased_vocalization_in_the_infected_bird": {
+    "question": "Does your bird have increased vocalization in the infected bird?",
+    "category": "avian",
+    "severity": 3
+  },
+  "loss_of_feathers_near_affected_areas": {
+    "question": "Does your bird have loss of feathers near affected areas?",
+    "category": "avian",
+    "severity": 3
+  },
+  "misshapen_or_crooked_beak": {
+    "question": "Does your bird have misshapen or crooked beak?",
+    "category": "avian",
+    "severity": 3
+  },
+  "pale_or_discolored_beak_and_legs": {
+    "question": "Does your bird have pale or discolored beak and legs?",
+    "category": "avian",
+    "severity": 3
+  },
+  "pawing_or_rubbing_at_the_eyes": {
+    "question": "Does your bird have pawing or rubbing at the eyes?",
+    "category": "avian",
+    "severity": 3
+  },
+  "progressive_worsening_requiring_repeated_beak_trimming": {
+    "question": "Does your bird have progressive worsening requiring repeated beak trimming?",
+    "category": "avian",
+    "severity": 3
+  },
+  "reduced_egg_production": {
+    "question": "Does your bird have reduced egg production?",
+    "category": "avian",
+    "severity": 3
+  },
+  "ruffled_feathers": {
+    "question": "Does your bird have ruffled feathers?",
+    "category": "avian",
+    "severity": 3
+  },
+  "self_biting_or_chewing": {
+    "question": "Does your bird have self biting or chewing?",
+    "category": "avian",
+    "severity": 3
+  },
+  "soft_shelled_or_misshapen_eggs": {
+    "question": "Does your bird have soft shelled or misshapen eggs?",
+    "category": "avian",
+    "severity": 3
+  },
+  "straining_during_defecation_or_egg_laying": {
+    "question": "Does your bird have straining during defecation or egg laying?",
+    "category": "avian",
+    "severity": 3
+  },
+  "straining_or_frequent_attempts_to_lay_an_egg": {
+    "question": "Does your bird have straining or frequent attempts to lay an egg?",
+    "category": "avian",
+    "severity": 3
+  },
+  "sudden_death_in_young_birds": {
+    "question": "Does your bird have sudden death in young birds?",
+    "category": "avian",
+    "severity": 3
+  },
+  "sudden_drop_in_egg_production": {
+    "question": "Does your bird have sudden drop in egg production?",
+    "category": "avian",
+    "severity": 3
+  },
+  "thickened_crop": {
+    "question": "Does your bird have thickened crop?",
+    "category": "avian",
+    "severity": 3
+  },
+  "undigested_seeds_or_pellets_in_the_droppings": {
+    "question": "Does your bird have undigested seeds or pellets in the droppings?",
+    "category": "avian",
+    "severity": 3
+  },
+  "wide_legged_stance": {
+    "question": "Does your bird have wide legged stance?",
+    "category": "avian",
+    "severity": 3
+  },
+  "wing_droop_or_slight_droop": {
+    "question": "Does your bird have wing droop or slight droop?",
+    "category": "avian",
+    "severity": 3
+  },
+  "yellowing_of_eyes_skin": {
+    "question": "Does your bird have yellowing of eyes skin?",
+    "category": "avian",
+    "severity": 3
+  },
+  "_especially_between_scutes": {
+    "question": "Does your reptile have especially between scutes?",
+    "category": "reptile",
+    "severity": 3
+  },
+  "exposed_tissue_underneath_damaged_shell": {
+    "question": "Does your reptile have exposed tissue underneath damaged shell?",
+    "category": "reptile",
+    "severity": 3
+  },
+  "pink_or_red_discoloration_of_the_plastron": {
+    "question": "Does your reptile have pink or red discoloration of the plastron?",
+    "category": "reptile",
+    "severity": 3
+  },
+  "scutes_sloughing_off": {
+    "question": "Does your reptile have scutes sloughing off?",
+    "category": "reptile",
+    "severity": 3
+  },
+  "abnormal": {
+    "question": "Does your pet have abnormal?",
+    "category": "general",
+    "severity": 3
+  },
+  "airsacculitis": {
+    "question": "Does your pet have airsacculitis?",
+    "category": "general",
+    "severity": 3
+  },
+  "anal_irritation": {
+    "question": "Does your pet have anal irritation?",
+    "category": "general",
+    "severity": 3
+  },
+  "but_small_urine_output": {
+    "question": "Does your pet have but small urine output?",
+    "category": "urinary",
+    "severity": 3
+  },
+  "cauliflower_like_appearance": {
+    "question": "Does your pet have cauliflower like appearance?",
+    "category": "ear",
+    "severity": 3
+  },
+  "change_in_eye_color": {
+    "question": "Does your pet have change in eye color?",
+    "category": "eye",
+    "severity": 3
+  },
+  "changes_in_behavior": {
+    "question": "Does your pet have changes in behavior?",
+    "category": "general",
+    "severity": 3
+  },
+  "changes_in_body_temperature": {
+    "question": "Does your pet have changes in body temperature?",
+    "category": "general",
+    "severity": 3
+  },
+  "chin_acne": {
+    "question": "Does your pet have chin acne?",
+    "category": "general",
+    "severity": 3
+  },
+  "cloudiness_or_discoloration": {
+    "question": "Does your pet have cloudiness or discoloration?",
+    "category": "general",
+    "severity": 3
+  },
+  "collar_keeps_getting_tighter": {
+    "question": "Does your pet have collar keeps getting tighter?",
+    "category": "general",
+    "severity": 3
+  },
+  "constant_licking": {
+    "question": "Does your pet have constant licking?",
+    "category": "general",
+    "severity": 3
+  },
+  "contagious:_no": {
+    "question": "Does your pet have contagious: no?",
+    "category": "general",
+    "severity": 3
+  },
+  "continuous_loss_of_weight": {
+    "question": "Does your pet have continuous loss of weight?",
+    "category": "general",
+    "severity": 3
+  },
+  "cracks": {
+    "question": "Does your pet have cracks?",
+    "category": "general",
+    "severity": 3
+  },
+  "crepitus": {
+    "question": "Does your pet have crepitus?",
+    "category": "general",
+    "severity": 3
+  },
+  "crying_or_vocalizing": {
+    "question": "Does your pet have crying or vocalizing?",
+    "category": "general",
+    "severity": 3
+  },
+  "crying_out": {
+    "question": "Does your pet have crying out?",
+    "category": "general",
+    "severity": 3
+  },
+  "damaged": {
+    "question": "Does your pet have damaged?",
+    "category": "general",
+    "severity": 3
+  },
+  "damp_or_matted_fur": {
+    "question": "Does your pet have damp or matted fur?",
+    "category": "skin",
+    "severity": 3
+  },
+  "dark_tar": {
+    "question": "Does your pet have dark tar?",
+    "category": "general",
+    "severity": 3
+  },
+  "darkened": {
+    "question": "Does your pet have darkened?",
+    "category": "general",
+    "severity": 3
+  },
+  "darkening_of_skin_color": {
+    "question": "Does your pet have darkening of skin color?",
+    "category": "skin",
+    "severity": 3
+  },
+  "darker": {
+    "question": "Does your pet have darker?",
+    "category": "general",
+    "severity": 3
+  },
+  "deformed_body_shape": {
+    "question": "Does your pet have deformed body shape?",
+    "category": "general",
+    "severity": 3
+  },
+  "deformity_of_jaw_structure": {
+    "question": "Does your pet have deformity of jaw structure?",
+    "category": "general",
+    "severity": 3
+  },
+  "delayed_fledging": {
+    "question": "Does your pet have delayed fledging?",
+    "category": "general",
+    "severity": 3
+  },
+  "dewlap": {
+    "question": "Does your pet have dewlap?",
+    "category": "general",
+    "severity": 3
+  },
+  "digestive_and_physical_changes": {
+    "question": "Does your pet have digestive and physical changes?",
+    "category": "general",
+    "severity": 3
+  },
+  "dilation_of_pupils": {
+    "question": "Does your pet have dilation of pupils?",
+    "category": "general",
+    "severity": 3
+  },
+  "dirty": {
+    "question": "Does your pet have dirty?",
+    "category": "general",
+    "severity": 3
+  },
+  "distorted_skull_development": {
+    "question": "Does your pet have distorted skull development?",
+    "category": "general",
+    "severity": 3
+  },
+  "distorted_skull_shape_as_it_develops": {
+    "question": "Does your pet have distorted skull shape as it develops?",
+    "category": "general",
+    "severity": 3
+  },
+  "drainage_from_the_eyes": {
+    "question": "Does your pet have drainage from the eyes?",
+    "category": "eye",
+    "severity": 3
+  },
+  "dry": {
+    "question": "Does your pet have dry?",
+    "category": "general",
+    "severity": 3
+  },
+  "dry_brittle": {
+    "question": "Does your pet have dry brittle?",
+    "category": "general",
+    "severity": 3
+  },
+  "dry_fip": {
+    "question": "Does your pet have dry fip?",
+    "category": "general",
+    "severity": 3
+  },
+  "dry_flaky": {
+    "question": "Does your pet have dry flaky?",
+    "category": "general",
+    "severity": 3
+  },
+  "dull": {
+    "question": "Does your pet have dull?",
+    "category": "general",
+    "severity": 3
+  },
+  "dull_coat": {
+    "question": "Does your pet have dull coat?",
+    "category": "skin",
+    "severity": 3
+  },
+  "dull_or_patchy_appearance": {
+    "question": "Does your pet have dull or patchy appearance?",
+    "category": "ear",
+    "severity": 3
+  },
+  "ear_droop": {
+    "question": "Does your pet have ear droop?",
+    "category": "ear",
+    "severity": 3
+  },
+  "ear_infections_if_mites_invade_the_ear_canal": {
+    "question": "Does your pet have ear infections if mites invade the ear canal?",
+    "category": "ear",
+    "severity": 3
+  },
+  "early_signs_of_myxomatosis_include:": {
+    "question": "Does your pet have early signs of myxomatosis include:?",
+    "category": "ear",
+    "severity": 3
+  },
+  "emergency_signs": {
+    "question": "Does your pet have emergency signs?",
+    "category": "general",
+    "severity": 3
+  },
+  "exposed_tooth_roots": {
+    "question": "Does your pet have exposed tooth roots?",
+    "category": "general",
+    "severity": 3
+  },
+  "eye_appears_to_stick_out_from_socket": {
+    "question": "Does your pet have eye appears to stick out from socket?",
+    "category": "eye",
+    "severity": 3
+  },
+  "eye_fat_deposits": {
+    "question": "Does your pet have eye fat deposits?",
+    "category": "eye",
+    "severity": 3
+  },
+  "eye_that_protrudes_or_bulges": {
+    "question": "Does your pet have eye that protrudes or bulges?",
+    "category": "eye",
+    "severity": 3
+  },
+  "face": {
+    "question": "Does your pet have face?",
+    "category": "general",
+    "severity": 3
+  },
+  "faded": {
+    "question": "Does your pet have faded?",
+    "category": "general",
+    "severity": 3
+  },
+  "faded_coloration_stress_stripes": {
+    "question": "Does your pet have faded coloration stress stripes?",
+    "category": "general",
+    "severity": 3
+  },
+  "faulty_absorption_of_nutrients": {
+    "question": "Does your pet have faulty absorption of nutrients?",
+    "category": "general",
+    "severity": 3
+  },
+  "fleas_jumping_on_fur": {
+    "question": "Does your pet have fleas jumping on fur?",
+    "category": "skin",
+    "severity": 3
+  },
+  "fluffy_or_fuzzy_patches_on_skin": {
+    "question": "Does your pet have fluffy or fuzzy patches on skin?",
+    "category": "skin",
+    "severity": 3
+  },
+  "fluid": {
+    "question": "Does your pet have fluid?",
+    "category": "general",
+    "severity": 3
+  },
+  "fractures_occurring_easily": {
+    "question": "Does your pet have fractures occurring easily?",
+    "category": "general",
+    "severity": 3
+  },
+  "green_feces": {
+    "question": "Does your pet have green feces?",
+    "category": "digestive",
+    "severity": 3
+  },
+  "grinding_teeth": {
+    "question": "Does your pet have grinding teeth?",
+    "category": "mouth",
+    "severity": 3
+  },
+  "growling_snapping": {
+    "question": "Does your pet have growling snapping?",
+    "category": "general",
+    "severity": 3
+  },
+  "hanging_with_head": {
+    "question": "Does your pet have hanging with head?",
+    "category": "general",
+    "severity": 3
+  },
+  "hard": {
+    "question": "Does your pet have hard?",
+    "category": "general",
+    "severity": 3
+  },
+  "hardened": {
+    "question": "Does your pet have hardened?",
+    "category": "general",
+    "severity": 3
+  },
+  "heart_failure": {
+    "question": "Does your pet have heart failure?",
+    "category": "ear",
+    "severity": 3
+  },
+  "heavy": {
+    "question": "Does your pet have heavy?",
+    "category": "general",
+    "severity": 3
+  },
+  "hesitant_to_jump_or_play": {
+    "question": "Does your pet have hesitant to jump or play?",
+    "category": "general",
+    "severity": 3
+  },
+  "high_blood_pressure": {
+    "question": "Does your pet have high blood pressure?",
+    "category": "general",
+    "severity": 3
+  },
+  "high_mortality_in_severe_outbreaks": {
+    "question": "Does your pet have high mortality in severe outbreaks?",
+    "category": "general",
+    "severity": 3
+  },
+  "holding_in_feces_for_long_periods_of_time": {
+    "question": "Does your pet have holding in feces for long periods of time?",
+    "category": "digestive",
+    "severity": 3
+  },
+  "in_severe": {
+    "question": "Does your pet have in severe?",
+    "category": "general",
+    "severity": 3
+  },
+  "inappetence": {
+    "question": "Does your pet have inappetence?",
+    "category": "general",
+    "severity": 3
+  },
+  "increase_in_frequency_and_volume_of_urination": {
+    "question": "Does your pet have increase in frequency and volume of urination?",
+    "category": "general",
+    "severity": 3
+  },
+  "increased_frequency_of_trips_to_the_litter_box": {
+    "question": "Does your pet have increased frequency of trips to the litter box?",
+    "category": "general",
+    "severity": 3
+  },
+  "increased_susceptibility_to_secondary_infections": {
+    "question": "Does your pet have increased susceptibility to secondary infections?",
+    "category": "general",
+    "severity": 3
+  },
+  "intestinal_blockage": {
+    "question": "Does your pet have intestinal blockage?",
+    "category": "digestive",
+    "severity": 3
+  },
+  "intolerance_to_physical_activity": {
+    "question": "Does your pet have intolerance to physical activity?",
+    "category": "general",
+    "severity": 3
+  },
+  "irregular_heart_rate": {
+    "question": "Does your pet have irregular heart rate?",
+    "category": "ear",
+    "severity": 3
+  },
+  "irritability": {
+    "question": "Does your pet have irritability?",
+    "category": "general",
+    "severity": 3
+  },
+  "jerky": {
+    "question": "Does your pet have jerky?",
+    "category": "general",
+    "severity": 3
+  },
+  "lack_of_vocalization_in_typically_noisy_species": {
+    "question": "Does your pet have lack of vocalization in typically noisy species?",
+    "category": "general",
+    "severity": 3
+  },
+  "licking_biting": {
+    "question": "Does your pet have licking biting?",
+    "category": "general",
+    "severity": 3
+  },
+  "licking_the_genital_area": {
+    "question": "Does your pet have licking the genital area?",
+    "category": "general",
+    "severity": 3
+  },
+  "litter_box_use": {
+    "question": "Does your pet have litter box use?",
+    "category": "general",
+    "severity": 3
+  },
+  "localized": {
+    "question": "Does your pet have localized?",
+    "category": "general",
+    "severity": 3
+  },
+  "loud_harsh": {
+    "question": "Does your pet have loud harsh?",
+    "category": "general",
+    "severity": 3
+  },
+  "low_blood_pressure": {
+    "question": "Does your pet have low blood pressure?",
+    "category": "general",
+    "severity": 3
+  },
+  "low_body_temperature": {
+    "question": "Does your pet have low body temperature?",
+    "category": "general",
+    "severity": 3
+  },
+  "low_stamina": {
+    "question": "Does your pet have low stamina?",
+    "category": "general",
+    "severity": 3
+  },
+  "lungs_and_air_sacs_congested_with_white_mucus": {
+    "question": "Does your pet have lungs and air sacs congested with white mucus?",
+    "category": "respiratory",
+    "severity": 3
+  },
+  "malnutrition": {
+    "question": "Does your pet have malnutrition?",
+    "category": "general",
+    "severity": 3
+  },
+  "mammary_gland_are_warm": {
+    "question": "Does your pet have mammary gland are warm?",
+    "category": "general",
+    "severity": 3
+  },
+  "matted": {
+    "question": "Does your pet have matted?",
+    "category": "general",
+    "severity": 3
+  },
+  "moist": {
+    "question": "Does your pet have moist?",
+    "category": "general",
+    "severity": 3
+  },
+  "mucus": {
+    "question": "Does your pet have mucus?",
+    "category": "general",
+    "severity": 3
+  },
+  "muscle_loss": {
+    "question": "Does your pet have muscle loss?",
+    "category": "musculoskeletal",
+    "severity": 3
+  },
+  "muscle_spasms": {
+    "question": "Does your pet have muscle spasms?",
+    "category": "musculoskeletal",
+    "severity": 3
+  },
+  "nails:_brittle_and_malformed": {
+    "question": "Does your pet have nails: brittle and malformed?",
+    "category": "general",
+    "severity": 3
+  },
+  "neck": {
+    "question": "Does your pet have neck?",
+    "category": "general",
+    "severity": 3
+  },
+  "neurological_signs": {
+    "question": "Does your pet have neurological signs?",
+    "category": "neurological",
+    "severity": 3
+  },
+  "often_seen_in_hand_raised_or_hand_fed_cockatoos": {
+    "question": "Does your pet have often seen in hand raised or hand fed cockatoos?",
+    "category": "general",
+    "severity": 3
+  },
+  "one_or_both_eyes_protruding_or_bulging": {
+    "question": "Does your pet have one or both eyes protruding or bulging?",
+    "category": "eye",
+    "severity": 3
+  },
+  "parasites_on_skin_around_eyes": {
+    "question": "Does your pet have parasites on skin around eyes?",
+    "category": "skin",
+    "severity": 3
+  },
+  "passing_small_amounts_of_urine": {
+    "question": "Does your pet have passing small amounts of urine?",
+    "category": "urinary",
+    "severity": 3
+  },
+  "patches_of_old_skin_that_havent_shed": {
+    "question": "Does your pet have patches of old skin that havent shed?",
+    "category": "skin",
+    "severity": 3
+  },
+  "patches_of_short_hair": {
+    "question": "Does your pet have patches of short hair?",
+    "category": "skin",
+    "severity": 3
+  },
+  "patches_that_look_like_cotton_balls": {
+    "question": "Does your pet have patches that look like cotton balls?",
+    "category": "general",
+    "severity": 3
+  },
+  "patchy": {
+    "question": "Does your pet have patchy?",
+    "category": "general",
+    "severity": 3
+  },
+  "peeing_more_than_usual": {
+    "question": "Does your pet have peeing more than usual?",
+    "category": "general",
+    "severity": 3
+  },
+  "pink_flushing_on_skin": {
+    "question": "Does your pet have pink flushing on skin?",
+    "category": "skin",
+    "severity": 3
+  },
+  "plantigrade_stance": {
+    "question": "Does your pet have plantigrade stance?",
+    "category": "general",
+    "severity": 3
+  },
+  "possible_intestinal_blockage": {
+    "question": "Does your pet have possible intestinal blockage?",
+    "category": "digestive",
+    "severity": 3
+  },
+  "potbellied_appearance": {
+    "question": "Does your pet have potbellied appearance?",
+    "category": "ear",
+    "severity": 3
+  },
+  "potential_internal_organ_disorders_affecting_reproductive_digestive": {
+    "question": "Does your pet have potential internal organ disorders affecting reproductive digestive?",
+    "category": "general",
+    "severity": 3
+  },
+  "potential_organ_damage_with_prolonged_exposure": {
+    "question": "Does your pet have potential organ damage with prolonged exposure?",
+    "category": "general",
+    "severity": 3
+  },
+  "prefers_warm_places": {
+    "question": "Does your pet have prefers warm places?",
+    "category": "general",
+    "severity": 3
+  },
+  "presence_of_fly_larvae": {
+    "question": "Does your pet have presence of fly larvae?",
+    "category": "general",
+    "severity": 3
+  },
+  "presence_of_visible_fleas": {
+    "question": "Does your pet have presence of visible fleas?",
+    "category": "general",
+    "severity": 3
+  },
+  "presence_of_white_rice": {
+    "question": "Does your pet have presence of white rice?",
+    "category": "general",
+    "severity": 3
+  },
+  "presence_of_worms_in_feces": {
+    "question": "Does your pet have presence of worms in feces?",
+    "category": "digestive",
+    "severity": 3
+  },
+  "primary_sources_:": {
+    "question": "Does your pet have primary sources :?",
+    "category": "general",
+    "severity": 3
+  },
+  "protruding": {
+    "question": "Does your pet have protruding?",
+    "category": "general",
+    "severity": 3
+  },
+  "ragged": {
+    "question": "Does your pet have ragged?",
+    "category": "general",
+    "severity": 3
+  },
+  "rapid": {
+    "question": "Does your pet have rapid?",
+    "category": "general",
+    "severity": 3
+  },
+  "rapid_head_movements": {
+    "question": "Does your pet have rapid head movements?",
+    "category": "general",
+    "severity": 3
+  },
+  "rarely_intestinal_blockage": {
+    "question": "Does your pet have rarely intestinal blockage?",
+    "category": "digestive",
+    "severity": 3
+  },
+  "rash": {
+    "question": "Does your pet have rash?",
+    "category": "skin",
+    "severity": 3
+  },
+  "raw": {
+    "question": "Does your pet have raw?",
+    "category": "general",
+    "severity": 3
+  },
+  "reproductive_difficulties": {
+    "question": "Does your pet have reproductive difficulties?",
+    "category": "general",
+    "severity": 3
+  },
+  "reproductive_issues": {
+    "question": "Does your pet have reproductive issues?",
+    "category": "general",
+    "severity": 3
+  },
+  "rough_or_unkempt_hair_coat": {
+    "question": "Does your pet have rough or unkempt hair coat?",
+    "category": "skin",
+    "severity": 3
+  },
+  "roundworms": {
+    "question": "Does your pet have roundworms?",
+    "category": "general",
+    "severity": 3
+  },
+  "rubbing_face_or_head_along_the_furniture": {
+    "question": "Does your pet have rubbing face or head along the furniture?",
+    "category": "skin",
+    "severity": 3
+  },
+  "rubbing_the_eye": {
+    "question": "Does your pet have rubbing the eye?",
+    "category": "eye",
+    "severity": 3
+  },
+  "rumbling_and_gurgling_abdominal_sounds": {
+    "question": "Does your pet have rumbling and gurgling abdominal sounds?",
+    "category": "general",
+    "severity": 3
+  },
+  "sandpaper_texture_of_the_skin": {
+    "question": "Does your pet have sandpaper texture of the skin?",
+    "category": "skin",
+    "severity": 3
+  },
+  "sandy": {
+    "question": "Does your pet have sandy?",
+    "category": "general",
+    "severity": 3
+  },
+  "scaling_on_the_skin": {
+    "question": "Does your pet have scaling on the skin?",
+    "category": "skin",
+    "severity": 3
+  },
+  "scaling_or_dandruff": {
+    "question": "Does your pet have scaling or dandruff?",
+    "category": "general",
+    "severity": 3
+  },
+  "scaly_face": {
+    "question": "Does your pet have scaly face?",
+    "category": "general",
+    "severity": 3
+  },
+  "scooting_the_rear_end_along_the_ground": {
+    "question": "Does your pet have scooting the rear end along the ground?",
+    "category": "ear",
+    "severity": 3
+  },
+  "secondary_bacterial_infections": {
+    "question": "Does your pet have secondary bacterial infections?",
+    "category": "general",
+    "severity": 3
+  },
+  "septicemia_within_10_14_days_of_infection": {
+    "question": "Does your pet have septicemia within 10 14 days of infection?",
+    "category": "general",
+    "severity": 3
+  },
+  "severe_signs_of_myxomatosis_include:": {
+    "question": "Does your pet have severe signs of myxomatosis include:?",
+    "category": "general",
+    "severity": 3
+  },
+  "short_yelp": {
+    "question": "Does your pet have short yelp?",
+    "category": "general",
+    "severity": 3
+  },
+  "signs_of_ear_mites_in_rabbits_include:": {
+    "question": "Does your pet have signs of ear mites in rabbits include:?",
+    "category": "ear",
+    "severity": 3
+  },
+  "sinking_to_the_bottom": {
+    "question": "Does your pet have sinking to the bottom?",
+    "category": "general",
+    "severity": 3
+  },
+  "skin_appears_cloudy_or_hazy": {
+    "question": "Does your pet have skin appears cloudy or hazy?",
+    "category": "skin",
+    "severity": 3
+  },
+  "skin_irritation": {
+    "question": "Does your pet have skin irritation?",
+    "category": "skin",
+    "severity": 3
+  },
+  "skin_stuck_on_body": {
+    "question": "Does your pet have skin stuck on body?",
+    "category": "skin",
+    "severity": 3
+  },
+  "skin_thickening": {
+    "question": "Does your pet have skin thickening?",
+    "category": "skin",
+    "severity": 3
+  },
+  "slow_heart_rate": {
+    "question": "Does your pet have slow heart rate?",
+    "category": "ear",
+    "severity": 3
+  },
+  "slowed_metabolism_affecting_digestion_and_immune_response": {
+    "question": "Does your pet have slowed metabolism affecting digestion and immune response?",
+    "category": "general",
+    "severity": 3
+  },
+  "soiled_hindquarters": {
+    "question": "Does your pet have soiled hindquarters?",
+    "category": "general",
+    "severity": 3
+  },
+  "spasms": {
+    "question": "Does your pet have spasms?",
+    "category": "general",
+    "severity": 3
+  },
+  "species:_[dog]": {
+    "question": "Does your pet have species: [dog]?",
+    "category": "general",
+    "severity": 3
+  },
+  "species:_cat": {
+    "question": "Does your pet have species: cat?",
+    "category": "general",
+    "severity": 3
+  },
+  "spots_appear_raised": {
+    "question": "Does your pet have spots appear raised?",
+    "category": "ear",
+    "severity": 3
+  },
+  "spread_of_infection_to_other_organs_and_systems": {
+    "question": "Does your pet have spread of infection to other organs and systems?",
+    "category": "general",
+    "severity": 3
+  },
+  "stained_fur": {
+    "question": "Does your pet have stained fur?",
+    "category": "skin",
+    "severity": 3
+  },
+  "stomatitis": {
+    "question": "Does your pet have stomatitis?",
+    "category": "general",
+    "severity": 3
+  },
+  "sunken": {
+    "question": "Does your pet have sunken?",
+    "category": "general",
+    "severity": 3
+  },
+  "symptoms_extracted:": {
+    "question": "Does your pet have symptoms extracted:?",
+    "category": "general",
+    "severity": 3
+  },
+  "thick_sludgy_urine_consistency": {
+    "question": "Does your pet have thick sludgy urine consistency?",
+    "category": "urinary",
+    "severity": 3
+  },
+  "thickened": {
+    "question": "Does your pet have thickened?",
+    "category": "general",
+    "severity": 3
+  },
+  "thickened_nails": {
+    "question": "Does your pet have thickened nails?",
+    "category": "general",
+    "severity": 3
+  },
+  "thinning_hair": {
+    "question": "Does your pet have thinning hair?",
+    "category": "skin",
+    "severity": 3
+  },
+  "thread": {
+    "question": "Does your pet have thread?",
+    "category": "general",
+    "severity": 3
+  },
+  "tick_infestation": {
+    "question": "Does your pet have tick infestation?",
+    "category": "general",
+    "severity": 3
+  },
+  "ticks_embedded_in_skin": {
+    "question": "Does your pet have ticks embedded in skin?",
+    "category": "skin",
+    "severity": 3
+  },
+  "tiny_crawling_insects": {
+    "question": "Does your pet have tiny crawling insects?",
+    "category": "general",
+    "severity": 3
+  },
+  "tiny_dark_specks": {
+    "question": "Does your pet have tiny dark specks?",
+    "category": "general",
+    "severity": 3
+  },
+  "tooth_resorption": {
+    "question": "Does your pet have tooth resorption?",
+    "category": "general",
+    "severity": 3
+  },
+  "trunk": {
+    "question": "Does your pet have trunk?",
+    "category": "general",
+    "severity": 3
+  },
+  "uneven_face_shape": {
+    "question": "Does your pet have uneven face shape?",
+    "category": "general",
+    "severity": 3
+  },
+  "unkempt_appearance": {
+    "question": "Does your pet have unkempt appearance?",
+    "category": "ear",
+    "severity": 3
+  },
+  "unkempt_haircoat": {
+    "question": "Does your pet have unkempt haircoat?",
+    "category": "skin",
+    "severity": 3
+  },
+  "unthrifty_coat": {
+    "question": "Does your pet have unthrifty coat?",
+    "category": "skin",
+    "severity": 3
+  },
+  "urgency:_emergency": {
+    "question": "Does your pet have urgency: emergency?",
+    "category": "general",
+    "severity": 3
+  },
+  "urinary_incontinence": {
+    "question": "Does your pet have urinary incontinence?",
+    "category": "urinary",
+    "severity": 3
+  },
+  "urinating_small_amounts_frequently": {
+    "question": "Does your pet have urinating small amounts frequently?",
+    "category": "general",
+    "severity": 3
+  },
+  "urination_with_small_volume": {
+    "question": "Does your pet have urination with small volume?",
+    "category": "general",
+    "severity": 3
+  },
+  "urine_dribbling_down_the_inner_thighs": {
+    "question": "Does your pet have urine dribbling down the inner thighs?",
+    "category": "urinary",
+    "severity": 3
+  },
+  "urine_scalding": {
+    "question": "Does your pet have urine scalding?",
+    "category": "urinary",
+    "severity": 3
+  },
+  "visible_bite_marks_or_evidence_of_fleas": {
+    "question": "Does your pet have visible bite marks or evidence of fleas?",
+    "category": "general",
+    "severity": 3
+  },
+  "visible_small_thread": {
+    "question": "Does your pet have visible small thread?",
+    "category": "general",
+    "severity": 3
+  },
+  "visible_thread_like_parasites_attached_to_body": {
+    "question": "Does your pet have visible thread like parasites attached to body?",
+    "category": "general",
+    "severity": 3
+  },
+  "waxing_waning_symptoms": {
+    "question": "Does your pet have waxing waning symptoms?",
+    "category": "general",
+    "severity": 3
+  },
+  "weight_gain": {
+    "question": "Does your pet have weight gain?",
+    "category": "general",
+    "severity": 3
+  },
+  "wet_fip": {
+    "question": "Does your pet have wet fip?",
+    "category": "general",
+    "severity": 3
+  },
+  "wet_or_matted_fur": {
+    "question": "Does your pet have wet or matted fur?",
+    "category": "skin",
+    "severity": 3
+  },
+  "white_spots_about_0.5_1mm_in_diameter": {
+    "question": "Does your pet have white spots about 0.5 1mm in diameter?",
+    "category": "general",
+    "severity": 3
+  },
+  "worm_like_structures_protruding_from_skin": {
+    "question": "Does your pet have worm like structures protruding from skin?",
+    "category": "skin",
+    "severity": 3
+  },
+  "worm_segments_in_stool": {
+    "question": "Does your pet have worm segments in stool?",
+    "category": "digestive",
+    "severity": 3
+  },
+  "worms_in_feces": {
+    "question": "Does your pet have worms in feces?",
+    "category": "digestive",
+    "severity": 3
+  },
+  "✅_10_retained.": {
+    "question": "Does your pet have ✅ 10 retained.?",
+    "category": "general",
+    "severity": 3
+  },
+  "✅_13_retained.": {
+    "question": "Does your pet have ✅ 13 retained.?",
+    "category": "general",
+    "severity": 3
+  },
+  "✅_14_retained_—_all_relevant_and_observable.": {
+    "question": "Does your pet have ✅ 14 retained — all relevant and observable.?",
+    "category": "general",
+    "severity": 3
+  },
+  "✅_21_retained.": {
+    "question": "Does your pet have ✅ 21 retained.?",
+    "category": "general",
+    "severity": 3
+  },
+  "❌_removed:": {
+    "question": "Does your pet have ❌ removed:?",
+    "category": "general",
+    "severity": 3
+  }
+}
