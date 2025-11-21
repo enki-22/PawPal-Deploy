@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAssessment, onAskFollowUp, onLogSymptoms }) => {
-  const { pet_name, predictions = [], overall_recommendation, urgency_level, symptoms_text } = assessmentData;
+  const { pet_name, predictions = [], overall_recommendation, urgency_level } = assessmentData;
 
   const getUrgencyColor = (urgency) => {
     switch (urgency?.toLowerCase()) {

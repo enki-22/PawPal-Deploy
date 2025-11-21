@@ -29,8 +29,17 @@ import { AuthProvider } from './context/AuthContext';
 import { ConversationsProvider } from './context/ConversationsContext';
 import { RegistrationProvider } from './context/RegistrationContext';
 import { AdminAuthProvider } from './context/AdminAuthContext';
+import LegalModal from './components/LegalModal';
 
 function App() {
+  const [showLegalModal, setShowLegalModal] = React.useState(false);
+
+  React.useEffect(() => {
+    const openModal = () => setShowLegalModal(true);
+    window.addEventListener('open-legal-modal', openModal);
+    return () => window.removeEventListener('open-legal-modal', openModal);
+  }, []);
+
   return (
     <AuthProvider>
       <AdminAuthProvider>
@@ -38,6 +47,9 @@ function App() {
           <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <ConversationsProvider>
               <AppWithFade />
+              {showLegalModal && (
+                <LegalModal onClose={() => setShowLegalModal(false)} />
+              )}
             </ConversationsProvider>
           </Router>
         </RegistrationProvider>

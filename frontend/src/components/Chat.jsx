@@ -28,7 +28,7 @@ const Chat = () => {
   const [showSymptomChecker, setShowSymptomChecker] = useState(false);
   const [showSymptomLogger, setShowSymptomLogger] = useState(false);
   const [assessmentData, setAssessmentData] = useState(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [setIsAnalyzing] = useState(false);
   
   const chatContainerRef = useRef(null);
   const navigate = useNavigate();
