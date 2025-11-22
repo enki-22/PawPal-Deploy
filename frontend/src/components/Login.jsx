@@ -653,13 +653,16 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading, initialData }) => {
               style={{ fontFamily: 'Raleway', color: '#666666' }}
             >
               Already have an account?{' '}
-              <span
+              <button
+                type="button"
                 onClick={onSwitchToLogin}
-                className="font-bold cursor-pointer"
-                style={{ color: '#34113F', textDecoration: 'underline' }}
+                className="font-bold cursor-pointer bg-transparent border-none p-0 focus:outline-none transition-colors duration-200"
+                style={{ color: '#34113F', textDecoration: 'none', position: 'relative' }}
+                onMouseOver={e => e.currentTarget.style.textDecoration = 'underline'}
+                onMouseOut={e => e.currentTarget.style.textDecoration = 'none'}
               >
                 Sign In
-              </span>
+              </button>
             </p>
             <h3
               className="font-bold text-[16px]"
