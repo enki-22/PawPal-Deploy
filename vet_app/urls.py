@@ -12,7 +12,6 @@ urlpatterns = [
     path('api/chatbot/', include('chatbot.urls')),
     path('api/symptom-checker/predict/', symptom_checker_predict, name='symptom_checker_predict'),
     path('api/pets/', include('pets.urls')),  # Add this line if missing
-    path('chat/', include('chatbot.urls')),
     path('', include('users.urls')),
     path('api/admin/', include('admin_panel.urls')), 
     
