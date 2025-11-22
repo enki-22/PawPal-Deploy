@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
 const RegistrationContext = createContext();
 
@@ -11,29 +11,20 @@ export const useRegistration = () => {
 };
 
 export const RegistrationProvider = ({ children }) => {
-  const [registrationData, setRegistrationData] = useState(() => {
-    // Load from localStorage on initialization
-    const saved = localStorage.getItem('registrationData');
-    return saved ? JSON.parse(saved) : {
-      step1: {
-        username: '',
-        email: '',
-        password1: '',
-        password2: '',
-      },
-      step2: {
-        phone_number: '',
-        province: '',
-        city: '',
-        address: '',
-      }
-    };
+  const [registrationData, setRegistrationData] = useState({
+    step1: {
+      username: '',
+      email: '',
+      password1: '',
+      password2: '',
+    },
+    step2: {
+      phone_number: '',
+      province: '',
+      city: '',
+      address: '',
+    }
   });
-
-  // Save to localStorage whenever data changes
-  useEffect(() => {
-    localStorage.setItem('registrationData', JSON.stringify(registrationData));
-  }, [registrationData]);
 
   const updateStep1 = (data) => {
     setRegistrationData(prev => ({
@@ -55,7 +46,6 @@ export const RegistrationProvider = ({ children }) => {
   });
 
   const clearData = () => {
-    localStorage.removeItem('registrationData');
     setRegistrationData({
       step1: {
         username: '',

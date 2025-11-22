@@ -488,12 +488,12 @@ const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) =>
 };
 
 // Register Form Component
-const RegisterForm = ({ onSwitchToLogin, onSubmit, loading }) => {
+const RegisterForm = ({ onSwitchToLogin, onSubmit, loading, initialData }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    name: initialData?.username || '',
+    email: initialData?.email || '',
+    password: initialData?.password1 || '',
+    confirmPassword: initialData?.password2 || '',
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -938,6 +938,7 @@ const UnifiedAuth = () => {
   const navigate = useNavigate();
   const successMessage = location.state?.message;
   const { user, token } = useAuth();
+  const { updateStep1, registrationData } = useRegistration();
 
   // Guarantee redirect after login: watch user and token
   useEffect(() => {
@@ -965,7 +966,6 @@ const UnifiedAuth = () => {
   const [loading, setLoading] = useState(false);
   
   const { login } = useAuth();
-  const { updateStep1 } = useRegistration();
 
   // ADDED: Update view when URL changes (including refresh and browser navigation)
   useEffect(() => {
@@ -1107,6 +1107,7 @@ const UnifiedAuth = () => {
                   onSwitchToLogin={switchToLogin}
                   onSubmit={handleRegisterSubmit}
                   loading={loading}
+                  initialData={registrationData.step1}
                 />
               </div>
             </div>
@@ -1176,6 +1177,7 @@ const UnifiedAuth = () => {
                     onSwitchToLogin={switchToLogin}
                     onSubmit={handleRegisterSubmit}
                     loading={loading}
+                    initialData={registrationData.step1}
                   />
                 )}
               </div>
