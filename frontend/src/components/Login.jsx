@@ -1053,8 +1053,8 @@ const UnifiedAuth = () => {
       });
       
       if (result.success) {
-        // The useEffect hook will handle navigation after login.
-        // No redirect here.
+        // FIX: Navigate immediately upon success. 
+        navigate('/chat/new', { replace: true });
       } else {
         throw new Error(result.error || 'Invalid credentials');
       }
