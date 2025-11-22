@@ -158,6 +158,110 @@ const CreateAdminModal = ({ isOpen, onClose, onSuccess, adminAxios }) => {
   );
 };
 
+// Manage Admin Modal
+const ManageAdminModal = ({ isOpen, onClose, adminItem, onEdit, onDeactivate, onReactivate }) => {
+  if (!isOpen || !adminItem) return null;
+  const isActive = (adminItem.status || (adminItem.is_active ? 'Active' : 'Inactive')).toLowerCase() === 'active';
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-lg w-[400px] max-w-[90vw] shadow-xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-gray-900" style={{fontFamily: 'Raleway, sans-serif'}}>Manage Admin Account</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors"><X className="w-6 h-6" /></button>
+        </div>
+        <div className="p-6">
+          <p className="mb-6 text-gray-700">Please select how you want to manage this account.</p>
+          <div className="flex gap-4 justify-end">
+            <button onClick={onEdit} className="px-6 py-2 bg-[#815fb3] text-white rounded-lg hover:bg-[#6d4d99] font-semibold">Edit</button>
+            {isActive ? (
+              <button onClick={onDeactivate} className="px-6 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 font-semibold">Deactivate</button>
+            ) : (
+              <button onClick={onReactivate} className="px-6 py-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 font-semibold">Reactivate</button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Edit Admin Modal
+const EditAdminModal = ({ isOpen, onClose, adminItem, onSave, loading }) => {
+  const [formData, setFormData] = useState({ name: '', email: '', role: 'VET' });
+  useEffect(() => {
+    if (adminItem) {
+      setFormData({
+        name: adminItem.name || '',
+        email: adminItem.email || '',
+        role: adminItem.role || 'VET',
+      });
+    }
+  }, [adminItem, isOpen]);
+  if (!isOpen || !adminItem) return null;
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  const handleSubmit = e => {
+    e.preventDefault();
+    onSave(formData);
+  };
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-lg w-[400px] max-w-[90vw] shadow-xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-gray-900" style={{fontFamily: 'Raleway, sans-serif'}}>Edit Admin</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors"><X className="w-6 h-6" /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
+            <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+            <input type="email" name="email" value={formData.email} onChange={handleChange} required className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+          </div>
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+            <select name="role" value={formData.role} onChange={handleChange} required className="w-full px-4 py-2 border border-gray-300 rounded-lg">
+              <option value="VET">Veterinarian</option>
+              <option value="DESK">Front Desk</option>
+              <option value="MASTER">Master Admin</option>
+            </select>
+          </div>
+          <div className="flex justify-end gap-3">
+            <button type="button" onClick={onClose} className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700">Cancel</button>
+            <button type="submit" disabled={loading} className="px-6 py-2 bg-[#815fb3] text-white rounded-lg hover:bg-[#6d4d99] font-semibold">{loading ? 'Saving...' : 'Save Changes'}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Confirm Modal (Deactivate/Reactivate)
+const ConfirmModal = ({ isOpen, onClose, onConfirm, type }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-lg w-[350px] max-w-[90vw] shadow-xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-gray-900">{type === 'deactivate' ? 'Deactivate Account' : 'Reactivate Account'}</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors"><X className="w-6 h-6" /></button>
+        </div>
+        <div className="p-6">
+          <p className="mb-6 text-gray-700">Are you sure you want to {type === 'deactivate' ? 'deactivate' : 'reactivate'} this account?</p>
+          <div className="flex gap-4 justify-end">
+            <button onClick={onClose} className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700">Cancel</button>
+            <button onClick={onConfirm} className={`px-6 py-2 rounded-lg font-semibold ${type === 'deactivate' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}>Yes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function AdminRoles() {
 
   // Sorting state with neutral 'none' direction
@@ -187,6 +291,14 @@ export default function AdminRoles() {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 8;
+
+  // Modal states for manage/edit/deactivate/reactivate
+  const [manageModalOpen, setManageModalOpen] = useState(false);
+  const [selectedAdmin, setSelectedAdmin] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmType, setConfirmType] = useState('deactivate');
 
   // Check if current admin is Master Admin
   const isMasterAdmin = admin?.role === 'MASTER' || admin?.role === 'Master Admin';
@@ -428,7 +540,7 @@ export default function AdminRoles() {
               .map((adminItem) => (
                 <div 
                   key={adminItem.admin_id || adminItem.id} 
-                  className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[31px] hover:bg-gray-50"
+                  className="bg-[#fffff2] h-[50px] border-b border-[#888888] flex items-center px-[31px] hover:bg-gray-50 relative"
                 >
                   <div className="flex items-center gap-4 flex-1">
                     <span className="font-['Inter:Bold',sans-serif] font-bold text-[12px] text-black">
@@ -459,6 +571,13 @@ export default function AdminRoles() {
                       {new Date(adminItem.date_created || adminItem.created_at).toLocaleDateString()}
                     </span>
                   </div>
+                  {/* Manage Button */}
+                  {isMasterAdmin && (
+                    <button
+                      className="absolute right-4 top-1/2 -translate-y-1/2 px-3 py-1 bg-[#815fb3] text-white rounded font-semibold text-xs hover:bg-[#6d4d99]"
+                      onClick={() => { setSelectedAdmin(adminItem); setManageModalOpen(true); }}
+                    >Manage</button>
+                  )}
                 </div>
               ))
           )}
@@ -491,6 +610,55 @@ export default function AdminRoles() {
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleAdminCreated}
         adminAxios={adminAxios}
+      />
+      {/* Manage Modal */}
+      <ManageAdminModal
+        isOpen={manageModalOpen}
+        onClose={() => { setManageModalOpen(false); setSelectedAdmin(null); }}
+        adminItem={selectedAdmin}
+        onEdit={() => { setManageModalOpen(false); setEditModalOpen(true); }}
+        onDeactivate={() => { setManageModalOpen(false); setConfirmType('deactivate'); setConfirmModalOpen(true); }}
+        onReactivate={() => { setManageModalOpen(false); setConfirmType('reactivate'); setConfirmModalOpen(true); }}
+      />
+      {/* Edit Modal */}
+      <EditAdminModal
+        isOpen={editModalOpen}
+        onClose={() => { setEditModalOpen(false); setSelectedAdmin(null); }}
+        adminItem={selectedAdmin}
+        loading={editLoading}
+        onSave={async (formData) => {
+          setEditLoading(true);
+          try {
+            await adminAxios.put(`/admin/roles/${selectedAdmin.admin_id || selectedAdmin.id}`, formData);
+            setEditModalOpen(false);
+            setSelectedAdmin(null);
+            fetchAdmins();
+          } catch (err) {
+            alert('Failed to update admin.');
+          } finally {
+            setEditLoading(false);
+          }
+        }}
+      />
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModalOpen}
+        onClose={() => { setConfirmModalOpen(false); setSelectedAdmin(null); }}
+        type={confirmType}
+        onConfirm={async () => {
+          try {
+            if (confirmType === 'deactivate') {
+              await adminAxios.put(`/admin/roles/${selectedAdmin.admin_id || selectedAdmin.id}/deactivate`);
+            } else {
+              await adminAxios.put(`/admin/roles/${selectedAdmin.admin_id || selectedAdmin.id}/reactivate`);
+            }
+            setConfirmModalOpen(false);
+            setSelectedAdmin(null);
+            fetchAdmins();
+          } catch (err) {
+            alert('Failed to update account status.');
+          }
+        }}
       />
     </div>
   );

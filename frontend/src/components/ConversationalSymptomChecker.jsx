@@ -493,10 +493,10 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
         className={`flex ${isUser ? 'justify-end' : 'justify-start'} transition-all duration-200`}
       >
         <div
-          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg text-[14px] leading-relaxed`}
+          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-[10px] text-[14px] leading-relaxed shadow-sm`}
           style={{
             fontFamily: 'Raleway',
-            backgroundColor: isUser ? PRIMARY_COLOR : '#E4DEED',
+            backgroundColor: isUser ? PRIMARY_COLOR : '#FFFFF2',
             color: isUser ? '#FFFFFF' : '#111827',
           }}
         >
@@ -509,8 +509,8 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
   const renderTypingIndicator = () => (
     <div className="flex justify-start mt-2">
       <div
-        className="max-w-xs lg:max-w-md px-4 py-2 rounded-lg bg-[#E4DEED]"
-        style={{ fontFamily: 'Raleway', color: '#4B5563' }}
+        className="max-w-xs lg:max-w-md px-4 py-2 rounded-[10px] shadow-sm"
+        style={{ fontFamily: 'Raleway', color: '#4B5563', backgroundColor: '#FFFFF2' }}
       >
         <p className="text-[14px] leading-relaxed animate-pulse">Typing...</p>
       </div>
@@ -528,10 +528,10 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
       return (
         <div className="flex justify-start mt-4">
           <div
-            className="max-w-xl w-full px-4 py-3 rounded-lg bg-[#E4DEED] shadow-sm"
-            style={{ fontFamily: 'Raleway' }}
+            className="max-w-xl w-full px-4 py-3 rounded-[10px] shadow-sm"
+            style={{ fontFamily: 'Raleway', backgroundColor: '#FFFFF2' }}
           >
-            <p className="text-[14px] font-semibold mb-2">Summary for this assessment</p>
+            <p className="text-[14px] font-semibold mb-2 text-[#34113F]">Summary for this assessment</p>
             <div className="text-[13px] text-gray-800 space-y-1 mb-3">
               <p>
                 <span className="font-semibold">Pet:</span> {petName} ({petSpecies})
@@ -559,7 +559,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
               <button
                 type="button"
                 onClick={handleSubmitAssessment}
-                className="px-4 py-2 rounded-full text-[13px] font-semibold text-white"
+                className="px-4 py-2 rounded-[10px] text-[13px] font-semibold text-white shadow-md"
                 style={{ backgroundColor: PRIMARY_COLOR }}
               >
                 Submit Assessment
@@ -567,7 +567,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
               <button
                 type="button"
                 onClick={handleStartOver}
-                className="px-4 py-2 rounded-full text-[13px] font-semibold border border-[#D1D5DB] text-gray-700 bg-white hover:bg-gray-50"
+                className="px-4 py-2 rounded-[10px] text-[13px] font-semibold border border-[#D1D5DB] text-gray-700 bg-white hover:bg-gray-50 shadow-sm"
               >
                 Start Over
               </button>
@@ -581,10 +581,10 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
       return (
         <div className="flex justify-start mt-4">
           <div
-            className="max-w-xl w-full px-4 py-3 rounded-lg bg-[#E4DEED]"
-            style={{ fontFamily: 'Raleway' }}
+            className="max-w-xl w-full px-4 py-3 rounded-[10px] shadow-sm"
+            style={{ fontFamily: 'Raleway', backgroundColor: '#FFFFF2' }}
           >
-            <p className="text-[14px] font-semibold mb-3">Which body system seems most affected?</p>
+            <p className="text-[14px] font-semibold mb-3 text-[#34113F]">Which body system seems most affected?</p>
               <p className="text-[13px] text-gray-700 mb-3">(Select the primary concern)</p>
             <div className="flex flex-wrap gap-2 mb-3">
               {MAIN_CONCERNS.map((option) => (
@@ -592,7 +592,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
                   key={option.id}
                   type="button"
                   onClick={() => handleSelectMainConcern(option.id)}
-                  className={`px-3 py-2 rounded-full text-[13px] font-semibold flex items-center gap-1 text-white hover:opacity-90 transition-opacity`}
+                  className={`px-3 py-2 rounded-[8px] text-[13px] font-semibold flex items-center gap-1 text-white hover:opacity-90 transition-opacity shadow-md`}
                   style={{ backgroundColor: PRIMARY_COLOR }}
                 >
                   <span>{option.icon}</span>
@@ -618,10 +618,10 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
       return (
         <div className="flex justify-start mt-4">
           <div
-            className="max-w-xl w-full px-4 py-3 rounded-lg bg-[#E4DEED]"
-            style={{ fontFamily: 'Raleway' }}
+            className="max-w-xl w-full px-4 py-3 rounded-[10px] shadow-sm"
+            style={{ fontFamily: 'Raleway', backgroundColor: '#FFFFF2' }}
           >
-            <p className="text-[14px] mb-2">
+            <p className="text-[14px] mb-2 text-[#34113F] font-semibold">
               Which of these symptoms is {petName} experiencing? (Select all that apply)
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
@@ -632,14 +632,14 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
                     key={code}
                     type="button"
                     onClick={() => handleTogglePrimarySymptom(code)}
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg border text-[13px] transition-colors ${
+                    className={`flex items-center justify-between px-3 py-2 rounded-[8px] border text-[13px] transition-colors ${
                       isSelected
-                        ? 'bg-white border-transparent text-gray-900 shadow-sm'
-                        : 'bg-[#F9FAFB] border-[#E5E7EB] text-gray-800 hover:bg-white'
+                        ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
+                        : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
                     }`}
                   >
                     <span>{formatSymptomLabel(code)}</span>
-                    <span className="ml-2 text-xs">{isSelected ? '&#x2611;' : '&#x2610;'}</span>
+                    <span className="ml-2 text-xs text-[#815FB3]">{isSelected ? '&#x2611;' : '&#x2610;'}</span>
                   </button>
                 );
               })}
@@ -652,7 +652,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
                 type="button"
                 onClick={handleConfirmPrimarySymptoms}
                 disabled={!pendingPrimarySymptoms.length}
-                className={`px-4 py-2 rounded-full text-[13px] font-semibold text-white transition-opacity ${
+                className={`px-4 py-2 rounded-[10px] text-[13px] font-semibold text-white transition-opacity shadow-md ${
                   pendingPrimarySymptoms.length
                     ? 'hover:opacity-90'
                     : 'opacity-40 cursor-not-allowed'
@@ -671,10 +671,10 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
       return (
         <div className="flex justify-start mt-4">
           <div
-            className="max-w-xl w-full px-4 py-3 rounded-lg bg-[#E4DEED]"
-            style={{ fontFamily: 'Raleway' }}
+            className="max-w-xl w-full px-4 py-3 rounded-[10px] shadow-sm"
+            style={{ fontFamily: 'Raleway', backgroundColor: '#FFFFF2' }}
           >
-            <p className="text-[14px] mb-2">Choose the main concern for this visit:</p>
+            <p className="text-[14px] mb-2 text-[#34113F] font-semibold">Choose the main concern for this visit:</p>
             <div className="space-y-2 mb-3">
               {SEVERITY_OPTIONS.map((option) => {
                 const isSelected = severity === option.key;
@@ -683,10 +683,10 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
                     key={option.key}
                     type="button"
                     onClick={() => handleSelectSeverity(option)}
-                    className={`w-full text-left px-3 py-2 rounded-lg border text-[13px] transition-colors ${
+                    className={`w-full text-left px-3 py-2 rounded-[8px] border text-[13px] transition-colors ${
                       isSelected
-                        ? 'bg-white border-transparent text-gray-900 shadow-sm'
-                        : 'bg-[#F9FAFB] border-[#E5E7EB] text-gray-800 hover:bg-white'
+                        ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
+                        : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
                     }`}
                   >
                     {option.label}
@@ -699,7 +699,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
                 type="button"
                 onClick={handleConfirmSeverity}
                 disabled={!severity}
-                className={`px-4 py-2 rounded-full text-[13px] font-semibold text-white transition-opacity ${
+                className={`px-4 py-2 rounded-[10px] text-[13px] font-semibold text-white transition-opacity shadow-md ${
                   severity ? 'hover:opacity-90' : 'opacity-40 cursor-not-allowed'
                 }`}
                 style={{ backgroundColor: PRIMARY_COLOR }}
@@ -718,11 +718,11 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
         return (
           <div className="flex justify-start mt-4">
             <div
-              className="max-w-xl w-full px-4 py-3 rounded-lg bg-[#E4DEED]"
-              style={{ fontFamily: 'Raleway' }}
+              className="max-w-xl w-full px-4 py-3 rounded-[10px] shadow-sm"
+              style={{ fontFamily: 'Raleway', backgroundColor: '#FFFFF2' }}
             >
-              <p className="text-[14px] mb-2">
-                How are {petName}'s symptoms changing?
+              <p className="text-[14px] mb-2 text-[#34113F] font-semibold">
+                How are {petName}&apos;s symptoms changing?
               </p>
               <div className="space-y-2 mb-3">
                 {PROGRESSION_OPTIONS.map((option) => {
@@ -732,10 +732,10 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
                       key={option.key}
                       type="button"
                       onClick={() => handleSelectProgression(option)}
-                      className={`w-full text-left px-3 py-2 rounded-lg border text-[13px] transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-[8px] border text-[13px] transition-colors ${
                         isSelected
-                          ? 'bg-white border-transparent text-gray-900 shadow-sm'
-                          : 'bg-[#F9FAFB] border-[#E5E7EB] text-gray-800 hover:bg-white'
+                          ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
+                          : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
                       }`}
                     >
                       {option.label}
@@ -753,7 +753,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
                   type="button"
                   onClick={handleConfirmProgression}
                   disabled={!progression}
-                  className={`px-4 py-2 rounded-full text-[13px] font-semibold text-white transition-opacity ${
+                  className={`px-4 py-2 rounded-[10px] text-[13px] font-semibold text-white transition-opacity shadow-md ${
                     progression ? 'hover:opacity-90' : 'opacity-40 cursor-not-allowed'
                   }`}
                   style={{ backgroundColor: PRIMARY_COLOR }}
@@ -775,10 +775,10 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
       return (
         <div className="flex justify-start mt-4">
           <div
-            className="max-w-xl w-full px-4 py-3 rounded-lg bg-[#E4DEED]"
-            style={{ fontFamily: 'Raleway' }}
+            className="max-w-xl w-full px-4 py-3 rounded-[10px] shadow-sm"
+            style={{ fontFamily: 'Raleway', backgroundColor: '#FFFFF2' }}
           >
-            <p className="text-[14px] mb-2">
+            <p className="text-[14px] mb-2 text-[#34113F] font-semibold">
               How long has {petName} been experiencing these symptoms?
             </p>
             <div className="space-y-2 mb-3">
@@ -789,10 +789,10 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
                     key={option.key}
                     type="button"
                     onClick={() => handleSelectDuration(option)}
-                    className={`w-full text-left px-3 py-2 rounded-lg border text-[13px] transition-colors ${
+                    className={`w-full text-left px-3 py-2 rounded-[8px] border text-[13px] transition-colors ${
                       isSelected
-                        ? 'bg-white border-transparent text-gray-900 shadow-sm'
-                        : 'bg-[#F9FAFB] border-[#E5E7EB] text-gray-800 hover:bg-white'
+                        ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
+                        : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
                     }`}
                   >
                     {option.label}
@@ -805,7 +805,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
                 type="button"
                 onClick={handleConfirmDuration}
                 disabled={!durationKey}
-                className={`px-4 py-2 rounded-full text-[13px] font-semibold text-white transition-opacity ${
+                className={`px-4 py-2 rounded-[10px] text-[13px] font-semibold text-white transition-opacity shadow-md ${
                   durationKey ? 'hover:opacity-90' : 'opacity-40 cursor-not-allowed'
                 }`}
                 style={{ backgroundColor: PRIMARY_COLOR }}
@@ -825,11 +825,11 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
       return (
         <div className="flex justify-start mt-4">
           <div
-            className="max-w-xl w-full px-4 py-3 rounded-lg bg-[#E4DEED]"
-            style={{ fontFamily: 'Raleway' }}
+            className="max-w-xl w-full px-4 py-3 rounded-[10px] shadow-sm"
+            style={{ fontFamily: 'Raleway', backgroundColor: '#FFFFF2' }}
           >
-            <p className="text-[14px] mb-2">
-              Are there any other symptoms you've noticed? (Optional)
+            <p className="text-[14px] mb-2 text-[#34113F] font-semibold">
+              Are there any other symptoms you&apos;ve noticed? (Optional)
             </p>
 
             <div className="mb-2 border border-[#D1D5DB] rounded-lg bg-white">
@@ -848,14 +848,14 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
                       key={symptom.code}
                       type="button"
                       onClick={() => handleToggleGeneralAdditional(symptom.code)}
-                      className={`flex items-center justify-between px-3 py-2 rounded-lg border text-[13px] transition-colors ${
+                      className={`flex items-center justify-between px-3 py-2 rounded-[8px] border text-[13px] transition-colors ${
                         isSelected
-                          ? 'bg-[#FFF7E0] border-transparent text-gray-900 shadow-sm'
-                          : 'bg-[#F9FAFB] border-[#E5E7EB] text-gray-800 hover:bg-white'
+                          ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
+                          : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
                       }`}
                     >
                       <span>{symptom.label}</span>
-                      <span className="ml-2 text-xs">{isSelected ? '☑' : '☐'}</span>
+                      <span className="ml-2 text-xs text-[#815FB3]">{isSelected ? '☑' : '☐'}</span>
                     </button>
                   );
                 })}
@@ -879,14 +879,14 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
                         key={symptom.code}
                         type="button"
                         onClick={() => handleToggleSpeciesAdditional(symptom.code)}
-                        className={`flex items-center justify-between px-3 py-2 rounded-lg border text-[13px] transition-colors ${
+                        className={`flex items-center justify-between px-3 py-2 rounded-[8px] border text-[13px] transition-colors ${
                           isSelected
-                            ? 'bg-[#FFF7E0] border-transparent text-gray-900 shadow-sm'
-                            : 'bg-[#F9FAFB] border-[#E5E7EB] text-gray-800 hover:bg-white'
+                            ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
+                            : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
                         }`}
                       >
                         <span>{symptom.label}</span>
-                        <span className="ml-2 text-xs">{isSelected ? '☑' : '☐'}</span>
+                        <span className="ml-2 text-xs text-[#815FB3]">{isSelected ? '☑' : '☐'}</span>
                       </button>
                     );
                   })}
@@ -898,14 +898,14 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
               <button
                 type="button"
                 onClick={handleSkipAdditional}
-                className="px-4 py-2 rounded-full text-[13px] font-semibold border border-[#D1D5DB] text-gray-700 bg-white hover:bg-gray-50"
+                className="px-4 py-2 rounded-[10px] text-[13px] font-semibold border border-[#D1D5DB] text-gray-700 bg-white hover:bg-gray-50 shadow-sm"
               >
                 Skip
               </button>
               <button
                 type="button"
                 onClick={handleDoneAdditional}
-                className="px-4 py-2 rounded-full text-[13px] font-semibold text-white"
+                className="px-4 py-2 rounded-[10px] text-[13px] font-semibold text-white shadow-md"
                 style={{ backgroundColor: ACCENT_COLOR }}
               >
                 Done

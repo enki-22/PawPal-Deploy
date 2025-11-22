@@ -354,7 +354,7 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                   name="terms_agreement"
                   checked={formData.terms_agreement || false}
                   onChange={handleChange}
-                  className="accent-[#34113F] w-5 h-5 rounded border border-[#34113F]"
+                  className="accent-[#34113F] w-5 h-5 rounded border border-[#34113F] md:shrink-0"
                   required
                 />
                 <label 

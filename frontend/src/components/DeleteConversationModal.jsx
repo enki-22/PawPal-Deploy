@@ -1,10 +1,17 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 
 const DeleteConversationModal = ({ isOpen, onClose, onConfirm, loading = false }) => {
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center animate-fade-in" style={{ zIndex: 70 }}>
+  // We use ReactDOM.createPortal to render the modal outside the current DOM hierarchy
+  // This ensures it appears above all other elements (headers, sidebars, inputs) 
+  // and breaks out of any 'overflow: hidden' containers in the parent.
+  return ReactDOM.createPortal(
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center animate-fade-in" 
+      style={{ zIndex: 9999 }} // High z-index to ensure it's on top of everything
+    >
       {/* Modal Container - 544px width, 176px height */}
       <div className="relative w-[544px] h-[176px] bg-white rounded-2xl animate-scale-in"
            style={{
@@ -98,7 +105,8 @@ const DeleteConversationModal = ({ isOpen, onClose, onConfirm, loading = false }
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body // Target container
   );
 };
 

@@ -33,7 +33,7 @@ const PERFUSION_OPTIONS = [
 const CRITICAL_SYMPTOMS = [
   { key: 'seizures', label: 'Seizures or convulsions' },
   { key: 'collapse', label: 'Collapse or unable to stand/walk' },
-  { key: 'active_bleeding', label: 'Active bleeding (profuse or won\'t stop)' },
+  { key: 'active_bleeding', label: "Active bleeding (profuse or won't stop)" },
   { key: 'distended_abdomen', label: 'Distended or bloated abdomen' },
   { key: 'unable_to_urinate_defecate', label: 'Unable to urinate or defecate (straining with nothing)' },
   { key: 'vomiting_blood', label: 'Vomiting blood or bloody diarrhea' },
@@ -53,7 +53,7 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
   const [perfusion, setPerfusion] = useState(null);
   const [criticalSymptoms, setCriticalSymptoms] = useState([]);
   const [showEmergencyWarning, setShowEmergencyWarning] = useState(false);
-  const [isEmergency, setIsEmergency] = useState(false);
+  const [setIsEmergency] = useState(false);
   
   const containerRef = useRef(null);
   const petName = selectedPet?.name || 'your pet';
@@ -153,9 +153,8 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
           className="max-h-[480px] overflow-y-auto pr-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400"
         >
           <div
-            className="border-4 rounded-lg p-5 shadow-lg"
+            className="border-2 border-red-200 rounded-[10px] p-5 shadow-sm"
             style={{
-              borderColor: EMERGENCY_COLOR,
               backgroundColor: '#FEF2F2',
               fontFamily: 'Raleway',
             }}
@@ -209,7 +208,7 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
               </div>
             </div>
 
-            <div className="border-t-2 border-red-300 pt-4">
+            <div className="border-t border-red-200 pt-4">
               <p className="text-[13px] text-gray-700 mb-3">
                 While you arrange transport, I can continue the assessment to provide additional information for the vet.
               </p>
@@ -217,14 +216,14 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
                 <button
                   type="button"
                   onClick={handleContinueAssessmentFromWarning}
-                  className="px-5 py-2.5 rounded-lg text-[14px] font-bold text-white transition-opacity hover:opacity-90"
+                  className="px-5 py-2.5 rounded-[10px] text-[14px] font-bold text-white transition-opacity hover:opacity-90 shadow-md"
                   style={{ backgroundColor: PRIMARY_COLOR }}
                 >
                   Continue Assessment
                 </button>
                 <a
                   href="tel:"
-                  className="px-5 py-2.5 rounded-lg text-[14px] font-bold text-white transition-opacity hover:opacity-90 inline-block"
+                  className="px-5 py-2.5 rounded-[10px] text-[14px] font-bold text-white transition-opacity hover:opacity-90 inline-block shadow-md"
                   style={{ backgroundColor: EMERGENCY_COLOR }}
                 >
                   📞 Call Emergency Vet
@@ -232,7 +231,7 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
               </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-red-300">
+            <div className="mt-4 pt-4 border-t border-red-200">
               <p className="text-[11px] text-gray-600 italic">
                 This screening uses the veterinary RAP (Respiration, Alertness, Perfusion) triage system and standard emergency indicators recommended by veterinary professionals.
               </p>
@@ -257,11 +256,15 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
       >
         {currentStep === '0A' && (
           <div
-            className="border-2 border-gray-300 rounded-lg p-4 bg-white shadow-sm"
-            style={{ fontFamily: 'Raleway' }}
+            className="rounded-[10px] p-6 shadow-sm"
+            style={{ 
+              fontFamily: 'Raleway', 
+              backgroundColor: '#FFFFF2',
+              boxShadow: '0 2px 16px rgba(0,0,0,0.04)'
+            }}
           >
             <div className="mb-4">
-              <h3 className="text-[16px] font-bold text-gray-900 mb-3">
+              <h3 className="text-[16px] font-bold text-[#34113F] mb-3">
                 Hi! I&apos;m here to help assess {petName}&apos;s symptoms. Before we start, I need to understand what&apos;s happening.
               </h3>
               <p className="text-[14px] font-semibold text-gray-800 mb-2">
@@ -276,7 +279,7 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
               value={chiefComplaint}
               onChange={(e) => setChiefComplaint(e.target.value)}
               placeholder="e.g., He's been vomiting since this morning and seems very lethargic..."
-              className="w-full h-32 px-4 py-3 border-2 border-gray-300 rounded-lg text-[14px] resize-none focus:outline-none focus:border-purple-400 transition-colors"
+              className="w-full h-32 px-4 py-3 border border-[#D1D5DB] rounded-lg text-[14px] resize-none focus:outline-none focus:ring-2 focus:ring-[#815FB3] transition-colors bg-white"
               style={{ fontFamily: 'Raleway' }}
             />
 
@@ -285,7 +288,7 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
                 type="button"
                 onClick={handleChiefComplaintContinue}
                 disabled={!chiefComplaint.trim()}
-                className={`px-5 py-2.5 rounded-full text-[14px] font-semibold text-white transition-opacity ${
+                className={`px-5 py-2.5 rounded-[10px] text-[14px] font-semibold text-white transition-opacity shadow-md ${
                   chiefComplaint.trim() ? 'hover:opacity-90' : 'opacity-40 cursor-not-allowed'
                 }`}
                 style={{ backgroundColor: PRIMARY_COLOR }}
@@ -304,11 +307,15 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
 
         {currentStep === '0B' && (
           <div
-            className="border-2 border-gray-300 rounded-lg p-4 bg-white shadow-sm space-y-5"
-            style={{ fontFamily: 'Raleway' }}
+            className="rounded-[10px] p-6 shadow-sm space-y-5"
+            style={{ 
+              fontFamily: 'Raleway', 
+              backgroundColor: '#FFFFF2',
+              boxShadow: '0 2px 16px rgba(0,0,0,0.04)'
+            }}
           >
             <div>
-              <h3 className="text-[16px] font-bold text-gray-900 mb-2">
+              <h3 className="text-[16px] font-bold text-[#34113F] mb-2">
                 Thank you. Now I need to check if {petName} needs immediate emergency care.
               </h3>
               <p className="text-[13px] text-gray-600">
@@ -332,15 +339,15 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
                       key={option.key}
                       type="button"
                       onClick={() => setRespiration(option.key)}
-                      className={`w-full text-left px-4 py-2.5 rounded-lg border-2 text-[13px] transition-all ${
+                      className={`w-full text-left px-4 py-2.5 rounded-[8px] border text-[13px] transition-all ${
                         isSelected
-                          ? 'bg-purple-50 border-purple-500 text-gray-900 shadow-sm'
-                          : 'bg-gray-50 border-gray-300 text-gray-800 hover:bg-white hover:border-gray-400'
+                          ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
+                          : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <span>{option.label}</span>
-                        <span className="text-lg">{isSelected ? '●' : '○'}</span>
+                        <span className="text-lg text-[#815FB3]">{isSelected ? '●' : '○'}</span>
                       </div>
                     </button>
                   );
@@ -367,15 +374,15 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
                       key={option.key}
                       type="button"
                       onClick={() => setAlertness(option.key)}
-                      className={`w-full text-left px-4 py-2.5 rounded-lg border-2 text-[13px] transition-all ${
+                      className={`w-full text-left px-4 py-2.5 rounded-[8px] border text-[13px] transition-all ${
                         isSelected
-                          ? 'bg-purple-50 border-purple-500 text-gray-900 shadow-sm'
-                          : 'bg-gray-50 border-gray-300 text-gray-800 hover:bg-white hover:border-gray-400'
+                          ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
+                          : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <span>{option.label}</span>
-                        <span className="text-lg">{isSelected ? '●' : '○'}</span>
+                        <span className="text-lg text-[#815FB3]">{isSelected ? '●' : '○'}</span>
                       </div>
                     </button>
                   );
@@ -394,7 +401,7 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
               <p className="text-[14px] text-gray-800 mb-2 font-semibold">
                 If you can safely check, what color are {petName}&apos;s gums?
               </p>
-              <p className="text-[12px] text-gray-600 mb-3 bg-blue-50 p-2 rounded border border-blue-200">
+              <p className="text-[12px] text-gray-600 mb-3 bg-blue-50 p-2 rounded border border-blue-100">
                 💡 <strong>Helper:</strong> Gently lift {petName}&apos;s lip to see gum color. If you can&apos;t check safely, select &quot;Not sure&quot;.
               </p>
               <div className="space-y-2">
@@ -405,15 +412,15 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
                       key={option.key}
                       type="button"
                       onClick={() => setPerfusion(option.key)}
-                      className={`w-full text-left px-4 py-2.5 rounded-lg border-2 text-[13px] transition-all ${
+                      className={`w-full text-left px-4 py-2.5 rounded-[8px] border text-[13px] transition-all ${
                         isSelected
-                          ? 'bg-purple-50 border-purple-500 text-gray-900 shadow-sm'
-                          : 'bg-gray-50 border-gray-300 text-gray-800 hover:bg-white hover:border-gray-400'
+                          ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
+                          : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <span>{option.label}</span>
-                        <span className="text-lg">{isSelected ? '●' : '○'}</span>
+                        <span className="text-lg text-[#815FB3]">{isSelected ? '●' : '○'}</span>
                       </div>
                     </button>
                   );
@@ -443,10 +450,10 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
                       key={symptom.key}
                       type="button"
                       onClick={() => toggleCriticalSymptom(symptom.key)}
-                      className={`w-full text-left px-4 py-2.5 rounded-lg border-2 text-[13px] transition-all ${
+                      className={`w-full text-left px-4 py-2.5 rounded-[8px] border text-[13px] transition-all ${
                         isChecked
-                          ? 'bg-red-50 border-red-400 text-gray-900 shadow-sm'
-                          : 'bg-gray-50 border-gray-300 text-gray-800 hover:bg-white hover:border-gray-400'
+                          ? 'bg-red-50 border-red-400 text-gray-900 shadow-sm font-medium'
+                          : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -463,7 +470,7 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
             </div>
 
             {/* Complete Button */}
-            <div className="pt-4 border-t-2 border-gray-300">
+            <div className="pt-4 border-t border-gray-200">
               <div className="flex items-center justify-between">
                 <p className="text-[12px] text-gray-600">
                   {canCompleteScreening
@@ -474,7 +481,7 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
                   type="button"
                   onClick={handleCompleteScreening}
                   disabled={!canCompleteScreening}
-                  className={`px-5 py-2.5 rounded-full text-[14px] font-semibold text-white transition-opacity ${
+                  className={`px-5 py-2.5 rounded-[10px] text-[14px] font-semibold text-white transition-opacity shadow-md ${
                     canCompleteScreening ? 'hover:opacity-90' : 'opacity-40 cursor-not-allowed'
                   }`}
                   style={{ backgroundColor: PRIMARY_COLOR }}

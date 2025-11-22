@@ -213,6 +213,7 @@ const Chat = () => {
             />
           </div>
           <div className="flex flex-col gap-2 md:gap-4 w-full max-w-xs md:max-w-xl">
+            {/* Purple General Card */}
             <div
               onClick={() => selectMode('general')}
               className="rounded-2xl p-6 cursor-pointer w-full min-h-[130px] transition-colors"
@@ -238,6 +239,7 @@ const Chat = () => {
               </p>
             </div>
             
+            {/* Yellow Symptom Checker Card */}
             <div
               onClick={() => selectMode('symptom_checker')}
               className="bg-[#FFF4C9] rounded-2xl p-6 cursor-pointer hover:bg-[#fff0b3] transition-colors w-full min-h-[130px]"
@@ -609,7 +611,7 @@ const Chat = () => {
       </div>
 
       <div className="flex-1 flex flex-col bg-[#F0F0F0] h-screen w-full">
-        <div className="border-b p-2 md:p-4 flex flex-row items-center justify-between gap-2 md:gap-0 sticky top-0 z-20 bg-[#DCCEF1] md:bg-[#f0f1f1]">
+        <div className="border-b p-2 md:p-4 flex flex-row items-center justify-between gap-2 md:gap-0 sticky top-0 z-20 bg-[#F0F0F0]">
           <div
             className="flex items-center gap-2 md:hidden w-full justify-between"
             style={{
@@ -685,13 +687,14 @@ const Chat = () => {
                           className="w-45 h-45 object-contain mx-auto"
                         />
                       </div>
-                      <div className="flex flex-col gap-2 w-full">
+                      <div className="flex flex-col gap-4 w-full">
+                        {/* Mobile General Card */}
                         <div
                           onClick={() => selectMode('general')}
-                          className="rounded-2xl p-4 cursor-pointer w-full min-h-[90px] transition-colors"
-                          style={{ backgroundColor: '#DCCEF1' }}
-                          onMouseEnter={e => e.currentTarget.style.backgroundColor = '#c9b8e8'}
-                          onMouseLeave={e => e.currentTarget.style.backgroundColor = '#DCCEF1'}
+                          className="rounded-[10px] p-4 cursor-pointer w-full min-h-[90px] transition-all border border-transparent hover:border-[#815FB3]"
+                          style={{ backgroundColor: '#DCCEF1', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#c9b8e8'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#DCCEF1'}
                         >
                           <div className="flex items-center space-x-2 mb-2">
                             <div className="w-7 h-7 rounded-full flex items-center justify-center">
@@ -702,7 +705,7 @@ const Chat = () => {
                                 style={{ filter: 'brightness(0) saturate(100%) invert(59%) sepia(23%) saturate(4832%) hue-rotate(278deg) brightness(96%) contrast(90%)' }}
                               />
                             </div>
-                            <span className="text-[14px] font-bold" style={{ fontFamily: 'Raleway', color: '#000000' }}>
+                            <span className="text-[14px] font-bold text-[#000000]" style={{ fontFamily: 'Raleway' }}>
                               What&apos;s normal for my pet?
                             </span>
                           </div>
@@ -710,12 +713,15 @@ const Chat = () => {
                             Learn about typical behaviors, habits, diet, and health patterns specific to your pet&apos;s breed, age, and species. Perfect for new pet parents or anyone looking to better understand what&apos;s considered &quot;normal&quot; for their furry companion.
                           </p>
                         </div>
+                        
+                        {/* Mobile Symptom Card */}
                         <div
                           onClick={() => selectMode('symptom_checker')}
-                          className="bg-[#FFF4C9] rounded-2xl p-4 cursor-pointer hover:bg-[#fff0b3] transition-colors w-full min-h-[90px]"
+                          className="bg-[#FFF4C9] rounded-[10px] p-4 cursor-pointer w-full min-h-[90px] transition-all border border-transparent hover:border-[#F4D06F]"
+                          style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
                         >
                           <div className="flex items-center space-x-2 mb-2">
-                            <div className="w-7 h-7 bg-yellow-200 rounded-full flex items-center justify-center">
+                            <div className="w-7 h-7 bg-[#FFF4C9] rounded-full flex items-center justify-center">
                               <svg className="w-3 h-3 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                               </svg>
@@ -739,8 +745,8 @@ const Chat = () => {
               <div className="flex justify-center mb-4">
                 <div className={`px-4 py-2 rounded-full text-sm font-medium ${
                   chatMode === 'general'
-                    ? 'bg-pink-100 text-pink-700'
-                    : 'bg-yellow-100 text-yellow-700'
+                    ? 'bg-[#E4DEED] text-[#34113F]'
+                    : 'bg-[#FFF4C9] text-[#574103]'
                 }`} style={{ fontFamily: 'Raleway' }}>
                   {chatMode === 'general' ? '🐾 General Pet Health' : '🔍 Symptom Checker'}
                 </div>
@@ -766,7 +772,10 @@ const Chat = () => {
                 const paragraphs = message.content.split(/\n\n+/);
                 return (
                   <div key={message.id} className="flex justify-start mb-4">
-                    <div className="max-w-[80vw] md:max-w-xs lg:max-w-md px-3 md:px-4 py-2 rounded-lg bg-gray-100 text-gray-900">
+                    <div 
+                      className="max-w-[80vw] md:max-w-xs lg:max-w-md px-3 md:px-4 py-2 rounded-lg text-[#111827] shadow-sm"
+                      style={{ backgroundColor: '#FFFFF2' }}
+                    >
                       {paragraphs.map((para, idx) => {
                         if (/^(\s*[-*]|\d+\.)/.test(para.trim())) {
                           const lines = para.split(/\n+/).filter(l => l.trim());
@@ -797,7 +806,10 @@ const Chat = () => {
               }
               return (
                 <div key={message.id} className="flex justify-end mb-4">
-                  <div className="max-w-[80vw] md:max-w-xs lg:max-w-md px-3 md:px-4 py-2 rounded-lg bg-[#815FB3] text-white">
+                  <div 
+                    className="max-w-[80vw] md:max-w-xs lg:max-w-md px-3 md:px-4 py-2 rounded-lg text-white shadow-sm"
+                    style={{ backgroundColor: '#815FB3' }}
+                  >
                     <p className="text-[13px] md:text-[14px] leading-relaxed" style={{ fontFamily: 'Raleway' }}>
                       {message.content}
                     </p>
@@ -850,7 +862,7 @@ const Chat = () => {
             
             {loading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 text-gray-900 px-3 md:px-4 py-2 rounded-lg">
+                <div className="text-gray-900 px-3 md:px-4 py-2 rounded-lg" style={{ backgroundColor: '#FFFFF2' }}>
                   <p className="text-[13px] md:text-[14px] animate-pulse" style={{ fontFamily: 'Raleway' }}>
                     Typing...
                   </p>
@@ -883,7 +895,7 @@ const Chat = () => {
                   </svg>
                   Change Mode
                 </button>
-                <div className="text-sm text-blue-600">
+                <div className="text-sm font-semibold" style={{ color: '#815FB3' }}>
                   🐾 {currentPetContext.name} ({currentPetContext.species})
                 </div>
               </div>
@@ -903,7 +915,7 @@ const Chat = () => {
                     ? "Ask a follow-up question about the assessment..."
                     : "Describe your pet's symptoms..."
                 }
-                className="w-full px-2 md:px-6 py-2 md:py-3 pr-10 md:pr-16 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#815FB3] text-xs md:text-[15px] lg:text-[18px] bg-[#E4DEED] font-medium"
+                className="w-full px-2 md:px-6 py-2 md:py-3 pr-10 md:pr-16 border border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-[#815FB3] text-xs md:text-[15px] lg:text-[18px] bg-[#E4DEED] font-medium placeholder-gray-500 text-[#34113F]"
                 style={{ fontFamily: 'Raleway', marginBottom: '6px' }}
                 disabled={loading || showSymptomChecker || showSymptomLogger}
                 required
@@ -917,13 +929,13 @@ const Chat = () => {
                   <img
                     src="/Vector.png"
                     alt="Send message"
-                    className="w-5 h-5 md:w-6 md:h-8"
+                    className="w-5 h-5 md:w-6 md:h-6 object-contain pb-1 md: pb-1"
                   />
                 </button>
               </div>
             </form>
             
-            <p className="text-xs md:text-[14px] text-gray-500 mt-1 md:mt-2 text-center" style={{ fontFamily: 'Raleway', marginBottom: '-1px' }}>
+            <p className="text-xs md:text-[13px] text-gray-500 mt-1 md:mt-2 text-center" style={{ fontFamily: 'Raleway', marginBottom: '-1px' }}>
               PawPal is an AI-powered assistant designed to provide guidance on pet health and care. It does not replace professional veterinary consultation.
             </p>
           </div>
