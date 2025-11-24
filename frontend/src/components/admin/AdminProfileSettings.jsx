@@ -1,73 +1,96 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useAdminAuth } from '../../context/AdminAuthContext';
+import AdminTopNav from './AdminTopNav';
+import { Eye, EyeOff, Camera, Edit2, X, Check, Lock, Mail, MapPin, Phone } from 'lucide-react';
 
-// --- MOCKED DEPENDENCIES FOR STANDALONE PREVIEW ---
-// In your actual project, you would import these from their respective files.
-
-const AdminTopNav = () => (
-  <div className="fixed top-0 left-0 right-0 h-[80px] bg-[#57166b] flex items-center justify-between px-8 z-50 shadow-md">
-    <div className="flex items-center gap-2">
-       <div className="w-8 h-8 rounded-full bg-yellow-200 flex items-center justify-center text-[#57166b] font-bold text-xs">
-         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-       </div>
-       <span className="text-white font-bold text-xl tracking-wider">PAWPAL</span>
+// --- Reusable Modal Component ---
+const Modal = ({ isOpen, onClose, title, children }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+        <div className="bg-[#57166b] px-6 py-4 flex justify-between items-center">
+          <h3 className="text-white font-bold text-lg font-raleway tracking-wide">{title}</h3>
+          <button onClick={onClose} className="text-white hover:text-gray-200 transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="p-6">
+          {children}
+        </div>
+      </div>
     </div>
-    <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden border-2 border-white">
-      <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="Admin" />
-    </div>
-  </div>
-);
-
-// Mocking the auth hook
-const useAdminAuth = () => {
-  return {
-    admin: {
-      name: 'DR. MIRA C. SANTOS',
-      role: 'Veterinarian',
-      email: 'mirasantos.pawpal@gmail.com',
-      contact_number: '0905 - xxx - xxxx',
-      clinic_info: 'Southvalley Veterinary Clinic\n- Santa Rosa, Laguna',
-      profile_image: null, // Set to null to test fallback
-      recovery_email: null,
-      password_updated_at: null
-    },
-    adminAxios: {
-      get: () => Promise.resolve({ 
-        data: { 
-          success: true, 
-          admin: {
-            name: 'DR. MIRA C. SANTOS',
-            role: 'Veterinarian',
-            email: 'mirasantos.pawpal@gmail.com',
-            contact_number: '0905 - xxx - xxxx',
-            clinic_info: 'Southvalley Veterinary Clinic\n- Santa Rosa, Laguna',
-            profile_image: null,
-            recovery_email: null,
-            password_updated_at: null
-          } 
-        } 
-      })
-    }
-  };
+  );
 };
-// --------------------------------------------------
 
+// --- Confirmation Modal Component ---
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, loading }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden">
+        <div className="p-6 text-center">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 mb-4">
+            <Check className="h-6 w-6 text-purple-600" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
+          <p className="text-sm text-gray-500 mb-6">{message}</p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={onClose}
+              disabled={loading}
+              className="px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={loading}
+              className="px-6 py-2 bg-[#815fb3] text-white font-bold rounded-lg hover:bg-[#6f4ea0] transition-colors shadow-sm"
+            >
+              {loading ? 'Processing...' : 'Confirm'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function AdminProfileSettings() {
-  const { admin: authAdmin, adminAxios } = useAdminAuth();
-  const [admin, setAdmin] = useState(null);
+  const { adminAxios, adminLogout } = useAdminAuth();
+  const [adminData, setAdminData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Mapped icons to relative paths as requested
-  const icons = {
-    paw: "/mdi_paw1.png",
-    email: "/email.png",
-    location: "/location.png",
-    phone: "/phone.png",
-    password: "/mdi_password.png",
-    camera: "/camera-icon.png" 
-  };
+  // Modal States
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [recoveryEmailOpen, setRecoveryEmailOpen] = useState(false);
+  
+  // Confirmation States
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', action: null });
+  const [actionLoading, setActionLoading] = useState(false);
+
+  // Form States
+  const [formData, setFormData] = useState({
+    name: '',
+    clinic_info: '',
+    contact_number: ''
+  });
+  
+  const [passData, setPassData] = useState({
+    current_password: '',
+    new_password: '',
+    confirm_password: ''
+  });
+  const [showPass, setShowPass] = useState(false);
+
+  const [recoveryData, setRecoveryData] = useState({
+    recovery_email: '',
+    confirm_recovery_email: ''
+  });
 
   useEffect(() => {
     fetchAdminProfile();
@@ -77,63 +100,184 @@ export default function AdminProfileSettings() {
   const fetchAdminProfile = async () => {
     try {
       setLoading(true);
-      setError(null);
-      // Simulate network delay for realism
-      await new Promise(resolve => setTimeout(resolve, 600));
-      
       const response = await adminAxios.get('/admin/profile');
-      
-      if (response.data.success && response.data.admin) {
-        setAdmin(response.data.admin);
-      } else {
-        setAdmin(authAdmin);
+      if (response.data.success) {
+        setAdminData(response.data.admin);
+        // Initialize form data
+        setFormData({
+          name: response.data.admin.name || '',
+          clinic_info: response.data.admin.clinic_info || '',
+          contact_number: response.data.admin.contact_number || ''
+        });
+        setRecoveryData(prev => ({ ...prev, recovery_email: response.data.admin.recovery_email || '' }));
       }
     } catch (err) {
-      console.error('Error fetching admin profile:', err);
-      setError('Failed to load profile data');
-      setAdmin(authAdmin);
+      console.error('Error fetching profile:', err);
+      setError('Failed to load profile data.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Handler for clicking the camera button
-  const handleCameraClick = () => {
-    fileInputRef.current.click();
-  };
+  // --- Handlers ---
 
-  // Handler for file selection
-  const handleFileChange = async (e) => {
+  const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Create form data to send
-    const formData = new FormData();
-    formData.append('profile_image', file);
+    // Trigger confirmation
+    setConfirmModal({
+      isOpen: true,
+      title: 'Update Profile Picture',
+      message: 'Are you sure you want to update your profile picture?',
+      action: () => executePhotoUpload(file)
+    });
+    // Reset input so same file can be selected again if cancelled/failed
+    e.target.value = '';
+  };
+
+  const executePhotoUpload = async (file) => {
+    setActionLoading(true);
+    const uploadData = new FormData();
+    uploadData.append('image', file);
 
     try {
-      alert(`Selected file: ${file.name}. This would upload to the server in production.`);
-    } catch (error) {
-      console.error("Upload failed", error);
+      const response = await adminAxios.put('/admin/profile/photo', uploadData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (response.data.success) {
+        await fetchAdminProfile(); // Refresh data
+        setConfirmModal({ ...confirmModal, isOpen: false });
+        alert('Profile picture updated successfully!');
+      }
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert(err.response?.data?.error || 'Failed to upload image.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  const handleChangePassword = () => {
-    console.log("Change password clicked");
+  const handleProfileSubmit = (e) => {
+    e.preventDefault();
+    setEditProfileOpen(false);
+    setConfirmModal({
+      isOpen: true,
+      title: 'Save Profile Changes',
+      message: 'Are you sure you want to update your profile information?',
+      action: executeProfileUpdate
+    });
   };
 
-  const handleRecoveryEmailAction = () => {
-    console.log("Recovery email action clicked");
+  const executeProfileUpdate = async () => {
+    setActionLoading(true);
+    try {
+      const response = await adminAxios.put('/admin/profile', formData);
+      if (response.data.success) {
+        await fetchAdminProfile();
+        setConfirmModal({ ...confirmModal, isOpen: false });
+        alert('Profile updated successfully!');
+      }
+    } catch (err) {
+      console.error('Update failed:', err);
+      alert(err.response?.data?.error || 'Failed to update profile.');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    if (passData.new_password !== passData.confirm_password) {
+      alert("New passwords do not match!");
+      return;
+    }
+    setChangePasswordOpen(false);
+    setConfirmModal({
+      isOpen: true,
+      title: 'Change Password',
+      message: 'Are you sure you want to change your password? You will need to login again.',
+      action: executePasswordChange
+    });
+  };
+
+  const executePasswordChange = async () => {
+    setActionLoading(true);
+    try {
+      const response = await adminAxios.post('/admin/change-password', {
+        current_password: passData.current_password,
+        new_password: passData.new_password
+      });
+      
+      if (response.data.success) {
+        setConfirmModal({ ...confirmModal, isOpen: false });
+        alert('Password changed successfully. Please login again.');
+        await adminLogout();
+        window.location.href = '/admin/login';
+      }
+    } catch (err) {
+      console.error('Password change failed:', err);
+      alert(err.response?.data?.error || 'Failed to change password.');
+      setChangePasswordOpen(true); // Re-open modal on error
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRecoverySubmit = (e) => {
+    e.preventDefault();
+    if (recoveryData.recovery_email !== recoveryData.confirm_recovery_email) {
+      alert("Emails do not match!");
+      return;
+    }
+    setRecoveryEmailOpen(false);
+    setConfirmModal({
+      isOpen: true,
+      title: 'Set Recovery Email',
+      message: `A verification email will be sent to ${recoveryData.recovery_email}. Continue?`,
+      action: executeRecoveryUpdate
+    });
+  };
+
+  const executeRecoveryUpdate = async () => {
+    setActionLoading(true);
+    try {
+      const response = await adminAxios.post('/admin/recovery-email', {
+        recovery_email: recoveryData.recovery_email,
+        confirm_recovery_email: recoveryData.confirm_recovery_email
+      });
+      
+      if (response.data.success) {
+        setConfirmModal({ ...confirmModal, isOpen: false });
+        await fetchAdminProfile();
+        alert(response.data.message || 'Verification email sent!');
+      }
+    } catch (err) {
+      console.error('Recovery update failed:', err);
+      alert(err.response?.data?.error || 'Failed to set recovery email.');
+      setRecoveryEmailOpen(true);
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f0f0f0]">
-        <AdminTopNav />
-        <div className="pt-[120px] px-8 max-w-3xl mx-auto">
-          <div className="text-center text-gray-500 py-12 font-sans animate-pulse">Loading profile...</div>
+        <AdminTopNav activePage="Profile" />
+        <div className="pt-[120px] px-8 max-w-3xl mx-auto flex justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#57166b]"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!adminData) {
+    return (
+      <div className="min-h-screen bg-[#f0f0f0]">
+        <AdminTopNav activePage="Profile" />
+        <div className="pt-[120px] px-8 max-w-3xl mx-auto text-center text-red-500">
+          {error || 'Profile not found.'}
         </div>
       </div>
     );
@@ -141,195 +285,291 @@ export default function AdminProfileSettings() {
 
   return (
     <div className="min-h-screen bg-[#f0f0f0] font-sans pb-20">
-      <AdminTopNav />
+      <AdminTopNav activePage="Profile" />
       
       <div className="pt-[120px] px-4 md:px-8 max-w-5xl mx-auto">
-        <h2 className="text-2xl font-bold mb-8 text-[#1a1a1a]" style={{fontFamily: 'Raleway, sans-serif'}}>
-          Profile Settings
+        <h2 className="text-3xl font-bold mb-8 text-[#1a1a1a] font-raleway border-b pb-4 border-gray-200">
+          Admin Profile Settings
         </h2>
         
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm">
-            <p>{error}</p>
-          </div>
-        )}
-
-        {!admin ? (
-          <div className="text-center text-gray-500 py-12 bg-white rounded-xl shadow">
-            No profile data found.
-          </div>
-        ) : (
-          <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6">
+          
+          {/* PROFILE CARD */}
+          <div className="bg-[#FFFFF0] rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center md:items-start gap-8 relative">
             
-            {/* PROFILE CARD */}
-            <div className="bg-[#FFFFF0] rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center md:items-start gap-8">
-              {/* Avatar Section */}
-              <div className="relative shrink-0">
-                <div className="w-40 h-40 rounded-full bg-[#815fb3] flex items-center justify-center overflow-hidden shadow-inner border-[6px] border-white relative z-10">
-                  {admin.profile_image ? (
-                    <img src={admin.profile_image} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    // Placeholder icon (Paw)
-                    <div className="flex items-center justify-center w-full h-full bg-[#815fb3]">
-                         {/* Using an SVG fallback if the png is missing in preview, representing mdi_paw1.png */}
-                        <img 
-                          src={icons.paw} 
-                          onError={(e) => {
-                              e.target.style.display='none';
-                              e.target.nextSibling.style.display='block';
-                          }}
-                          alt="Paw Placeholder" 
-                          className="w-20 h-20 object-contain opacity-90" 
-                        />
-                        <svg style={{display:'none'}} className="w-20 h-20 text-[#F0E68C]" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A1.5,1.5 0 0,0 10.5,7.5A1.5,1.5 0 0,0 12,9A1.5,1.5 0 0,0 13.5,7.5A1.5,1.5 0 0,0 12,6M8,8A1.5,1.5 0 0,0 6.5,9.5A1.5,1.5 0 0,0 8,11A1.5,1.5 0 0,0 9.5,9.5A1.5,1.5 0 0,0 8,8M16,8A1.5,1.5 0 0,0 14.5,9.5A1.5,1.5 0 0,0 16,11A1.5,1.5 0 0,0 17.5,9.5A1.5,1.5 0 0,0 16,8M9,13C8.5,13 8.08,13.23 7.79,13.59C7.26,13.22 6.62,13 5.92,13C4.12,13 2.63,14.36 2.5,16.11C3.18,17.21 4.4,18 5.92,18C6.62,18 7.26,17.78 7.79,17.41C8.08,17.77 8.5,18 9,18C9.85,18 10.64,17.64 11.21,17.06C11.78,17.64 12.57,18 13.42,18C14.27,18 15.06,17.64 15.63,17.06C16.2,17.64 16.99,18 17.84,18C18.34,18 18.76,17.77 19.05,17.41C19.58,17.78 20.22,18 20.92,18C22.44,18 23.66,17.21 24.34,16.11C24.21,14.36 22.72,13 20.92,13C20.22,13 19.58,13.22 19.05,13.59C18.76,13.23 18.34,13 17.84,13C16.99,13 16.2,13.36 15.63,13.94C15.06,13.36 14.27,13 13.42,13C12.57,13 11.78,13.36 11.21,13.94C10.64,13.36 9.85,13 9,13Z" /></svg>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Camera Button */}
-                <button 
-                  onClick={handleCameraClick}
-                  className="absolute bottom-2 right-0 bg-[#3C2A4D] hover:bg-[#2a1d36] rounded-full p-2 border-2 border-white shadow-lg transition-transform active:scale-95 flex items-center justify-center z-20 cursor-pointer"
-                  title="Update Profile Picture"
-                >
-                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                      <circle cx="12" cy="13" r="4"></circle>
-                   </svg>
-                </button>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileChange} 
-                  accept="image/*" 
-                  className="hidden" 
-                />
+            {/* Edit Button */}
+            <button 
+              onClick={() => setEditProfileOpen(true)}
+              className="absolute top-6 right-6 p-2 text-gray-400 hover:text-[#815fb3] hover:bg-purple-50 rounded-full transition-all"
+              title="Edit Profile Details"
+            >
+              <Edit2 size={24} />
+            </button>
+
+            {/* Avatar Section */}
+            <div className="relative shrink-0 group">
+              <div className="w-40 h-40 rounded-full bg-[#815fb3] flex items-center justify-center overflow-hidden shadow-inner border-[6px] border-white relative z-10">
+                {adminData.profile_image ? (
+                  <img src={adminData.profile_image} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full bg-[#815fb3]">
+                     <span className="text-white text-4xl font-bold">{adminData.name?.charAt(0) || 'A'}</span>
+                  </div>
+                )}
               </div>
+              
+              {/* Camera Button */}
+              <button 
+                onClick={() => fileInputRef.current.click()}
+                className="absolute bottom-2 right-0 bg-[#3C2A4D] hover:bg-[#2a1d36] rounded-full p-2.5 border-2 border-white shadow-lg transition-transform active:scale-95 flex items-center justify-center z-20 cursor-pointer group-hover:scale-110"
+                title="Update Profile Picture"
+              >
+                 <Camera size={18} color="white" />
+              </button>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileSelect} 
+                accept="image/*" 
+                className="hidden" 
+              />
+            </div>
 
-              {/* Details Section */}
-              <div className="flex-1 flex flex-col gap-2 text-center md:text-left pt-2 w-full">
-                <h3 className="text-2xl font-bold text-[#1a1a1a] uppercase tracking-wide mb-1" style={{fontFamily: 'Raleway, sans-serif'}}>
-                  {admin.name || 'DR. MIRA C. SANTOS'}
-                </h3>
-                <p className="text-gray-500 text-lg font-medium mb-4">
-                  {admin.role || 'Veterinarian'}
-                </p>
+            {/* Details Section */}
+            <div className="flex-1 flex flex-col gap-2 text-center md:text-left pt-2 w-full">
+              <h3 className="text-2xl font-bold text-[#1a1a1a] uppercase tracking-wide mb-1 font-raleway">
+                {adminData.name || 'Admin User'}
+              </h3>
+              <p className="text-gray-500 text-lg font-medium mb-6 bg-gray-100 inline-block px-3 py-1 rounded-full self-center md:self-start">
+                {adminData.role || 'Administrator'}
+              </p>
 
-                <div className="flex flex-col gap-3 w-full">
-                  {/* Email */}
-                  <div className="flex items-center justify-center md:justify-start gap-3 text-gray-600">
-                    <div className="w-5 flex justify-center">
-                        {/* Using SVG directly for reliability in preview if image fails */}
-                        <img src={icons.email} alt="" className="w-5 h-5 object-contain opacity-70" onError={e => {e.target.style.display='none'; e.target.nextSibling.style.display='block'}} />
-                        <svg className="w-5 h-5 text-[#815fb3]" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{display: 'none'}}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                    </div>
-                    <span className="text-base font-medium">{admin.email || 'mirasantos.pawpal@gmail.com'}</span>
-                  </div>
+              <div className="flex flex-col gap-4 w-full max-w-lg">
+                <div className="flex items-center justify-center md:justify-start gap-3 text-gray-700">
+                  <Mail className="w-5 h-5 text-[#815fb3]" />
+                  <span className="text-base font-medium">{adminData.email}</span>
+                </div>
 
-                  {/* Location */}
-                  <div className="flex items-start justify-center md:justify-start gap-3 text-gray-600">
-                    <div className="w-5 flex justify-center mt-0.5">
-                        <img src={icons.location} alt="" className="w-5 h-5 object-contain opacity-70" onError={e => {e.target.style.display='none'; e.target.nextSibling.style.display='block'}} />
-                        <svg className="w-5 h-5 text-[#815fb3]" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{display: 'none'}}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    </div>
-                    <span className="text-base font-medium leading-tight text-left">
-                      {admin.clinic_info || 'Southvalley Veterinary Clinic\n- Santa Rosa, Laguna'}
-                    </span>
-                  </div>
+                <div className="flex items-start justify-center md:justify-start gap-3 text-gray-700">
+                  <MapPin className="w-5 h-5 text-[#815fb3] mt-0.5" />
+                  <span className="text-base font-medium leading-tight text-left">
+                    {adminData.clinic_info || 'No clinic information set'}
+                  </span>
+                </div>
 
-                  {/* Phone */}
-                  <div className="flex items-center justify-center md:justify-start gap-3 text-gray-600">
-                    <div className="w-5 flex justify-center">
-                        <img src={icons.phone} alt="" className="w-5 h-5 object-contain opacity-70" onError={e => {e.target.style.display='none'; e.target.nextSibling.style.display='block'}} />
-                        <svg className="w-5 h-5 text-[#815fb3]" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{display: 'none'}}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                    </div>
-                    <span className="text-base font-medium">{admin.contact_number || '0905 - xxx - xxxx'}</span>
-                  </div>
+                <div className="flex items-center justify-center md:justify-start gap-3 text-gray-700">
+                  <Phone className="w-5 h-5 text-[#815fb3]" />
+                  <span className="text-base font-medium">
+                    {adminData.contact_number || 'No contact number set'}
+                  </span>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* SECURITY INFO CARD */}
-            <div className="bg-[#FFFFF0] rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
-              <h3 className="text-xl font-bold text-black mb-2 uppercase" style={{fontFamily: 'Raleway, sans-serif'}}>
-                Security Info
-              </h3>
-              <p className="text-gray-500 mb-8 font-medium text-sm md:text-base">
-                Manage your login and recovery details to keep your clinic data safe.
-              </p>
+          {/* SECURITY INFO CARD */}
+          <div className="bg-[#FFFFF0] rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
+            <h3 className="text-xl font-bold text-black mb-2 uppercase font-raleway flex items-center gap-2">
+              <Lock size={20} className="mb-1" /> Security Info
+            </h3>
+            <p className="text-gray-500 mb-8 font-medium text-sm md:text-base ml-1">
+              Manage your login and recovery details to keep your clinic data safe.
+            </p>
 
-              <div className="flex flex-col gap-5">
-                {/* Password Row */}
-                <div className="bg-[#FFFFF2] border border-gray-300 rounded-xl px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
-                  <div className="flex items-center w-full md:w-auto gap-4">
-                    <div className="w-5 h-5 flex items-center justify-center">
-                        <img src={icons.password} alt="Lock" className="w-full h-full object-contain" onError={e => {e.target.style.display='none'; e.target.nextSibling.style.display='block'}} />
-                        <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 24 24" style={{display: 'none'}}><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm-3 5a3 3 0 016 0v3H9V7z"/></svg>
-                    </div>
-                    <span className="font-semibold text-gray-800 text-lg">Password</span>
+            <div className="flex flex-col gap-5">
+              {/* Password Row */}
+              <div className="bg-[#FFFFF2] border border-gray-200 rounded-xl px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center w-full md:w-auto gap-4">
+                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-[#815fb3]">
+                    <Lock size={20} />
                   </div>
-                  
-                  <div className="flex flex-col md:flex-row items-center gap-4 md:gap-12 w-full md:w-auto justify-between md:justify-end">
-                    <div className="flex items-center gap-2 text-gray-500 font-medium whitespace-nowrap">
-                      <span className="text-black font-semibold">Last Updated:</span>
-                      <span>
-                        {admin.password_updated_at 
-                          ? new Date(admin.password_updated_at).toLocaleDateString() 
-                          : 'Never'}
-                      </span>
-                    </div>
-                    <button 
-                      onClick={handleChangePassword}
-                      className="bg-[#815fb3] hover:bg-[#6f4ea0] text-white px-8 py-2.5 rounded-lg font-bold transition-colors shadow-sm w-full md:w-auto"
-                    >
-                      Change
-                    </button>
+                  <div>
+                    <span className="font-bold text-gray-800 text-lg block">Password</span>
+                    <span className="text-xs text-gray-500">
+                       Last updated: {adminData.password_updated_at ? new Date(adminData.password_updated_at).toLocaleDateString() : 'Never'}
+                    </span>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => setChangePasswordOpen(true)}
+                  className="bg-[#815fb3] hover:bg-[#6f4ea0] text-white px-6 py-2 rounded-lg font-bold transition-colors shadow-sm w-full md:w-auto text-sm"
+                >
+                  Change Password
+                </button>
+              </div>
+
+              {/* Recovery Email Row */}
+              <div className="bg-[#FFFFF2] border border-gray-200 rounded-xl px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center w-full md:w-auto gap-4">
+                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-[#815fb3]">
+                    <Mail size={20} />
+                  </div>
+                  <div>
+                    <span className="font-bold text-gray-800 text-lg block">Recovery Email</span>
+                    <span className="text-xs text-gray-500 block">For account recovery purposes</span>
                   </div>
                 </div>
 
-                {/* Recovery Email Row */}
-                <div className="bg-[#FFFFF2] border border-gray-300 rounded-xl px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
-                  <div className="flex items-center w-full md:w-auto gap-4">
-                    <div className="w-5 h-5 flex items-center justify-center">
-                        <img src={icons.email} alt="Email" className="w-full h-full object-contain" onError={e => {e.target.style.display='none'; e.target.nextSibling.style.display='block'}} />
-                        <svg className="w-4 h-4 text-[#815fb3]" fill="currentColor" viewBox="0 0 20 20" style={{display: 'none'}}><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
-                    </div>
-                    <span className="font-semibold text-gray-800 text-lg">Recovery Email</span>
-                  </div>
-
-                  <div className="flex flex-col md:flex-row items-center gap-4 md:gap-12 w-full md:w-auto justify-between md:justify-end">
-                    {/* Status Indicator */}
-                    {admin.recovery_email ? (
-                      <div className="flex items-center gap-2 text-green-600 font-medium bg-green-50 px-3 py-1 rounded-full whitespace-nowrap">
-                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
-                         {admin.recovery_email}
+                <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto justify-end">
+                   {adminData.recovery_email ? (
+                      <div className="flex items-center gap-2 text-green-700 bg-green-50 px-3 py-1 rounded-full text-sm font-medium border border-green-100">
+                         <Check size={14} />
+                         {adminData.recovery_email}
+                         {adminData.recovery_email_verified && <span className="text-xs bg-green-200 px-1 rounded text-green-800 ml-1">Verified</span>}
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 text-red-500 font-medium whitespace-nowrap">
-                         <div className="w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-xs font-bold">!</div>
+                      <div className="flex items-center gap-2 text-amber-600 bg-amber-50 px-3 py-1 rounded-full text-sm font-medium border border-amber-100">
                          Not Configured
                       </div>
                     )}
 
-                    {/* Action Button */}
-                    <button 
-                      onClick={handleRecoveryEmailAction}
-                      className={`${
-                        admin.recovery_email 
-                          ? 'bg-[#815fb3] text-white hover:bg-[#6f4ea0]' 
-                          : 'bg-[#FFF59D] text-black hover:bg-[#FFF176] border border-yellow-200'
-                      } px-10 py-2.5 rounded-lg font-bold transition-colors shadow-sm w-full md:w-auto`}
-                    >
-                      {admin.recovery_email ? 'Change' : 'Add'}
-                    </button>
-                  </div>
+                  <button 
+                    onClick={() => setRecoveryEmailOpen(true)}
+                    className="bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 px-6 py-2 rounded-lg font-bold transition-colors shadow-sm w-full md:w-auto text-sm"
+                  >
+                    {adminData.recovery_email ? 'Update' : 'Configure'}
+                  </button>
                 </div>
               </div>
             </div>
-
           </div>
-        )}
+        </div>
       </div>
+
+      {/* --- MODALS --- */}
+
+      {/* 1. Edit Profile Modal */}
+      <Modal isOpen={editProfileOpen} onClose={() => setEditProfileOpen(false)} title="Edit Profile Details">
+        <form onSubmit={handleProfileSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
+            <input 
+              type="text" 
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#815fb3] focus:border-transparent outline-none"
+              required
+            />
+          </div>
+          <div>
+             <label className="block text-sm font-bold text-gray-700 mb-1">Clinic Info</label>
+             <input 
+              type="text"
+              value={formData.clinic_info}
+              onChange={(e) => setFormData({...formData, clinic_info: e.target.value})}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#815fb3] focus:border-transparent outline-none"
+            />
+          </div>
+          <div>
+             <label className="block text-sm font-bold text-gray-700 mb-1">Contact Number</label>
+             <input 
+              type="text"
+              value={formData.contact_number}
+              onChange={(e) => setFormData({...formData, contact_number: e.target.value})}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#815fb3] focus:border-transparent outline-none"
+              placeholder="09XX-XXX-XXXX"
+            />
+          </div>
+          <div className="flex justify-end pt-2">
+            <button type="submit" className="bg-[#815fb3] text-white font-bold py-2 px-6 rounded-lg hover:bg-[#6f4ea0] transition-colors">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* 2. Change Password Modal */}
+      <Modal isOpen={changePasswordOpen} onClose={() => setChangePasswordOpen(false)} title="Change Password">
+        <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Current Password</label>
+            <div className="relative">
+              <input 
+                type={showPass ? "text" : "password"}
+                value={passData.current_password}
+                onChange={(e) => setPassData({...passData, current_password: e.target.value})}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:ring-2 focus:ring-[#815fb3] outline-none"
+                required
+              />
+              <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-2.5 text-gray-400">
+                {showPass ? <EyeOff size={18}/> : <Eye size={18}/>}
+              </button>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">New Password</label>
+            <input 
+              type={showPass ? "text" : "password"}
+              value={passData.new_password}
+              onChange={(e) => setPassData({...passData, new_password: e.target.value})}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#815fb3] outline-none"
+              required
+              minLength={8}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Confirm New Password</label>
+            <input 
+              type={showPass ? "text" : "password"}
+              value={passData.confirm_password}
+              onChange={(e) => setPassData({...passData, confirm_password: e.target.value})}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#815fb3] outline-none"
+              required
+            />
+          </div>
+          <div className="flex justify-end pt-2">
+            <button type="submit" className="bg-[#815fb3] text-white font-bold py-2 px-6 rounded-lg hover:bg-[#6f4ea0] transition-colors">
+              Update Password
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* 3. Recovery Email Modal */}
+      <Modal isOpen={recoveryEmailOpen} onClose={() => setRecoveryEmailOpen(false)} title="Configure Recovery Email">
+        <form onSubmit={handleRecoverySubmit} className="flex flex-col gap-4">
+          <p className="text-sm text-gray-600 mb-2">
+            Enter an email address to use for account recovery. We will send a verification link to this address.
+          </p>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Recovery Email</label>
+            <input 
+              type="email" 
+              value={recoveryData.recovery_email}
+              onChange={(e) => setRecoveryData({...recoveryData, recovery_email: e.target.value})}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#815fb3] outline-none"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Confirm Email</label>
+            <input 
+              type="email" 
+              value={recoveryData.confirm_recovery_email}
+              onChange={(e) => setRecoveryData({...recoveryData, confirm_recovery_email: e.target.value})}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#815fb3] outline-none"
+              required
+            />
+          </div>
+          <div className="flex justify-end pt-2">
+            <button type="submit" className="bg-[#815fb3] text-white font-bold py-2 px-6 rounded-lg hover:bg-[#6f4ea0] transition-colors">
+              Send Verification
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Global Confirmation Modal */}
+      <ConfirmationModal 
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onConfirm={confirmModal.action}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        loading={actionLoading}
+      />
+
     </div>
   );
 }
