@@ -15,5 +15,6 @@ urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='register_api'),
     path('login/', views.LoginView.as_view(), name='login_api'),
     path('logout/', views.LogoutView.as_view(), name='logout_api'),
-    path('profile/', views.get_user_profile, name='user_profile'),  # Use function-based view with custom auth
+    path('profile/', views.user_profile_api, name='user_profile'),  # Use function-based view with custom auth
+    path('change-password/', views.user_change_password, name='user_change_password'),
 ]

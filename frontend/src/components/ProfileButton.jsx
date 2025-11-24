@@ -6,6 +6,9 @@ const ProfileButton = ({ onLogoutClick }) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   // Remove local showLegalModal state
   const { user } = useAuth();
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
+  const [profileImg, setProfileImg] = useState(null);
+  const [usernameDisplay, setUsernameDisplay] = useState(user?.username || 'User');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +23,38 @@ const ProfileButton = ({ onLogoutClick }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [dropdownVisible]);
+
+  // Keep local profile image in sync with auth user and custom events
+  useEffect(() => {
+    if (user) {
+      setUsernameDisplay(user.username || 'User');
+    }
+    if (user && user.profile && user.profile.profile_picture) {
+      const pic = user.profile.profile_picture.startsWith('http')
+        ? user.profile.profile_picture
+        : `${API_BASE_URL.replace('/api', '')}${user.profile.profile_picture}`;
+      setProfileImg(pic);
+    } else {
+      setProfileImg(null);
+    }
+
+    const handler = (e) => {
+      const detail = e.detail || {};
+      if (detail.profile_picture) {
+        const val = detail.profile_picture;
+        // Accept absolute http/https, blob: and data: URLs as-is; otherwise prefix API base
+        const isAbsolute = /^(https?:|blob:|data:)/.test(val);
+        const pic = isAbsolute ? val : `${API_BASE_URL.replace('/api', '')}${val}`;
+        setProfileImg(pic);
+      }
+      if (detail.username) {
+        setUsernameDisplay(detail.username);
+      }
+    };
+
+    window.addEventListener('profileUpdated', handler);
+    return () => window.removeEventListener('profileUpdated', handler);
+  }, [user, API_BASE_URL]);
 
   const handleLogout = () => {
     if (onLogoutClick) {
@@ -47,13 +82,17 @@ const ProfileButton = ({ onLogoutClick }) => {
         className="flex items-center gap-2 md:gap-3 px-2 md:px-4 py-1 md:py-2 bg-[#F0E4B3] hover:bg-[#E6D45B] rounded-full transition-colors"
       >
         <span className="text-xs md:text-sm font-medium text-gray-900" style={{ fontFamily: 'Raleway' }}>
-          {user?.username || 'User'}
+          {usernameDisplay}
         </span>
-        <div className="w-6 h-6 md:w-8 md:h-8 bg-gray-200 rounded-full flex items-center justify-center">
-          {/* Placeholder for profile image */}
-          <svg className="w-4 h-4 md:w-5 md:h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-          </svg>
+        <div className="w-6 h-6 md:w-8 md:h-8 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+          {/* Show profile image if available, else placeholder */}
+          {profileImg ? (
+            <img src={profileImg} alt="avatar" className="w-full h-full object-cover" />
+          ) : (
+            <svg className="w-4 h-4 md:w-5 md:h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          )}
         </div>
       </button>
       

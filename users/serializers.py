@@ -15,8 +15,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = UserProfile
-        # Only include fields that actually exist in your UserProfile model
-        fields = ['user', 'phone_number', 'province', 'city', 'address', 'date_of_birth', 'is_vet_admin']
+        # Add profile_picture and facebook to fields
+        fields = ['user', 'phone_number', 'province', 'city', 'address', 'date_of_birth', 'is_vet_admin', 'is_verified', 'profile_picture', 'facebook']
 
 class UserRegistrationSerializer(serializers.Serializer):
     # Accept both formats: 'name' OR 'first_name' + 'last_name'

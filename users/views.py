@@ -5,7 +5,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework import generics, status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -134,49 +135,124 @@ def test_view(request):
     return JsonResponse({'message': 'Users app is working!'})
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])  # Allow any - our custom function handles auth
-def get_user_profile(request):
-    """Get current user profile"""
+@api_view(['GET', 'PATCH'])
+@permission_classes([AllowAny])  # We use custom check inside
+@parser_classes([MultiPartParser, FormParser, JSONParser])
+def user_profile_api(request):
+    """
+    Get or Update current user profile.
+    Handles both User model fields (first_name, last_name, email)
+    and UserProfile fields (phone, address, image, etc).
+    """
     from utils.unified_permissions import check_user_or_admin
     
-    print(f"[PROFILE] Received profile request")
-    print(f"[PROFILE] Authorization header: {request.META.get('HTTP_AUTHORIZATION', '')[:50]}...")
-    
-    # Check authentication (supports both user types)
+    # 1. Authentication
     user_type, user_obj, error_response = check_user_or_admin(request)
     if error_response:
-        print(f"[PROFILE] Authentication failed: {error_response.data if hasattr(error_response, 'data') else 'Unknown error'}")
         return error_response
     
-    print(f"[PROFILE] Authentication successful, user_type: {user_type}, user: {user_obj.email if user_obj else 'None'}")
-    
-    # Only pet owners can access their own profile
+    # Only pet owners (for this specific endpoint logic)
     if user_type != 'pet_owner':
         return Response({
-            'success': False,
+            'success': False, 
             'error': 'Only pet owners can access this endpoint'
         }, status=status.HTTP_403_FORBIDDEN)
     
-    try:
-        user = user_obj
-        profile, created = UserProfile.objects.get_or_create(user=user)
-        
-        return Response({
+    user = user_obj
+    profile, created = UserProfile.objects.get_or_create(user=user)
+
+    # 2. GET Request: Return Data
+    if request.method == 'GET':
+        serializer = UserProfileSerializer(profile)
+        # Return a combined structure similar to previous implementation
+        data = {
             'id': user.id,
             'username': user.username,
             'email': user.email,
             'first_name': user.first_name,
             'last_name': user.last_name,
-            'profile': {
-                'phone_number': profile.phone_number or '',
-                'province': getattr(profile, 'province', ''),
-                'city': getattr(profile, 'city', ''),
-                'address': profile.address or '',
-                'date_of_birth': getattr(profile, 'date_of_birth', None),
-                'is_vet_admin': profile.is_vet_admin,
-            }
-        })
-    except Exception as e:
-        print(f"Profile error: {e}")  # Debug log
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            'profile': serializer.data
+        }
+        return Response(data)
+
+    # 3. PATCH Request: Update Data
+    elif request.method == 'PATCH':
+        data = request.data
+        
+        # A. Update User Model Fields (if present)
+        user_changed = False
+        if 'first_name' in data:
+            user.first_name = data['first_name']
+            user_changed = True
+        if 'last_name' in data:
+            user.last_name = data['last_name']
+            user_changed = True
+        # Allow username updates (align with registration username)
+        if 'username' in data:
+            new_username = data['username']
+            if User.objects.filter(username=new_username).exclude(id=user.id).exists():
+                return Response({'error': 'Username already in use'}, status=400)
+            user.username = new_username
+            user_changed = True
+        if 'email' in data:
+            # Basic duplicate check
+            if User.objects.filter(email=data['email']).exclude(id=user.id).exists():
+                return Response({'error': 'Email already in use'}, status=400)
+            user.email = data['email']
+            user_changed = True
+        
+        if user_changed:
+            user.save()
+
+        # B. Update UserProfile Fields
+        # We pass partial=True to allow updating just some fields
+        serializer = UserProfileSerializer(profile, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def user_change_password(request):
+    """
+    POST /api/users/change-password/
+
+    Body:
+      - current_password
+      - new_password
+      - confirm_password
+
+    Returns 200 on success or 400 with field errors.
+    """
+    user = request.user
+    current = request.data.get('current_password')
+    new = request.data.get('new_password')
+    confirm = request.data.get('confirm_password')
+
+    errors = {}
+    if not current:
+        errors['current_password'] = ['Current password is required']
+    if not new:
+        errors['new_password'] = ['New password is required']
+    if not confirm:
+        errors['confirm_password'] = ['Please confirm your new password']
+
+    if errors:
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+    if new != confirm:
+        return Response({'new_password': ['New password and confirmation do not match']}, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(new) < 8:
+        return Response({'new_password': ['Password must be at least 8 characters']}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Verify current password
+    if not user.check_password(current):
+        return Response({'current_password': ['Current password is incorrect']}, status=status.HTTP_400_BAD_REQUEST)
+
+    # All good - set new password
+    user.set_password(new)
+    user.save()
+    return Response({'detail': 'Password changed successfully'}, status=status.HTTP_200_OK)

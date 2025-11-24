@@ -14,6 +14,9 @@ class UserProfile(models.Model):
     date_of_birth = models.DateField(blank=True, null=True)
     is_vet_admin = models.BooleanField(default=False, help_text="Check if this user is a veterinarian/admin")
     is_verified = models.BooleanField(default=False, help_text="Email verification status")
+    # Newly added fields for Profile Settings
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    facebook = models.URLField(max_length=200, blank=True, null=True)
     
     class Meta:
         verbose_name = "Pet Owner Profile"

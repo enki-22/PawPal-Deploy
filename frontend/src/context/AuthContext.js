@@ -236,12 +236,32 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // Refresh current user from backend and update context
+  const refreshUser = async () => {
+    if (!token) return null;
+    try {
+      const response = await axios.get(`${API_BASE_URL}/users/profile/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response?.data) {
+        setUser(response.data);
+        return response.data;
+      }
+      return null;
+    } catch (err) {
+      console.error('refreshUser error', err);
+      return null;
+    }
+  };
+
   const value = {
     user,
     token,
     login,
     register,
     logout,
+    setUser,
+    refreshUser,
     loading,
     isAuthenticated: !!token,
   };
