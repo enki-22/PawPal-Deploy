@@ -349,7 +349,13 @@ export default function AdminRoles() {
       );
     }
     if (roleFilter !== 'all') {
-      processedAdmins = processedAdmins.filter(adminItem => adminItem.role?.toLowerCase() === roleFilter.toLowerCase());
+      const filterVal = roleFilter.toLowerCase();
+      processedAdmins = processedAdmins.filter(adminItem => {
+        const roleVal = (adminItem.role || adminItem.role_display || '').toString().toLowerCase();
+        // Allow substring matches so values like "Master Admin", "Veterinarian", "Front Desk"
+        // will match filter values like "MASTER", "VET", "DESK".
+        return roleVal.includes(filterVal);
+      });
     }
     if (statusFilter !== 'all') {
       processedAdmins = processedAdmins.filter(adminItem => {
