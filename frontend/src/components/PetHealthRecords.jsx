@@ -16,7 +16,8 @@ const PetHealthRecords = () => {
     search: '',
     animal_type: '',
     sex: '',
-    age: ''
+    age: '',
+    name: ''
   });
   const [showAddPetModal, setShowAddPetModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -43,9 +44,35 @@ const PetHealthRecords = () => {
       const params = new URLSearchParams();
       // Only add non-empty filters
       Object.entries(filters).forEach(([key, value]) => {
-        if (value && value.trim() !== '') {
-          params.append(key, value);
+        if (!value) return;
+        // Normalize to string
+        const v = String(value).trim();
+        if (!v) return;
+
+        // Map age ranges to min_age/max_age query params
+        if (key === 'age') {
+          if (v === '0-1') {
+            params.append('min_age', '0');
+            params.append('max_age', '1');
+          } else if (v === '1-3') {
+            params.append('min_age', '1');
+            params.append('max_age', '3');
+          } else if (v === '3-7') {
+            params.append('min_age', '3');
+            params.append('max_age', '7');
+          } else if (v === '7+') {
+            params.append('min_age', '7');
+          }
+          return;
         }
+
+        // If pet name was set, also set `search` so backend will match by name
+        if (key === 'name') {
+          params.append('search', v);
+          return;
+        }
+
+        params.append(key, v);
       });
       const response = await axios.get(
         `http://localhost:8000/api/pets/?${params}`,
@@ -257,11 +284,15 @@ const PetHealthRecords = () => {
           <div className="bg-[#f0f1f1] rounded-lg p-2 md:p-3 mb-4 md:mb-6">
             <div className="flex flex-nowrap gap-1 md:gap-4 items-center justify-center px-0 md:px-2">
               {/* Pet Name Filter */}
-              <select
+                  <select
                 className="px-1 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#815FB3] bg-[#F0E4B3] md:px-1 md:py-2 md:text-base md:rounded-lg"
                 style={{ fontFamily: 'Raleway', fontWeight: 'bold' }}
-                value=""
-                onChange={(e) => handleFilterChange('name', e.target.value)}
+                    value={filters.name}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      // set both name and search so backend filters by name
+                      setFilters(prev => ({ ...prev, name: v, search: v }));
+                    }}
               >
                 <option value="">All Pets</option>
                 {pets.map(pet => (

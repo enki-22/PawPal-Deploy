@@ -203,6 +203,17 @@ def pet_list(request):
             search = request.GET.get('search', '')
             animal_type = request.GET.get('animal_type', '')
             sex = request.GET.get('sex', '')
+            # Age filters (years)
+            min_age_param = request.GET.get('min_age')
+            max_age_param = request.GET.get('max_age')
+            try:
+                min_age = int(min_age_param) if min_age_param is not None and min_age_param != '' else None
+            except Exception:
+                min_age = None
+            try:
+                max_age = int(max_age_param) if max_age_param is not None and max_age_param != '' else None
+            except Exception:
+                max_age = None
             
             if search:
                 pets = pets.filter(
@@ -216,6 +227,14 @@ def pet_list(request):
                 
             if sex:
                 pets = pets.filter(sex=sex)
+
+            # Apply age range filters if provided
+            if min_age is not None and max_age is not None:
+                pets = pets.filter(age__gte=min_age, age__lte=max_age)
+            elif min_age is not None:
+                pets = pets.filter(age__gte=min_age)
+            elif max_age is not None:
+                pets = pets.filter(age__lte=max_age)
             
             # Serialize data
             pets_data = []
