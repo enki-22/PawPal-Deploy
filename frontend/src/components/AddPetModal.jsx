@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import showToast from '../utils/toast';
 
 const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
   // Blood type options by species
@@ -125,10 +126,11 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
       console.log('Pet created:', response.data);
       onPetAdded(); // Refresh the pets list
       handleClose(); // Close modal
+      try { showToast({ message: 'Pet Added Successfully!', type: 'success' }); } catch (e) { console.debug('toast failed', e); }
       
     } catch (error) {
       console.error('Error creating pet:', error);
-      alert('Failed to create pet. Please try again.');
+      showToast({ message: 'Failed to create pet. Please try again.', type: 'error' });
     } finally {
       setAddingPet(false);
     }

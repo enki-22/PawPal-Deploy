@@ -121,10 +121,10 @@ def get_clients(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT'])
 @permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_any_admin
-def get_client_detail(request, user_id):
+def client_detail(request, user_id):
     """
     GET /api/admin/clients/:userId
     
@@ -146,6 +146,7 @@ def get_client_detail(request, user_id):
     try:
         # Get user with related data
         try:
+            # FIX: Use 'profile' explicitly as per related_name in UserProfile model
             user = User.objects.select_related('profile').get(id=user_id)
         except User.DoesNotExist:
             return Response({
@@ -153,8 +154,63 @@ def get_client_detail(request, user_id):
                 'error': 'Client not found',
                 'user_id': user_id
             }, status=status.HTTP_404_NOT_FOUND)
+
+        # If this is a PUT request, handle update here to avoid duplicate URL patterns
+        if request.method == 'PUT':
+            # Only allow certain admin roles to update (MASTER, VET)
+            try:
+                # Basic role check if request.admin exists
+                admin_role = getattr(request, 'admin', None) and getattr(request.admin, 'role', None)
+            except Exception:
+                admin_role = None
+            if admin_role not in ('MASTER', 'VET'):
+                return Response({'success': False, 'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+
+            profile = getattr(user, 'profile', None)
+            updated_fields = []
+            with transaction.atomic():
+                if 'name' in request.data:
+                    name = request.data['name'].strip()
+                    name_parts = name.split(maxsplit=1)
+                    user.first_name = name_parts[0] if len(name_parts) > 0 else ''
+                    user.last_name = name_parts[1] if len(name_parts) > 1 else ''
+                    updated_fields.append('name')
+
+                if 'email' in request.data:
+                    new_email = request.data['email'].strip().lower()
+                    if new_email != user.email:
+                        if User.objects.filter(email=new_email).exclude(id=user_id).exists():
+                            return Response({'success': False, 'error': 'Email already exists', 'code': 'EMAIL_EXISTS'}, status=status.HTTP_400_BAD_REQUEST)
+                        user.email = new_email
+                        updated_fields.append('email')
+
+                if updated_fields:
+                    user.save()
+
+                if profile:
+                    if 'contact_number' in request.data:
+                        # support both contact_number and phone_number mapping
+                        profile.contact_number = request.data.get('contact_number') or request.data.get('phone_number')
+                        updated_fields.append('contact_number')
+                    if 'facebook_link' in request.data:
+                        profile.facebook = request.data.get('facebook_link')
+                        updated_fields.append('facebook')
+                    # Save profile if changed
+                    if len(updated_fields) > (1 if 'name' in updated_fields or 'email' in updated_fields else 0):
+                        profile.save()
+
+            client_data = {
+                'user_id': user.id,
+                'name': f"{user.first_name} {user.last_name}".strip() or user.username,
+                'email': user.email,
+                'contact_number': profile.contact_number if profile and hasattr(profile, 'contact_number') else None,
+                'address': profile.address if profile and hasattr(profile, 'address') else None,
+                'city_province': profile.city_province if profile and hasattr(profile, 'city_province') else None
+            }
+
+            return Response({'success': True, 'message': 'Client information updated successfully', 'updated_fields': updated_fields, 'client': client_data}, status=status.HTTP_200_OK)
         
-        # Get user profile (if exists)
+        # Get user profile
         profile = getattr(user, 'profile', None)
         
         # Determine status
@@ -175,12 +231,14 @@ def get_client_detail(request, user_id):
                     photo_url = request.build_absolute_uri(pet.image.url)
                 except Exception:
                     photo_url = None
+            
+            # Safe species handling
             species = ''
             if hasattr(pet, 'get_animal_type_display'):
-                try:
-                    species = pet.get_animal_type_display()
-                except Exception:
-                    species = ''
+                species = pet.get_animal_type_display()
+            elif hasattr(pet, 'animal_type'):
+                species = pet.animal_type
+                
             pets_data.append({
                 'pet_id': pet.id,
                 'name': pet.name,
@@ -189,16 +247,20 @@ def get_client_detail(request, user_id):
                 'photo': photo_url
             })
         
-        # Build client data
+        # Build client data with separated Address fields
         client_data = {
             'id': user.id,
             'name': f"{user.first_name} {user.last_name}".strip() or user.username,
             'email': user.email,
-            'contact_number': profile.contact_number if profile and hasattr(profile, 'contact_number') else None,
-            'city_province': profile.city_province if profile and hasattr(profile, 'city_province') else None,
-            'address': profile.address if profile and hasattr(profile, 'address') else None,
+            'contact_number': profile.phone_number if profile else None,  # Note: Model uses phone_number, not contact_number
+            # FIX: Send city and province separately for frontend formatting
+            'city': profile.city if profile else None,
+            'province': profile.province if profile else None,
+            'address': profile.address if profile else None,
+            'is_verified': profile.is_verified if profile and hasattr(profile, 'is_verified') else False,
             'status': user_status,
-            'profile_image': None,  # Add if UserProfile has profile_image field
+            'profile_image': profile.profile_picture.url if (profile and profile.profile_picture) else None,
+            'facebook_link': profile.facebook if profile else None,
             'date_joined': user.date_joined.isoformat(),
             'pets': pets_data
         }
@@ -219,120 +281,9 @@ def get_client_detail(request, user_id):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['PUT'])
-@permission_classes([AllowAny])  # Allow any - our decorator handles auth
-@require_admin_role(['MASTER', 'VET'])  # NOT DESK
-def update_client(request, user_id):
-    """
-    PUT /api/admin/clients/:userId
-    
-    Update client information
-    Permissions: MASTER, VET only (NOT DESK)
-    
-    URL Parameters:
-        user_id: User ID
-    
-    Input:
-        - name: Full name (optional)
-        - email: Email address (optional)
-        - contact_number: Contact number (optional)
-        - address: Address (optional)
-        - city_province: City and province (optional)
-    
-    Returns:
-        success: True/False
-        message: Success message
-        client: Updated client object
-    """
-    try:
-        # Get user
-        try:
-            user = User.objects.select_related('profile').get(id=user_id)
-        except User.DoesNotExist:
-            return Response({
-                'success': False,
-                'error': 'Client not found',
-                'user_id': user_id
-            }, status=status.HTTP_404_NOT_FOUND)
-        
-        # Get or create user profile
-        profile = getattr(user, 'profile', None)
-        
-        updated_fields = []
-        
-        with transaction.atomic():
-            # Update name (split into first_name and last_name)
-            if 'name' in request.data:
-                name = request.data['name'].strip()
-                name_parts = name.split(maxsplit=1)
-                user.first_name = name_parts[0] if len(name_parts) > 0 else ''
-                user.last_name = name_parts[1] if len(name_parts) > 1 else ''
-                updated_fields.append('name')
-            
-            # Update email (validate uniqueness)
-            if 'email' in request.data:
-                new_email = request.data['email'].strip().lower()
-                if new_email != user.email:
-                    # Check if email is already taken
-                    if User.objects.filter(email=new_email).exclude(id=user_id).exists():
-                        return Response({
-                            'success': False,
-                            'error': 'Email already exists',
-                            'code': 'EMAIL_EXISTS'
-                        }, status=status.HTTP_400_BAD_REQUEST)
-                    user.email = new_email
-                    updated_fields.append('email')
-            
-            # Save user
-            if updated_fields:
-                user.save()
-            
-            # Update profile fields
-            if profile:
-                if 'contact_number' in request.data:
-                    profile.contact_number = request.data['contact_number']
-                    updated_fields.append('contact_number')
-                
-                if 'address' in request.data:
-                    profile.address = request.data['address']
-                    updated_fields.append('address')
-                
-                if 'city_province' in request.data:
-                    profile.city_province = request.data['city_province']
-                    updated_fields.append('city_province')
-                
-                if len(updated_fields) > (1 if 'name' in updated_fields or 'email' in updated_fields else 0):
-                    profile.save()
-        
-        logger.info(
-            f"Admin {request.admin.email} updated client {user_id} "
-            f"(fields: {', '.join(updated_fields)})"
-        )
-        
-        # Return updated client data
-        client_data = {
-            'user_id': user.id,
-            'name': f"{user.first_name} {user.last_name}".strip() or user.username,
-            'email': user.email,
-            'contact_number': profile.contact_number if profile and hasattr(profile, 'contact_number') else None,
-            'address': profile.address if profile and hasattr(profile, 'address') else None,
-            'city_province': profile.city_province if profile and hasattr(profile, 'city_province') else None
-        }
-        
-        return Response({
-            'success': True,
-            'message': 'Client information updated successfully',
-            'updated_fields': updated_fields,
-            'client': client_data
-        }, status=status.HTTP_200_OK)
-        
-    except Exception as e:
-        logger.error(f"Update client error: {str(e)}", exc_info=True)
-        return Response({
-            'success': False,
-            'error': 'Failed to update client',
-            'details': str(e)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+# NOTE: The update client logic has been consolidated into `get_client_detail`
+# which now accepts PUT to perform updates. The previous `update_client`
+# implementation was removed to avoid duplicated logic and routing conflicts.
 
 
 @api_view(['POST'])
@@ -421,6 +372,45 @@ def verify_client(request, user_id):
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Allow any - our decorator handles auth
 @require_admin_role(['MASTER', 'VET'])  # NOT DESK
+def unverify_client(request, user_id):
+    """
+    POST /api/admin/clients/:userId/unverify
+
+    Unverify client account (mark is_verified = False)
+    Permissions: MASTER, VET only
+    """
+    try:
+        # Get user
+        try:
+            user = User.objects.select_related('profile').get(id=user_id)
+        except User.DoesNotExist:
+            return Response({
+                'success': False,
+                'error': 'Client not found',
+                'user_id': user_id
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        profile = getattr(user, 'profile', None)
+        if not profile:
+            return Response({'success': False, 'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not profile.is_verified:
+            return Response({'success': False, 'message': 'Client is not verified'}, status=status.HTTP_400_BAD_REQUEST)
+
+        profile.is_verified = False
+        profile.save()
+
+        logger.info(f"Admin {request.admin.email} unverified client {user_id}")
+
+        return Response({'success': True, 'message': 'Client account unverified successfully'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"Unverify client error: {str(e)}", exc_info=True)
+        return Response({'success': False, 'error': 'Failed to unverify client', 'details': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])  # Allow any - our decorator handles auth
+@require_admin_role(['MASTER', 'VET'])  # NOT DESK
 def deactivate_client(request, user_id):
     """
     POST /api/admin/clients/:userId/deactivate
@@ -497,6 +487,36 @@ def deactivate_client(request, user_id):
             'error': 'Failed to deactivate client',
             'details': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@require_admin_role(['MASTER', 'VET'])
+def activate_client(request, user_id):
+    """
+    POST /api/admin/clients/:userId/activate
+
+    Activate (reactivate) a client account
+    Permissions: MASTER, VET only
+    """
+    try:
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'success': False, 'error': 'Client not found', 'user_id': user_id}, status=status.HTTP_404_NOT_FOUND)
+
+        if user.is_active:
+            return Response({'success': False, 'message': 'Client is already active'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.is_active = True
+        user.save()
+
+        logger.info(f"Admin {request.admin.email} activated client {user_id}")
+
+        return Response({'success': True, 'message': 'Client account activated successfully'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"Activate client error: {str(e)}", exc_info=True)
+        return Response({'success': False, 'error': 'Failed to activate client', 'details': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])

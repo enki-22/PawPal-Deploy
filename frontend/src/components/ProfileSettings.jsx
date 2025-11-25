@@ -155,6 +155,31 @@ const ProfileSettings = () => {
     fetchProfileData();
   }, [fetchProfileData]);
 
+  // Listen for admin verification events and update UI if current user's profile is verified elsewhere
+  useEffect(() => {
+    const handleProfileVerified = (e) => {
+      try {
+        const detail = e.detail || {};
+        const verifiedUserId = detail.user_id;
+        // user object shape may vary; try common id properties
+        const currentUserId = user?.id || user?.user_id || user?.pk || null;
+        if (verifiedUserId && currentUserId && Number(verifiedUserId) === Number(currentUserId)) {
+          // Update verified flag and refresh profile data
+          setProfileData(prev => ({ ...prev, is_verified: true }));
+          // Also re-fetch full profile data to be safe
+          try { fetchProfileData(); } catch (err) { /* ignore */ }
+          // Also refresh AuthContext user object if available
+          try { if (refreshUser) refreshUser(); } catch (err) { /* ignore */ }
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+
+    window.addEventListener('profileVerified', handleProfileVerified);
+    return () => window.removeEventListener('profileVerified', handleProfileVerified);
+  }, [user, fetchProfileData, refreshUser]);
+
   // Image Selection
   const handleImageChange = (e) => {
     const file = e.target.files[0];

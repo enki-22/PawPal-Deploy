@@ -46,10 +46,11 @@ urlpatterns = [
     
     # ============= CLIENT MANAGEMENT ENDPOINTS (CHUNK 6) =============
     path('clients/<int:user_id>/verify', views_clients.verify_client, name='client_verify'),
+    path('clients/<int:user_id>/unverify', views_clients.unverify_client, name='client_unverify'),
+    path('clients/<int:user_id>/activate', views_clients.activate_client, name='client_activate'),
     path('clients/<int:user_id>/deactivate', views_clients.deactivate_client, name='client_deactivate'),
     path('clients/<int:user_id>/email', views_clients.send_client_email, name='client_email'),
-    path('clients/<int:user_id>', views_clients.get_client_detail, name='client_detail'),
-    path('clients/<int:user_id>', views_clients.update_client, name='client_update'),  # PUT
+    path('clients/<int:user_id>', views_clients.client_detail, name='client_detail'),
     path('clients', views_clients.get_clients, name='clients_list'),
     
     # ============= PET MANAGEMENT ENDPOINTS (CHUNK 7) =============

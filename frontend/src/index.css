@@ -63,3 +63,6 @@
     @apply max-w-4xl mx-auto bg-white p-5 rounded-lg shadow-lg;
   }
 }
+
+/* Import shared custom scrollbar styles globally so components don't need to import them individually */
+@import './components/custom-scrollbar.css';

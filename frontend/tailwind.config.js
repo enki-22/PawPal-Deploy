@@ -18,6 +18,8 @@ module.exports = {
       },
       fontFamily: {
         'museo': ['Museo Moderno', 'sans-serif'],
+        'raleway': ['Raleway', 'sans-serif'],
+        'inter': ['Inter', 'sans-serif'],
       },
       animation: {
         'pulse-custom': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
