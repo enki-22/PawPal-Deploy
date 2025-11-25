@@ -146,7 +146,7 @@ def get_client_detail(request, user_id):
     try:
         # Get user with related data
         try:
-            user = User.objects.select_related('userprofile').get(id=user_id)
+            user = User.objects.select_related('profile').get(id=user_id)
         except User.DoesNotExist:
             return Response({
                 'success': False,
@@ -155,7 +155,7 @@ def get_client_detail(request, user_id):
             }, status=status.HTTP_404_NOT_FOUND)
         
         # Get user profile (if exists)
-        profile = getattr(user, 'userprofile', None)
+        profile = getattr(user, 'profile', None)
         
         # Determine status
         if not user.is_active:
@@ -247,7 +247,7 @@ def update_client(request, user_id):
     try:
         # Get user
         try:
-            user = User.objects.select_related('userprofile').get(id=user_id)
+            user = User.objects.select_related('profile').get(id=user_id)
         except User.DoesNotExist:
             return Response({
                 'success': False,
@@ -256,7 +256,7 @@ def update_client(request, user_id):
             }, status=status.HTTP_404_NOT_FOUND)
         
         # Get or create user profile
-        profile = getattr(user, 'userprofile', None)
+        profile = getattr(user, 'profile', None)
         
         updated_fields = []
         
@@ -355,7 +355,7 @@ def verify_client(request, user_id):
     try:
         # Get user
         try:
-            user = User.objects.select_related('userprofile').get(id=user_id)
+            user = User.objects.select_related('profile').get(id=user_id)
         except User.DoesNotExist:
             return Response({
                 'success': False,
@@ -364,7 +364,7 @@ def verify_client(request, user_id):
             }, status=status.HTTP_404_NOT_FOUND)
         
         # Get or create user profile
-        profile = getattr(user, 'userprofile', None)
+        profile = getattr(user, 'profile', None)
         if not profile:
             return Response({
                 'success': False,
