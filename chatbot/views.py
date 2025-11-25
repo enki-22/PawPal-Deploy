@@ -13,7 +13,7 @@ import json
 import google.generativeai as genai
 from django.conf import settings
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import pickle
 import joblib
@@ -1551,6 +1551,28 @@ def get_diagnoses(request):
         if species:
             diagnoses = diagnoses.filter(pet__animal_type__iexact=species)
        
+        # Date range filtering: supports frontend params `dateRange`, `date_range`, or `date`.
+        # Expected values mapped from frontend: ''/None -> all_time, 'last_24_hours'|'today' -> last 24 hours,
+        # 'last_7_days' -> last 7 days, 'last_30_days' -> last 30 days.
+        date_range = request.GET.get('dateRange') or request.GET.get('date_range') or request.GET.get('date')
+        if date_range:
+            try:
+                now = timezone.now()
+                if date_range in ('today', 'last_24_hours'):
+                    since = now - timedelta(days=1)
+                    diagnoses = diagnoses.filter(generated_at__gte=since)
+                elif date_range in ('last_7_days', 'last_7'):
+                    since = now - timedelta(days=7)
+                    diagnoses = diagnoses.filter(generated_at__gte=since)
+                elif date_range in ('last_30_days', 'last_30'):
+                    since = now - timedelta(days=30)
+                    diagnoses = diagnoses.filter(generated_at__gte=since)
+                elif date_range in ('all_time', 'all'):
+                    # no-op, include all
+                    pass
+            except Exception:
+                # If anything goes wrong parsing date range, ignore and continue without filtering
+                logger.exception('Failed to apply date_range filter for diagnoses')
         # Paginate
         paginator = Paginator(diagnoses, page_size)
         page_obj = paginator.get_page(page)
