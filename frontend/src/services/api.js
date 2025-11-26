@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -13,8 +13,9 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
-    // Use Bearer format for JWT tokens (backend supports both Bearer and Token formats)
-    config.headers.Authorization = `Bearer ${token}`;
+    // Django REST Framework default TokenAuthentication expects: "Authorization: Token <key>"
+    // If you use JWT (SimpleJWT) switch this to `Bearer ${token}` or set an env var to control it.
+    config.headers.Authorization = `Token ${token}`;
   }
   return config;
 });
@@ -43,10 +44,10 @@ export const chatService = {
 
 // Diagnosis SOAP endpoints
 export const diagnosisService = {
-  generate: (payload) => api.post('/api/chatbot/diagnosis/generate', payload),
-  getReport: (caseId) => api.get(`/api/chatbot/diagnosis/soap/${caseId}`),
-  getByPet: (petId) => api.get(`/api/chatbot/diagnosis/${petId}`),
-  getFlaggedByPet: (petId) => api.get(`/api/chatbot/diagnosis/flagged/${petId}`),
+  generate: (payload) => api.post('/api/chatbot/diagnosis/generate/', payload),
+  getReport: (caseId) => api.get(`/api/chatbot/diagnosis/soap/${caseId}/`),
+  getByPet: (petId) => api.get(`/api/chatbot/diagnosis/${petId}/`),
+  getFlaggedByPet: (petId) => api.get(`/api/chatbot/diagnosis/flagged/${petId}/`),
 };
 
 export default api;
