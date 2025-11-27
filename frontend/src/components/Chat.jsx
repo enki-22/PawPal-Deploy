@@ -28,7 +28,7 @@ const Chat = () => {
   const [showSymptomChecker, setShowSymptomChecker] = useState(false);
   const [showSymptomLogger, setShowSymptomLogger] = useState(false);
   const [assessmentData, setAssessmentData] = useState(null);
-  const [setIsAnalyzing] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   
   const chatContainerRef = useRef(null);
   const navigate = useNavigate();
@@ -124,12 +124,19 @@ const Chat = () => {
     
     if (conversationId && conversationId !== 'new') {
       loadConversation(conversationId);
+      // Reset specialized UI when loading a generic conversation ID
+      setShowSymptomChecker(false);
+      setShowSymptomLogger(false);
     } else {
+      // Reset everything for a new chat
       setCurrentConversationId(null);
       setCurrentConversationTitle('New Chat');
       setMessages([]);
       setChatMode(null);
       setCurrentPetContext(null);
+      setShowSymptomChecker(false);
+      setShowSymptomLogger(false);
+      setAssessmentData(null);
     }
   }, [fetchConversations, conversationId, loadConversation]);
 
@@ -140,7 +147,11 @@ const Chat = () => {
       setCurrentConversationTitle('New Chat');
       setChatMode(null);
       setMessages([]);
-      setCurrentPetContext(null); 
+      setCurrentPetContext(null);
+      // Explicitly reset these flags to prevent "ghost" questionnaires
+      setShowSymptomChecker(false);
+      setShowSymptomLogger(false);
+      setAssessmentData(null);
       fetchConversations();
     } catch (error) {
       console.error('Error creating new conversation:', error);
@@ -185,9 +196,14 @@ const Chat = () => {
     };
     setMessages([initialMessage]);
     
+    // IMPORTANT: Only show symptom checker if the mode matches
     if (chatMode === 'symptom_checker') {
       setShowSymptomChecker(true);
+    } else {
+      setShowSymptomChecker(false);
     }
+    // Ensure symptom logger is off initially
+    setShowSymptomLogger(false);
     
     fetchConversations();
   };
@@ -372,6 +388,13 @@ const Chat = () => {
   };
 
   const handleSymptomCheckerComplete = async (payload) => {
+    // Combine recent user messages to give context
+    const recentUserMessages = messages
+        .filter(m => m.isUser)
+        .slice(-3) // Take last 3 user messages
+        .map(m => m.content)
+        .join(' ');
+        
     setShowSymptomChecker(false);
     setIsAnalyzing(true);
     
@@ -397,7 +420,8 @@ const Chat = () => {
     try {
       const predictionPayload = {
         ...payload,
-        pet_id: currentPetContext?.id
+        pet_id: currentPetContext?.id,
+        user_notes: recentUserMessages
       };
       
       console.log('Symptom Checker Prediction Payload:', predictionPayload);
