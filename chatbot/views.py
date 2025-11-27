@@ -3126,7 +3126,7 @@ def get_user_pets(request):
 @authentication_classes([])  # Disable DRF authentication - our custom function handles it
 @permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def start_conversation_with_pet(request):
-    """Start a new conversation with a selected pet"""
+    """Start a new conversation with a selected pet (or general chat if no pet)"""
     from utils.unified_permissions import check_user_or_admin
     
     # Check authentication (supports both user types)
@@ -3143,31 +3143,32 @@ def start_conversation_with_pet(request):
     
     try:
         pet_id = request.data.get('pet_id')
+        pet = None
         
-        if not pet_id:
-            return Response({
-                'success': False,
-                'error': 'Pet ID is required'
-            }, status=status.HTTP_400_BAD_REQUEST)
+        # === FIX: Logic updated to handle optional pet_id ===
+        if pet_id:
+            # Check if pet exists and belongs to user
+            try:
+                pet = Pet.objects.get(id=pet_id, owner=user_obj)
+            except Pet.DoesNotExist:
+                return Response({
+                    'success': False,
+                    'error': 'Pet not found or not owned by user'
+                }, status=status.HTTP_404_NOT_FOUND)
         
-        # Check if pet exists and belongs to user
-        try:
-            pet = Pet.objects.get(id=pet_id, owner=user_obj)  # Changed from request.user
-        except Pet.DoesNotExist:
-            return Response({
-                'success': False,
-                'error': 'Pet not found or not owned by user'
-            }, status=status.HTTP_404_NOT_FOUND)
-        
-        # Create a new conversation (using your actual model fields)
+        # Create a new conversation (pet can be None now)
         conversation = Conversation.objects.create(
-            user=user_obj,  # Changed from request.user
+            user=user_obj,
             pet=pet,
-            title=f"Chat with {pet.name}"
+            title=f"Chat with {pet.name}" if pet else "New Chat"
         )
         
-        # Create welcome message using your Message model
-        welcome_message = f"Hello! I'm here to help you with {pet.name}. What would you like to know about your {getattr(pet, 'species', 'pet')}?"
+        # Customize welcome message based on whether a pet is selected
+        if pet:
+            pet_species = getattr(pet, 'species', getattr(pet, 'animal_type', 'pet'))
+            welcome_message = f"Hello! I'm here to help you with {pet.name}. What would you like to know about your {pet_species}?"
+        else:
+            welcome_message = "Hello! I'm here to help. Since we don't have a specific pet profile selected, I can provide general advice. What's on your mind?"
         
         Message.objects.create(
             conversation=conversation,
@@ -3175,16 +3176,31 @@ def start_conversation_with_pet(request):
             is_user=False  # This is an AI message
         )
         
-        return Response({
-            'success': True,
-            'conversation_id': conversation.id,
-            'pet_context': {
+        # Construct pet context only if pet exists
+        pet_context = None
+        if pet:
+            pet_context = {
                 'id': pet.id,
                 'name': pet.name,
                 'species': getattr(pet, 'species', getattr(pet, 'animal_type', 'Unknown')),
                 'breed': getattr(pet, 'breed', 'Unknown'),
                 'age': getattr(pet, 'age', 0)
-            },
+            }
+        else:
+            # Optional: Provide a dummy context if your frontend REQUIRES one for Symptom Checker
+            # Remove this else block if your frontend handles null pet_context gracefully
+            pet_context = {
+                'id': 0, 
+                'name': 'Your Pet', 
+                'species': 'Pet', 
+                'breed': 'Unknown', 
+                'age': 0
+            }
+
+        return Response({
+            'success': True,
+            'conversation_id': conversation.id,
+            'pet_context': pet_context,
             'initial_message': welcome_message,
             'message': 'Conversation started successfully'
         })

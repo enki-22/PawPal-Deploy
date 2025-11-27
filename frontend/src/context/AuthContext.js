@@ -28,30 +28,34 @@ export const AuthProvider = ({ children }) => {
   console.log('Is authenticated:', !!token);
 
   useEffect(() => {
-    if (token) {
-      axios.get(`${API_BASE_URL}/users/profile/`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(response => {
-          setUser(response.data);
+      if (token) {
+        axios.get(`${API_BASE_URL}/users/profile/`, {
+          headers: { Authorization: `Bearer ${token}` }
         })
-        .catch((error) => {
-          console.log('Backend connection error or invalid token:', error.message);
-          console.log('Error response:', error.response?.data);
-          // Don't clear token on 401 - might be a temporary issue
-          // Only clear if it's a network error or 403 (forbidden)
-          if (error.response?.status === 403 || error.code === 'ERR_NETWORK') {
-            localStorage.removeItem('token');
-            setToken(null);
-          }
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
+          .then(response => {
+            setUser(response.data);
+          })
+          .catch((error) => {
+            console.log('Backend connection error or invalid token:', error.message);
+            console.log('Error response:', error.response?.data);
+            
+            // === FIX STARTS HERE ===
+            // Clear token on 401 (Unauthorized) or 403 (Forbidden)
+            if (error.response?.status === 401 || error.response?.status === 403 || error.code === 'ERR_NETWORK') {
+              console.log('Token invalid or expired. Logging out.');
+              localStorage.removeItem('token');
+              setToken(null);
+              setUser(null);
+            }
+            // === FIX ENDS HERE ===
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      } else {
+        setLoading(false);
+      }
+    }, [token]);
 
   const login = async (credentials) => {
   try {
