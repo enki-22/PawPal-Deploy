@@ -6,7 +6,6 @@ export default function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [isFading, setIsFading] = useState(false);
 
@@ -18,9 +17,8 @@ export default function ForgotPassword() {
     try {
       setLoading(true);
       setError('');
-      setMessage('');
       await authService.requestPasswordReset({ email });
-      setMessage('If that email exists, we sent a code.');
+      // Do not display a success message on this page for privacy
       setTimeout(() => navigate('/verify-reset-code', { state: { email } }), 800);
     } catch (err) {
       const msg = err?.response?.data?.error || 'Failed to send code';
@@ -113,7 +111,7 @@ export default function ForgotPassword() {
               )}
             </div>
 
-            {message ? <div className="mb-3 text-sm text-green-600 text-left">{message}</div> : null}
+            {/* Success message intentionally hidden to avoid revealing account existence */}
 
             <button
               type="submit"

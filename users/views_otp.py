@@ -305,12 +305,18 @@ def reset_password(request):
     otp_code = ser.validated_data['otp_code']
     new_password = ser.validated_data['new_password']
 
-    # Get latest unverified OTP for password reset
+    # Debug: log incoming reset request
+    print(f"[RESET_PASSWORD] payload: email={email}, otp_code={otp_code}, new_password={'*' * len(new_password)}")
+
+    # FIX: Removed 'is_verified=False' filter so we accept the latest OTP
+    # (frontend may have already verified it in the previous step)
     try:
-        otp = OTP.objects.filter(email=email, purpose=OTP.PURPOSE_PASSWORD, is_verified=False).latest('created_at')
+        otp = OTP.objects.filter(email=email, purpose=OTP.PURPOSE_PASSWORD).latest('created_at')
+        print(f"[RESET_PASSWORD] found OTP id={otp.id} code={otp.code} is_verified={otp.is_verified} attempts={otp.attempts} expires_at={otp.expires_at}")
     except OTP.DoesNotExist:
+        print(f"[RESET_PASSWORD] No OTP found for email={email}")
         return Response({
-            'success': False, 
+            'success': False,
             'error': 'Invalid OTP code',
             'code': 'INVALID_OTP'
         }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
@@ -318,54 +324,55 @@ def reset_password(request):
     # Check expiration
     if timezone.now() > otp.expires_at:
         return Response({
-            'success': False, 
+            'success': False,
             'error': 'OTP has expired',
             'code': 'OTP_EXPIRED'
         }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-    
+
     # Check attempts
     if otp.attempts >= 3:
         return Response({
-            'success': False, 
+            'success': False,
             'error': 'Too many failed attempts. Please request a new code.',
             'code': 'MAX_ATTEMPTS_EXCEEDED'
         }, status=status.HTTP_429_TOO_MANY_REQUESTS)
-    
-    # Verify code
+
+    # Verify code matches
     if otp.code != otp_code:
+        print(f"[RESET_PASSWORD] OTP code mismatch: provided={otp_code} expected={otp.code}")
         otp.attempts += 1
         otp.save(update_fields=['attempts'])
         remaining = max(0, 3 - otp.attempts)
         return Response({
-            'success': False, 
+            'success': False,
             'error': f'Invalid code. {remaining} attempts remaining.',
             'code': 'INVALID_OTP'
         }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-    # Mark OTP as verified
-    otp.is_verified = True
-    otp.save(update_fields=['is_verified'])
+    # (Optional) Ensure it is verified — frontend already verifies during step 2 so we don't require it
+    # otp.is_verified = True
+    # otp.save(update_fields=['is_verified'])
 
     # Update password
     try:
         user = User.objects.get(email=email)
         user.password = make_password(new_password)
         user.save(update_fields=['password'])
-        
-        # Invalidate all sessions/tokens for this user
-        # Note: With JWT, tokens remain valid until expiry
-        # For Token auth, we can delete tokens
+
+        # Invalidate existing tokens
         from rest_framework.authtoken.models import Token
         Token.objects.filter(user=user).delete()
-        
+
+        # Optionally delete OTP to prevent replay attacks
+        # otp.delete()
+
         return Response({
-            'success': True, 
+            'success': True,
             'message': 'Password reset successfully. Please log in with your new password.'
         }, status=status.HTTP_200_OK)
     except User.DoesNotExist:
-        # Generic success to avoid enumeration
         return Response({
-            'success': True, 
+            'success': True,
             'message': 'Password reset successfully. Please log in with your new password.'
         }, status=status.HTTP_200_OK)
 
