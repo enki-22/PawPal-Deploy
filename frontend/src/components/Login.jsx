@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import pawIcon from '../Assets/Images/paw-icon.png';
@@ -188,6 +188,7 @@ const PurpleCarousel = () => {
 
 // Login Form Component
 const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -463,6 +464,7 @@ const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) =>
               type="button"
               className="text-[#815FB3] text-sm hover:underline mb-4"
               style={{ fontFamily: 'Raleway' }}
+              onClick={() => navigate('/forgot-password')}
             >
               Forgot Password?
             </button>

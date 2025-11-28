@@ -1,9 +1,11 @@
-import React from 'react';
-import LandingPage from './components/LandingPage';
-import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import React from 'react';
+import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
 import AIDiagnosis from './components/AIDiagnosis';
 import Chat from './components/Chat';
+import CreateNewPassword from './components/CreateNewPassword';
+import ForgotPassword from './components/ForgotPassword';
+import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import PetHealthRecords from './components/PetHealthRecords';
 import PetProfile from './components/PetProfile';
@@ -11,25 +13,26 @@ import ProfileSettings from './components/ProfileSettings';
 import ProtectedRoute from './components/ProtectedRoute';
 import RegisterStep2 from './components/RegisterStep2';
 import VerifyEmail from './components/VerifyEmail';
+import VerifyResetCode from './components/VerifyResetCode';
 
 // Admin Components
-import AdminLogin from './components/admin/AdminLogin';
-import AdminDashboard from './components/admin/AdminDashboard';
-import AdminReports from './components/admin/AdminReports';
-import AdminClients from './components/admin/AdminClients';
-import AdminPets from './components/admin/AdminPets';
-import AdminRoles from './components/admin/AdminRoles';
 import AdminAnnouncements from './components/admin/AdminAnnouncements';
+import AdminClients from './components/admin/AdminClients';
+import AdminDashboard from './components/admin/AdminDashboard';
+import AdminLogin from './components/admin/AdminLogin';
+import AdminPetProfile from './components/admin/AdminPetProfile';
+import AdminPets from './components/admin/AdminPets';
 import AdminProfile from './components/admin/AdminProfile';
 import AdminProfileSettings from './components/admin/AdminProfileSettings';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
-import AdminPetProfile from './components/admin/AdminPetProfile';
+import AdminReports from './components/admin/AdminReports';
+import AdminRoles from './components/admin/AdminRoles';
 
+import LegalModal from './components/LegalModal';
+import { AdminAuthProvider } from './context/AdminAuthContext';
 import { AuthProvider } from './context/AuthContext';
 import { ConversationsProvider } from './context/ConversationsContext';
 import { RegistrationProvider } from './context/RegistrationContext';
-import { AdminAuthProvider } from './context/AdminAuthContext';
-import LegalModal from './components/LegalModal';
 
 function App() {
   const [showLegalModal, setShowLegalModal] = React.useState(false);
@@ -69,6 +72,9 @@ function AppWithFade() {
       <Route path="petowner/register" element={<FadeWrapper><Login /></FadeWrapper>} />
       <Route path="petowner/register/step2" element={<FadeWrapper><RegisterStep2 /></FadeWrapper>} />
       <Route path="/verify-email" element={<FadeWrapper><VerifyEmail /></FadeWrapper>} />
+      <Route path="/forgot-password" element={<FadeWrapper><ForgotPassword /></FadeWrapper>} />
+      <Route path="/verify-reset-code" element={<FadeWrapper><VerifyResetCode /></FadeWrapper>} />
+      <Route path="/create-new-password" element={<FadeWrapper><CreateNewPassword /></FadeWrapper>} />
       <Route 
         path="/ai-diagnosis" 
         element={

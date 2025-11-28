@@ -54,11 +54,26 @@ export default function CreateNewPassword() {
       setLoading(true);
       setError('');
       setSuccess('');
-      await authService.resetPassword({ email, code, new_password: password, confirm_password: confirm });
+      
+      // FIX 1: Send 'otp_code' instead of 'code' to match backend serializer
+      await authService.resetPassword({ 
+        email, 
+        otp_code: code, 
+        new_password: password, 
+        confirm_password: confirm 
+      });
+
       setSuccess('Password updated. Redirecting to login...');
-  setTimeout(() => navigate('/petowner/login'), 1200);
+      setTimeout(() => navigate('/petowner/login'), 1200);
     } catch (err) {
-      const msg = err?.response?.data?.error || 'Failed to reset password';
+      let msg = err?.response?.data?.error || 'Failed to reset password';
+      
+      // FIX 2: Check if msg is an object (validation errors) and convert to string
+      if (typeof msg === 'object' && msg !== null) {
+        // Flattens {"otp_code": ["Error"], "new_password": ["Error"]} into "Error; Error"
+        msg = Object.values(msg).flat().join('; ');
+      }
+      
       setError(msg);
     } finally {
       setLoading(false);
@@ -66,7 +81,6 @@ export default function CreateNewPassword() {
   };
 
   if (!verified || !email || !code) {
-    // Guard: redirect if landed directly without verification
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F7FAFC] p-6">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8 text-center">
@@ -130,6 +144,3 @@ export default function CreateNewPassword() {
     </div>
   );
 }
-
-
-
