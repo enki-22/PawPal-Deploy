@@ -30,8 +30,10 @@ def validate_password(password):
     if not re.search(r'\d', password):
         return False, "Password must contain at least one number"
     
-    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        return False, "Password must contain at least one special character (!@#$%^&*(),.?\":{}|<>)"
+    # FIX: Use broad regex for ANY special character (non-alphanumeric OR underscore)
+    # This matches _, -, @, #, $, etc.
+    if not re.search(r'[\W_]', password):
+        return False, "Password must contain at least one special character"
     
     return True, None
 
@@ -39,12 +41,6 @@ def validate_password(password):
 def generate_jwt_token(user):
     """
     Generate JWT token for authenticated user
-    
-    Args:
-        user: Django User object
-    
-    Returns:
-        str: JWT token
     """
     payload = {
         'user_id': user.id,
@@ -61,12 +57,6 @@ def generate_jwt_token(user):
 def verify_jwt_token(token):
     """
     Verify JWT token and return payload
-    
-    Args:
-        token: JWT token string
-    
-    Returns:
-        tuple: (payload dict or None, error message or None)
     """
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
@@ -75,4 +65,3 @@ def verify_jwt_token(token):
         return None, "Token expired"
     except jwt.InvalidTokenError:
         return None, "Invalid token"
-

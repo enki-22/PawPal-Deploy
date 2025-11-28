@@ -8,17 +8,24 @@ export default function VerifyResetCode() {
   const navigate = useNavigate();
   const location = useLocation();
   const emailFromNav = location.state?.email || '';
+  
   const [email, setEmail] = useState(emailFromNav);
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [seconds, setSeconds] = useState(0);
-  const [codeSent, setCodeSent] = useState(false);
+  
+  // FIX: If email exists from nav, assume code was just sent and start timer
+  const [codeSent, setCodeSent] = useState(!!emailFromNav);
+  const [seconds, setSeconds] = useState(emailFromNav ? 60 : 0);
+  
   const inputsRef = useRef([]);
 
   useEffect(() => {
-    inputsRef.current[0]?.focus();
+    // Focus first input if code is sent
+    if (codeSent) {
+      inputsRef.current[0]?.focus();
+    }
   }, [codeSent]);
 
   useEffect(() => {
@@ -57,6 +64,8 @@ export default function VerifyResetCode() {
       setSuccess('We sent a reset code to your email.');
       setSeconds(60);
       setCodeSent(true);
+      // Focus first input after manual send
+      setTimeout(() => inputsRef.current[0]?.focus(), 100);
     } catch (err) {
       const msg = err?.response?.data?.error || 'Failed to send code';
       setError(msg);
@@ -70,7 +79,6 @@ export default function VerifyResetCode() {
       setError('Enter your email and 6-digit code.');
       return;
     }
-    // No server verify endpoint separate from reset; move to next step with verified state
     navigate('/create-new-password', { state: { email, code, verified: true } });
   };
 
@@ -133,8 +141,3 @@ export default function VerifyResetCode() {
     </div>
   );
 }
-
-
-
-
-

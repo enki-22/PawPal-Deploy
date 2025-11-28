@@ -55,7 +55,6 @@ export default function CreateNewPassword() {
       setError('');
       setSuccess('');
       
-      // FIX 1: Send 'otp_code' instead of 'code' to match backend serializer
       await authService.resetPassword({ 
         email, 
         otp_code: code, 
@@ -68,9 +67,8 @@ export default function CreateNewPassword() {
     } catch (err) {
       let msg = err?.response?.data?.error || 'Failed to reset password';
       
-      // FIX 2: Check if msg is an object (validation errors) and convert to string
+      // FIX: Handle object-style validation errors to prevent crash
       if (typeof msg === 'object' && msg !== null) {
-        // Flattens {"otp_code": ["Error"], "new_password": ["Error"]} into "Error; Error"
         msg = Object.values(msg).flat().join('; ');
       }
       
