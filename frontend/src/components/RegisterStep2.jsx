@@ -8,6 +8,7 @@ import { authService } from '../services/api';
 import Alert from './Alert';
 import TermsOfService from './TermsOfService';
 import PrivacyPolicy from './PrivacyPolicy';
+import SignupConfirmationModal from './SignupConfirmationModal';
 
 // Reusable Carousel Component (same as Login)
 const PurpleCarousel = () => {
@@ -141,11 +142,13 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
   const { registrationData, updateStep2 } = useRegistration();
   const [formData, setFormData] = useState({
     ...registrationData.step2,
-    clinic_agreement: false,
     terms_agreement: false,
     phone_number: registrationData.step2.phone_number || ''
   });
   const [errors, setErrors] = useState({});
+  // Fade state for field error bubbles
+  const [isFading, setIsFading] = useState(false);
+  const [isAlertFading, setIsAlertFading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -171,6 +174,23 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
     }
   };
 
+  // --- NEW: fade timers for field errors (3s visible, then fade)
+  useEffect(() => {
+    const fieldErrorKeys = Object.keys(errors).filter(k => k !== 'general');
+    if (fieldErrorKeys.length > 0) {
+      setIsFading(false);
+      const fadeTimer = setTimeout(() => setIsFading(true), 2700);
+      const clearTimer = setTimeout(() => {
+        setErrors(prev => ({ general: prev.general }));
+        setIsFading(false);
+      }, 3000);
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(clearTimer);
+      };
+    }
+  }, [errors]);
+
   const validateForm = () => {
     const newErrors = {};
     const phone = formData.phone_number.trim();
@@ -186,9 +206,7 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
     if (!formData.city) {
       newErrors.city = 'City is required';
     }
-    if (!formData.clinic_agreement) {
-      newErrors.clinic_agreement = 'You must confirm that you are a client of Southvalley Veterinary Clinic';
-    }
+    // clinic_agreement removed — only terms_agreement is required now
     if (!formData.terms_agreement) {
       newErrors.terms_agreement = 'You must agree to the Terms and Conditions and Privacy Policy';
     }
@@ -217,6 +235,11 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center">
+      {/* Keyframes used by the error bubble animations */}
+      <style>{`
+        @keyframes errorPop { 0% { opacity: 0; transform: translateY(-10px) scale(0.8); } 50% { transform: translateY(2px) scale(1.05); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes errorFadeOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-10px) scale(0.8); } }
+      `}</style>
       <div className="w-full max-w-md mx-auto">
         <div className="text-center mb-5">
           <div className="text-left mb-4">
@@ -242,18 +265,40 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
             {/* Phone Number */}
             <div>
               <label htmlFor="phone_number" className="block font-raleway font-light text-base text-gray-600 mb-2">Phone Number</label>
-              <input
-                type="tel"
-                id="phone_number"
-                name="phone_number"
-                value={formData.phone_number}
-                onChange={handlePhoneChange}
-                className="w-full font-raleway text-base px-0 py-2 bg-transparent border-none focus:outline-none"
-                style={{ borderBottom: '2px solid #34113F', color: '#000000', boxSizing: 'border-box', borderRadius: 0 }}
-                placeholder="09XXXXXXXXX"
-                required
-              />
-              {errors.phone_number && <p className="text-red-500 text-xs mt-1">{errors.phone_number}</p>}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="tel"
+                  id="phone_number"
+                  name="phone_number"
+                  value={formData.phone_number}
+                  onChange={handlePhoneChange}
+                  className="w-full font-raleway text-base px-0 py-2 bg-transparent border-none focus:outline-none"
+                  style={{ borderBottom: '2px solid #34113F', color: '#000000', boxSizing: 'border-box', borderRadius: 0 }}
+                  placeholder="09XXXXXXXXX"
+                  required
+                />
+                {errors.phone_number && (
+                  <div style={{
+                    position: 'absolute',
+                    right: 0,
+                    bottom: '-44px',
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '8px 12px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontFamily: 'Raleway',
+                    fontWeight: 500,
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                    zIndex: 1000,
+                    animation: isFading ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
+                  }}>
+                    {errors.phone_number}
+                    <div style={{ position: 'absolute', top: '-8px', right: '16px', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderBottom: '8px solid #ef4444' }} />
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Province/City */}
@@ -261,6 +306,7 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
               {/* Province */}
               <div>
                 <label htmlFor="province" className="block font-raleway font-light text-base text-gray-600 mb-2">Province</label>
+                <div style={{ position: 'relative' }}>
                 <select
                   id="province"
                   name="province"
@@ -288,12 +334,34 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                     <option key={province} value={province}>{province}</option>
                   ))}
                 </select>
-                {errors.province && <p className="text-red-500 text-xs mt-1">{errors.province}</p>}
+                {errors.province && (
+                  <div style={{
+                    position: 'absolute',
+                    right: 0,
+                    bottom: '-44px',
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '8px 12px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontFamily: 'Raleway',
+                    fontWeight: 500,
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                    zIndex: 1000,
+                    animation: isFading ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
+                  }}>
+                    {errors.province}
+                    <div style={{ position: 'absolute', top: '-8px', right: '16px', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderBottom: '8px solid #ef4444' }} />
+                  </div>
+                )}
+                </div>
               </div>
 
               {/* City */}
               <div>
                 <label htmlFor="city" className="block font-raleway font-light text-base text-gray-600 mb-2">City</label>
+                <div style={{ position: 'relative' }}>
                 <select
                   id="city"
                   name="city"
@@ -322,31 +390,33 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                     <option key={city} value={city}>{city}</option>
                   ))}
                 </select>
-                {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+                {errors.city && (
+                  <div style={{
+                    position: 'absolute',
+                    right: 0,
+                    bottom: '-44px',
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '8px 12px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontFamily: 'Raleway',
+                    fontWeight: 500,
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                    zIndex: 1000,
+                    animation: isFading ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
+                  }}>
+                    {errors.city}
+                    <div style={{ position: 'absolute', top: '-8px', right: '16px', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderBottom: '8px solid #ef4444' }} />
+                  </div>
+                )}
+                </div>
               </div>
             </div>
 
-            {/* Checkboxes */}
+            {/* Checkboxes: only Terms & Privacy agreement is required now */}
             <div className="flex flex-col gap-3 mt-3">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="clinic_agreement"
-                  name="clinic_agreement"
-                  checked={formData.clinic_agreement || false}
-                  onChange={handleChange}
-                  className="accent-[#34113F] w-5 h-5 rounded border border-[#34113F]"
-                  required
-                />
-                <label 
-                  htmlFor="clinic_agreement"
-                  className="font-raleway text-base text-black cursor-pointer select-none"
-                >
-                  I confirm that I am a client of Southvalley Veterinary Clinic.
-                </label>
-              </div>
-              {errors.clinic_agreement && <p className="text-red-500 text-xs mt-1 ml-1">{errors.clinic_agreement}</p>}
-
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -382,7 +452,29 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
                   </span>{' '}of this website.
                 </label>
               </div>
-              {errors.terms_agreement && <p className="text-red-500 text-xs mt-1 ml-1">{errors.terms_agreement}</p>}
+              <div style={{ position: 'relative' }}>
+                {errors.terms_agreement && (
+                  <div style={{
+                    position: 'absolute',
+                    right: 0,
+                    bottom: '-20px',
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '8px 12px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontFamily: 'Raleway',
+                    fontWeight: 500,
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                    zIndex: 1000,
+                    animation: isFading ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
+                  }}>
+                    {errors.terms_agreement}
+                    <div style={{ position: 'absolute', top: '-8px', right: '16px', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderBottom: '8px solid #ef4444' }} />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </form>
@@ -409,14 +501,17 @@ const RegisterStep2 = () => {
   const [fadeOut, setFadeOut] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
 
   // Redirect if step 1 is not completed
   useEffect(() => {
-    if (!registrationData.step1.username) {
-  navigate('/petowner/register', { replace: true });
+    // If user hasn't completed step1 and registration has not just succeeded, redirect back to step1
+    if (!registrationData.step1.username && !isSuccess) {
+      navigate('/petowner/register', { replace: true });
     }
-  }, [registrationData.step1.username, navigate]);
+  }, [registrationData.step1.username, navigate, isSuccess]);
 
   // Fade in effect on component mount
   useEffect(() => {
@@ -451,20 +546,11 @@ const RegisterStep2 = () => {
     
     try {
       // Use the registration endpoint (OTP verification temporarily disabled - accounts are created active)
-  await authService.registerWithOtp(completeData);
-      
-      // Fade out before navigation
-      setFadeOut(true);
-      setTimeout(() => {
-        clearData();
-        // Navigate to login page after successful registration (OTP verification temporarily disabled)
-        navigate('/petowner/login', { 
-          state: { 
-            message: 'Registration successful! You can now log in.' 
-          },
-          replace: true
-        });
-      }, 500); // 500ms fade out duration
+      await authService.registerWithOtp(completeData);
+
+      // Mark success so the safety redirect doesn't fire, then show confirmation modal
+      setIsSuccess(true);
+      setShowConfirmation(true);
     } catch (err) {
       const apiErrors = err?.response?.data?.error || err?.response?.data;
       if (apiErrors) {
@@ -480,6 +566,19 @@ const RegisterStep2 = () => {
     }
     
     setLoading(false);
+  };
+
+  // Called when the confirmation modal closes (after its internal timer)
+  const handleFinalRedirect = () => {
+    setShowConfirmation(false);
+    setFadeOut(true);
+    setTimeout(() => {
+      clearData();
+      navigate('/petowner/login', {
+        state: { message: 'Registration successful! You can now log in.' },
+        replace: true
+      });
+    }, 500);
   };
 
   return (
@@ -531,6 +630,9 @@ const RegisterStep2 = () => {
       </div>
       {showTerms && <TermsOfService onClose={() => setShowTerms(false)} />}
       {showPrivacy && <PrivacyPolicy onClose={() => setShowPrivacy(false)} />}
+      {/* Dev-only trigger removed */}
+      {/* Confirmation Modal - redirects on close */}
+      <SignupConfirmationModal show={showConfirmation} onClose={handleFinalRedirect} />
     </div>
   );
 };

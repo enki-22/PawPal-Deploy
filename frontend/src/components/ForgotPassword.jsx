@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/api';
 
@@ -8,6 +8,7 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [isFading, setIsFading] = useState(false);
 
   const onSend = async () => {
     if (!email) {
@@ -29,31 +30,101 @@ export default function ForgotPassword() {
     }
   };
 
+  // Auto-fade and clear the error bubble after a few seconds (matches registration behavior)
+  useEffect(() => {
+    let fadeTimer;
+    let clearTimer;
+    if (error) {
+      setIsFading(false);
+      fadeTimer = setTimeout(() => setIsFading(true), 2800);
+      clearTimer = setTimeout(() => setError(''), 3300);
+    }
+    return () => {
+      if (fadeTimer) clearTimeout(fadeTimer);
+      if (clearTimer) clearTimeout(clearTimer);
+    };
+  }, [error]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F7FAFC] p-6">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-2">Forgot Password</h1>
-        <p className="text-sm text-gray-600 mb-6">Enter your email and we’ll send a verification code.</p>
+    <div className="min-h-screen flex items-center justify-center bg-[#E6D6F7] p-6">
+      <div className="bg-[#FFFFF2] w-full max-w-[660px] rounded-[30px] shadow-2xl relative p-8 md:p-12" style={{ minHeight: '440px' }}>
 
-        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        <input
-          type="email"
-          className="w-full mb-4 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        {/* Header: Logo and Name (matched to SignupConfirmationModal) */}
+        <div className="absolute top-6 left-6 flex items-center gap-3" style={{ transform: 'scale(1.4)', transformOrigin: 'left top' }}>
+          <img 
+            src="/pat-removebg-preview 2.png" 
+            alt="Paw Icon" 
+            className="w-12 h-12 object-contain"
+          />
+          <h1 className="text-[#815FB3] font-museo font-black text-2xl tracking-wide leading-none mt-1">
+            PAWPAL
+          </h1>
+        </div>
 
-        {error ? <div className="mb-3 text-sm text-red-600">{error}</div> : null}
-        {message ? <div className="mb-3 text-sm text-green-600">{message}</div> : null}
+        <div className="flex flex-col items-center text-center" style={{ paddingTop: '75px' }}>
+          <h1 className="mb-2" style={{ fontFamily: 'Raleway', fontWeight: 700, fontSize: '20px', color: '#34113F' }}>Forgot Password</h1>
+          <p className="mb-6 max-w-xl" style={{ fontFamily: 'Raleway', fontWeight: 300, fontSize: '15px', color: '#6B6B6B' }}>Enter your email and we’ll send a verification code.</p>
 
-        <button
-          onClick={onSend}
-          disabled={loading}
-          className="w-full bg-[#6B46C1] text-white rounded-xl py-3 hover:bg-[#5a39a6] transition"
-        >
-          {loading ? 'Sending...' : 'Send OTP'}
-        </button>
+          <form className="w-full max-w-md" onSubmit={async (e) => { e.preventDefault(); await onSend(); }}>
+            <style>
+              {`@keyframes errorPop { 0% { opacity: 0; transform: translateY(-10px) scale(0.8); } 50% { transform: translateY(2px) scale(1.05); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+                @keyframes errorFadeOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-10px) scale(0.8); } }`}
+            </style>
+
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Email</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type="email"
+                className="w-full mb-4 px-3 py-2 bg-transparent border-b-2 border-[#4A3B5C] focus:outline-none focus:border-[#8B5CF6]"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+
+              {error && (
+                <div style={{
+                  position: 'absolute',
+                  right: 0,
+                  bottom: '-25px',
+                  background: '#ef4444',
+                  color: 'white',
+                  padding: '8px 12px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontFamily: 'Raleway',
+                  fontWeight: 500,
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                  zIndex: 1000,
+                  animation: isFading ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
+                }}>
+                  {error}
+                  <div style={{
+                    position: 'absolute',
+                    right: '16px',
+                    top: '-8px',
+                    width: 0,
+                    height: 0,
+                    borderLeft: '8px solid transparent',
+                    borderRight: '8px solid transparent',
+                    borderBottom: '8px solid #ef4444'
+                  }} />
+                </div>
+              )}
+            </div>
+
+            {message ? <div className="mb-3 text-sm text-green-600 text-left">{message}</div> : null}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-6 w-full bg-[#7E60BF] text-white rounded-xl py-3 hover:bg-[#6c52a3] transition shadow-[0_4px_14px_rgba(126,96,191,0.25)]"
+            >
+              {loading ? 'Sending...' : 'Send Code'}
+            </button>
+          </form>
+        </div>
+
       </div>
     </div>
   );
