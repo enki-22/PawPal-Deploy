@@ -356,7 +356,7 @@ def admin_request_password_reset(request):
         # Create new OTP (expires in 10 minutes)
         otp = OTP.objects.create(
             email=email,
-            otp_code=otp_code,
+            code=otp_code,
             purpose='admin_password_reset'
         )
         
@@ -436,11 +436,12 @@ def admin_verify_otp_code(request):
     otp_code = serializer.validated_data['otp_code']
     
     try:
-        # Get latest OTP for this email
+        # Get latest unverified OTP for this email
         try:
             otp = OTP.objects.filter(
                 email=email,
-                purpose='admin_password_reset'
+                purpose='admin_password_reset',
+                is_verified=False
             ).latest('created_at')
         except OTP.DoesNotExist:
             return Response({
@@ -449,7 +450,7 @@ def admin_verify_otp_code(request):
                 'code': 'INVALID_OTP'
             }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         
-        # Check if already verified
+        # Check if already verified (this check is now redundant but kept for safety)
         if otp.is_verified:
             return Response({
                 'success': True,
@@ -548,11 +549,12 @@ def admin_reset_password_confirm(request):
                 'code': 'INVALID_CREDENTIALS'
             }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         
-        # Get latest OTP
+        # Get latest unverified OTP
         try:
             otp = OTP.objects.filter(
                 email=email,
-                purpose='admin_password_reset'
+                purpose='admin_password_reset',
+                is_verified=False
             ).latest('created_at')
         except OTP.DoesNotExist:
             return Response({

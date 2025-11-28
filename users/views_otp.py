@@ -155,7 +155,7 @@ def verify_otp(request):
     code = data_ser.validated_data['code']
 
     try:
-        otp = OTP.objects.filter(email=email, purpose=purpose).latest('created_at')
+        otp = OTP.objects.filter(email=email, purpose=purpose, is_verified=False).latest('created_at')
     except OTP.DoesNotExist:
         return Response({
             'success': False, 
@@ -163,7 +163,7 @@ def verify_otp(request):
             'code': 'INVALID_OTP'
         }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-    # Check if already verified
+    # Check if already verified (this check is now redundant but kept for safety)
     if otp.is_verified:
         return Response({
             'success': True, 
@@ -305,9 +305,9 @@ def reset_password(request):
     otp_code = ser.validated_data['otp_code']
     new_password = ser.validated_data['new_password']
 
-    # Get latest OTP for password reset
+    # Get latest unverified OTP for password reset
     try:
-        otp = OTP.objects.filter(email=email, purpose=OTP.PURPOSE_PASSWORD).latest('created_at')
+        otp = OTP.objects.filter(email=email, purpose=OTP.PURPOSE_PASSWORD, is_verified=False).latest('created_at')
     except OTP.DoesNotExist:
         return Response({
             'success': False, 
