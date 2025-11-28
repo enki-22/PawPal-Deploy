@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
+from datetime import timedelta
 from django.utils import timezone
 from django.db import transaction
 from django.core.mail import send_mail
@@ -357,7 +358,8 @@ def admin_request_password_reset(request):
         otp = OTP.objects.create(
             email=email,
             code=otp_code,
-            purpose='admin_password_reset'
+            purpose='admin_password_reset',
+            expires_at=timezone.now() + timedelta(minutes=10)
         )
         
         # Send email
