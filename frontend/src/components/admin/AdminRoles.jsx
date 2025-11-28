@@ -653,11 +653,10 @@ export default function AdminRoles() {
         type={confirmType}
         onConfirm={async () => {
           try {
-            if (confirmType === 'deactivate') {
-              await adminAxios.put(`/admin/roles/${selectedAdmin.admin_id || selectedAdmin.id}/deactivate`);
-            } else {
-              await adminAxios.put(`/admin/roles/${selectedAdmin.admin_id || selectedAdmin.id}/reactivate`);
-            }
+            const id = selectedAdmin.admin_id || selectedAdmin.id;
+            await adminAxios.put(`/admin/roles/${id}/status`, {
+              status: confirmType === 'deactivate' ? 'inactive' : 'active'
+            });
             setConfirmModalOpen(false);
             setSelectedAdmin(null);
             fetchAdmins();
