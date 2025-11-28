@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import EmergencyScreening from './EmergencyScreening';
+import React, { useEffect, useRef, useState } from 'react';
 import AssessmentMethodology from './AssessmentMethodology';
+import EmergencyScreening from './EmergencyScreening';
 
 const PRIMARY_COLOR = '#815FB3';
 const ACCENT_COLOR = '#F4D06F';
@@ -182,7 +182,7 @@ const formatSymptomLabel = (code) => {
     .join(' ');
 };
 
-const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => {
+const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessionId }) => {
   // Emergency screening state
   const [showEmergencyScreening, setShowEmergencyScreening] = useState(true);
   const [emergencyData, setEmergencyData] = useState(null);
@@ -210,13 +210,25 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
 
   const containerRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  // Track the instance's session ID at mount time to detect stale callbacks
+  const instanceSessionIdRef = useRef(sessionId);
+  // Track if component is still mounted to prevent state updates after unmount
+  const isMountedRef = useRef(true);
 
   const petName = selectedPet?.name || 'your pet';
   const petSpecies = selectedPet?.species || 'Pet';
   const petId = selectedPet?.id;
 
+  // Update instance session ID when prop changes (shouldn't normally happen due to key)
   useEffect(() => {
-    // Initialize conversation when pet changes
+    instanceSessionIdRef.current = sessionId;
+  }, [sessionId]);
+
+  useEffect(() => {
+    // Mark as mounted
+    isMountedRef.current = true;
+    
+    // Initialize conversation when pet changes or component mounts
     setShowEmergencyScreening(true);
     setEmergencyData(null);
     setCurrentStep(1);
@@ -240,12 +252,15 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
     setMessages([]);
 
     return () => {
+      // Mark as unmounted to prevent any callbacks from executing
+      isMountedRef.current = false;
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedPet?.name, selectedPet?.species]);
+    // Using pet id as primary dependency ensures reset when pet actually changes
+  }, [selectedPet?.id, selectedPet?.name, selectedPet?.species]);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -297,11 +312,16 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
   };
 
   const goToStepWithTyping = (nextStep, botText) => {
+    if (!isMountedRef.current) return;
+    
     setIsTyping(true);
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
     typingTimeoutRef.current = setTimeout(() => {
+      // Guard: Don't update state if component unmounted
+      if (!isMountedRef.current) return;
+      
       setIsTyping(false);
       if (botText) {
         addBotMessage(botText);
@@ -396,6 +416,8 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
   };
 
   const finalizeAdditionalSymptomsAndShowSummary = (hasAdditional) => {
+    if (!isMountedRef.current) return;
+    
     const combined = Array.from(
       new Set([...pendingGeneralAdditional, ...pendingSpeciesAdditional]),
     );
@@ -413,6 +435,9 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
       clearTimeout(typingTimeoutRef.current);
     }
     typingTimeoutRef.current = setTimeout(() => {
+      // Guard: Don't update state if component unmounted
+      if (!isMountedRef.current) return;
+      
       setIsTyping(false);
       addBotMessage(`Let me summarize what you've told me about ${petName}:`);
       setShowSummary(true);
@@ -435,6 +460,12 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
   };
 
   const handleSubmitAssessment = () => {
+    // Guard: Don't submit if component is no longer mounted
+    if (!isMountedRef.current) {
+      console.log('ConversationalSymptomChecker: Ignoring submit - component unmounted');
+      return;
+    }
+    
     const symptomsList = buildSymptomsList();
     const urgency = severity || 'mild';
 
@@ -453,6 +484,8 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel }) => 
       progression: progression || null,
       // Include emergency screening data
       emergency_data: emergencyData || null,
+      // Include session ID so parent can verify this callback is still valid
+      _sessionId: instanceSessionIdRef.current,
     };
 
     if (onComplete) {
@@ -972,6 +1005,7 @@ ConversationalSymptomChecker.propTypes = {
   }).isRequired,
   onComplete: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
+  sessionId: PropTypes.number, // Optional session ID for tracking stale callbacks
 };
 
 export default ConversationalSymptomChecker;

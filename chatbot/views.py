@@ -1305,18 +1305,13 @@ def get_conversation_messages(request, conversation_id):
             })
         
         # Get assessment data from SOAP report if available
-        # Try to find SOAP report linked to this conversation, or find by pet/user if no direct link
+        # CRITICAL FIX: Only use SOAP reports that are DIRECTLY linked to this conversation
+        # Do NOT look up SOAP reports by pet/user - this causes assessments from other conversations to bleed through
         assessment_data = None
         soap_report = conversation.soap_reports.first()
         
-        # If no SOAP report directly linked, try to find one for this pet/user
-        if not soap_report and conversation.pet:
-            from .models import SOAPReport
-            # Find most recent SOAP report for this pet and user
-            soap_report = SOAPReport.objects.filter(
-                pet=conversation.pet,
-                pet__owner=user_obj
-            ).order_by('-date_generated').first()
+        # NOTE: Removed the fallback lookup by pet/user which caused assessment bleeding between conversations
+        # Each conversation should only show its own assessment data
         
         if soap_report:
             # Get associated AIDiagnosis to build assessment data
@@ -1412,7 +1407,7 @@ def get_conversation_messages(request, conversation_id):
                 }
             }, status=status.HTTP_200_OK)
         else:
-            # Pet owner format (existing format)
+# Pet owner format (existing format)
             response_data = {
                 'conversation': {
                     'id': conversation.id,
@@ -1421,9 +1416,32 @@ def get_conversation_messages(request, conversation_id):
                 },
                 'messages': messages
             }
+
+            # === FIX: Include Pet Context in Load ===
+            if conversation.pet:
+                response_data['pet_context'] = {
+                    'id': conversation.pet.id,
+                    'name': conversation.pet.name,
+                    'species': getattr(conversation.pet, 'species', getattr(conversation.pet, 'animal_type', 'Unknown')),
+                    'breed': getattr(conversation.pet, 'breed', 'Unknown'),
+                    'age': getattr(conversation.pet, 'age', 0)
+                }
+            else:
+                # Provide dummy context for "Continue Without Details" symptom checker conversations
+                # This allows the symptom checker to work without a linked pet profile
+                response_data['pet_context'] = {
+                    'id': 0,
+                    'name': 'Your Pet',
+                    'species': 'Pet',
+                    'breed': 'Unknown',
+                    'age': 0
+                }
+            # ========================================
+
             # Include assessment data if available
             if assessment_data:
                 response_data['assessment_data'] = assessment_data
+            
             return Response(response_data, status=status.HTTP_200_OK)
        
     except Exception as e:
@@ -3143,6 +3161,7 @@ def start_conversation_with_pet(request):
     
     try:
         pet_id = request.data.get('pet_id')
+        conversation_type = request.data.get('type', 'general')  # Get conversation type from request
         pet = None
         
         # === FIX: Logic updated to handle optional pet_id ===
@@ -3156,17 +3175,26 @@ def start_conversation_with_pet(request):
                     'error': 'Pet not found or not owned by user'
                 }, status=status.HTTP_404_NOT_FOUND)
         
+        # === FIX: Set title based on conversation type to enable proper mode detection ===
+        if conversation_type == 'symptom_checker':
+            title_prefix = "Symptom Check"
+        else:
+            title_prefix = "Pet Care"
+        
         # Create a new conversation (pet can be None now)
         conversation = Conversation.objects.create(
             user=user_obj,
             pet=pet,
-            title=f"Chat with {pet.name}" if pet else "New Chat"
+            title=f"{title_prefix}: {pet.name}" if pet else f"{title_prefix}: New Pet"
         )
         
         # Customize welcome message based on whether a pet is selected
         if pet:
             pet_species = getattr(pet, 'species', getattr(pet, 'animal_type', 'pet'))
-            welcome_message = f"Hello! I'm here to help you with {pet.name}. What would you like to know about your {pet_species}?"
+            if conversation_type == 'symptom_checker':
+                welcome_message = f"Hello! I'm here to help you with {pet.name}. What would you like to know about your {pet_species}?"
+            else:
+                welcome_message = f"Hello! I'm here to help you learn what's normal for {pet.name}. What would you like to know about your {pet_species}?"
         else:
             welcome_message = "Hello! I'm here to help. Since we don't have a specific pet profile selected, I can provide general advice. What's on your mind?"
         

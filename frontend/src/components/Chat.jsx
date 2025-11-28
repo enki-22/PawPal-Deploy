@@ -1,17 +1,18 @@
 import axios from 'axios';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useConversations } from '../context/ConversationsContext';
+import AssessmentResults from './AssessmentResults';
+import ConversationalSymptomChecker from './ConversationalSymptomChecker';
 import LogoutModal from './LogoutModal';
 import PetSelectionModal from './PetSelectionModal';
 import ProfileButton from './ProfileButton';
 import Sidebar from './Sidebar';
-import ConversationalSymptomChecker from './ConversationalSymptomChecker';
-import AssessmentResults from './AssessmentResults';
 import SymptomLogger from './SymptomLogger';
 
 const Chat = () => {
+  // --- STATE ---
   const [messages, setMessages] = useState([]);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const { conversationId } = useParams();
@@ -30,15 +31,19 @@ const Chat = () => {
   const [assessmentData, setAssessmentData] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   
+  // --- REFS ---
+  const activeConversationIdRef = useRef(conversationId);
+  // Tracks a unique session ID to invalidate stale requests (ref for guards)
+  const chatSessionIdRef = useRef(Date.now());
   const chatContainerRef = useRef(null);
+  
+  // State-based session key to ensure components remount properly (state triggers re-render)
+  const [sessionKey, setSessionKey] = useState(() => Date.now());
+  
   const navigate = useNavigate();
   const { user, token, logout } = useAuth();
   
-  useEffect(() => {
-    if (!user) {
-      window.location.replace('/petowner/login');
-    }
-  }, [user]);
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
 
   const {
     conversations,
@@ -50,19 +55,65 @@ const Chat = () => {
     handleDeleteConversation
   } = useConversations();
 
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
+  useEffect(() => {
+    if (!user) {
+      window.location.replace('/petowner/login');
+    }
+  }, [user]);
 
-  const loadConversation = useCallback(async (conversationId) => {
+  // Update ref whenever conversationId changes
+  useEffect(() => {
+    activeConversationIdRef.current = conversationId;
+  }, [conversationId]);
+
+  // --- CORE LOGIC ---
+
+  // Helper to completely reset the view state and generate a new session ID
+  const startNewSession = useCallback(() => {
+    // Generate new session ID immediately to invalidate ANY pending requests from previous views
+    const newSessionId = Date.now();
+    chatSessionIdRef.current = newSessionId;
+    setSessionKey(newSessionId); // State-based key triggers proper re-renders for component remounting
+    
+    setMessages([]);
+    setAssessmentData(null); // <--- Clears old assessment data
+    setCurrentPetContext(null);
+    setShowSymptomChecker(false);
+    setShowSymptomLogger(false);
+    setIsAnalyzing(false);
+    setLoading(false);
+    setCurrentConversationId(null);
+    setCurrentConversationTitle('New Chat');
+    setChatMode(null);
+  }, []);
+
+  const loadConversation = useCallback(async (targetId) => {
+    // Capture the session ID at the START of the request
+    const mySessionId = chatSessionIdRef.current;
+
     try {
-      const response = await axios.get(`${API_BASE_URL}/chatbot/conversations/${conversationId}/`, {
+      const response = await axios.get(`${API_BASE_URL}/chatbot/conversations/${targetId}/`, {
         headers: {
           'Authorization': token ? `Token ${token}` : '',
         }
       });
+
+      // === RACE CONDITION GUARD ===
+      // If the session ID has changed since we started (user clicked away), abort.
+      if (chatSessionIdRef.current !== mySessionId) {
+         return;
+      }
+
       if (response.data) {
-        setCurrentConversationId(conversationId);
+        setCurrentConversationId(targetId);
         setCurrentConversationTitle(response.data.conversation.title);
         
+        if (response.data.pet_context) {
+          setCurrentPetContext(response.data.pet_context);
+        } else {
+          setCurrentPetContext(null);
+        }
+
         const formattedMessages = response.data.messages.map(msg => ({
           id: msg.id,
           content: msg.content,
@@ -71,14 +122,29 @@ const Chat = () => {
           timestamp: msg.timestamp,
         }));
         
-        if (response.data.assessment_data) {
+        // Determine conversation mode from title FIRST
+        let detectedMode = null;
+        if (response.data.conversation.title.includes('Symptom Check:')) {
+          detectedMode = 'symptom_checker';
+        } else if (response.data.conversation.title.includes('Pet Care:')) {
+          detectedMode = 'general';
+        }
+        
+        // Set the mode before handling assessment data
+        if (detectedMode) {
+          setChatMode(detectedMode);
+        }
+        
+        // Handle existing assessment in the conversation
+        // CRITICAL: Only load assessment data for symptom_checker mode conversations
+        if (response.data.assessment_data && detectedMode === 'symptom_checker') {
           const assessmentData = response.data.assessment_data;
           setAssessmentData(assessmentData);
           
           const hasAssessmentMessage = formattedMessages.some(msg => msg.isAssessment);
           if (!hasAssessmentMessage) {
             const assessmentMessage = {
-              id: `assessment-${conversationId}-${Date.now()}`,
+              id: `assessment-${targetId}-${Date.now()}`,
               content: '',
               isUser: false,
               sender: 'PawPal',
@@ -88,30 +154,59 @@ const Chat = () => {
             };
             formattedMessages.push(assessmentMessage);
           }
+          // Has assessment - don't show the questionnaire
+          setShowSymptomChecker(false);
         } else {
+          // Clear assessment data for non-symptom-checker conversations
           setAssessmentData(null);
+          
+          // === FIX: For NEW symptom checker conversations (no assessment yet), show the questionnaire ===
+          // Check if this is a symptom checker conversation that needs the questionnaire shown
+          // Note: pet_context might be a dummy context for "Continue Without Details" flow
+          if (detectedMode === 'symptom_checker') {
+            // This is a new symptom checker conversation - show the questionnaire
+            // If no pet_context, create a dummy one for the questionnaire to work
+            if (!response.data.pet_context) {
+              setCurrentPetContext({
+                id: 0,
+                name: 'Your Pet',
+                species: 'Pet',
+                breed: 'Unknown',
+                age: 0
+              });
+            }
+            setShowSymptomChecker(true);
+          } else {
+            setShowSymptomChecker(false);
+          }
         }
         
+        // Always reset symptom logger when loading a conversation
+        setShowSymptomLogger(false);
+        
         setMessages(formattedMessages);
-        if (response.data.conversation.title.includes('Symptom Check:')) {
-          setChatMode('symptom_checker');
-        } else if (response.data.conversation.title.includes('Pet Care:')) {
-          setChatMode('general');
-        }
       } else {
-        setMessages([]);
-        setAssessmentData(null);
+        // Fallback for empty data if still on same session
+        if (chatSessionIdRef.current === mySessionId) {
+            setMessages([]);
+            setAssessmentData(null);
+            setCurrentPetContext(null);
+        }
       }
     } catch (err) {
-      console.error('Error loading conversation:', err);
-      setMessages([]);
-      setAssessmentData(null);
+      // Only reset if we are still in the relevant session
+      if (chatSessionIdRef.current === mySessionId) {
+        console.error('Error loading conversation:', err);
+        setMessages([]);
+        setAssessmentData(null);
+        setCurrentPetContext(null);
+      }
     }
   }, [API_BASE_URL, token]);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isAnalyzing]);
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
@@ -119,39 +214,32 @@ const Chat = () => {
     }
   };
 
+  // Main Effect to handle URL changes
   useEffect(() => {
-    fetchConversations();
-    
-    if (conversationId && conversationId !== 'new') {
-      loadConversation(conversationId);
-      // Reset specialized UI when loading a generic conversation ID
-      setShowSymptomChecker(false);
-      setShowSymptomLogger(false);
-    } else {
-      // Reset everything for a new chat
-      setCurrentConversationId(null);
-      setCurrentConversationTitle('New Chat');
-      setMessages([]);
-      setChatMode(null);
-      setCurrentPetContext(null);
-      setShowSymptomChecker(false);
-      setShowSymptomLogger(false);
-      setAssessmentData(null);
-    }
-  }, [fetchConversations, conversationId, loadConversation]);
+      fetchConversations();
+      
+      // Always reset state and start new session when URL changes
+      startNewSession();
+      
+      if (conversationId && conversationId !== 'new') {
+        // If it's a real ID, load it
+        loadConversation(conversationId);
+      } 
+      // If 'new', startNewSession already cleared everything.
+    }, [fetchConversations, conversationId, loadConversation, startNewSession]);
+
+  // --- HANDLERS ---
+
+  const handleSidebarConversationSelect = (id) => {
+    navigate(`/chat/${id}`);
+    setIsMobileSidebarOpen(false);
+  };
 
   const createNewConversation = async () => {
     try {
       navigate('/chat/new');
-      setCurrentConversationId(null);
-      setCurrentConversationTitle('New Chat');
-      setChatMode(null);
-      setMessages([]);
-      setCurrentPetContext(null);
-      // Explicitly reset these flags to prevent "ghost" questionnaires
-      setShowSymptomChecker(false);
-      setShowSymptomLogger(false);
-      setAssessmentData(null);
+      // Force manual reset in case we are already on /chat/new
+      startNewSession();
       fetchConversations();
     } catch (error) {
       console.error('Error creating new conversation:', error);
@@ -184,28 +272,433 @@ const Chat = () => {
   };
 
   const handlePetSelected = (conversationData) => {
-    setCurrentConversationId(conversationData.conversation_id);
-    setCurrentPetContext(conversationData.pet_context);
-    setCurrentConversationTitle(conversationData.conversation_title || 'New Chat');
-    const initialMessage = {
-      id: Date.now(),
-      content: conversationData.initial_message,
+    // === CRITICAL FIX: Start a fresh session for the new pet selection ===
+    // This invalidates any pending requests from previous views immediately
+    const newSessionId = Date.now();
+    chatSessionIdRef.current = newSessionId;
+    setSessionKey(newSessionId); // Update state-based key to force component remounts
+    
+    // Explicitly clear ALL assessment-related state from any previous session
+    setAssessmentData(null); 
+    setIsAnalyzing(false);
+    setShowSymptomChecker(false);
+    setShowSymptomLogger(false);
+    // Clear any lingering messages from previous sessions
+    setMessages([]);
+
+    // If backend returned a real conversation ID, navigate there
+    if (conversationData.conversation_id) {
+        // IMPORTANT: Don't navigate if we're creating a new conversation that shouldn't have old data
+        // First clear state, then navigate - the URL effect will handle loading
+        navigate(`/chat/${conversationData.conversation_id}`);
+    } else {
+        // Draft mode (New Chat with Pet Context)
+        setCurrentConversationId(null);
+        setCurrentPetContext(conversationData.pet_context);
+        setCurrentConversationTitle(conversationData.conversation_title || 'New Chat');
+        
+        const initialMessage = {
+            id: `msg-${newSessionId}-init`,
+            content: conversationData.initial_message,
+            isUser: false,
+            sender: 'PawPal',
+            timestamp: new Date().toISOString(),
+            _sessionId: newSessionId, // Tag message with session ID
+        };
+        setMessages([initialMessage]);
+        
+        // Only show symptom checker in symptom_checker mode
+        if (chatMode === 'symptom_checker') {
+            setShowSymptomChecker(true);
+        } else {
+            // CRITICAL: In general mode, never show symptom checker
+            setShowSymptomChecker(false);
+        }
+        setShowSymptomLogger(false);
+    }
+    
+    fetchConversations();
+  };
+
+  const selectMode = (mode) => {
+    // Clear any lingering assessment data when selecting a mode
+    setAssessmentData(null);
+    setShowSymptomChecker(false);
+    setShowSymptomLogger(false);
+    setMessages([]);
+    
+    setChatMode(mode);
+    setShowPetSelection(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const message = messageInput.trim();
+    if (!message || loading) return;
+    
+    const mySessionId = chatSessionIdRef.current;
+
+    const usedChatMode = chatMode || 'general';
+    const usedPetContext = currentPetContext || null;
+
+    const userMessage = {
+      id: Date.now() + Math.random(),
+      content: message,
+      isUser: true,
+      sender: 'You',
+      timestamp: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, userMessage]);
+    setMessageInput('');
+    setLoading(true);
+    
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/chatbot/chat/`,
+        {
+          message: message,
+          conversation_id: currentConversationId,
+          chat_mode: usedChatMode,
+          pet_context: usedPetContext,
+          assessment_context: assessmentData
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Token ${token}` : '',
+          },
+          timeout: 30000,
+        }
+      );
+
+      // Guard against session switch
+      if (chatSessionIdRef.current !== mySessionId) return;
+
+      if (response.data && response.data.response) {
+        const aiMessage = {
+          id: Date.now() + Math.random(),
+          content: response.data.response,
+          isUser: false,
+          sender: 'PawPal',
+          timestamp: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, aiMessage]);
+        
+        if (response.data.conversation_id && !currentConversationId) {
+          setCurrentConversationId(response.data.conversation_id);
+          // Update URL silently so reload works
+          window.history.replaceState(null, '', `/chat/${response.data.conversation_id}`);
+        }
+        if (response.data.conversation_title) {
+          setCurrentConversationTitle(response.data.conversation_title);
+        }
+      }
+      fetchConversations();
+    } catch (error) {
+      if (chatSessionIdRef.current === mySessionId) {
+        console.error('Error:', error);
+        const errorMessage = {
+          id: Date.now() + Math.random(),
+          content: 'Sorry, there was an error processing your message. Please try again.',
+          isUser: false,
+          sender: 'PawPal',
+          timestamp: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
+    } finally {
+      if (chatSessionIdRef.current === mySessionId) {
+        setLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownVisible && !event.target.closest('.dropdown-container')) {
+        setDropdownVisible(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownVisible]);
+
+  // --- LOGOUT HANDLERS ---
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleLogoutConfirm = async () => {
+    try {
+      setLoading(true);
+      await logout();
+      navigate('/petowner/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setLoading(false);
+      setShowLogoutModal(false);
+    }
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
+  };
+
+  const handleSymptomCheckerComplete = async (payload) => {
+    // === CRITICAL: Verify the callback is from the current session ===
+    // The payload includes _sessionId from the ConversationalSymptomChecker
+    if (payload._sessionId && payload._sessionId !== chatSessionIdRef.current) {
+      console.log('handleSymptomCheckerComplete: Ignoring stale callback from previous session');
+      return;
+    }
+    
+    // === CRITICAL: Only process assessments in symptom_checker mode ===
+    if (chatMode !== 'symptom_checker') {
+      console.log('handleSymptomCheckerComplete: Ignoring callback - not in symptom_checker mode');
+      return;
+    }
+    
+    // Capture session ID when assessment starts
+    const mySessionId = chatSessionIdRef.current;
+
+    const recentUserMessages = messages
+        .filter(m => m.isUser)
+        .slice(-3)
+        .map(m => m.content)
+        .join(' ');
+        
+    setShowSymptomChecker(false);
+    setIsAnalyzing(true);
+    
+    const summaryMessage = {
+      id: Date.now() + Math.random(),
+      content: `Assessment completed for ${payload.pet_name}`,
+      isUser: true,
+      sender: 'You',
+      timestamp: new Date().toISOString(),
+    };
+    
+    const analyzingMessage = {
+      id: Date.now() + Math.random() + 1,
+      content: `Analyzing ${payload.pet_name}'s symptoms...`,
+      isUser: false,
+      sender: 'PawPal',
+      timestamp: new Date().toISOString(),
+      isAnalyzing: true
+    };
+    setMessages(prev => [...prev, summaryMessage, analyzingMessage]);
+    
+    try {
+      const predictionPayload = {
+        ...payload,
+        pet_id: currentPetContext?.id,
+        user_notes: recentUserMessages
+      };
+      
+      const response = await axios.post(
+        `${API_BASE_URL}/symptom-checker/predict/`,
+        predictionPayload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Token ${token}` : '',
+          },
+          timeout: 30000,
+        }
+      );
+      
+      // === RACE CONDITION CHECK ===
+      // If user switched chats while waiting, ignore everything.
+      if (chatSessionIdRef.current !== mySessionId) {
+        console.log('Assessment result discarded: User switched sessions.');
+        return;
+      }
+
+      if (response.data && response.data.success) {
+        setMessages(prev => prev.filter(msg => !msg.isAnalyzing));
+        setAssessmentData(response.data);
+        
+        const assessmentMessage = {
+          id: Date.now() + Math.random() + 2,
+          content: '',
+          isUser: false,
+          sender: 'PawPal',
+          timestamp: new Date().toISOString(),
+          isAssessment: true,
+          assessmentData: response.data
+        };
+        setMessages(prev => [...prev, assessmentMessage]);
+        
+        // === AUTO-SAVE: Automatically save assessment to backend for persistence ===
+        // This ensures the assessment is available when the user returns to this conversation
+        try {
+          const saveResponse = await axios.post(
+            `${API_BASE_URL}/chatbot/create-ai-diagnosis/`,
+            {
+              pet_id: currentPetContext?.id,
+              symptoms: response.data.symptoms_text || payload.symptoms_text || 'Symptom assessment completed',
+              assessment_data: response.data,
+              conversation_id: currentConversationId
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Token ${token}` : '',
+              },
+            }
+          );
+          
+          if (saveResponse.data) {
+            console.log('Assessment auto-saved successfully. Case ID:', saveResponse.data.case_id);
+            // Update the assessment data with the case_id for reference
+            setAssessmentData(prev => ({ ...prev, case_id: saveResponse.data.case_id }));
+          }
+        } catch (saveError) {
+          // Don't fail the whole flow if auto-save fails - assessment is still shown to user
+          console.warn('Auto-save of assessment failed:', saveError);
+        }
+      } else {
+        throw new Error(response.data?.error || 'Assessment failed');
+      }
+    } catch (error) {
+      if (chatSessionIdRef.current === mySessionId) {
+        console.error('Assessment error:', error);
+        setMessages(prev => prev.filter(msg => !msg.isAnalyzing));
+        
+        const errorDetails = error.response?.data?.error || 'Unknown error';
+        const errorMessage = {
+          id: Date.now() + Math.random() + 3,
+          content: `Sorry, I encountered an error while analyzing the symptoms: ${errorDetails}. Please try again.`,
+          isUser: false,
+          sender: 'PawPal',
+          timestamp: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
+    } finally {
+      if (chatSessionIdRef.current === mySessionId) {
+        setIsAnalyzing(false);
+      }
+    }
+  };
+  
+  const handleSymptomCheckerCancel = () => {
+    setShowSymptomChecker(false);
+    setIsAnalyzing(false);
+    // Don't clear assessmentData here - only clear the active checker
+  };
+  
+  const handleSaveToAIDiagnosis = async (assessmentDataToSave) => {
+    // Check if already saved (has case_id from auto-save)
+    if (assessmentDataToSave.case_id) {
+      const alreadySavedMessage = {
+        id: Date.now() + Math.random(),
+        content: `✅ This assessment is already saved to AI Diagnosis records. Case ID: ${assessmentDataToSave.case_id}`,
+        isUser: false,
+        sender: 'PawPal',
+        timestamp: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, alreadySavedMessage]);
+      return;
+    }
+    
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/chatbot/create-ai-diagnosis/`,
+        {
+          pet_id: currentPetContext?.id,
+          symptoms: assessmentDataToSave.symptoms_text || 'Symptom assessment completed',
+          assessment_data: assessmentDataToSave,
+          conversation_id: currentConversationId
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Token ${token}` : '',
+          },
+        }
+      );
+      
+      if (response.data) {
+        const successMessage = {
+          id: Date.now() + Math.random(),
+          content: `✅ Assessment saved to AI Diagnosis records. Case ID: ${response.data.case_id}`,
+          isUser: false,
+          sender: 'PawPal',
+          timestamp: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, successMessage]);
+        // Update assessmentData with case_id
+        setAssessmentData(prev => ({ ...prev, case_id: response.data.case_id }));
+      }
+    } catch (error) {
+      console.error('Save to AI Diagnosis error:', error);
+      const errorMessage = {
+        id: Date.now() + Math.random(),
+        content: 'Sorry, there was an error saving the assessment. Please try again.',
+        isUser: false,
+        sender: 'PawPal',
+        timestamp: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
+  };
+  
+  const handleStartNewAssessment = () => {
+    // Only allow new assessment in symptom_checker mode
+    if (chatMode !== 'symptom_checker') {
+      console.warn('handleStartNewAssessment called outside symptom_checker mode');
+      return;
+    }
+    
+    // Clear previous assessment data
+    setAssessmentData(null);
+    setIsAnalyzing(false);
+    
+    // Remove any existing assessment messages from the current conversation
+    setMessages(prev => prev.filter(msg => !msg.isAssessment));
+    
+    // Show the symptom checker
+    setShowSymptomChecker(true);
+  };
+  
+  const handleAskFollowUp = () => {
+    document.querySelector('input[type="text"]')?.focus();
+  };
+
+  const handleLogSymptoms = () => {
+    setShowSymptomLogger(true);
+  };
+
+  const handleSymptomLogComplete = (response) => {
+    setShowSymptomLogger(false);
+    
+    const successMessage = {
+      id: Date.now() + Math.random(),
+      content: `✅ Symptoms logged successfully for ${currentPetContext.name}! Risk Level: ${response.risk_assessment.level.toUpperCase()} (${response.risk_assessment.score}/100)`,
       isUser: false,
       sender: 'PawPal',
       timestamp: new Date().toISOString(),
     };
-    setMessages([initialMessage]);
+    setMessages(prev => [...prev, successMessage]);
     
-    // IMPORTANT: Only show symptom checker if the mode matches
-    if (chatMode === 'symptom_checker') {
-      setShowSymptomChecker(true);
-    } else {
-      setShowSymptomChecker(false);
+    if (response.alert) {
+      const alertMessage = {
+        id: Date.now() + Math.random() + 1,
+        content: `⚠️ ALERT: ${response.alert.alert_message}`,
+        isUser: false,
+        sender: 'PawPal',
+        timestamp: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, alertMessage]);
     }
-    // Ensure symptom logger is off initially
+  };
+
+  const handleSymptomLogCancel = () => {
     setShowSymptomLogger(false);
-    
-    fetchConversations();
   };
 
   const ModeSelection = () => (
@@ -251,7 +744,7 @@ const Chat = () => {
                 </span>
               </div>
               <p className="text-[13px] leading-relaxed text-gray-700" style={{ fontFamily: 'Raleway' }}>
-                Learn about typical behaviors, habits, diet, and health patterns specific to your pet&apos;s breed, age, and species. Perfect for new pet parents or anyone looking to better understand what&apos;s considered &ldquo;normal&rdquo; for their furry companion.
+                Learn about typical behaviors, habits, diet, and health patterns specific to your pet&apos;s breed, age, and species. Perfect for new pet parents or anyone looking to better understand what&apos;s considered &quot;normal&quot; for their furry companion.
               </p>
             </div>
             
@@ -280,287 +773,6 @@ const Chat = () => {
     </div>
   );
 
-  const selectMode = (mode) => {
-    setChatMode(mode);
-    setShowPetSelection(true);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const message = messageInput.trim();
-    if (!message || loading) return;
-    
-    const usedChatMode = chatMode || 'general';
-    const usedPetContext = currentPetContext || null;
-
-    const userMessage = {
-      id: Date.now() + Math.random(),
-      content: message,
-      isUser: true,
-      sender: 'You',
-      timestamp: new Date().toISOString(),
-    };
-    setMessages(prev => [...prev, userMessage]);
-    setMessageInput('');
-    setLoading(true);
-    
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/chatbot/chat/`,
-        {
-          message: message,
-          conversation_id: currentConversationId,
-          chat_mode: usedChatMode,
-          pet_context: usedPetContext,
-          assessment_context: assessmentData
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token ? `Token ${token}` : '',
-          },
-          timeout: 30000,
-        }
-      );
-      if (response.data && response.data.response) {
-        const aiMessage = {
-          id: Date.now() + Math.random(),
-          content: response.data.response,
-          isUser: false,
-          sender: 'PawPal',
-          timestamp: new Date().toISOString(),
-        };
-        setMessages(prev => [...prev, aiMessage]);
-        if (response.data.conversation_id) {
-          setCurrentConversationId(response.data.conversation_id);
-        }
-        if (response.data.conversation_title) {
-          setCurrentConversationTitle(response.data.conversation_title);
-        }
-      }
-      fetchConversations();
-    } catch (error) {
-      console.error('Error:', error);
-      const errorMessage = {
-        id: Date.now() + Math.random(),
-        content: 'Sorry, there was an error processing your message. Please try again.',
-        isUser: false,
-        sender: 'PawPal',
-        timestamp: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownVisible && !event.target.closest('.dropdown-container')) {
-        setDropdownVisible(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [dropdownVisible]);
-
-  const handleLogoutClick = () => {
-    setShowLogoutModal(true);
-  };
-
-  const handleLogoutConfirm = async () => {
-    try {
-      setLoading(true);
-      await logout();
-      navigate('/petowner/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setLoading(false);
-      setShowLogoutModal(false);
-    }
-  };
-
-  const handleLogoutCancel = () => {
-    setShowLogoutModal(false);
-  };
-
-  const handleSymptomCheckerComplete = async (payload) => {
-    // Combine recent user messages to give context
-    const recentUserMessages = messages
-        .filter(m => m.isUser)
-        .slice(-3) // Take last 3 user messages
-        .map(m => m.content)
-        .join(' ');
-        
-    setShowSymptomChecker(false);
-    setIsAnalyzing(true);
-    
-    const summaryMessage = {
-      id: Date.now() + Math.random(),
-      content: `Assessment completed for ${payload.pet_name}`,
-      isUser: true,
-      sender: 'You',
-      timestamp: new Date().toISOString(),
-    };
-    setMessages(prev => [...prev, summaryMessage]);
-    
-    const analyzingMessage = {
-      id: Date.now() + Math.random() + 1,
-      content: `Analyzing ${payload.pet_name}'s symptoms...`,
-      isUser: false,
-      sender: 'PawPal',
-      timestamp: new Date().toISOString(),
-      isAnalyzing: true
-    };
-    setMessages(prev => [...prev, analyzingMessage]);
-    
-    try {
-      const predictionPayload = {
-        ...payload,
-        pet_id: currentPetContext?.id,
-        user_notes: recentUserMessages
-      };
-      
-      console.log('Symptom Checker Prediction Payload:', predictionPayload);
-      
-      const response = await axios.post(
-        `${API_BASE_URL}/symptom-checker/predict/`,
-        predictionPayload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token ? `Token ${token}` : '',
-          },
-          timeout: 30000,
-        }
-      );
-      
-      if (response.data && response.data.success) {
-        setMessages(prev => prev.filter(msg => !msg.isAnalyzing));
-        setAssessmentData(response.data);
-        
-        const assessmentMessage = {
-          id: Date.now() + Math.random() + 2,
-          content: '',
-          isUser: false,
-          sender: 'PawPal',
-          timestamp: new Date().toISOString(),
-          isAssessment: true,
-          assessmentData: response.data
-        };
-        setMessages(prev => [...prev, assessmentMessage]);
-      } else {
-        throw new Error(response.data?.error || 'Assessment failed');
-      }
-    } catch (error) {
-      console.error('Assessment error:', error);
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
-      setMessages(prev => prev.filter(msg => !msg.isAnalyzing));
-      
-      const errorDetails = error.response?.data?.error || 'Unknown error';
-      const errorMessage = {
-        id: Date.now() + Math.random() + 3,
-        content: `Sorry, I encountered an error while analyzing the symptoms: ${errorDetails}. Please try again.`,
-        isUser: false,
-        sender: 'PawPal',
-        timestamp: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-  
-  const handleSymptomCheckerCancel = () => {
-    setShowSymptomChecker(false);
-  };
-  
-  const handleSaveToAIDiagnosis = async (assessmentData) => {
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/chatbot/create-ai-diagnosis/`,
-        {
-          pet_id: currentPetContext?.id,
-          symptoms: assessmentData.symptoms_text || 'Symptom assessment completed',
-          assessment_data: assessmentData,
-          conversation_id: currentConversationId
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token ? `Token ${token}` : '',
-          },
-        }
-      );
-      
-      if (response.data) {
-        const successMessage = {
-          id: Date.now() + Math.random(),
-          content: `✅ Assessment saved to AI Diagnosis records. Case ID: ${response.data.case_id}`,
-          isUser: false,
-          sender: 'PawPal',
-          timestamp: new Date().toISOString(),
-        };
-        setMessages(prev => [...prev, successMessage]);
-      }
-    } catch (error) {
-      console.error('Save to AI Diagnosis error:', error);
-      const errorMessage = {
-        id: Date.now() + Math.random(),
-        content: 'Sorry, there was an error saving the assessment. Please try again.',
-        isUser: false,
-        sender: 'PawPal',
-        timestamp: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    }
-  };
-  
-  const handleStartNewAssessment = () => {
-    setAssessmentData(null);
-    setShowSymptomChecker(true);
-  };
-  
-  const handleAskFollowUp = () => {
-    document.querySelector('input[type="text"]')?.focus();
-  };
-
-  const handleLogSymptoms = () => {
-    setShowSymptomLogger(true);
-  };
-
-  const handleSymptomLogComplete = (response) => {
-    setShowSymptomLogger(false);
-    
-    const successMessage = {
-      id: Date.now() + Math.random(),
-      content: `✅ Symptoms logged successfully for ${currentPetContext.name}! Risk Level: ${response.risk_assessment.level.toUpperCase()} (${response.risk_assessment.score}/100)`,
-      isUser: false,
-      sender: 'PawPal',
-      timestamp: new Date().toISOString(),
-    };
-    setMessages(prev => [...prev, successMessage]);
-    
-    if (response.alert) {
-      const alertMessage = {
-        id: Date.now() + Math.random() + 1,
-        content: `⚠️ ALERT: ${response.alert.alert_message}`,
-        isUser: false,
-        sender: 'PawPal',
-        timestamp: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, alertMessage]);
-    }
-  };
-
-  const handleSymptomLogCancel = () => {
-    setShowSymptomLogger(false);
-  };
-
   return (
     <div className="min-h-screen bg-[#F0F0F0] flex flex-col md:flex-row overflow-hidden">
       <div className="hidden md:block sticky top-0 h-screen z-30">
@@ -574,7 +786,7 @@ const Chat = () => {
           conversations={conversations}
           currentConversationId={currentConversationId}
           loadingConversations={loadingConversations}
-          onLoadConversation={loadConversation}
+          onLoadConversation={handleSidebarConversationSelect}
           onCreateNewConversation={createNewConversation}
           onPinConversation={pinConversation}
           onRenameConversation={renameConversation}
@@ -611,10 +823,7 @@ const Chat = () => {
             conversations={conversations}
             currentConversationId={currentConversationId}
             loadingConversations={loadingConversations}
-            onLoadConversation={(id) => {
-              loadConversation(id);
-              setIsMobileSidebarOpen(false);
-            }}
+            onLoadConversation={handleSidebarConversationSelect}
             onCreateNewConversation={() => {
               createNewConversation();
               setIsMobileSidebarOpen(false);
@@ -675,7 +884,11 @@ const Chat = () => {
 
         <div 
           ref={chatContainerRef}
-          className="flex-1 overflow-y-auto bg-[#F0F0F0] px-2 pt-2 pb-40 md:p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400"
+          className={`flex-1 overflow-y-auto bg-[#F0F0F0] px-2 pt-2 md:p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400 ${
+            (conversationId === 'new' || !conversationId) && messages.length === 0 && !currentPetContext 
+              ? 'pb-6' 
+              : 'pb-40'
+          }`}
           style={{
             scrollbarWidth: 'thin',
             scrollbarColor: '#9CA3AF #F0F0F0',
@@ -683,14 +896,12 @@ const Chat = () => {
           }}
         >
           <div className="max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl mx-auto w-full">
-            {/* Desktop greeting prompt (new chat) */}
             {(conversationId === 'new' || !conversationId) && messages.length === 0 && !currentPetContext && (
               <div className="hidden md:block">
                 <ModeSelection />
               </div>
             )}
 
-            {/* Mobile greeting prompt (new chat) */}
             {(conversationId === 'new' || !conversationId) && messages.length === 0 && !currentPetContext && (
               <div className="block md:hidden">
                 <div className="flex-1 flex items-center justify-center bg-[#F0F0F0] p-2 pt-2 pb-4">
@@ -712,7 +923,6 @@ const Chat = () => {
                         />
                       </div>
                       <div className="flex flex-col gap-4 w-full">
-                        {/* Mobile General Card */}
                         <div
                           onClick={() => selectMode('general')}
                           className="rounded-[10px] p-4 cursor-pointer w-full min-h-[90px] transition-all border border-transparent hover:border-[#815FB3]"
@@ -738,7 +948,6 @@ const Chat = () => {
                           </p>
                         </div>
                         
-                        {/* Mobile Symptom Card */}
                         <div
                           onClick={() => selectMode('symptom_checker')}
                           className="bg-[#FFF4C9] rounded-[10px] p-4 cursor-pointer w-full min-h-[90px] transition-all border border-transparent hover:border-[#F4D06F]"
@@ -778,7 +987,14 @@ const Chat = () => {
             )}
 
             {messages.map((message) => {
+              // === CRITICAL: Only render assessment results in symptom_checker mode ===
+              // This prevents assessments from appearing in "general" mode conversations
               if (message.isAssessment && message.assessmentData) {
+                // Don't render assessment if we're in general mode
+                if (chatMode !== 'symptom_checker') {
+                  console.log('Skipping assessment render: Not in symptom_checker mode');
+                  return null;
+                }
                 return (
                   <div key={message.id} className="flex justify-start mb-4">
                     <AssessmentResults
@@ -845,7 +1061,10 @@ const Chat = () => {
             {showSymptomChecker && currentPetContext && (
               <div className="flex justify-start mb-4">
                 <div className="w-full max-w-2xl">
+                  {/* Key uses state-based sessionKey to ensure proper remounting on session changes */}
                   <ConversationalSymptomChecker
+                    key={sessionKey}
+                    sessionId={sessionKey}
                     selectedPet={{
                       id: currentPetContext.id,
                       name: currentPetContext.name,
@@ -864,6 +1083,7 @@ const Chat = () => {
               <div className="flex justify-start mb-4">
                 <div className="w-full">
                   <SymptomLogger
+                    key={sessionKey}
                     pet={{
                       id: currentPetContext.id,
                       name: currentPetContext.name,
@@ -896,74 +1116,70 @@ const Chat = () => {
           </div>
         </div>
 
-        <div className="p-2 md:p-6 md:border-t bg-[#F0F0F0] md:flex-shrink-0 fixed bottom-0 left-0 w-full md:relative md:w-auto z-30">
-          <div className="max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl mx-auto">
-            {currentPetContext && (
-              <div className="flex items-center justify-between mb-3">
-                <button
-                  onClick={() => {
-                    setChatMode(null);
-                    setMessages([]);
-                    setCurrentConversationTitle('New Chat');
-                    setCurrentPetContext(null);
-                    setShowSymptomChecker(false);
-                    setShowSymptomLogger(false);
-                    setAssessmentData(null);
-                    navigate('/chat/new');
-                  }}
-                  className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
-                  style={{ fontFamily: 'Raleway' }}
-                >
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  Change Mode
-                </button>
-                <div className="text-sm font-semibold" style={{ color: '#815FB3' }}>
-                  🐾 {currentPetContext.name} ({currentPetContext.species})
+        {/* Only show chat input when NOT on the new chat mode selection page */}
+        {!((conversationId === 'new' || !conversationId) && messages.length === 0 && !currentPetContext) && (
+          <div className="p-2 md:p-6 md:border-t bg-[#F0F0F0] md:flex-shrink-0 fixed bottom-0 left-0 w-full md:relative md:w-auto z-30">
+            <div className="max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl mx-auto">
+              {currentPetContext && (
+                <div className="flex items-center justify-between mb-3">
+                  <button
+                    onClick={() => {
+                      createNewConversation();
+                    }}
+                    className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
+                    style={{ fontFamily: 'Raleway' }}
+                  >
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Change Mode
+                  </button>
+                  <div className="text-sm font-semibold" style={{ color: '#815FB3' }}>
+                    🐾 {currentPetContext.name} ({currentPetContext.species})
+                  </div>
                 </div>
-              </div>
-            )}
-            
-            <form onSubmit={handleSubmit} className="relative">
-              <input
-                type="text"
-                value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
-                placeholder={
-                  showSymptomChecker
-                    ? "Complete the questionnaire above first..."
-                    : chatMode === 'general' || !chatMode
-                    ? "Ask about your pet's health..."
-                    : assessmentData
-                    ? "Ask a follow-up question about the assessment..."
-                    : "Describe your pet's symptoms..."
-                }
-                className="w-full px-2 md:px-6 py-2 md:py-3 pr-10 md:pr-16 border border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-[#815FB3] text-xs md:text-[15px] lg:text-[18px] bg-[#E4DEED] font-medium placeholder-gray-500 text-[#34113F]"
-                style={{ fontFamily: 'Raleway', marginBottom: '6px' }}
-                disabled={loading || showSymptomChecker || showSymptomLogger}
-                required
-              />
-              <div className="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 flex items-center">
-                <button
-                  type="submit"
-                  disabled={loading || !messageInput.trim()}
-                  className="p-0 bg-transparent hover:opacity-70 transition-opacity disabled:opacity-30"
-                >
-                  <img
-                    src="/Vector.png"
-                    alt="Send message"
-                    className="w-5 h-5 md:w-6 md:h-6 object-contain pb-1 md: pb-1"
-                  />
-                </button>
-              </div>
-            </form>
-            
-            <p className="text-xs md:text-[13px] text-gray-500 mt-1 md:mt-2 text-center" style={{ fontFamily: 'Raleway', marginBottom: '-1px' }}>
-              PawPal is an AI-powered assistant designed to provide guidance on pet health and care. It does not replace professional veterinary consultation.
-            </p>
+              )}
+              
+              <form onSubmit={handleSubmit} className="relative">
+                <input
+                  type="text"
+                  value={messageInput}
+                  onChange={(e) => setMessageInput(e.target.value)}
+                  placeholder={
+                    showSymptomChecker
+                      ? "Complete the questionnaire above first..."
+                      : chatMode === 'general' || !chatMode
+                      ? "Ask about your pet's health..."
+                      : assessmentData
+                      ? "Ask a follow-up question about the assessment..."
+                      : "Describe your pet's symptoms..."
+                  }
+                  className="w-full px-2 md:px-6 py-2 md:py-3 pr-10 md:pr-16 border border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-[#815FB3] text-xs md:text-[15px] lg:text-[18px] bg-[#E4DEED] font-medium placeholder-gray-500 text-[#34113F]"
+                  style={{ fontFamily: 'Raleway', marginBottom: '6px' }}
+                  disabled={loading || showSymptomChecker || showSymptomLogger}
+                  required
+                />
+                <div className="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 flex items-center">
+                  <button
+                    type="submit"
+                    disabled={loading || !messageInput.trim()}
+                    className="p-0 bg-transparent hover:opacity-70 transition-opacity disabled:opacity-30"
+                  >
+                    <img
+                      src="/Vector.png"
+                      alt="Send message"
+                      className="w-5 h-5 md:w-6 md:h-6 object-contain pb-1 md: pb-1"
+                    />
+                  </button>
+                </div>
+              </form>
+              
+              <p className="text-xs md:text-[13px] text-gray-500 mt-1 md:mt-2 text-center" style={{ fontFamily: 'Raleway', marginBottom: '-1px' }}>
+                PawPal is an AI-powered assistant designed to provide guidance on pet health and care. It does not replace professional veterinary consultation.
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
         <PetSelectionModal
           isOpen={showPetSelection}

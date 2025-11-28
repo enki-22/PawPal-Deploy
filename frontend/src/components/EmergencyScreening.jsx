@@ -53,7 +53,7 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
   const [perfusion, setPerfusion] = useState(null);
   const [criticalSymptoms, setCriticalSymptoms] = useState([]);
   const [showEmergencyWarning, setShowEmergencyWarning] = useState(false);
-  const [setIsEmergency] = useState(false);
+  const [isEmergency, setIsEmergency] = useState(false);
   
   const containerRef = useRef(null);
   const petName = selectedPet?.name || 'your pet';

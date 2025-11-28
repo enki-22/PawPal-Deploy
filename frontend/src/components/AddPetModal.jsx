@@ -324,16 +324,15 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                   {/* First Row - Blood Type and Spayed/Neutered */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Blood Type</label>
+                      <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Blood Type <span className="text-gray-500 font-normal text-xs">(Optional)</span></label>
                       <select
                         value={newPet.blood_type}
                         onChange={(e) => handleInputChange('blood_type', e.target.value)}
                         className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
                         style={{ fontFamily: 'Raleway' }}
-                        required
                         disabled={!newPet.animal_type}
                       >
-                        <option value="">Select Blood Type</option>
+                        <option value="">Select Blood Type (Optional)</option>
                         {(bloodTypeOptions[newPet.animal_type] || bloodTypeOptions['other']).map(opt => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
