@@ -20,7 +20,9 @@ from .admin_auth_serializers import (
     AdminInfoSerializer,
     VerifyTokenSerializer,
     ChangePasswordSerializer,
-    RequestPasswordResetSerializer
+    RequestPasswordResetSerializer,
+    AdminVerifyOTPSerializer,
+    ResetPasswordSerializer
 )
 from .jwt_utils import (
     generate_admin_jwt,
@@ -400,3 +402,224 @@ PawPal Team
             'error': 'An unexpected error occurred'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def admin_verify_otp_code(request):
+    """
+    POST /api/admin/verify-reset-otp
+    
+    Verify OTP code WITHOUT consuming it (for UI validation)
+    - Validates OTP exists, not expired, attempts < 3
+    - Does NOT mark as verified or consume
+    - Returns success if valid
+    
+    Input:
+        email: Admin email
+        otp_code: 6-digit OTP code
+    
+    Returns:
+        success: True/False
+        message: Success or error message
+        code: Error code if applicable
+    """
+    serializer = AdminVerifyOTPSerializer(data=request.data)
+    
+    if not serializer.is_valid():
+        return Response({
+            'success': False,
+            'message': 'Invalid input',
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    email = serializer.validated_data['email']
+    otp_code = serializer.validated_data['otp_code']
+    
+    try:
+        # Get latest OTP for this email
+        try:
+            otp = OTP.objects.filter(
+                email=email,
+                purpose='admin_password_reset'
+            ).latest('created_at')
+        except OTP.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Invalid OTP code',
+                'code': 'INVALID_OTP'
+            }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        # Check if already verified
+        if otp.is_verified:
+            return Response({
+                'success': True,
+                'message': 'OTP already verified'
+            }, status=status.HTTP_200_OK)
+        
+        # Check expiration
+        if timezone.now() > otp.expires_at:
+            return Response({
+                'success': False,
+                'message': 'OTP has expired. Please request a new code.',
+                'code': 'OTP_EXPIRED'
+            }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        # Check attempts
+        if otp.attempts >= 3:
+            return Response({
+                'success': False,
+                'message': 'Too many failed attempts. Please request a new code.',
+                'code': 'MAX_ATTEMPTS_EXCEEDED'
+            }, status=status.HTTP_429_TOO_MANY_REQUESTS)
+        
+        # Verify code (WITHOUT consuming)
+        if otp.code != otp_code:
+            # Increment attempts but don't consume
+            otp.attempts += 1
+            otp.save(update_fields=['attempts'])
+            remaining = max(0, 3 - otp.attempts)
+            return Response({
+                'success': False,
+                'message': f'Invalid code. {remaining} attempts remaining.',
+                'code': 'INVALID_OTP'
+            }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        # Code is valid - return success WITHOUT marking as verified
+        logger.info(f"OTP verified (not consumed) for admin: {email}")
+        
+        return Response({
+            'success': True,
+            'message': 'OTP code verified successfully'
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        logger.error(f"OTP verification error: {str(e)}", exc_info=True)
+        return Response({
+            'success': False,
+            'message': 'OTP verification failed',
+            'error': 'An unexpected error occurred'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def admin_reset_password_confirm(request):
+    """
+    POST /api/admin/reset-password-confirm
+    
+    Reset admin password with OTP (consumes OTP)
+    - Validates OTP
+    - Resets password
+    - Adds to password history
+    - Marks OTP as verified/consumed
+    
+    Input:
+        email: Admin email
+        otp_code: 6-digit OTP code
+        new_password: New password
+        confirm_password: Password confirmation
+    
+    Returns:
+        success: True/False
+        message: Success or error message
+    """
+    serializer = ResetPasswordSerializer(data=request.data)
+    
+    if not serializer.is_valid():
+        return Response({
+            'success': False,
+            'message': 'Validation failed',
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    email = serializer.validated_data['email']
+    otp_code = serializer.validated_data['otp_code']
+    new_password = serializer.validated_data['new_password']
+    
+    try:
+        # Get admin first
+        try:
+            admin = Admin.objects.get(email=email, is_active=True)
+        except Admin.DoesNotExist:
+            # Generic error to avoid user enumeration
+            return Response({
+                'success': False,
+                'message': 'Invalid credentials',
+                'code': 'INVALID_CREDENTIALS'
+            }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        # Get latest OTP
+        try:
+            otp = OTP.objects.filter(
+                email=email,
+                purpose='admin_password_reset'
+            ).latest('created_at')
+        except OTP.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Invalid OTP code',
+                'code': 'INVALID_OTP'
+            }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        # Check expiration
+        if timezone.now() > otp.expires_at:
+            return Response({
+                'success': False,
+                'message': 'OTP has expired',
+                'code': 'OTP_EXPIRED'
+            }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        # Check attempts
+        if otp.attempts >= 3:
+            return Response({
+                'success': False,
+                'message': 'Too many failed attempts. Please request a new code.',
+                'code': 'MAX_ATTEMPTS_EXCEEDED'
+            }, status=status.HTTP_429_TOO_MANY_REQUESTS)
+        
+        # Verify code
+        if otp.code != otp_code:
+            otp.attempts += 1
+            otp.save(update_fields=['attempts'])
+            remaining = max(0, 3 - otp.attempts)
+            return Response({
+                'success': False,
+                'message': f'Invalid code. {remaining} attempts remaining.',
+                'code': 'INVALID_OTP'
+            }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        # Check if new password is in history
+        if AdminPasswordHistory.is_password_in_history(admin, new_password):
+            return Response({
+                'success': False,
+                'message': 'Password was used recently. Please choose a different password.',
+                'code': 'PASSWORD_REUSE'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Use transaction to ensure atomicity
+        with transaction.atomic():
+            # Add current password to history
+            AdminPasswordHistory.add_password_to_history(admin, admin.password)
+            
+            # Mark OTP as verified
+            otp.is_verified = True
+            otp.save(update_fields=['is_verified'])
+            
+            # Set new password
+            admin.set_password(new_password)
+            admin.save()
+            
+            logger.info(f"Password reset successfully for admin: {email} ({admin.role})")
+        
+        return Response({
+            'success': True,
+            'message': 'Password reset successfully. Please log in with your new password.'
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        logger.error(f"Password reset error: {str(e)}", exc_info=True)
+        return Response({
+            'success': False,
+            'message': 'Password reset failed',
+            'error': 'An unexpected error occurred'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

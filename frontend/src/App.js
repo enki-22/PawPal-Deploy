@@ -18,7 +18,9 @@ import VerifyResetCode from './components/VerifyResetCode';
 // Admin Components
 import AdminAnnouncements from './components/admin/AdminAnnouncements';
 import AdminClients from './components/admin/AdminClients';
+import AdminCreateNewPassword from './components/admin/AdminCreateNewPassword';
 import AdminDashboard from './components/admin/AdminDashboard';
+import AdminForgotPassword from './components/admin/AdminForgotPassword';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminPetProfile from './components/admin/AdminPetProfile';
 import AdminPets from './components/admin/AdminPets';
@@ -27,6 +29,7 @@ import AdminProfileSettings from './components/admin/AdminProfileSettings';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
 import AdminReports from './components/admin/AdminReports';
 import AdminRoles from './components/admin/AdminRoles';
+import AdminVerifyResetCode from './components/admin/AdminVerifyResetCode';
 
 import LegalModal from './components/LegalModal';
 import { AdminAuthProvider } from './context/AdminAuthContext';
@@ -117,6 +120,9 @@ function AppWithFade() {
       />
       {/* Admin Routes */}
       <Route path="/admin/login" element={<FadeWrapper><AdminLogin /></FadeWrapper>} />
+      <Route path="/admin/forgot-password" element={<FadeWrapper><AdminForgotPassword /></FadeWrapper>} />
+      <Route path="/admin/verify-reset-code" element={<FadeWrapper><AdminVerifyResetCode /></FadeWrapper>} />
+      <Route path="/admin/create-new-password" element={<FadeWrapper><AdminCreateNewPassword /></FadeWrapper>} />
       <Route 
         path="/admin/dashboard" 
         element={

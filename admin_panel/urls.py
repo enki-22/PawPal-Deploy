@@ -18,6 +18,8 @@ urlpatterns = [
     path('verify-token', views_admin_auth.admin_verify_token, name='admin_verify_token'),
     path('change-password', views_admin_auth.admin_change_password, name='admin_change_password'),
     path('request-password-reset', views_admin_auth.admin_request_password_reset, name='admin_request_password_reset'),
+    path('verify-reset-otp', views_admin_auth.admin_verify_otp_code, name='admin_verify_reset_otp'),
+    path('reset-password-confirm', views_admin_auth.admin_reset_password_confirm, name='admin_reset_password_confirm'),
     
     # ============= ADMIN PROFILE ENDPOINTS (CHUNK 10) =============
     path('profile/photo', views_profile.update_admin_profile_photo, name='admin_profile_photo'),

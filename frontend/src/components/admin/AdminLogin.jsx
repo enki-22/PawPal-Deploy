@@ -180,17 +180,27 @@ const AdminLogin = () => {
           }}>
             Forgot your password? 
           </span>
-          <a href="#" style={{
-            fontFamily: 'Raleway',
-            fontStyle: 'normal', 
-            fontWeight: 800,
-            fontSize: '16px',
-            lineHeight: '19px',
-            letterSpacing: '0.05em',
-            color: '#815FB3'
-          }} className="hover:underline">
+          <button
+            type="button"
+            onClick={() => navigate('/admin/forgot-password')}
+            style={{
+              fontFamily: 'Raleway',
+              fontStyle: 'normal', 
+              fontWeight: 800,
+              fontSize: '16px',
+              lineHeight: '19px',
+              letterSpacing: '0.05em',
+              color: '#815FB3',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+              marginLeft: '4px'
+            }}
+            className="hover:underline"
+          >
             Reset Password
-          </a>
+          </button>
         </p>
       </div>
     </div>

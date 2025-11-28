@@ -201,9 +201,38 @@ class RequestPasswordResetSerializer(serializers.Serializer):
         return value.lower().strip()
 
 
+class AdminVerifyOTPSerializer(serializers.Serializer):
+    """
+    Serializer for verifying OTP code without consuming it
+    POST /api/admin/verify-reset-otp
+    """
+    email = serializers.EmailField(
+        required=True,
+        error_messages={
+            'required': 'Email is required',
+            'invalid': 'Enter a valid email address'
+        }
+    )
+    otp_code = serializers.CharField(
+        required=True,
+        min_length=6,
+        max_length=6,
+        error_messages={
+            'required': 'OTP code is required',
+            'min_length': 'OTP code must be 6 digits',
+            'max_length': 'OTP code must be 6 digits'
+        }
+    )
+    
+    def validate_email(self, value):
+        """Normalize email"""
+        return value.lower().strip()
+
+
 class ResetPasswordSerializer(serializers.Serializer):
     """
     Serializer for resetting password with OTP
+    POST /api/admin/reset-password-confirm
     """
     email = serializers.EmailField(required=True)
     otp_code = serializers.CharField(required=True, min_length=6, max_length=6)
@@ -241,7 +270,8 @@ class ResetPasswordSerializer(serializers.Serializer):
                 "Password must contain at least one number"
             )
         
-        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
+        # FIX: Use r'[\W_]' to allow ANY special character (not just specific list)
+        if not re.search(r"[\W_]", value):
             raise serializers.ValidationError(
                 "Password must contain at least one special character"
             )

@@ -49,4 +49,15 @@ export const diagnosisService = {
   getFlaggedByPet: (petId) => api.get(`/api/chatbot/diagnosis/flagged/${petId}`),
 };
 
+// Admin auth services
+export const adminAuthService = {
+  login: (credentials) => api.post('/api/admin/login', credentials),
+  logout: () => api.post('/api/admin/logout'),
+  verifyToken: (token) => api.post('/api/admin/verify-token', { token }),
+  changePassword: (payload) => api.post('/api/admin/change-password', payload),
+  requestPasswordReset: (payload) => api.post('/api/admin/request-password-reset', payload),
+  verifyOtp: (payload) => api.post('/api/admin/verify-reset-otp', payload),
+  resetPassword: (payload) => api.post('/api/admin/reset-password-confirm', payload),
+};
+
 export default api;
