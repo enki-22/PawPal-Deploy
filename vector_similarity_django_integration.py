@@ -5,6 +5,9 @@ Integrates vector similarity search with existing symptom checker
 
 from smart_triage_engine import SmartTriageEngine
 import logging
+import json
+import os
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +27,97 @@ def get_triage_engine():
     return _triage_engine
 
 
+# RED FLAG SYMPTOMS (trigger emergency classification)
+RED_FLAG_SYMPTOMS = {
+    'seizures', 'collapse', 'unconscious', 'respiratory_distress', 
+    'difficulty_breathing', 'pale_gums', 'blue_gums', 'cyanosis',
+    'bleeding', 'blood_in_urine', 'bloody_diarrhea', 'paralysis',
+    'shock', 'severe_dehydration', 'unresponsive', 'convulsions'
+}
+
+
+def extract_symptoms_from_text(user_notes, existing_symptoms=None):
+    """
+    Extract symptom keywords from free-text user_notes using symptom aliases.
+    
+    Args:
+        user_notes: String of user-typed symptoms (e.g., "nosebleed, fainting")
+        existing_symptoms: List of already-selected symptoms (optional)
+    
+    Returns:
+        dict: {
+            'extracted_symptoms': list of symptom codes found in text,
+            'combined_symptoms': merged list (existing + extracted, deduplicated),
+            'red_flags_detected': list of red flag symptoms found,
+            'raw_matches': dict mapping found phrases to symptom codes
+        }
+    """
+    if not user_notes or not user_notes.strip():
+        return {
+            'extracted_symptoms': [],
+            'combined_symptoms': existing_symptoms or [],
+            'red_flags_detected': [],
+            'raw_matches': {}
+        }
+    
+    # Load symptom aliases and all symptoms
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        with open(os.path.join(base_dir, 'symptom_aliases.json'), 'r', encoding='utf-8') as f:
+            symptom_aliases = json.load(f)
+        
+        with open(os.path.join(base_dir, 'all_symptoms.json'), 'r', encoding='utf-8') as f:
+            all_symptoms = json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to load symptom data: {e}")
+        return {
+            'extracted_symptoms': [],
+            'combined_symptoms': existing_symptoms or [],
+            'red_flags_detected': [],
+            'raw_matches': {}
+        }
+    
+    # Normalize user input
+    user_text = user_notes.lower().strip()
+    extracted = set()
+    raw_matches = {}
+    
+    # Build comprehensive search dictionary (aliases + direct symptoms)
+    search_dict = dict(symptom_aliases)
+    for symptom in all_symptoms:
+        search_dict[symptom] = symptom
+        # Also match symptom with underscores replaced by spaces
+        search_dict[symptom.replace('_', ' ')] = symptom
+    
+    # Sort by length (longest first) to match multi-word phrases first
+    sorted_phrases = sorted(search_dict.keys(), key=len, reverse=True)
+    
+    # Extract symptoms by matching phrases
+    for phrase in sorted_phrases:
+        # Use word boundaries to avoid partial matches
+        pattern = r'\b' + re.escape(phrase) + r'\b'
+        if re.search(pattern, user_text, re.IGNORECASE):
+            symptom_code = search_dict[phrase]
+            extracted.add(symptom_code)
+            raw_matches[phrase] = symptom_code
+            logger.info(f"Extracted symptom: '{phrase}' -> {symptom_code}")
+    
+    # Detect red flags
+    red_flags_detected = [s for s in extracted if s in RED_FLAG_SYMPTOMS]
+    
+    # Combine with existing symptoms (deduplicate)
+    existing_set = set(existing_symptoms or [])
+    combined = list(existing_set | extracted)
+    
+    return {
+        'extracted_symptoms': list(extracted),
+        'combined_symptoms': combined,
+        'red_flags_detected': red_flags_detected,
+        'raw_matches': raw_matches
+    }
+
+
 def predict_with_vector_similarity(payload):
     """
     Replace LightGBM prediction with vector similarity search
@@ -35,7 +129,8 @@ def predict_with_vector_similarity(payload):
           "symptoms_list": ["vomiting", "lethargy", "loss_of_appetite"],
           "severity": "moderate",
           "progression": "getting_worse",
-          "emergency_data": {...}
+          "emergency_data": {...},
+          "user_notes": "nosebleed, fainting"  # HYBRID TRIAGE: User-typed symptoms
         }
     
     Returns:
@@ -51,6 +146,22 @@ def predict_with_vector_similarity(payload):
         severity = payload.get('severity', 'moderate')
         progression = payload.get('progression', 'stable')
         emergency_data = payload.get('emergency_data', {})
+        user_notes = payload.get('user_notes', '')
+        
+        # === HYBRID TRIAGE: Extract symptoms from user_notes ===
+        extraction_result = extract_symptoms_from_text(user_notes, symptoms_list)
+        
+        if extraction_result['extracted_symptoms']:
+            logger.info(f"🔍 HYBRID TRIAGE: Extracted {len(extraction_result['extracted_symptoms'])} symptoms from user_notes")
+            logger.info(f"   Original: {symptoms_list}")
+            logger.info(f"   Extracted: {extraction_result['extracted_symptoms']}")
+            logger.info(f"   Combined: {extraction_result['combined_symptoms']}")
+            
+            if extraction_result['red_flags_detected']:
+                logger.warning(f"🚨 RED FLAGS detected in user_notes: {extraction_result['red_flags_detected']}")
+        
+        # Use combined symptoms (checkbox + typed)
+        symptoms_list = extraction_result['combined_symptoms']
         
         # Run vector similarity diagnosis
         result = engine.diagnose(
@@ -95,8 +206,22 @@ def predict_with_vector_similarity(payload):
             'urgency_reasoning': [result['urgency_reason']],
             'red_flags': result.get('red_flags', []),
             'engine_type': 'Vector Similarity Search',
-            'explainable': True
+            'explainable': True,
+            'hybrid_triage_extraction': extraction_result if extraction_result['extracted_symptoms'] else None
         }
+        
+        # === EMERGENCY OVERRIDE: If red flags detected in typed symptoms ===
+        if extraction_result['red_flags_detected']:
+            triage_assessment['overall_urgency'] = 'critical'
+            triage_assessment['emergency_indicators'] = True
+            triage_assessment['requires_immediate_care'] = True
+            triage_assessment['requires_care_within'] = 'IMMEDIATELY - Emergency Care'
+            
+            red_flag_text = ', '.join([s.replace('_', ' ').title() for s in extraction_result['red_flags_detected']])
+            triage_assessment['red_flags'].insert(0, f"🚨 CRITICAL: {red_flag_text} mentioned in symptoms")
+            triage_assessment['urgency_reasoning'].insert(0, f"Emergency condition detected: {red_flag_text}")
+            
+            logger.warning(f"🚨 EMERGENCY OVERRIDE: Red flags in user_notes upgraded urgency to CRITICAL")
         
         # Add emergency override if detected
         if result.get('action'):

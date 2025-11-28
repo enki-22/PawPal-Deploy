@@ -464,10 +464,16 @@ const Chat = () => {
     // Capture session ID when assessment starts
     const mySessionId = chatSessionIdRef.current;
 
+    // Hybrid Triage: Combine typed symptoms from text box with chat history
     const recentUserMessages = messages
         .filter(m => m.isUser)
         .slice(-3)
         .map(m => m.content)
+        .join(' ');
+    
+    // Merge user_notes from payload (typed symptoms) with chat history
+    const combinedNotes = [payload.user_notes, recentUserMessages]
+        .filter(Boolean)
         .join(' ');
         
     setShowSymptomChecker(false);
@@ -495,7 +501,7 @@ const Chat = () => {
       const predictionPayload = {
         ...payload,
         pet_id: currentPetContext?.id,
-        user_notes: recentUserMessages
+        user_notes: combinedNotes // Send combined symptoms to backend
       };
       
       const response = await axios.post(

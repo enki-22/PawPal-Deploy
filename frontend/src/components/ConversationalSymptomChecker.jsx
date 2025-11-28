@@ -204,6 +204,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
   const [additionalSymptoms, setAdditionalSymptoms] = useState([]);
   const [pendingGeneralAdditional, setPendingGeneralAdditional] = useState([]);
   const [pendingSpeciesAdditional, setPendingSpeciesAdditional] = useState([]);
+  const [otherSymptomsText, setOtherSymptomsText] = useState(''); // Hybrid Triage: user-typed symptoms
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
@@ -227,7 +228,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
   useEffect(() => {
     // Mark as mounted
     isMountedRef.current = true;
-    
+
     // Initialize conversation when pet changes or component mounts
     setShowEmergencyScreening(true);
     setEmergencyData(null);
@@ -247,6 +248,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
     setAdditionalSymptoms([]);
     setPendingGeneralAdditional([]);
     setPendingSpeciesAdditional([]);
+    setOtherSymptomsText(''); // Reset typed symptoms
     setShowSummary(false);
     setIsTyping(false);
     setMessages([]);
@@ -293,12 +295,12 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
   const handleEmergencyScreeningComplete = (data) => {
     setEmergencyData(data);
     setShowEmergencyScreening(false);
-    
+
     // Start main questionnaire with intro message
     const introMessage = {
       id: 'intro',
       from: 'bot',
-      text: data.emergencyScreen.isEmergency 
+      text: data.emergencyScreen.isEmergency
         ? `Thank you for completing the emergency screening. While you arrange veterinary care, let's gather more details about ${petName}'s condition.`
         : `Good news - based on your answers, ${petName}'s condition doesn't appear to be an immediate emergency. However, let's do a thorough assessment to understand what's going on.\n\nWhat's your main concern?`,
     };
@@ -313,7 +315,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
 
   const goToStepWithTyping = (nextStep, botText) => {
     if (!isMountedRef.current) return;
-    
+
     setIsTyping(true);
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
@@ -321,7 +323,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
     typingTimeoutRef.current = setTimeout(() => {
       // Guard: Don't update state if component unmounted
       if (!isMountedRef.current) return;
-      
+
       setIsTyping(false);
       if (botText) {
         addBotMessage(botText);
@@ -417,7 +419,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
 
   const finalizeAdditionalSymptomsAndShowSummary = (hasAdditional) => {
     if (!isMountedRef.current) return;
-    
+
     const combined = Array.from(
       new Set([...pendingGeneralAdditional, ...pendingSpeciesAdditional]),
     );
@@ -437,7 +439,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
     typingTimeoutRef.current = setTimeout(() => {
       // Guard: Don't update state if component unmounted
       if (!isMountedRef.current) return;
-      
+
       setIsTyping(false);
       addBotMessage(`Let me summarize what you've told me about ${petName}:`);
       setShowSummary(true);
@@ -465,7 +467,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
       console.log('ConversationalSymptomChecker: Ignoring submit - component unmounted');
       return;
     }
-    
+
     const symptomsList = buildSymptomsList();
     const urgency = severity || 'mild';
 
@@ -484,6 +486,8 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
       progression: progression || null,
       // Include emergency screening data
       emergency_data: emergencyData || null,
+      // Hybrid Triage: Include user-typed symptoms
+      user_notes: otherSymptomsText.trim() || '',
       // Include session ID so parent can verify this callback is still valid
       _sessionId: instanceSessionIdRef.current,
     };
@@ -513,6 +517,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
     setAdditionalSymptoms([]);
     setPendingGeneralAdditional([]);
     setPendingSpeciesAdditional([]);
+    setOtherSymptomsText(''); // Reset typed symptoms
     setShowSummary(false);
     setIsTyping(false);
     setMessages([]);
@@ -926,6 +931,24 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
                 </div>
               </div>
             )}
+
+            {/* Hybrid Triage: Other Symptoms Text Box */}
+            <div className="mt-4 mb-3">
+              <label className="block text-[13px] font-semibold text-[#34113F] mb-2">
+                Any other symptoms not listed above?
+              </label>
+              <textarea
+                value={otherSymptomsText}
+                onChange={(e) => setOtherSymptomsText(e.target.value)}
+                placeholder="e.g., nosebleed, fainting, unusual behavior..."
+                className="w-full px-3 py-2 border border-[#D1D5DB] rounded-lg text-[13px] text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#815FB3] focus:border-transparent resize-none"
+                rows="3"
+                style={{ fontFamily: 'Raleway' }}
+              />
+              <p className="text-[11px] text-gray-500 mt-1">
+                💡 Type any symptoms not covered by the checkboxes above. This helps us provide a more accurate assessment.
+              </p>
+            </div>
 
             <div className="flex flex-wrap gap-2 justify-end mt-2">
               <button

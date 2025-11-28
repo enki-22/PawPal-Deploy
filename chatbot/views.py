@@ -269,6 +269,17 @@ def _validate_symptom_checker_payload(data: dict) -> tuple[bool, dict | None, Re
         if progression not in valid_progression:
             logger.warning(f"Invalid progression value: {progression}. Must be one of: {valid_progression}")
             data['progression'] = None  # Clear invalid data
+    
+    # HYBRID TRIAGE: Validate and sanitize user_notes
+    user_notes = data.get('user_notes', '')
+    if user_notes and isinstance(user_notes, str):
+        # Sanitize: trim whitespace and limit length to prevent abuse
+        user_notes = user_notes.strip()[:1000]  # Max 1000 characters
+        data['user_notes'] = user_notes
+        if user_notes:
+            logger.info(f"🔍 HYBRID TRIAGE: user_notes received ({len(user_notes)} chars): '{user_notes[:100]}...'")
+    else:
+        data['user_notes'] = ''
 
     species = str(data.get("species") or "").strip().capitalize()
     if species not in ALLOWED_SPECIES:
@@ -2474,7 +2485,12 @@ def symptom_checker_predict(request):
             logger.info(f"Severity: {cleaned.get('severity')}")
             logger.info(f"Progression: {cleaned.get('progression')}")
             
-            # Run vector similarity prediction
+            # HYBRID TRIAGE: Log user_notes if present
+            user_notes = cleaned.get('user_notes', '')
+            if user_notes:
+                logger.info(f"🔍 HYBRID TRIAGE: User-typed symptoms: '{user_notes}'")
+            
+            # Run vector similarity prediction (includes user_notes extraction)
             vector_result = predict_with_vector_similarity(cleaned)
             
             if not vector_result.get('success'):
