@@ -13,37 +13,45 @@ const SignupConfirmationModal = ({ show, onClose }) => {
   if (!show) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      background: 'rgba(0,0,0,0.25)',
-      zIndex: 9999,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}>
-      <div style={{
-        background: '#FFFFF2',
-        borderRadius: '32px',
-        padding: '48px 32px',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-        textAlign: 'center',
-        maxWidth: '480px',
-        width: '100%',
-      }}>
-        <div style={{ marginBottom: '24px' }}>
-          <img src="/logo_pawpal.png" alt="PawPal Logo" style={{ height: '56px', marginBottom: '16px' }} />
-          <h2 style={{ color: '#6D4A96', fontWeight: 800, fontSize: '2rem', marginBottom: '8px', fontFamily: 'Raleway' }}>
+    <div className="fixed inset-0 w-screen h-screen bg-black/25 z-[9999] flex items-center justify-center p-4">
+      {/* Modal Container */}
+      <div className="bg-[#FFFFF2] rounded-[30px] shadow-2xl relative flex flex-col items-center overflow-hidden"
+           style={{
+             width: '90%',
+             maxWidth: '660px', // Reduced by ~45% from 1200px
+             padding: '40px 30px',
+             minHeight: '350px' // Reduced height
+           }}>
+
+        {/* Header: Logo and Name - Absolute Upper Left */}
+        <div className="absolute top-6 left-6 flex items-center gap-3">
+          <img 
+            src="/pat-removebg-preview 2.png" 
+            alt="Paw Icon" 
+            className="w-12 h-12 object-contain" // Smaller logo
+          />
+          {/* PAWPAL Name - Purple and Smaller */}
+          <h1 className="text-[#815FB3] font-museo font-black text-2xl tracking-wide leading-none mt-1">
+            PAWPAL
+          </h1>
+        </div>
+
+        {/* Content Section: Centered */}
+        <div className="flex flex-col items-center justify-center flex-1 w-full mt-10">
+          <h2 className="text-[#34113F] font-extrabold text-2xl md:text-4xl leading-tight mb-4 font-raleway text-center">
             Thank you for signing up!
           </h2>
-          <p style={{ color: '#6D4A96', fontSize: '1.1rem', fontFamily: 'Raleway', marginBottom: '16px' }}>
+          <p className="text-[#34113F] text-base md:text-xl font-raleway font-medium text-center mb-8">
             Redirecting to sign in. Please login your new account.
           </p>
+
+          {/* Main Image: Smaller and at bottom */}
+          <img 
+            src="/confirmsignup.png" 
+            alt="Signup Confirmation" 
+            className="w-auto h-32 md:h-40 object-contain" // Smaller image height
+          />
         </div>
-        <img src="/signup-illustration.png" alt="Signup Illustration" style={{ width: '220px', margin: '0 auto' }} />
       </div>
     </div>
   );

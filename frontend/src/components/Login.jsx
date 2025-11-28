@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
+import showToast from '../utils/toast';
 import { useAuth } from '../context/AuthContext';
 import { useRegistration } from '../context/RegistrationContext';
 import Alert from './Alert';
@@ -212,7 +213,7 @@ const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) =>
   useEffect(() => {
     if (error) {
       setIsAlertFading(false); // Show it
-      
+
       const fadeTimer = setTimeout(() => {
         setIsAlertFading(true); // Start fading
       }, 2700); // Start fade at 2.7s
@@ -682,7 +683,7 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading, initialData }) => {
             )}
           </div>
           {/* Form Fields - All left-aligned */}
-          <form onSubmit={handleSubmit} className="mb-4">
+          <form onSubmit={handleSubmit} noValidate className="mb-4">
             <div className="flex flex-col gap-2">
               <div>
                 <label
@@ -705,33 +706,31 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading, initialData }) => {
                   {errors.name && (
                     <div style={{
                       position: 'absolute',
-                      top: '100%',
-                      right: '0',
+                      right: 0,
+                      bottom: '-44px',
                       background: '#ef4444',
                       color: 'white',
                       padding: '8px 12px',
                       borderRadius: '12px',
                       fontSize: '12px',
                       fontFamily: 'Raleway',
-                      fontWeight: '500',
+                      fontWeight: 500,
                       whiteSpace: 'nowrap',
                       boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
                       zIndex: 1000,
-                      marginTop: '4px',
-                      transform: 'translateX(0)',
                       animation: isFading ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
                     }}>
                       {errors.name}
                       <div style={{
                         position: 'absolute',
-                        top: '-4px',
+                        top: '-8px',
                         right: '16px',
-                        width: '0',
-                        height: '0',
-                        borderLeft: '4px solid transparent',
-                        borderRight: '4px solid transparent',
-                        borderBottom: '4px solid #ef4444'
-                      }}></div>
+                        width: 0,
+                        height: 0,
+                        borderLeft: '8px solid transparent',
+                        borderRight: '8px solid transparent',
+                        borderBottom: '8px solid #ef4444'
+                      }} />
                     </div>
                   )}
                 </div>
@@ -757,33 +756,31 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading, initialData }) => {
                   {errors.email && (
                     <div style={{
                       position: 'absolute',
-                      top: '100%',
-                      right: '0',
+                      right: 0,
+                      bottom: '-44px',
                       background: '#ef4444',
                       color: 'white',
                       padding: '8px 12px',
                       borderRadius: '12px',
                       fontSize: '12px',
                       fontFamily: 'Raleway',
-                      fontWeight: '500',
+                      fontWeight: 500,
                       whiteSpace: 'nowrap',
                       boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
                       zIndex: 1000,
-                      marginTop: '4px',
-                      transform: 'translateX(0)',
                       animation: isFading ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
                     }}>
                       {errors.email}
                       <div style={{
                         position: 'absolute',
-                        top: '-4px',
+                        top: '-8px',
                         right: '16px',
-                        width: '0',
-                        height: '0',
-                        borderLeft: '4px solid transparent',
-                        borderRight: '4px solid transparent',
-                        borderBottom: '4px solid #ef4444'
-                      }}></div>
+                        width: 0,
+                        height: 0,
+                        borderLeft: '8px solid transparent',
+                        borderRight: '8px solid transparent',
+                        borderBottom: '8px solid #ef4444'
+                      }} />
                     </div>
                   )}
                 </div>
@@ -822,33 +819,32 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading, initialData }) => {
                   {errors.password && (
                     <div style={{
                       position: 'absolute',
-                      top: '100%',
-                      right: '0',
+                      right: 0,
+                      bottom: '-44px',
                       background: '#ef4444',
                       color: 'white',
                       padding: '8px 12px',
                       borderRadius: '12px',
                       fontSize: '12px',
                       fontFamily: 'Raleway',
-                      fontWeight: '500',
+                      fontWeight: 500,
                       whiteSpace: 'nowrap',
                       boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
                       zIndex: 1000,
                       marginTop: '4px',
-                      transform: 'translateX(0)',
                       animation: isFading ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
                     }}>
                       {errors.password}
                       <div style={{
                         position: 'absolute',
-                        top: '-4px',
+                        top: '-8px',
                         right: '16px',
-                        width: '0',
-                        height: '0',
-                        borderLeft: '4px solid transparent',
-                        borderRight: '4px solid transparent',
-                        borderBottom: '4px solid #ef4444'
-                      }}></div>
+                        width: 0,
+                        height: 0,
+                        borderLeft: '8px solid transparent',
+                        borderRight: '8px solid transparent',
+                        borderBottom: '8px solid #ef4444'
+                      }} />
                     </div>
                   )}
                 </div>
@@ -887,43 +883,40 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading, initialData }) => {
                   {errors.confirmPassword && (
                     <div style={{
                       position: 'absolute',
-                      top: '100%',
-                      right: '0',
+                      right: 0,
+                      bottom: '-44px',
                       background: '#ef4444',
                       color: 'white',
                       padding: '8px 12px',
                       borderRadius: '12px',
                       fontSize: '12px',
                       fontFamily: 'Raleway',
-                      fontWeight: '500',
+                      fontWeight: 500,
                       whiteSpace: 'nowrap',
                       boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
                       zIndex: 1000,
                       marginTop: '4px',
-                      transform: 'translateX(0)',
                       animation: isFading ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
                     }}>
                       {errors.confirmPassword}
                       <div style={{
                         position: 'absolute',
-                        top: '-4px',
+                        top: '-8px',
                         right: '16px',
-                        width: '0',
-                        height: '0',
-                        borderLeft: '4px solid transparent',
-                        borderRight: '4px solid transparent',
-                        borderBottom: '4px solid #ef4444'
-                      }}></div>
+                        width: 0,
+                        height: 0,
+                        borderLeft: '8px solid transparent',
+                        borderRight: '8px solid transparent',
+                        borderBottom: '8px solid #ef4444'
+                      }} />
                     </div>
                   )}
                 </div>
               </div>
             </div>
-          </form>
           <div className="flex justify-center mt-4">
             <button
               type="submit"
-              onClick={handleSubmit}
               disabled={loading}
               className="w-full max-w-[201px] h-[40px] bg-[#815FB3] shadow-md rounded-lg border-none font-extrabold text-[16px] text-white text-center"
               style={{ fontFamily: 'Raleway', boxShadow: '0px 4px 4px rgba(0,0,0,0.15)', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
@@ -931,6 +924,7 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading, initialData }) => {
               {loading ? 'Creating Account...' : 'Next'}
             </button>
           </div>
+          </form>
         </div>
       </div>
     </>
@@ -944,6 +938,21 @@ const UnifiedAuth = () => {
   const successMessage = location.state?.message;
   const { user, token } = useAuth();
   const { updateStep1, registrationData } = useRegistration();
+
+  // Guard against duplicate toasts (React Strict Mode may mount effects twice in dev)
+  const _shownSuccessRef = useRef(new Set());
+  useEffect(() => {
+    if (successMessage && !_shownSuccessRef.current.has(successMessage)) {
+      try {
+        showToast({ message: successMessage, type: 'success' });
+      } catch (e) {
+        console.debug('showToast failed', e);
+      }
+      _shownSuccessRef.current.add(successMessage);
+      // Replace the current history entry with an empty state so the message doesn't reappear
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [successMessage, navigate, location.pathname]);
 
   // Guarantee redirect after login: watch user and token
   useEffect(() => {
