@@ -79,7 +79,19 @@ export default function AdminVerifyResetCode() {
       setError('Enter your email and 6-digit code.');
       return;
     }
-    navigate('/admin/create-new-password', { state: { email, code, verified: true } });
+    try {
+      setLoading(true);
+      setError('');
+      await adminAuthService.verifyOtp({ email, otp_code: code });
+      // OTP verified successfully, navigate to create new password
+      navigate('/admin/create-new-password', { state: { email, code, verified: true } });
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.response?.data?.error || 'Invalid code. Please try again.';
+      setError(msg);
+      // Do NOT navigate on failure
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

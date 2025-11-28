@@ -79,7 +79,19 @@ export default function VerifyResetCode() {
       setError('Enter your email and 6-digit code.');
       return;
     }
-    navigate('/create-new-password', { state: { email, code, verified: true } });
+    try {
+      setLoading(true);
+      setError('');
+      await authService.verifyOtp({ email, purpose: 'password_reset', code });
+      // OTP verified successfully, navigate to create new password
+      navigate('/create-new-password', { state: { email, code, verified: true } });
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.response?.data?.message || 'Invalid code. Please try again.';
+      setError(msg);
+      // Do NOT navigate on failure
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
