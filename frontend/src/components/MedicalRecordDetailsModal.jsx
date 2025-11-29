@@ -3,16 +3,19 @@ import React, { useState, useEffect } from 'react';
 const MedicalRecordDetailsModal = ({ isOpen, onClose, record, onDelete, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editableRecord, setEditableRecord] = useState(record);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     setEditableRecord(record);
-  }, [record]);
+    setError('');
+  }, [record, isOpen]);
 
   if (!isOpen || !record) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditableRecord(prev => ({ ...prev, [name]: value }));
+    setError(''); // Clear error on change
   };
 
   const handleEdit = () => {
@@ -22,9 +25,18 @@ const MedicalRecordDetailsModal = ({ isOpen, onClose, record, onDelete, onSave }
   const handleCancel = () => {
     setIsEditing(false);
     setEditableRecord(record);
+    setError('');
   };
 
   const handleSave = () => {
+    // Validation
+    if (editableRecord.date && editableRecord.followUpDate) {
+      if (new Date(editableRecord.followUpDate) < new Date(editableRecord.date)) {
+        setError('Follow-up date cannot be earlier than the date of service.');
+        return;
+      }
+    }
+
     onSave(editableRecord);
     setIsEditing(false);
   };
@@ -59,6 +71,8 @@ const MedicalRecordDetailsModal = ({ isOpen, onClose, record, onDelete, onSave }
             id={name}
             value={value || ''}
             onChange={handleChange}
+            // Add min date constraint to followUpDate input
+            min={name === 'followUpDate' ? editableRecord.date : undefined}
             className={`${editClasses} h-11`}
           />
         );
@@ -131,13 +145,20 @@ const MedicalRecordDetailsModal = ({ isOpen, onClose, record, onDelete, onSave }
             <label htmlFor="notes" className="block text-sm mb-1">Notes (Optional)</label>
             {renderField('Notes', 'notes', editableRecord.notes, true)}
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded">
+              {error}
+            </div>
+          )}
         </form>
         {/* Footer: flex-shrink-0, pt-6 for spacing above buttons */}
         <div className="flex-shrink-0 flex justify-end items-center gap-4 pt-6">
           {isEditing ? (
             <>
               <button type="button" onClick={handleCancel} className="bg-gray-300 text-gray-800 px-6 py-2 rounded font-semibold hover:bg-gray-400">Cancel</button>
-              <button type="button" onClick={handleSave} className="bg-green-500 text-white px-6 py-2 rounded font-semibold hover:bg-green-600">Save Changes</button>
+              <button type="button" onClick={handleSave} className="bg-[#815FB3] text-white px-6 py-2 rounded font-semibold hover:bg-[#6d4ca1]">Save Changes</button>
             </>
           ) : (
             <>
