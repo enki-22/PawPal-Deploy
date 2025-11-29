@@ -89,16 +89,13 @@ def apply_pet_status_filter(queryset, status):
     Returns:
         Filtered QuerySet
     """
+    # If no specific status requested, return original queryset
     if not status or status == 'all':
         return queryset
-    
-    # Since Pet model doesn't have a status field,
-    # we'll treat all existing pets as 'active'
-    if status == 'active':
-        return queryset  # Return all (assuming all are active)
-    elif status in ['inactive', 'deceased']:
-        return queryset.none()  # Return empty queryset
-    
+
+    # FIX: Pet model doesn't have a status field in current schema.
+    # To avoid accidentally returning an empty set for 'inactive' or 'deceased',
+    # return the queryset unchanged and let the frontend filter if needed.
     return queryset
 
 
@@ -120,9 +117,11 @@ def apply_pet_pagination(queryset, page, limit):
         page = 1
     
     try:
-        limit = max(min(int(limit), 100), 1)  # Limit between 1 and 100
+        # FIX: Increase max limit to 1000
+        limit = max(min(int(limit), 1000), 1)
     except (ValueError, TypeError):
-        limit = 10
+        # FIX: Default fallback to 50
+        limit = 50
     
     total = queryset.count()
     total_pages = (total + limit - 1) // limit if limit > 0 else 1
@@ -168,7 +167,7 @@ def filter_pets(queryset, filters):
     species = filters.get('species', 'all')
     status = filters.get('status', 'all')
     page = filters.get('page', 1)
-    limit = filters.get('limit', 10)
+    limit = filters.get('limit', 50)
     
     # Apply filters sequentially
     queryset = apply_pet_search(queryset, search_term)
@@ -217,7 +216,7 @@ def validate_pet_filter_params(params):
     
     # Validate pagination
     page = params.get('page', 1)
-    limit = params.get('limit', 10)
+    limit = params.get('limit', 50)
     
     try:
         page = int(page)
@@ -228,8 +227,8 @@ def validate_pet_filter_params(params):
     
     try:
         limit = int(limit)
-        if limit < 1 or limit > 100:
-            return False, "Limit must be between 1 and 100"
+        if limit < 1 or limit > 1000:
+            return False, "Limit must be between 1 and 1000"
     except (ValueError, TypeError):
         return False, "Limit must be a valid integer"
     

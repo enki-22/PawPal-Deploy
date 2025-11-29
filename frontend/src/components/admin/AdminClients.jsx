@@ -47,7 +47,7 @@ const AdminClients = () => {
   const fetchClientsData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await adminAxios.get('/admin/clients').catch((err) => {
+      const response = await adminAxios.get('/admin/clients?limit=1000').catch((err) => {
         console.error('❌ /admin/clients error:', err);
         if (err.response) {
           console.error('❌ Error response data:', err.response.data);

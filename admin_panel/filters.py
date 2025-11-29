@@ -171,9 +171,11 @@ def apply_pagination(queryset, page, limit):
         page = 1
     
     try:
-        limit = max(min(int(limit), 100), 1)  # Limit between 1 and 100
+        # FIX: Increase max limit to 1000
+        limit = max(min(int(limit), 1000), 1)
     except (ValueError, TypeError):
-        limit = 10
+        # FIX: Default fallback to 50
+        limit = 50
     
     total = queryset.count()
     total_pages = (total + limit - 1) // limit if limit > 0 else 1
@@ -225,7 +227,7 @@ def filter_reports(queryset, filters):
     species = filters.get('species', 'all')
     flag_level = filters.get('flagLevel', 'all')
     page = filters.get('page', 1)
-    limit = filters.get('limit', 10)
+    limit = filters.get('limit', 50)
     
     # Apply filters sequentially
     queryset = apply_search_filter(queryset, search_term)
@@ -305,7 +307,7 @@ def validate_filter_params(params):
     
     # Validate pagination
     page = params.get('page', 1)
-    limit = params.get('limit', 10)
+    limit = params.get('limit', 50)
     
     try:
         page = int(page)
@@ -316,8 +318,8 @@ def validate_filter_params(params):
     
     try:
         limit = int(limit)
-        if limit < 1 or limit > 100:
-            return False, "Limit must be between 1 and 100"
+        if limit < 1 or limit > 1000:
+            return False, "Limit must be between 1 and 1000"
     except (ValueError, TypeError):
         return False, "Limit must be a valid integer"
     

@@ -46,7 +46,7 @@ const AdminPets = () => {
   const fetchPetsData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await adminAxios.get('/admin/pets')
+      const response = await adminAxios.get('/admin/pets?limit=1000')
         .catch((err) => {
           console.error('❌ /admin/pets error:', err);
           if (err.response) {

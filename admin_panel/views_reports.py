@@ -53,7 +53,7 @@ def get_reports(request):
             'species': request.query_params.get('species', 'all'),
             'flagLevel': request.query_params.get('flagLevel', 'all'),
             'page': request.query_params.get('page', 1),
-            'limit': request.query_params.get('limit', 10)
+            'limit': request.query_params.get('limit', 1000)
         }
         
         # Validate parameters

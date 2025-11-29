@@ -79,7 +79,7 @@ def _get_admin_roles_list(request):
             'role': request.query_params.get('role', 'all'),
             'status': request.query_params.get('status', 'all'),
             'page': request.query_params.get('page', 1),
-            'limit': request.query_params.get('limit', 10)
+            'limit': request.query_params.get('limit', 1000)
         }
         
         # Validate parameters
