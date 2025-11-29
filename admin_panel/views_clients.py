@@ -93,6 +93,7 @@ def get_clients(request):
                 user_status = "Deactivated"
             results.append({
                 'id': user.id,
+                'username': user.username,
                 'name': f"{user.first_name} {user.last_name}".strip() or user.username,
                 'email': user.email,
                 'pet_count': user.pet_count if hasattr(user, 'pet_count') else 0,
@@ -169,6 +170,16 @@ def client_detail(request, user_id):
             profile = getattr(user, 'profile', None)
             updated_fields = []
             with transaction.atomic():
+                # Handle username updates (validate uniqueness)
+                if 'username' in request.data:
+                    new_username = (request.data.get('username') or '').strip()
+                    if new_username and new_username != user.username:
+                        if User.objects.filter(username=new_username).exclude(id=user_id).exists():
+                            return Response({'success': False, 'error': 'Username already taken'}, status=status.HTTP_400_BAD_REQUEST)
+                        user.username = new_username
+                        updated_fields.append('username')
+
+                # Update User fields
                 if 'name' in request.data:
                     name = request.data['name'].strip()
                     name_parts = name.split(maxsplit=1)
@@ -187,25 +198,55 @@ def client_detail(request, user_id):
                 if updated_fields:
                     user.save()
 
+                # Update profile fields
                 if profile:
+                    profile_changed = False
                     if 'contact_number' in request.data:
-                        # support both contact_number and phone_number mapping
-                        profile.contact_number = request.data.get('contact_number') or request.data.get('phone_number')
+                        # FIX: map incoming contact_number to phone_number field
+                        phone_val = request.data.get('contact_number') or request.data.get('phone_number')
+                        profile.phone_number = phone_val
                         updated_fields.append('contact_number')
+                        profile_changed = True
+
                     if 'facebook_link' in request.data:
                         profile.facebook = request.data.get('facebook_link')
                         updated_fields.append('facebook')
-                    # Save profile if changed
-                    if len(updated_fields) > (1 if 'name' in updated_fields or 'email' in updated_fields else 0):
+                        profile_changed = True
+
+                    # support city/province/address
+                    if 'city' in request.data:
+                        profile.city = request.data.get('city')
+                        updated_fields.append('city')
+                        profile_changed = True
+
+                    if 'province' in request.data:
+                        profile.province = request.data.get('province')
+                        updated_fields.append('province')
+                        profile_changed = True
+
+                    if 'address' in request.data:
+                        profile.address = request.data.get('address')
+                        updated_fields.append('address')
+                        profile_changed = True
+
+                    if profile_changed:
                         profile.save()
 
+            # Return updated data using same keys as GET for consistency
             client_data = {
-                'user_id': user.id,
+                'id': user.id,
+                'username': user.username,
                 'name': f"{user.first_name} {user.last_name}".strip() or user.username,
                 'email': user.email,
-                'contact_number': profile.contact_number if profile and hasattr(profile, 'contact_number') else None,
-                'address': profile.address if profile and hasattr(profile, 'address') else None,
-                'city_province': profile.city_province if profile and hasattr(profile, 'city_province') else None
+                'contact_number': profile.phone_number if profile else None,
+                'city': profile.city if profile else None,
+                'province': profile.province if profile else None,
+                'address': profile.address if profile else None,
+                'is_verified': profile.is_verified if profile and hasattr(profile, 'is_verified') else False,
+                'status': 'Active' if user.is_active else 'Inactive',
+                'profile_image': profile.profile_picture.url if (profile and profile.profile_picture) else None,
+                'facebook_link': profile.facebook if profile else None,
+                'date_joined': user.date_joined.isoformat()
             }
 
             return Response({'success': True, 'message': 'Client information updated successfully', 'updated_fields': updated_fields, 'client': client_data}, status=status.HTTP_200_OK)
@@ -250,6 +291,7 @@ def client_detail(request, user_id):
         # Build client data with separated Address fields
         client_data = {
             'id': user.id,
+            'username': user.username,
             'name': f"{user.first_name} {user.last_name}".strip() or user.username,
             'email': user.email,
             'contact_number': profile.phone_number if profile else None,  # Note: Model uses phone_number, not contact_number

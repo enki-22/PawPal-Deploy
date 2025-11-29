@@ -79,6 +79,7 @@ const AdminClients = () => {
       filtered = filtered.filter(
         client =>
           client.name?.toLowerCase().includes(term) ||
+          client.username?.toLowerCase().includes(term) ||
           client.email?.toLowerCase().includes(term)
       );
     }
@@ -179,15 +180,15 @@ const AdminClients = () => {
           <div className="bg-[#fffff2] h-[40px] border-b border-[#888888] flex items-center px-[32px] gap-4">
             {/* Removed checkbox column from table header */}
             {/* Col 2: Registered User */}
-            <div className="flex-1 flex items-center gap-1 cursor-pointer" onClick={() => handleSort('name')}>
-              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Registered User</span>
-              <img src="/fa6-solid_sort.png" alt="Sort" style={{ width: 10, height: 16, marginLeft: 4, transition: 'transform 0.2s',
-                filter: sortConfig.key === 'name' && sortConfig.direction !== 'none' ? 'brightness(1.2)' : 'brightness(0.7)',
-                transform:
-                  sortConfig.key !== 'name' || sortConfig.direction === 'none' ? 'rotate(0deg)' :
-                  sortConfig.direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)'
-              }} />
-            </div>
+            <div className="flex-1 flex items-center gap-1 cursor-pointer" onClick={() => handleSort('username')}>
+                <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Registered User</span>
+                <img src="/fa6-solid_sort.png" alt="Sort" style={{ width: 10, height: 16, marginLeft: 4, transition: 'transform 0.2s',
+                  filter: sortConfig.key === 'username' && sortConfig.direction !== 'none' ? 'brightness(1.2)' : 'brightness(0.7)',
+                  transform:
+                    sortConfig.key !== 'username' || sortConfig.direction === 'none' ? 'rotate(0deg)' :
+                    sortConfig.direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)'
+                }} />
+              </div>
             {/* Col 3: Pets Owned */}
             <div className="w-48 flex items-center gap-1 cursor-pointer" onClick={() => handleSort('pet_count')}>
               <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#888888]">Number of Pets Owned</span>
@@ -249,7 +250,7 @@ const AdminClients = () => {
                   {/* Removed checkbox cell from table row */}
                   {/* Col 2: Registered User */}
                   <div className="flex-1 truncate">
-                    <span className="font-['Inter:Bold',sans-serif] font-bold text-[12px] text-black">{client.name}</span>
+                    <span className="font-['Inter:Bold',sans-serif] font-bold text-[12px] text-black">{client.username || client.name}</span>
                   </div>
                   {/* Col 3: Pets Owned */}
                   <div className="w-48">
@@ -309,6 +310,7 @@ const AdminClients = () => {
             clientId={selectedClientId}
             onClose={() => setSelectedClientId(null)}
             adminAxios={adminAxios}
+            onUpdateSuccess={fetchClientsData}
           />
         </>
       )}
