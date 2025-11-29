@@ -5,6 +5,7 @@ const AddVaccinationRecordModal = ({ isOpen, onClose, onSave }) => {
   const [administeredBy, setAdministeredBy] = useState('');
   const [dateAdministered, setDateAdministered] = useState('');
   const [nextDueDate, setNextDueDate] = useState('');
+  const [error, setError] = useState('');
 
   // Reset form fields when modal is opened
   useEffect(() => {
@@ -13,11 +14,22 @@ const AddVaccinationRecordModal = ({ isOpen, onClose, onSave }) => {
       setAdministeredBy('');
       setDateAdministered('');
       setNextDueDate('');
+      setError('');
     }
   }, [isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError('');
+
+    // Date Validation
+    if (dateAdministered && nextDueDate) {
+      if (new Date(nextDueDate) < new Date(dateAdministered)) {
+        setError('Next due date cannot be earlier than the administration date.');
+        return;
+      }
+    }
+
     onSave && onSave({ vaccineType, administeredBy, dateAdministered, nextDueDate });
     onClose();
   };
@@ -64,9 +76,21 @@ const AddVaccinationRecordModal = ({ isOpen, onClose, onSave }) => {
             </div>
             <div>
               <label className="block text-sm mb-1">Next Due Date (Optional)</label>
-              <input type="date" value={nextDueDate} onChange={e => setNextDueDate(e.target.value)} className="w-full border rounded px-3 py-2 focus:outline-none focus:ring" />
+              <input 
+                type="date" 
+                value={nextDueDate} 
+                onChange={e => setNextDueDate(e.target.value)} 
+                min={dateAdministered} // Prevent picking invalid date in UI
+                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring" 
+              />
             </div>
           </div>
+          {/* Error Message Display */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded">
+              {error}
+            </div>
+          )}
           {/* Footer */}
           <div className="flex flex-col md:flex-row md:justify-end items-center gap-4 mt-6">
             <button type="button" onClick={onClose} className="w-full md:w-auto text-gray-500 px-4 py-2 rounded hover:text-gray-700">Cancel</button>

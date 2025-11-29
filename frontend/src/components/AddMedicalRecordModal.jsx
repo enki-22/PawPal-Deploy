@@ -8,6 +8,7 @@ const AddMedicalRecordModal = ({ isOpen, onClose, onSave }) => {
   const [diagnosis, setDiagnosis] = useState('');
   const [treatment, setTreatment] = useState('');
   const [notes, setNotes] = useState('');
+  const [error, setError] = useState('');
 
   // Reset form fields when modal is opened
   useEffect(() => {
@@ -19,11 +20,22 @@ const AddMedicalRecordModal = ({ isOpen, onClose, onSave }) => {
       setDiagnosis('');
       setTreatment('');
       setNotes('');
+      setError('');
     }
   }, [isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError('');
+
+    // Date Validation
+    if (date && followUpDate) {
+      if (new Date(followUpDate) < new Date(date)) {
+        setError('Follow-up date cannot be earlier than the service date.');
+        return;
+      }
+    }
+
     onSave && onSave({ serviceType, provider, date, followUpDate, diagnosis, treatment, notes });
     onClose();
   };
@@ -63,7 +75,7 @@ const AddMedicalRecordModal = ({ isOpen, onClose, onSave }) => {
               </div>
               <div>
                 <label className="block text-sm mb-1">Follow-up Date (Optional)</label>
-                <input type="date" value={followUpDate} onChange={e => setFollowUpDate(e.target.value)} className="w-full border rounded px-3 py-2 focus:outline-none focus:ring" />
+                <input type="date" value={followUpDate} onChange={e => setFollowUpDate(e.target.value)} min={date} className="w-full border rounded px-3 py-2 focus:outline-none focus:ring" />
               </div>
             </div>
             <div className="mb-4">
@@ -78,6 +90,11 @@ const AddMedicalRecordModal = ({ isOpen, onClose, onSave }) => {
               <label className="block text-sm mb-1">Notes (Optional)</label>
               <textarea value={notes} onChange={e => setNotes(e.target.value)} className="w-full border rounded px-3 py-2 focus:outline-none focus:ring" rows={2} />
             </div>
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded">
+                {error}
+              </div>
+            )}
           </div>
           {/* Footer (kept outside scroll area so always visible) */}
           <div className="sticky md:static bottom-0 bg-white md:bg-transparent w-full md:w-auto border-t md:border-t-0 border-gray-100 flex flex-col md:flex-row md:justify-end items-center gap-4 mt-4 py-3 shrink-0">

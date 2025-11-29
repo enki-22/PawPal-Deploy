@@ -3,16 +3,19 @@ import React, { useState, useEffect } from 'react';
 const VaccinationRecordDetailsModal = ({ isOpen, onClose, record, onDelete, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editableRecord, setEditableRecord] = useState(record);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     setEditableRecord(record);
-  }, [record]);
+    setError('');
+  }, [record, isOpen]);
 
   if (!isOpen || !record) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditableRecord(prev => ({ ...prev, [name]: value }));
+    setError(''); // Clear error on change
   };
 
   const handleEdit = () => {
@@ -22,9 +25,18 @@ const VaccinationRecordDetailsModal = ({ isOpen, onClose, record, onDelete, onSa
   const handleCancel = () => {
     setIsEditing(false);
     setEditableRecord(record);
+    setError('');
   };
 
   const handleSave = () => {
+    // Validation Logic
+    if (editableRecord.dateAdministered && editableRecord.nextDueDate) {
+      if (new Date(editableRecord.nextDueDate) < new Date(editableRecord.dateAdministered)) {
+        setError('Next due date cannot be earlier than the date administered.');
+        return;
+      }
+    }
+
     onSave(editableRecord);
     setIsEditing(false);
   };
@@ -60,7 +72,12 @@ const VaccinationRecordDetailsModal = ({ isOpen, onClose, record, onDelete, onSa
       }
       if (name === 'dateAdministered' || name === 'nextDueDate') {
         return (
-          <input type="date" {...commonProps} />
+          <input 
+            type="date" 
+            {...commonProps}
+            // Add min constraint to nextDueDate input
+            min={name === 'nextDueDate' ? editableRecord.dateAdministered : undefined}
+          />
         );
       }
       return isTextArea ? (
@@ -101,11 +118,19 @@ const VaccinationRecordDetailsModal = ({ isOpen, onClose, record, onDelete, onSa
               {renderField('Next Due Date', 'nextDueDate', editableRecord.nextDueDate)}
             </div>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded">
+              {error}
+            </div>
+          )}
+
           <div className="flex justify-end items-center gap-4">
             {isEditing ? (
               <>
                 <button type="button" onClick={handleCancel} className="bg-gray-300 text-gray-800 px-6 py-2 rounded font-semibold hover:bg-gray-400">Cancel</button>
-                <button type="button" onClick={handleSave} className="bg-green-500 text-white px-6 py-2 rounded font-semibold hover:bg-green-600">Save Changes</button>
+                <button type="button" onClick={handleSave} className="bg-[#815FB3] text-white px-6 py-2 rounded font-semibold hover:bg-[#6d4ca1]">Save Changes</button>
               </>
             ) : (
               <>

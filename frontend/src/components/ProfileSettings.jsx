@@ -7,6 +7,7 @@ import ProfileButton from './ProfileButton';
 import LogoutModal from './LogoutModal';
 import useConversations from '../hooks/useConversations';
 import phLocations from '../data/ph_locations.json';
+import CustomDropdown from './CustomDropdown';
 
 // --- Internal Confirmation Modal Component ---
 const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, loading }) => {
@@ -446,6 +447,13 @@ const ProfileSettings = () => {
   const cancelEditProfile = () => {
     setEditingProfile(false);
     setSelectedFile(null);
+    // Revert changes by re-fetching data from server
+    try {
+      fetchProfileData();
+    } catch (err) {
+      // ignore
+    }
+
     // Reset preview to original
     if (profileData.profile_picture) {
         const imgUrl = profileData.profile_picture.startsWith('http') 
@@ -461,6 +469,18 @@ const ProfileSettings = () => {
         ? (profileData.profile_picture.startsWith('http') ? profileData.profile_picture : `${API_BASE_URL.replace('/api', '')}${profileData.profile_picture}`)
         : null;
       window.dispatchEvent(new CustomEvent('profileUpdated', { detail: { profile_picture: original } }));
+    } catch (err) {
+      // ignore
+    }
+  };
+
+  // NEW cancel function for Contact Info
+  const cancelEditContact = () => {
+    setEditingContact(false);
+    setContactErrors({});
+    // Revert changes by re-fetching data from server
+    try {
+      fetchProfileData();
     } catch (err) {
       // ignore
     }
@@ -647,33 +667,14 @@ const ProfileSettings = () => {
                          <label className="block text-gray-600 font-bold text-sm mb-1">City</label>
                          {editingContact ? (
                            <>
-                             <select
-                               id="city"
+                             <CustomDropdown
                                name="city"
                                value={profileData.city}
                                onChange={(e) => handleInputChange('city', e.target.value)}
+                               options={cities}
                                disabled={!profileData.province}
-                               className={`w-full px-3 py-2 font-raleway text-base appearance-none ${!profileData.province ? 'opacity-60 cursor-not-allowed' : ''}`}
-                               style={{
-                                 background: '#815FB3',
-                                 color: 'white',
-                                 border: 'none',
-                                 borderRadius: '5px',
-                                 outline: 'none',
-                                 cursor: profileData.province ? 'pointer' : 'not-allowed',
-                                 WebkitAppearance: 'none',
-                                 MozAppearance: 'none',
-                                 backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")`,
-                                 backgroundRepeat: 'no-repeat',
-                                 backgroundPosition: 'right 0.5rem center',
-                                 backgroundSize: '1em'
-                               }}
-                             >
-                               <option value="" disabled hidden>City</option>
-                               {cities.map(city => (
-                                 <option key={city} value={city}>{city}</option>
-                               ))}
-                             </select>
+                               placeholder="City"
+                             />
                              {contactErrors.city && <p className="text-red-500 text-xs mt-1">{contactErrors.city}</p>}
                            </>
                          ) : <p className="text-gray-800">{profileData.city || 'N/A'}</p>}
@@ -682,32 +683,13 @@ const ProfileSettings = () => {
                          <label className="block text-gray-600 font-bold text-sm mb-1">Province</label>
                          {editingContact ? (
                            <>
-                             <select
-                               id="province"
+                             <CustomDropdown
                                name="province"
                                value={profileData.province}
                                onChange={(e) => { handleInputChange('province', e.target.value); handleInputChange('city', ''); }}
-                               className="w-full px-3 py-2 font-raleway text-base appearance-none"
-                               style={{
-                                 background: '#815FB3',
-                                 color: 'white',
-                                 border: 'none',
-                                 borderRadius: '5px',
-                                 outline: 'none',
-                                 cursor: 'pointer',
-                                 WebkitAppearance: 'none',
-                                 MozAppearance: 'none',
-                                 backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")`,
-                                 backgroundRepeat: 'no-repeat',
-                                 backgroundPosition: 'right 0.5rem center',
-                                 backgroundSize: '1em'
-                               }}
-                             >
-                               <option value="" disabled hidden>Province</option>
-                               {provinces.map(prov => (
-                                 <option key={prov} value={prov}>{prov}</option>
-                               ))}
-                             </select>
+                               options={provinces}
+                               placeholder="Province"
+                             />
                              {contactErrors.province && <p className="text-red-500 text-xs mt-1">{contactErrors.province}</p>}
                            </>
                          ) : <p className="text-gray-800">{profileData.province || 'N/A'}</p>}
@@ -716,7 +698,7 @@ const ProfileSettings = () => {
                  <div className="flex justify-end mt-8">
                     {editingContact ? (
                       <div className="flex gap-3">
-                          <button onClick={() => setEditingContact(false)} className="px-6 py-2 rounded-full text-gray-600 font-bold hover:bg-gray-200 shadow-sm transition-transform">Cancel</button>
+                          <button onClick={cancelEditContact} className="px-6 py-2 rounded-full text-gray-600 font-bold hover:bg-gray-200 shadow-sm transition-transform">Cancel</button>
                           <button onClick={() => initiateSave('contact')} className="bg-[#815FB3] text-white font-bold py-2 px-8 rounded-2xl shadow-lg hover:bg-[#6D4C9A] transform hover:-translate-y-0.5 transition-all">Save Changes</button>
                       </div>
                     ) : (

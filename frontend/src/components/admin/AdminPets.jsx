@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import AdminTopNav from './AdminTopNav';
 import { ChevronDown, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import CustomDropdown from '../common/CustomDropdown';
 
 const AdminPets = () => {
   // Sorting state with neutral 'none' direction
@@ -170,38 +171,20 @@ const AdminPets = () => {
             </div>
             
             {/* Date Range Filter */}
-            <div className="relative">
-              <select
-                value={dateRange}
-                onChange={e => setDateRange(e.target.value)}
-                className="bg-[#f0e4b3] h-[31px] w-[125px] rounded-[5px] px-3 pr-8 text-[12px] text-black font-['Inter:Regular',sans-serif] border-none outline-none cursor-pointer"
-                style={{ appearance: 'none' }}
-              >
-                {dateRangeOptions.map(option => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-              <span className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2">
-                <ChevronDown className="w-[12px] h-[12px] text-black" />
-              </span>
-            </div>
+            <CustomDropdown
+              options={dateRangeOptions}
+              value={dateRange}
+              onChange={(val) => setDateRange(val)}
+              width="125px"
+            />
             
             {/* Status Filter */}
-            <div className="relative">
-              <select
-                value={status}
-                onChange={e => setStatus(e.target.value)}
-                className="bg-[#f0e4b3] h-[31px] w-[122px] rounded-[5px] px-3 pr-8 text-[12px] text-black font-['Inter:Regular',sans-serif] border-none outline-none cursor-pointer"
-                style={{ appearance: 'none' }}
-              >
-                {statusOptions.map(option => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-              <span className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2">
-                <ChevronDown className="w-[12px] h-[12px] text-black" />
-              </span>
-            </div>
+            <CustomDropdown
+              options={statusOptions}
+              value={status}
+              onChange={(val) => setStatus(val)}
+              width="122px"
+            />
           </div>
         </div>
 
