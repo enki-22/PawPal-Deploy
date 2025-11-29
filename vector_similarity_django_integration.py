@@ -151,14 +151,29 @@ def predict_with_vector_similarity(payload):
         # === HYBRID TRIAGE: Extract symptoms from user_notes ===
         extraction_result = extract_symptoms_from_text(user_notes, symptoms_list)
         
+        # === SAFETY INTERCEPTOR: Check for red flags IMMEDIATELY ===
+        # This takes ABSOLUTE PRECEDENCE over RAP system or any other urgency calculation
+        safety_override_active = False
+        safety_override_reason = []
+        
         if extraction_result['extracted_symptoms']:
             logger.info(f"🔍 HYBRID TRIAGE: Extracted {len(extraction_result['extracted_symptoms'])} symptoms from user_notes")
             logger.info(f"   Original: {symptoms_list}")
             logger.info(f"   Extracted: {extraction_result['extracted_symptoms']}")
             logger.info(f"   Combined: {extraction_result['combined_symptoms']}")
             
+            # CRITICAL: Check if ANY extracted symptom is a red flag
             if extraction_result['red_flags_detected']:
-                logger.warning(f"🚨 RED FLAGS detected in user_notes: {extraction_result['red_flags_detected']}")
+                safety_override_active = True
+                red_flag_names = [s.replace('_', ' ').title() for s in extraction_result['red_flags_detected']]
+                safety_override_reason = red_flag_names
+                
+                logger.warning(f"{'='*70}")
+                logger.warning(f"🚨 SAFETY INTERCEPTOR ACTIVATED 🚨")
+                logger.warning(f"RED FLAGS detected in user-typed symptoms: {red_flag_names}")
+                logger.warning(f"This OVERRIDES all other urgency calculations (including RAP)")
+                logger.warning(f"Final urgency will be: CRITICAL")
+                logger.warning(f"{'='*70}")
         
         # Use combined symptoms (checkbox + typed)
         symptoms_list = extraction_result['combined_symptoms']
@@ -184,48 +199,97 @@ def predict_with_vector_similarity(payload):
                 'total_symptoms': match['total_disease_symptoms']
             })
         
-        # Build triage assessment (compatible with existing format)
-        emergency_indicators = result['urgency'] in ['CRITICAL', 'HIGH']
-        requires_immediate = result['urgency'] == 'CRITICAL'
+        # === SAFETY INTERCEPTOR: Build triage assessment with override logic ===
+        # If safety override is active, FORCE critical urgency regardless of RAP/engine results
+        if safety_override_active:
+            # SAFETY OVERRIDE: User typed emergency symptom - this is CRITICAL
+            logger.warning(f"🚨 SAFETY INTERCEPTOR: Forcing CRITICAL urgency (RAP result ignored)")
+            
+            # Build dynamic reason string with specific symptoms
+            symptom_list = ', '.join(safety_override_reason)
+            dynamic_critical_message = (
+                f"🚨 CRITICAL ALERT: You reported '{symptom_list}'. "
+                f"These are potential signs of a life-threatening emergency. "
+                f"Immediate veterinary care is required regardless of the matched conditions below."
+            )
+            
+            triage_assessment = {
+                'overall_urgency': 'critical',
+                'emergency_indicators': True,
+                'requires_immediate_care': True,
+                'requires_care_within': 'IMMEDIATELY - Emergency Care',
+                'urgency_reasoning': [
+                    dynamic_critical_message,  # Primary message with specific symptoms
+                    "This overrides RAP screening results.",
+                    result['urgency_reason']  # Include original reasoning for context
+                ],
+                'red_flags': [
+                    f"🚨 SAFETY INTERCEPTOR: {symptom_list} mentioned in typed symptoms",
+                ] + result.get('red_flags', []),
+                'engine_type': 'Vector Similarity Search + Safety Interceptor',
+                'explainable': True,
+                'hybrid_triage_extraction': extraction_result,
+                'safety_override_applied': True,  # Flag for frontend/debugging
+                'original_urgency': result['urgency'].lower()  # Show what it would have been
+            }
+            
+            logger.warning(f"   Original engine urgency: {result['urgency']}")
+            logger.warning(f"   OVERRIDDEN to: CRITICAL")
+            logger.warning(f"   Specific symptoms detected: {symptom_list}")
+            logger.warning(f"   Dynamic message: '{dynamic_critical_message}'")
+            logger.warning(f"   ℹ️  Note: Individual disease predictions retain their original urgency (e.g., Tapeworms = Moderate)")
+            logger.warning(f"   ℹ️  Patient status = CRITICAL, Disease profiles = Accurate")
+            
+            # === HIJACK LEGACY FIELDS: Force overwrite result dict ===
+            # This ensures that even if other code paths use result['recommendation'],
+            # they will get our critical message instead of the original mild text
+            result['recommendation'] = dynamic_critical_message
+            result['urgency'] = 'CRITICAL'
+            logger.warning(f"   ✅ Hijacked result['recommendation'] and result['urgency'] with critical values")
         
-        # Determine care timeline
-        if result['urgency'] == 'CRITICAL':
-            care_within = "IMMEDIATELY - Emergency Care"
-        elif result['urgency'] == 'HIGH':
-            care_within = "Within 2-4 hours"
-        elif result['urgency'] == 'MODERATE':
-            care_within = "24-48 hours"
         else:
-            care_within = "2-7 days or monitor"
-        
-        triage_assessment = {
-            'overall_urgency': result['urgency'].lower(),
-            'emergency_indicators': emergency_indicators,
-            'requires_immediate_care': requires_immediate,
-            'requires_care_within': care_within,
-            'urgency_reasoning': [result['urgency_reason']],
-            'red_flags': result.get('red_flags', []),
-            'engine_type': 'Vector Similarity Search',
-            'explainable': True,
-            'hybrid_triage_extraction': extraction_result if extraction_result['extracted_symptoms'] else None
-        }
-        
-        # === EMERGENCY OVERRIDE: If red flags detected in typed symptoms ===
-        if extraction_result['red_flags_detected']:
-            triage_assessment['overall_urgency'] = 'critical'
-            triage_assessment['emergency_indicators'] = True
-            triage_assessment['requires_immediate_care'] = True
-            triage_assessment['requires_care_within'] = 'IMMEDIATELY - Emergency Care'
+            # Normal flow: Use engine's urgency calculation
+            emergency_indicators = result['urgency'] in ['CRITICAL', 'HIGH']
+            requires_immediate = result['urgency'] == 'CRITICAL'
             
-            red_flag_text = ', '.join([s.replace('_', ' ').title() for s in extraction_result['red_flags_detected']])
-            triage_assessment['red_flags'].insert(0, f"🚨 CRITICAL: {red_flag_text} mentioned in symptoms")
-            triage_assessment['urgency_reasoning'].insert(0, f"Emergency condition detected: {red_flag_text}")
+            # Determine care timeline
+            if result['urgency'] == 'CRITICAL':
+                care_within = "IMMEDIATELY - Emergency Care"
+            elif result['urgency'] == 'HIGH':
+                care_within = "Within 2-4 hours"
+            elif result['urgency'] == 'MODERATE':
+                care_within = "24-48 hours"
+            else:
+                care_within = "2-7 days or monitor"
             
-            logger.warning(f"🚨 EMERGENCY OVERRIDE: Red flags in user_notes upgraded urgency to CRITICAL")
+            triage_assessment = {
+                'overall_urgency': result['urgency'].lower(),
+                'emergency_indicators': emergency_indicators,
+                'requires_immediate_care': requires_immediate,
+                'requires_care_within': care_within,
+                'urgency_reasoning': [result['urgency_reason']],
+                'red_flags': result.get('red_flags', []),
+                'engine_type': 'Vector Similarity Search',
+                'explainable': True,
+                'hybrid_triage_extraction': extraction_result if extraction_result['extracted_symptoms'] else None,
+                'safety_override_applied': False
+            }
         
         # Add emergency override if detected
         if result.get('action'):
             triage_assessment['emergency_action'] = result['action']
+        
+        # === LEGACY FIELD COMPATIBILITY ===
+        # Ensure legacy fields match the safety override when active
+        if safety_override_active:
+            overall_recommendation = triage_assessment['urgency_reasoning'][0]
+            urgency_level = 'critical'
+            logger.info(f"🔄 Legacy fields updated to match safety override:")
+            logger.info(f"   overall_recommendation: '{overall_recommendation}'")
+            logger.info(f"   urgency_level: '{urgency_level}'")
+        else:
+            overall_recommendation = result['recommendation']
+            urgency_level = result['urgency'].lower()
         
         return {
             'success': True,
@@ -234,7 +298,10 @@ def predict_with_vector_similarity(payload):
             'engine': 'vector_similarity',
             'symptoms_analyzed': result['symptoms_analyzed'],
             'recommendation': result['recommendation'],
-            'disclaimer': result['disclaimer']
+            'disclaimer': result['disclaimer'],
+            # Legacy fields for backward compatibility
+            'overall_recommendation': overall_recommendation,
+            'urgency_level': urgency_level
         }
         
     except Exception as e:

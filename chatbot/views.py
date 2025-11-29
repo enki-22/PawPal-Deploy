@@ -2686,13 +2686,25 @@ def symptom_checker_predict(request):
         progression = cleaned.get('progression')
         severity = cleaned.get('severity', 'moderate')
         
-        # Calculate comprehensive triage assessment
-        triage_assessment = _calculate_triage_assessment(
-            emergency_data=emergency_data,
-            severity=severity,
-            progression=progression,
-            predictions=predictions
-        )
+        # === SAFETY OVERRIDE: Use vector_result triage if safety override is active ===
+        # Check if vector similarity prediction included a safety override
+        vector_triage = vector_result.get('triage_assessment')
+        has_safety_override = vector_triage and vector_triage.get('safety_override_applied', False)
+        
+        if has_safety_override:
+            # CRITICAL: Use the triage_assessment from vector_result (contains safety override)
+            triage_assessment = vector_triage
+            logger.warning(f"🚨 SAFETY OVERRIDE DETECTED - Using triage_assessment from vector_result")
+            logger.warning(f"   Overall urgency: {triage_assessment.get('overall_urgency')}")
+            logger.warning(f"   Red flags: {triage_assessment.get('red_flags')}")
+        else:
+            # Normal flow: Calculate comprehensive triage assessment
+            triage_assessment = _calculate_triage_assessment(
+                emergency_data=emergency_data,
+                severity=severity,
+                progression=progression,
+                predictions=predictions
+            )
         
         # Build comprehensive SOAP report with emergency screening
         soap_data = _build_comprehensive_soap_report(
@@ -2704,8 +2716,14 @@ def symptom_checker_predict(request):
             triage_assessment=triage_assessment
         )
         
-        # Update overall recommendation based on triage
-        if triage_assessment.get('requires_immediate_care'):
+        # === SAFETY OVERRIDE: Use vector_result recommendation if safety override is active ===
+        # Update overall recommendation based on triage (UNLESS safety override is active)
+        if has_safety_override:
+            # CRITICAL: Use the recommendation from vector_result (contains specific symptom details)
+            overall_recommendation = vector_result.get('overall_recommendation') or triage_assessment.get('urgency_reasoning', [''])[0]
+            logger.warning(f"🚨 SAFETY OVERRIDE - Using recommendation from vector_result")
+            logger.warning(f"   Recommendation: '{overall_recommendation}'")
+        elif triage_assessment.get('requires_immediate_care'):
             overall_recommendation = (
                 "⚠️ URGENT: This appears to be a medical emergency. "
                 "Seek immediate veterinary care. Contact your emergency vet or nearest 24-hour clinic immediately."
@@ -2732,7 +2750,7 @@ def symptom_checker_predict(request):
             'assessment_date': timezone.now().isoformat(),
             'predictions': predictions,
             'overall_recommendation': overall_recommendation,
-            'urgency_level': triage_assessment.get('overall_urgency', urgency_level),
+            'urgency_level': vector_result.get('urgency_level') or triage_assessment.get('overall_urgency', urgency_level),
             'should_see_vet_immediately': triage_assessment.get('requires_immediate_care', should_see_vet_immediately),
             'triage_assessment': triage_assessment,
             'soap_data': soap_data,

@@ -2,8 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAssessment, onAskFollowUp, onLogSymptoms }) => {
-  const { pet_name, predictions = [], overall_recommendation, urgency_level } = assessmentData;
+  const { pet_name, predictions = [], overall_recommendation, urgency_level, triage_assessment } = assessmentData;
 
+  // --- HELPER FUNCTIONS (Must be defined BEFORE they are used) ---
+  
   const getUrgencyColor = (urgency) => {
     switch (urgency?.toLowerCase()) {
       case 'critical':
@@ -55,18 +57,72 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
     }
   };
 
+  // === SAFETY OVERRIDE: Check if backend triggered emergency override ===
+  const safetyOverride = triage_assessment?.safety_override_applied || false;
+  const overallUrgency = triage_assessment?.overall_urgency || urgency_level?.toLowerCase() || 'low';
+  const isCritical = overallUrgency === 'critical' || safetyOverride;
+  
+  // Use triage_assessment fields if available (takes precedence)
+  const finalUrgency = isCritical ? 'critical' : overallUrgency;
+  const finalTimeline = triage_assessment?.requires_care_within || getTimelineText(urgency_level);
+  
+  // Use the specific message from the backend if available (try every possible source)
+  const finalRecommendation = triage_assessment?.urgency_reasoning?.[0] || 
+                              overall_recommendation || 
+                              predictions?.[0]?.recommendation ||
+                              'Monitor your pet closely and consult with a veterinarian if symptoms worsen or persist.';
+  
+  const triageRedFlags = triage_assessment?.red_flags || [];
+
   return (
     <div className="max-w-2xl w-full">
       <div 
-        className="border-2 border-gray-300 rounded-lg p-4 bg-white"
+        className={`border-2 rounded-lg p-4 ${
+          isCritical ? 'border-red-600 bg-red-50' : 'border-gray-300 bg-white'
+        }`}
         style={{ fontFamily: 'Raleway' }}
       >
-        {/* Header */}
-        <div className="border-b border-gray-300 pb-2 mb-4">
-          <h3 className="text-lg font-bold text-gray-800 flex items-center">
-            🔍 Assessment Results for {pet_name}
+        {/* Header with Status Banner */}
+        <div className={`border-b pb-2 mb-4 ${
+          isCritical ? 'border-red-400' : 'border-gray-300'
+        }`}>
+          <h3 className={`text-lg font-bold flex items-center ${
+            isCritical ? 'text-red-800' : 'text-gray-800'
+          }`}>
+            {isCritical ? '🚨' : '🔍'} Assessment Results for {pet_name}
           </h3>
+          {isCritical && (
+            <div className="mt-2 text-sm font-bold text-red-700">
+              🔴 CRITICAL - IMMEDIATE VETERINARY CARE REQUIRED
+            </div>
+          )}
         </div>
+
+        {/* Safety Override Alert */}
+        {safetyOverride && (
+          <div className="mb-4 p-4 bg-red-100 border-2 border-red-600 rounded-lg">
+            <p className="text-sm font-bold text-red-900 mb-2">
+              🚨 EMERGENCY SYMPTOMS DETECTED
+            </p>
+            <p className="text-xs text-red-800">
+              The user reported symptoms that require immediate veterinary attention, 
+              regardless of the matched conditions below. Please seek emergency care immediately.
+            </p>
+            {triageRedFlags.length > 0 && (
+              <div className="mt-2 pt-2 border-t border-red-300">
+                <p className="text-xs font-semibold text-red-900 mb-1">Detected Issues:</p>
+                <ul className="text-xs text-red-800 space-y-1">
+                  {triageRedFlags.map((flag, idx) => (
+                    <li key={idx} className="flex items-start">
+                      <span className="mr-2">•</span>
+                      <span>{flag}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Content */}
         <div className="space-y-4">
@@ -148,23 +204,48 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
             </div>
           ))}
 
-          {/* Overall Recommendation */}
-          <div className="border-t border-gray-300 pt-3">
+          {/* Overall Recommendation - Respects Safety Override */}
+          <div className={`border-t pt-3 ${
+            isCritical ? 'border-red-400 bg-red-50' : 'border-gray-300'
+          }`}>
             <div className="mb-3">
-              <span className="font-bold text-gray-800">📋 Overall Recommendation:</span>
+              <span className={`font-bold ${
+                isCritical ? 'text-red-800' : 'text-gray-800'
+              }`}>
+                {isCritical ? '🚨' : '📋'} Overall Recommendation:
+              </span>
               <br />
-              <span className="text-sm text-gray-700">
-                {overall_recommendation || 'Monitor your pet closely and consult with a veterinarian if symptoms worsen or persist.'}
+              <span className={`text-sm font-semibold ${
+                isCritical ? 'text-red-900' : 'text-gray-700'
+              }`}>
+                {finalRecommendation}
               </span>
             </div>
 
             <div>
-              <span className="font-bold text-gray-800">⏰ Action Timeline:</span>
+              <span className={`font-bold ${
+                isCritical ? 'text-red-800' : 'text-gray-800'
+              }`}>
+                {isCritical ? '🚨' : '⏰'} Action Timeline:
+              </span>
               <br />
-              <span className="text-sm text-gray-700">
-                {getTimelineText(urgency_level)}
+              <span className={`text-sm font-bold ${
+                isCritical ? 'text-red-900' : 'text-gray-700'
+              }`}>
+                {finalTimeline}
               </span>
             </div>
+
+            {/* Show original urgency for debugging if override applied */}
+            {safetyOverride && triage_assessment?.original_urgency && (
+              <div className="mt-3 p-2 bg-yellow-50 border border-yellow-300 rounded text-xs">
+                <span className="font-semibold text-yellow-800">ℹ️ Note:</span>
+                <span className="text-yellow-700">
+                  {' '}RAP assessment indicated &quot;{triage_assessment.original_urgency}&quot; urgency, 
+                  but was overridden due to emergency symptoms typed by user.
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
