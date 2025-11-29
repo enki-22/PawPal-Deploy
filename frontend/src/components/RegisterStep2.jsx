@@ -9,6 +9,7 @@ import Alert from './Alert';
 import TermsOfService from './TermsOfService';
 import PrivacyPolicy from './PrivacyPolicy';
 import SignupConfirmationModal from './SignupConfirmationModal';
+import CustomDropdown from './CustomDropdown';
 
 // Reusable Carousel Component (same as Login)
 const PurpleCarousel = () => {
@@ -307,33 +308,14 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
               <div>
                 <label htmlFor="province" className="block font-raleway font-light text-base text-gray-600 mb-2">Province</label>
                 <div style={{ position: 'relative' }}>
-                <select
-                  id="province"
-                  name="province"
-                  value={formData.province}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 font-raleway text-base appearance-none"
-                  style={{ 
-                    background: '#815FB3', 
-                    color: 'white', 
-                    border: 'none', 
-                    borderRadius: '5px', 
-                    outline: 'none', 
-                    cursor: 'pointer',
-                    WebkitAppearance: 'none',
-                    MozAppearance: 'none',
-                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")`,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'right 0.5rem center',
-                    backgroundSize: '1em'
-                  }}
-                  required
-                >
-                  <option value="" disabled hidden>Province</option>
-                  {provinces.map(province => (
-                    <option key={province} value={province}>{province}</option>
-                  ))}
-                </select>
+                  <CustomDropdown
+                    id="province"
+                    name="province"
+                    value={formData.province}
+                    onChange={handleChange}
+                    options={provinces}
+                    placeholder="Province"
+                  />
                 {errors.province && (
                   <div style={{
                     position: 'absolute',
@@ -362,34 +344,15 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
               <div>
                 <label htmlFor="city" className="block font-raleway font-light text-base text-gray-600 mb-2">City</label>
                 <div style={{ position: 'relative' }}>
-                <select
+                <CustomDropdown
                   id="city"
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
+                  options={cities}
+                  placeholder="City"
                   disabled={!formData.province}
-                  className={`w-full px-3 py-2 font-raleway text-base appearance-none ${!formData.province ? 'opacity-60 cursor-not-allowed' : ''}`}
-                  style={{ 
-                    background: '#815FB3', 
-                    color: 'white', 
-                    border: 'none', 
-                    borderRadius: '5px', 
-                    outline: 'none', 
-                    cursor: !formData.province ? 'not-allowed' : 'pointer',
-                    WebkitAppearance: 'none',
-                    MozAppearance: 'none',
-                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")`,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'right 0.5rem center',
-                    backgroundSize: '1em'
-                  }}
-                  required
-                >
-                  <option value="" disabled hidden>City</option>
-                  {cities.map(city => (
-                    <option key={city} value={city}>{city}</option>
-                  ))}
-                </select>
+                />
                 {errors.city && (
                   <div style={{
                     position: 'absolute',
