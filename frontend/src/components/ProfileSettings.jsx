@@ -447,6 +447,13 @@ const ProfileSettings = () => {
   const cancelEditProfile = () => {
     setEditingProfile(false);
     setSelectedFile(null);
+    // Revert changes by re-fetching data from server
+    try {
+      fetchProfileData();
+    } catch (err) {
+      // ignore
+    }
+
     // Reset preview to original
     if (profileData.profile_picture) {
         const imgUrl = profileData.profile_picture.startsWith('http') 
@@ -462,6 +469,18 @@ const ProfileSettings = () => {
         ? (profileData.profile_picture.startsWith('http') ? profileData.profile_picture : `${API_BASE_URL.replace('/api', '')}${profileData.profile_picture}`)
         : null;
       window.dispatchEvent(new CustomEvent('profileUpdated', { detail: { profile_picture: original } }));
+    } catch (err) {
+      // ignore
+    }
+  };
+
+  // NEW cancel function for Contact Info
+  const cancelEditContact = () => {
+    setEditingContact(false);
+    setContactErrors({});
+    // Revert changes by re-fetching data from server
+    try {
+      fetchProfileData();
     } catch (err) {
       // ignore
     }
@@ -679,7 +698,7 @@ const ProfileSettings = () => {
                  <div className="flex justify-end mt-8">
                     {editingContact ? (
                       <div className="flex gap-3">
-                          <button onClick={() => setEditingContact(false)} className="px-6 py-2 rounded-full text-gray-600 font-bold hover:bg-gray-200 shadow-sm transition-transform">Cancel</button>
+                          <button onClick={cancelEditContact} className="px-6 py-2 rounded-full text-gray-600 font-bold hover:bg-gray-200 shadow-sm transition-transform">Cancel</button>
                           <button onClick={() => initiateSave('contact')} className="bg-[#815FB3] text-white font-bold py-2 px-8 rounded-2xl shadow-lg hover:bg-[#6D4C9A] transform hover:-translate-y-0.5 transition-all">Save Changes</button>
                       </div>
                     ) : (
