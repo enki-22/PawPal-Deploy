@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import showToast from '../../utils/toast';
 import { X, MapPin, Phone, Mail, Facebook, Calendar, User as UserIcon } from 'lucide-react';
+// FIX: import locations + custom dropdown
+import CustomDropdown from '../common/CustomDropdown';
+import phLocations from '../../data/ph_locations.json';
 
-const AdminClientDetailsModal = ({ clientId, onClose, adminAxios }) => {
+const AdminClientDetailsModal = ({ clientId, onClose, adminAxios, onUpdateSuccess }) => {
   const [client, setClient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,6 +45,7 @@ const AdminClientDetailsModal = ({ clientId, onClose, adminAxios }) => {
 
         setClient({
           ...apiData,
+          username: apiData.username || '',
           // normalized profile picture (null if none) so we can show the same SVG placeholder as user components
           profile_picture: profilePic || null,
           location_formatted: formattedLocation,
@@ -73,10 +77,13 @@ const AdminClientDetailsModal = ({ clientId, onClose, adminAxios }) => {
   const [activateLoading, setActivateLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editForm, setEditForm] = useState({
+    username: '',
     name: '',
     email: '',
     contact_number: '',
-    facebook_link: ''
+    facebook_link: '',
+    city: '',
+    province: ''
   });
   const [editSaving, setEditSaving] = useState(false);
 
@@ -177,10 +184,13 @@ const AdminClientDetailsModal = ({ clientId, onClose, adminAxios }) => {
   const startEdit = () => {
     if (!client) return;
     setEditForm({
+      username: client.username || '',
       name: client.name || '',
       email: client.email || '',
       contact_number: client.contact_number || '',
-      facebook_link: client.facebook_link || ''
+      facebook_link: client.facebook_link || '',
+      city: client.city || '',
+      province: client.province || ''
     });
     setEditMode(true);
   };
@@ -204,23 +214,37 @@ const AdminClientDetailsModal = ({ clientId, onClose, adminAxios }) => {
     setEditSaving(true);
     try {
       const payload = {
+        username: editForm.username,
         name: editForm.name,
         email: editForm.email,
         contact_number: editForm.contact_number,
         // include facebook_link if backend supports updating profile fields
-        facebook_link: editForm.facebook_link
+        facebook_link: editForm.facebook_link,
+        // FIX: include city + province
+        city: editForm.city,
+        province: editForm.province
       };
       console.log('PUT payload', payload);
       const res = await adminAxios.put(`/admin/clients/${client.id}`, payload);
       if (res.data && res.data.success) {
         const updated = res.data.client || {};
+        // Format new location immediately
+        const newCity = updated.city || editForm.city || client.city;
+        const newProvince = updated.province || editForm.province || client.province;
+        const formattedLoc = newCity && newProvince ? `${newCity}, ${newProvince}` : (newCity || newProvince || 'N/A');
+
         setClient(prev => ({
           ...prev,
+          username: updated.username || editForm.username || prev.username,
           name: updated.name || editForm.name || prev.name,
           email: updated.email || editForm.email || prev.email,
           contact_number: updated.contact_number || editForm.contact_number || prev.contact_number,
-          facebook_link: updated.facebook_link || editForm.facebook_link || prev.facebook_link
+          facebook_link: updated.facebook_link || editForm.facebook_link || prev.facebook_link,
+          city: newCity,
+          province: newProvince,
+          location_formatted: formattedLoc
         }));
+        if (onUpdateSuccess) onUpdateSuccess();
         setEditMode(false);
         showToast({ message: 'Client updated successfully', type: 'success' });
       } else {
@@ -234,6 +258,10 @@ const AdminClientDetailsModal = ({ clientId, onClose, adminAxios }) => {
       setEditSaving(false);
     }
   };
+
+  // prepare provinces/cities for dropdowns
+  const provinces = phLocations ? Object.keys(phLocations) : [];
+  const cities = editForm.province && phLocations ? (phLocations[editForm.province] || []) : [];
 
   if (!clientId) return null;
 
@@ -338,11 +366,14 @@ const AdminClientDetailsModal = ({ clientId, onClose, adminAxios }) => {
             {/* RIGHT COLUMN: Details & Pets (Approx 70%) */}
             <div className="flex-1 h-full flex flex-col p-8 overflow-y-auto custom-scrollbar">
               
-              {/* Header: Name & ID */}
+              {/* Header: Username (preferred) & ID */}
               <div className="mb-8 border-b border-[#e0e0e0] pb-4">
                 <h2 className="font-['Raleway'] font-semibold text-[35px] text-[#1f1f1f] leading-tight">
-                  {client.name}
+                  {client.username ? client.username : client.name}
                 </h2>
+                {client.username && client.username !== client.name && (
+                  <p className="text-[#6b6b6b] text-[18px] mt-1 font-medium">{client.name}</p>
+                )}
                 <p className="text-[#6b6b6b] text-[15px] mt-1">
                   Client ID: <span className="font-mono text-[#815fb3]">PO-{String(client.id).padStart(4, '0')}</span>
                 </p>
@@ -360,6 +391,14 @@ const AdminClientDetailsModal = ({ clientId, onClose, adminAxios }) => {
 
                 {!editMode ? (
                   <>
+                    <div className="flex flex-col">
+                      <span className="text-xs tracking-wider uppercase text-[#6b6b6b] font-semibold mb-1">Username</span>
+                      <div className="flex items-center gap-2 text-sm text-[#111] font-medium">
+                        <UserIcon size={14} className="text-[#888]" />
+                        {client.username || 'N/A'}
+                      </div>
+                    </div>
+
                     <div className="flex flex-col">
                       <span className="text-xs tracking-wider uppercase text-[#6b6b6b] font-semibold mb-1">Email Address</span>
                       <div className="flex items-center gap-2 text-sm text-[#111] font-medium">
@@ -404,6 +443,10 @@ const AdminClientDetailsModal = ({ clientId, onClose, adminAxios }) => {
                   </>
                 ) : (
                   <form onSubmit={saveEdit} className="col-span-2 flex flex-col gap-3">
+                    {/* Added Username Input */}
+                    <label className="text-sm font-semibold text-[#444]">Username</label>
+                    <input name="username" value={editForm.username} onChange={handleEditChange} className="form-input" />
+
                     <label className="text-sm font-semibold text-[#444]">Full name</label>
                     <input name="name" value={editForm.name} onChange={handleEditChange} className="form-input" />
 
@@ -415,6 +458,29 @@ const AdminClientDetailsModal = ({ clientId, onClose, adminAxios }) => {
 
                     <label className="text-sm font-semibold text-[#444]">Facebook</label>
                     <input name="facebook_link" value={editForm.facebook_link} onChange={handleEditChange} className="form-input" />
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-sm font-semibold text-[#444]">Province</label>
+                        <CustomDropdown
+                          options={provinces}
+                          value={editForm.province}
+                          onChange={(val) => setEditForm(prev => ({ ...prev, province: val, city: '' }))}
+                          placeholder="Select province"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-semibold text-[#444]">City</label>
+                        <CustomDropdown
+                          options={cities}
+                          value={editForm.city}
+                          onChange={(val) => setEditForm(prev => ({ ...prev, city: val }))}
+                          placeholder={editForm.province ? 'Select city' : 'Select province first'}
+                          disabled={!editForm.province}
+                        />
+                      </div>
+                    </div>
 
                     <div className="flex gap-2 mt-2">
                       <button type="submit" disabled={editSaving} className="px-4 py-2 bg-[#815fb3] text-white rounded">{editSaving ? 'Saving...' : 'Save'}</button>
