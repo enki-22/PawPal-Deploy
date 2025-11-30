@@ -4,15 +4,18 @@ Smart Triage Engine - Vector Similarity Search for Pet Disease Diagnosis
 """
 
 import csv
+import json
+import numpy as np
 from typing import List, Dict, Set, Tuple
 from collections import defaultdict
+from sentence_transformers import SentenceTransformer, util
 
 # ============================================================================
 # LAYER 1: RED FLAG SYMPTOMS (Clinical Triage Standards)
 # ============================================================================
 
 CRITICAL_SYMPTOMS = {
-    'difficulty_breathing', 'seizures', 'blue_gums', 'collapse', 
+    'difficulty_breathing', 'seizures', 'tremors', 'blue_gums', 'collapse', 
     'uncontrolled_bleeding', 'unconscious', 'not_breathing',
     'severe_trauma', 'poisoning', 'bloat', 'heatstroke',
     'sudden_paralysis', 'respiratory_distress', 'cardiac_arrest',
@@ -148,6 +151,17 @@ class SmartTriageEngine:
         self.knowledge_base = DiseaseKnowledgeBase(knowledge_base_file)
         self.urgency_detector = UrgencyDetector()
         self.disease_matcher = DiseaseMatched()
+        
+        # === HYBRID EXTRACTION: Sentence Transformer for semantic matching ===
+        print("🔄 Loading multilingual sentence transformer for semantic symptom matching...")
+        self.semantic_model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
+        
+        # Cache for symptom embeddings (computed once at startup)
+        self.symptom_vectors = None
+        self.symptom_names = []
+        
+        # Load and cache symptom vectors
+        self.cache_symptom_vectors()
     
     def diagnose(self, species: str, symptoms: List[str], top_n: int = 5) -> Dict:
         # Step 1: Assess urgency
@@ -191,6 +205,91 @@ class SmartTriageEngine:
             'LOW': "Monitor symptoms and consult vet if condition worsens"
         }
         return recommendations.get(urgency_level, "Consult with a veterinarian")
+    
+    def cache_symptom_vectors(self):
+        """
+        Pre-compute embeddings for all symptoms in all_symptoms.json.
+        This allows fast semantic matching at runtime.
+        """
+        try:
+            with open('all_symptoms.json', 'r', encoding='utf-8') as f:
+                all_symptoms_data = json.load(f)
+            
+            # FIX: Handle both list and dict formats
+            if isinstance(all_symptoms_data, list):
+                # It's already a list of symptom codes (e.g., ["vomiting", "fever", "pale_gums"])
+                self.symptom_names = all_symptoms_data
+                print(f"📋 Loaded {len(self.symptom_names)} symptoms from list format")
+            elif isinstance(all_symptoms_data, dict):
+                # It's a dictionary, extract the keys
+                self.symptom_names = list(all_symptoms_data.keys())
+                print(f"📋 Loaded {len(self.symptom_names)} symptoms from dictionary format")
+            else:
+                print(f"❌ ERROR: Unknown format for all_symptoms.json: {type(all_symptoms_data)}")
+                print(f"   Expected: list or dict, Got: {type(all_symptoms_data)}")
+                self.symptom_vectors = None
+                return
+            
+            # Create human-readable descriptions for better semantic matching
+            symptom_descriptions = []
+            for code in self.symptom_names:
+                # Use the code as description (e.g., "vomiting", "pale_gums")
+                # Convert underscores to spaces for better semantic matching
+                desc = code.replace('_', ' ')
+                symptom_descriptions.append(desc)
+            
+            print(f"🔄 Encoding {len(symptom_descriptions)} symptoms for semantic search...")
+            self.symptom_vectors = self.semantic_model.encode(
+                symptom_descriptions, 
+                convert_to_tensor=True,
+                show_progress_bar=True
+            )
+            print(f"✅ Symptom vectors cached successfully")
+            
+        except FileNotFoundError:
+            print("⚠️  Warning: all_symptoms.json not found. Semantic matching disabled.")
+            self.symptom_vectors = None
+        except Exception as e:
+            print(f"⚠️  Error caching symptom vectors: {e}")
+            self.symptom_vectors = None
+    
+    def find_similar_symptoms(self, text: str, threshold: float = 0.70) -> List[Tuple[str, float]]:
+        """
+        Find symptoms semantically similar to the input text using vector similarity.
+        
+        Args:
+            text: User's free-text description (e.g., "Nagsusuka" or "gums that are pale")
+            threshold: Minimum similarity score (0-1). Default 0.70 for Tagalog sensitivity.
+        
+        Returns:
+            List of tuples: [(symptom_code, similarity_score), ...]
+        """
+        if self.symptom_vectors is None or not text.strip():
+            return []
+        
+        try:
+            # Encode user text
+            text_embedding = self.semantic_model.encode(text, convert_to_tensor=True)
+            
+            # Compute cosine similarity with all cached symptom vectors
+            similarities = util.cos_sim(text_embedding, self.symptom_vectors)[0]
+            
+            # Filter by threshold and convert to list of tuples
+            matches = []
+            for idx, score in enumerate(similarities):
+                score_float = float(score)
+                if score_float >= threshold:
+                    symptom_code = self.symptom_names[idx]
+                    matches.append((symptom_code, score_float))
+            
+            # Sort by similarity score (highest first)
+            matches.sort(key=lambda x: x[1], reverse=True)
+            
+            return matches
+            
+        except Exception as e:
+            print(f"⚠️  Error in semantic matching: {e}")
+            return []
 
 if __name__ == "__main__":
     # Quick test

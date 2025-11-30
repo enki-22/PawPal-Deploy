@@ -8,6 +8,7 @@ import logging
 import json
 import os
 import re
+from chatbot.utils import get_gemini_client
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ def get_triage_engine():
 
 # RED FLAG SYMPTOMS (trigger emergency classification)
 RED_FLAG_SYMPTOMS = {
-    'seizures', 'collapse', 'unconscious', 'respiratory_distress', 
+    'seizures', 'tremors', 'collapse', 'unconscious', 'respiratory_distress', 
     'difficulty_breathing', 'pale_gums', 'blue_gums', 'cyanosis',
     'bleeding', 'blood_in_urine', 'bloody_diarrhea', 'paralysis',
     'shock', 'severe_dehydration', 'unresponsive', 'convulsions'
@@ -38,10 +39,13 @@ RED_FLAG_SYMPTOMS = {
 
 def extract_symptoms_from_text(user_notes, existing_symptoms=None):
     """
-    Extract symptom keywords from free-text user_notes using symptom aliases.
+    HYBRID EXTRACTION: Extract symptom keywords using Regex (Pass 1) + LLM-Assisted Vectors (Pass 2).
+    
+    Pass 1: Direct regex matching for exact English terms
+    Pass 2: Gemini LLM translates/normalizes Tagalog/Taglish -> Vector search matches symptoms
     
     Args:
-        user_notes: String of user-typed symptoms (e.g., "nosebleed, fainting")
+        user_notes: String of user-typed symptoms (e.g., "nosebleed, fainting" or "Nanginginig aso ko")
         existing_symptoms: List of already-selected symptoms (optional)
     
     Returns:
@@ -49,7 +53,9 @@ def extract_symptoms_from_text(user_notes, existing_symptoms=None):
             'extracted_symptoms': list of symptom codes found in text,
             'combined_symptoms': merged list (existing + extracted, deduplicated),
             'red_flags_detected': list of red flag symptoms found,
-            'raw_matches': dict mapping found phrases to symptom codes
+            'raw_matches': dict mapping found phrases to symptom codes,
+            'semantic_matches': dict of semantic matches with scores,
+            'gemini_normalized': Gemini's normalized/translated output (for debugging)
         }
     """
     if not user_notes or not user_notes.strip():
@@ -57,7 +63,9 @@ def extract_symptoms_from_text(user_notes, existing_symptoms=None):
             'extracted_symptoms': [],
             'combined_symptoms': existing_symptoms or [],
             'red_flags_detected': [],
-            'raw_matches': {}
+            'raw_matches': {},
+            'semantic_matches': {},
+            'gemini_normalized': None
         }
     
     # Load symptom aliases and all symptoms
@@ -75,12 +83,54 @@ def extract_symptoms_from_text(user_notes, existing_symptoms=None):
             'extracted_symptoms': [],
             'combined_symptoms': existing_symptoms or [],
             'red_flags_detected': [],
-            'raw_matches': {}
+            'raw_matches': {},
+            'semantic_matches': {},
+            'gemini_normalized': None
         }
     
     # Normalize user input
     user_text = user_notes.lower().strip()
-    extracted = set()
+    
+    # === NEGATION HANDLING (Safety): Filter out negated sentences ===
+    # Split by sentence delimiters and check for negation keywords
+    negation_keywords = {'no', 'not', 'wala', 'hindi', 'walang', "isn't", "hasn't", "doesn't", "won't"}
+    
+    sentences = re.split(r'[.!?;]', user_text)
+    safe_sentences = []
+    
+    for sentence in sentences:
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+        
+        # Check if sentence contains negation
+        words = sentence.split()
+        has_negation = any(word in negation_keywords for word in words)
+        
+        if has_negation:
+            logger.info(f"⚠️  NEGATION DETECTED - Skipping sentence: '{sentence}'")
+        else:
+            safe_sentences.append(sentence)
+    
+    # Rejoin safe sentences
+    filtered_text = ' '.join(safe_sentences)
+    
+    # If all text was negated, return empty
+    if not filtered_text.strip():
+        logger.info("All text was negated - no symptoms to extract")
+        return {
+            'extracted_symptoms': [],
+            'combined_symptoms': existing_symptoms or [],
+            'red_flags_detected': [],
+            'raw_matches': {},
+            'semantic_matches': {},
+            'gemini_normalized': None
+        }
+    
+    # ========================================================================
+    # PASS 1: REGEX/KEYWORD EXTRACTION (High Precision)
+    # ========================================================================
+    regex_extracted = set()
     raw_matches = {}
     
     # Build comprehensive search dictionary (aliases + direct symptoms)
@@ -97,11 +147,126 @@ def extract_symptoms_from_text(user_notes, existing_symptoms=None):
     for phrase in sorted_phrases:
         # Use word boundaries to avoid partial matches
         pattern = r'\b' + re.escape(phrase) + r'\b'
-        if re.search(pattern, user_text, re.IGNORECASE):
+        if re.search(pattern, filtered_text, re.IGNORECASE):
             symptom_code = search_dict[phrase]
-            extracted.add(symptom_code)
+            regex_extracted.add(symptom_code)
             raw_matches[phrase] = symptom_code
-            logger.info(f"Extracted symptom: '{phrase}' -> {symptom_code}")
+            logger.info(f"✅ PASS 1 (Regex): '{phrase}' -> {symptom_code}")
+    
+    # ========================================================================
+    # PASS 2: LLM-ASSISTED EXTRACTION (Gemini + Vector Search)
+    # ========================================================================
+    semantic_extracted = set()
+    semantic_matches = {}
+    gemini_normalized_text = None
+    
+    try:
+        # Step 1: Use Gemini to translate and normalize the text
+        logger.info(f"🤖 PASS 2A: Sending to Gemini for translation/normalization...")
+        logger.info(f"   Raw input: '{user_notes[:100]}...'")
+        
+        try:
+            # Use centralized Gemini client (handles all model fallbacks)
+            model = get_gemini_client()
+            logger.info(f"   ✓ Successfully loaded Gemini model")
+        except Exception as gemini_error:
+            logger.warning(f"   ✗ Gemini client initialization failed: {gemini_error}")
+            logger.warning("   Skipping LLM extraction, will use regex-only mode")
+            model = None
+        
+        if model:
+            # Create the prompt
+            prompt = f"""Act as a veterinary terminologist. Analyze this user input: "{user_notes}"
+
+1. Translate to English if in Tagalog/Taglish.
+2. Identify specific veterinary symptoms.
+3. Convert them to standard medical terms (e.g., "shaking" -> "tremors", "maputla labi" -> "pale gums").
+4. Return ONLY a comma-separated list of these terms. If no symptoms, return "None".
+
+Examples:
+- "Nanginginig aso ko" -> "tremors"
+- "maputla ang labi" -> "pale gums"
+- "nagsusuka at matamlay" -> "vomiting, lethargy"
+
+Your response (comma-separated list only):"""
+            
+            # Call Gemini API
+            response = model.generate_content(prompt)
+            
+            # Safely extract text from response
+            if hasattr(response, 'text') and response.text:
+                gemini_output = response.text.strip()
+                logger.info(f"   Gemini output: '{gemini_output}'")
+                
+                # Check if Gemini found symptoms (handle various "no symptom" responses)
+                if gemini_output and gemini_output.lower() not in ['none', 'no symptoms', 'n/a', '']:
+                    gemini_normalized_text = gemini_output
+                    logger.info(f"   ✓ Valid symptoms detected")
+                else:
+                    logger.info("   Gemini found no symptoms")
+            else:
+                logger.warning("   ✗ Gemini response has no text content")
+                logger.warning(f"   Response object: {response}")
+        
+        # Step 2: Use vector search on Gemini's cleaned output
+        if gemini_normalized_text:
+            engine = get_triage_engine()
+            
+            logger.info(f"🔍 PASS 2B: Processing Gemini output...")
+            
+            # Split by comma to handle multiple symptoms (avoids vector dilution)
+            potential_symptoms = [s.strip() for s in gemini_normalized_text.split(',') if s.strip()]
+            logger.info(f"   Found {len(potential_symptoms)} potential symptoms to process")
+            
+            for symptom_text in potential_symptoms:
+                logger.info(f"   Processing: '{symptom_text}'")
+                
+                # OPTIMIZATION: Try direct lookup first (exact match)
+                # Check if Gemini gave us an exact symptom code or alias
+                direct_match = None
+                symptom_lower = symptom_text.lower().strip()
+                
+                if symptom_lower in search_dict:
+                    direct_match = search_dict[symptom_lower]
+                    logger.info(f"   ✓ Direct match: '{symptom_text}' -> {direct_match}")
+                
+                if direct_match:
+                    # Use direct match (perfect accuracy)
+                    if direct_match not in regex_extracted:
+                        semantic_extracted.add(direct_match)
+                        semantic_matches[direct_match] = 1.0  # Perfect match score
+                        logger.info(f"✅ PASS 2 (Direct): '{symptom_text}' -> {direct_match} (1.000)")
+                    else:
+                        logger.info(f"ℹ️  PASS 2: {direct_match} already found by regex, skipping")
+                else:
+                    # No direct match, use vector search on this specific symptom
+                    # Use threshold=0.82 (safe for clean English terms from Gemini)
+                    matches = engine.find_similar_symptoms(symptom_text, threshold=0.82)
+                    
+                    if matches:
+                        for symptom_code, score in matches:
+                            if symptom_code not in regex_extracted:
+                                semantic_extracted.add(symptom_code)
+                                semantic_matches[symptom_code] = score
+                                logger.info(f"✅ PASS 2 (Vector): '{symptom_text}' -> {symptom_code} ({score:.3f})")
+                            else:
+                                logger.info(f"ℹ️  PASS 2: {symptom_code} already found by regex, skipping")
+                    else:
+                        logger.warning(f"   ⚠️  No matches for '{symptom_text}' (below 0.82 threshold)")
+    
+    except Exception as e:
+        logger.warning(f"⚠️  LLM-assisted extraction failed: {e}. Using regex-only extraction.")
+        logger.exception(e)  # Log full traceback for debugging
+    
+    # ========================================================================
+    # MERGE RESULTS
+    # ========================================================================
+    extracted = regex_extracted | semantic_extracted
+    
+    logger.info(f"📊 HYBRID EXTRACTION SUMMARY:")
+    logger.info(f"   Regex matches: {len(regex_extracted)}")
+    logger.info(f"   Semantic matches: {len(semantic_extracted)}")
+    logger.info(f"   Total unique: {len(extracted)}")
     
     # Detect red flags
     red_flags_detected = [s for s in extracted if s in RED_FLAG_SYMPTOMS]
@@ -114,7 +279,9 @@ def extract_symptoms_from_text(user_notes, existing_symptoms=None):
         'extracted_symptoms': list(extracted),
         'combined_symptoms': combined,
         'red_flags_detected': red_flags_detected,
-        'raw_matches': raw_matches
+        'raw_matches': raw_matches,
+        'semantic_matches': semantic_matches,
+        'gemini_normalized': gemini_normalized_text  # LLM-cleaned text for debugging
     }
 
 
@@ -161,19 +328,25 @@ def predict_with_vector_similarity(payload):
             logger.info(f"   Original: {symptoms_list}")
             logger.info(f"   Extracted: {extraction_result['extracted_symptoms']}")
             logger.info(f"   Combined: {extraction_result['combined_symptoms']}")
+        
+        # === GEMINI TRANSLATION LOGGING: Show LLM normalization ===
+        if extraction_result.get('gemini_normalized'):
+            logger.info(f"🤖 GEMINI NORMALIZATION:")
+            logger.info(f"   Raw input: '{user_notes[:100]}...'")
+            logger.info(f"   Normalized: '{extraction_result['gemini_normalized']}'")
+        
+        # CRITICAL: Check if ANY extracted symptom is a red flag
+        if extraction_result['red_flags_detected']:
+            safety_override_active = True
+            red_flag_names = [s.replace('_', ' ').title() for s in extraction_result['red_flags_detected']]
+            safety_override_reason = red_flag_names
             
-            # CRITICAL: Check if ANY extracted symptom is a red flag
-            if extraction_result['red_flags_detected']:
-                safety_override_active = True
-                red_flag_names = [s.replace('_', ' ').title() for s in extraction_result['red_flags_detected']]
-                safety_override_reason = red_flag_names
-                
-                logger.warning(f"{'='*70}")
-                logger.warning(f"🚨 SAFETY INTERCEPTOR ACTIVATED 🚨")
-                logger.warning(f"RED FLAGS detected in user-typed symptoms: {red_flag_names}")
-                logger.warning(f"This OVERRIDES all other urgency calculations (including RAP)")
-                logger.warning(f"Final urgency will be: CRITICAL")
-                logger.warning(f"{'='*70}")
+            logger.warning(f"{'='*70}")
+            logger.warning(f"🚨 SAFETY INTERCEPTOR ACTIVATED 🚨")
+            logger.warning(f"RED FLAGS detected in user-typed symptoms: {red_flag_names}")
+            logger.warning(f"This OVERRIDES all other urgency calculations (including RAP)")
+            logger.warning(f"Final urgency will be: CRITICAL")
+            logger.warning(f"{'='*70}")
         
         # Use combined symptoms (checkbox + typed)
         symptoms_list = extraction_result['combined_symptoms']

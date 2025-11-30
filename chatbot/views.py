@@ -29,6 +29,7 @@ from pets.models import Pet
 from .models import Conversation, Message, AIDiagnosis, SOAPReport, DiagnosisSuggestion
 # Note: image_classifier is now lazily loaded via analyze_pet_image when needed
 import logging
+from .utils import get_gemini_client
 logger = logging.getLogger(__name__)
 
 PAWPAL_MODEL = None
@@ -330,101 +331,7 @@ def _validate_symptom_checker_payload(data: dict) -> tuple[bool, dict | None, Re
     return True, data, None
 
 
-# Configure Gemini
-def get_gemini_client():
-    """Configure and return Gemini model"""
-    try:
-        # Check if API key is set
-        api_key = getattr(settings, 'GEMINI_API_KEY', None)
-        if not api_key:
-            raise Exception("GEMINI_API_KEY is not set in your .env file. Please add GEMINI_API_KEY=your-key-here to your .env file.")
-        
-        # Strip whitespace in case there are spaces
-        api_key = api_key.strip()
-        if not api_key:
-            raise Exception("GEMINI_API_KEY is empty in your .env file. Please check your .env file and add a valid API key.")
-        
-        logger.info(f"🔑 Using Gemini API key (length: {len(api_key)})")
-        genai.configure(api_key=api_key)
-        
-        print("=== CHECKING GEMINI API CONNECTION ===")
-        try:
-            available_models = list(genai.list_models())
-            print(f"Found {len(available_models)} available models:")
-            
-            # Use the first available model that supports generateContent
-            for model in available_models:
-                if 'generateContent' in model.supported_generation_methods:
-                    model_name = model.name  # This already includes 'models/' prefix
-                    print(f"✅ Using model: {model_name}")
-                    
-                    # Create the model using the exact name from the API
-                    test_model = genai.GenerativeModel(model_name)
-                    
-                    # Test with a very simple prompt to avoid quota issues
-                    try:
-                        test_response = test_model.generate_content("Hi")
-                        if test_response and hasattr(test_response, 'text') and test_response.text:
-                            print(f"✅ Model {model_name} working successfully!")
-                            return test_model
-                    except Exception as quota_error:
-                        if "quota" in str(quota_error).lower():
-                            print(f"⚠️ Quota exceeded for {model_name}, trying next model...")
-                            continue
-                        else:
-                            raise quota_error
-                        
-        except Exception as list_error:
-            error_str = str(list_error)
-            print(f"❌ Could not use models: {list_error}")
-            
-            # Check for API key issues
-            if "403" in error_str or "leaked" in error_str.lower() or "invalid" in error_str.lower() or "permission" in error_str.lower():
-                raise Exception("Gemini API key is invalid or has been revoked. Please get a new API key from https://aistudio.google.com/app/apikey and update your .env file.")
-        
-        # If quota exceeded, try the free tier models specifically
-        print("\n=== TRYING FREE TIER MODELS ===")
-        free_tier_models = [
-            'models/gemini-1.5-flash',  # Most likely to work on free tier
-            'models/gemini-1.5-pro',
-            'models/gemini-pro',
-            'gemini-1.5-flash',  # Try without 'models/' prefix
-            'gemini-pro'
-        ]
-        
-        api_key_error = False
-        for model_name in free_tier_models:
-            try:
-                print(f"Trying free tier model: {model_name}")
-                model = genai.GenerativeModel(model_name)
-                
-                # Test with minimal prompt
-                test_response = model.generate_content("Hi")
-                if test_response and hasattr(test_response, 'text') and test_response.text:
-                    print(f"✅ Free tier model {model_name} works!")
-                    return model
-                    
-            except Exception as e:
-                error_str = str(e)
-                if "403" in error_str or "leaked" in error_str.lower() or "invalid" in error_str.lower() or "permission" in error_str.lower():
-                    api_key_error = True
-                    print(f"❌ API key error for {model_name}: {e}")
-                    break  # No point trying other models if API key is invalid
-                elif "quota" in error_str.lower():
-                    print(f"⚠️ Quota exceeded for {model_name}")
-                    continue
-                else:
-                    print(f"❌ Free tier {model_name} failed: {e}")
-                    continue
-        
-        if api_key_error:
-            raise Exception("Gemini API key is invalid or has been revoked. Please get a new API key from https://aistudio.google.com/app/apikey and update your .env file.")
-        
-        raise Exception("All models quota exceeded. Please upgrade your Gemini API plan or wait for quota reset.")
-        
-    except Exception as e:
-        print(f"❌ Gemini configuration error: {e}")
-        raise e
+# Note: get_gemini_client() is now imported from chatbot.utils
 
 
 def get_gemini_response(user_message, conversation_history=None, chat_mode='general'):
