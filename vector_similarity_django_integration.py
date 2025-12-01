@@ -389,6 +389,42 @@ def predict_with_vector_similarity(payload):
                 'is_external': False  # Default: all from database
             })
         
+        # === MEMORY UPGRADE: Fetch Symptom Tracker History ===
+        # This prevents the "Amnesia Problem" where AI forgets the pet has been sick for days
+        context_data = {}
+        pet_id = payload.get('pet_id')
+        
+        if pet_id:
+            try:
+                # Import here to avoid circular dependencies
+                from chatbot.models import PetHealthTrend
+                
+                # Fetch the latest health trend for this pet
+                latest_trend = PetHealthTrend.objects.filter(
+                    pet_id=pet_id
+                ).order_by('-analysis_date').first()
+                
+                if latest_trend:
+                    # Build medical history context
+                    medical_history = (
+                        f"Recent Trend: {latest_trend.trend_analysis}. "
+                        f"Prediction: {latest_trend.prediction}"
+                    )
+                    context_data['medical_history'] = medical_history
+                    context_data['risk_score'] = latest_trend.risk_score
+                    context_data['urgency_level'] = latest_trend.urgency_level
+                    context_data['alert_needed'] = latest_trend.alert_needed
+                    
+                    logger.info(f"📋 Memory Upgrade: Loaded symptom tracker history for pet_id={pet_id}")
+                    logger.info(f"   Risk Score: {latest_trend.risk_score}")
+                    logger.info(f"   Urgency: {latest_trend.urgency_level}")
+                    logger.info(f"   Trend: {latest_trend.trend_analysis[:100]}...")
+                else:
+                    logger.info(f"ℹ️  No symptom tracker history found for pet_id={pet_id}")
+            except Exception as e:
+                logger.warning(f"⚠️  Failed to fetch symptom tracker history: {e}")
+                # Continue without history - don't fail the entire prediction
+        
         # === DIAGNOSIS VERIFICATION LAYER: Gemini Safety Check for OOD Detection ===
         verification_result = None
         ood_detected = False
@@ -401,7 +437,8 @@ def predict_with_vector_similarity(payload):
                     user_symptoms=symptoms_list,
                     system_predictions=predictions,
                     species=species,
-                    user_notes=user_notes
+                    user_notes=user_notes,
+                    context_data=context_data if context_data else None
                 )
                 
                 logger.info(f"✓ Verification complete:")

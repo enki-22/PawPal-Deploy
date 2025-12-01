@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.conf import settings
 import google.generativeai as genai
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -418,4 +419,340 @@ def get_gemini_client():
     except Exception as e:
         print(f"❌ Gemini configuration error: {e}")
         raise e
+
+
+def analyze_symptom_progression(pet_id: int) -> Dict[str, Any]:
+    """
+    Analyze symptom progression using Gemini AI.
+    
+    Fetches the last 7 days of SymptomLog for the pet and uses Gemini
+    to analyze trends, calculate risk score, and predict next 24h.
+    
+    Args:
+        pet_id: ID of the pet to analyze
+    
+    Returns:
+        dict: Analysis result with structure:
+        {
+            "risk_score": int (0-100),
+            "urgency": str ("Low" | "Medium" | "High" | "Critical"),
+            "trend": str ("Worsening" | "Improving" | "Stable"),
+            "prediction": str (AI forecast),
+            "alert_needed": bool
+        }
+    """
+    from datetime import timedelta
+    from django.utils import timezone
+    from pets.models import Pet
+    from .models import SymptomLog
+    
+    try:
+        # Get pet
+        try:
+            pet = Pet.objects.get(id=pet_id)
+        except Pet.DoesNotExist:
+            logger.error(f"Pet with id {pet_id} not found")
+            return {
+                "risk_score": 0,
+                "urgency": "Low",
+                "trend": "No data",
+                "prediction": "No symptom logs available for analysis.",
+                "alert_needed": False
+            }
+        
+        # Fetch last 7 days of logs
+        seven_days_ago = timezone.now().date() - timedelta(days=7)
+        logs = SymptomLog.objects.filter(
+            pet=pet,
+            symptom_date__gte=seven_days_ago
+        ).order_by('symptom_date')
+        
+        # If no logs, return default structure
+        if not logs.exists():
+            logger.info(f"No symptom logs found for pet {pet_id} in last 7 days")
+            return {
+                "risk_score": 0,
+                "urgency": "Low",
+                "trend": "No data",
+                "prediction": "No symptom logs available for analysis. Please log symptoms to get AI insights.",
+                "alert_needed": False
+            }
+        
+        # Format logs for Gemini and calculate deterministic score
+        logs_data = []
+        all_severity_scores = []  # Collect all severity scores for deterministic calculation
+        
+        for log in logs:
+            log_entry = {
+                "date": log.symptom_date.strftime("%Y-%m-%d"),
+                "symptoms": log.symptoms if isinstance(log.symptoms, list) else [],
+                "severity": log.overall_severity if hasattr(log, 'overall_severity') else "moderate",
+                "notes": log.notes or ""
+            }
+            
+            # Add severity scores if available (from symptom_details or create from symptoms)
+            if hasattr(log, 'symptom_details') and log.symptom_details:
+                log_entry["severity_scores"] = log.symptom_details
+                # Collect severity scores for deterministic calculation
+                severity_values = [v for v in log.symptom_details.values() if isinstance(v, (int, float))]
+                all_severity_scores.extend(severity_values)
+            else:
+                # Create default severity scores (5/10) for each symptom
+                log_entry["severity_scores"] = {
+                    symptom: 5 for symptom in log_entry["symptoms"]
+                }
+                # Add default scores to collection
+                all_severity_scores.extend([5] * len(log_entry["symptoms"]))
+            
+            logs_data.append(log_entry)
+        
+        # Calculate deterministic score: Average Severity * 10
+        deterministic_score = 0
+        if all_severity_scores:
+            avg_severity = sum(all_severity_scores) / len(all_severity_scores)
+            deterministic_score = int(avg_severity * 10)
+            deterministic_score = max(0, min(100, deterministic_score))  # Clamp to 0-100
+        else:
+            # Fallback if no severity scores
+            deterministic_score = 50
+        
+        # Build Gemini prompt
+        species = pet.animal_type or "Unknown"
+        pet_name = pet.name or "Pet"
+        
+        logs_text = "\n".join([
+            f"Date: {log['date']}\n"
+            f"Symptoms: {', '.join(log['symptoms'])}\n"
+            f"Severity Scores: {log['severity_scores']}\n"
+            f"Notes: {log['notes']}\n"
+            for log in logs_data
+        ])
+        
+        prompt = f"""You are a Veterinary Data Analyst. Review this 7-day symptom log for a {species} named {pet_name}.
+
+SYMPTOM LOG DATA:
+{logs_text}
+
+TASK:
+1. Calculate a Risk Score (0-100) based on symptom severity, frequency, and progression.
+2. Identify Trend: Is the pet's condition Worsening, Improving, or Stable?
+3. Predict next 24h: What is likely to happen based on current patterns?
+4. Determine if an alert is needed (true if risk_score >= 70 or trend is Worsening significantly).
+
+OUTPUT JSON ONLY (no markdown, no explanation outside JSON):
+{{
+    "risk_score": integer (0-100),
+    "urgency": "Low" | "Medium" | "High" | "Critical",
+    "trend": "Worsening" | "Improving" | "Stable",
+    "prediction": "Brief forecast for next 24 hours",
+    "alert_needed": boolean
+}}
+
+JSON Response:"""
+        
+        # Call Gemini
+        try:
+            model = get_gemini_client()
+            logger.info(f"🤖 Analyzing symptom progression for pet {pet_id} using Gemini...")
+            
+            response = model.generate_content(prompt)
+            
+            if not response or not hasattr(response, 'text') or not response.text:
+                logger.warning("⚠️ Gemini returned empty response for symptom analysis")
+                return _fallback_to_deterministic(deterministic_score, logs_data)
+            
+            # Extract JSON from response
+            response_text = response.text.strip()
+            logger.info(f"📋 Gemini analysis response: {response_text[:200]}...")
+            
+            # Try to extract JSON (handle markdown code blocks)
+            json_text = _extract_json_from_text(response_text)
+            
+            try:
+                analysis_result = json.loads(json_text)
+                logger.info("✓ Successfully parsed Gemini analysis response")
+                
+                # Validate and normalize with safety guardrails
+                return _normalize_health_analysis(analysis_result, deterministic_score, logs_data)
+                
+            except json.JSONDecodeError as e:
+                logger.error(f"✗ Failed to parse Gemini JSON response: {e}")
+                logger.error(f"   Response text: {response_text}")
+                # Fallback to deterministic score
+                return _fallback_to_deterministic(deterministic_score, logs_data)
+        
+        except Exception as e:
+            logger.error(f"✗ Gemini analysis failed: {e}")
+            logger.exception(e)
+            # Fallback to deterministic score
+            return _fallback_to_deterministic(deterministic_score, logs_data)
+    
+    except Exception as e:
+        logger.error(f"✗ Symptom progression analysis failed: {e}")
+        logger.exception(e)
+        return _default_health_analysis()
+
+
+def _extract_json_from_text(text: str) -> str:
+    """Extract JSON from text (handle markdown code blocks)."""
+    
+    # Remove markdown code blocks if present
+    if "```json" in text:
+        start = text.find("```json") + 7
+        end = text.find("```", start)
+        if end != -1:
+            return text[start:end].strip()
+    elif "```" in text:
+        start = text.find("```") + 3
+        end = text.find("```", start)
+        if end != -1:
+            return text[start:end].strip()
+    
+    # Try to find JSON object boundaries
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        return text[start:end+1]
+    
+    return text
+
+
+def _normalize_health_analysis(result: Dict[str, Any], deterministic_score: int, logs_data: List[Dict]) -> Dict[str, Any]:
+    """
+    Normalize and validate the health analysis result with safety guardrails.
+    
+    Args:
+        result: Raw AI analysis result
+        deterministic_score: Calculated score based on average severity
+        logs_data: Log data used for analysis
+    """
+    # Extract and clamp risk_score
+    ai_risk_score = int(result.get("risk_score", 0))
+    ai_risk_score = max(0, min(100, ai_risk_score))  # Clamp to 0-100
+    
+    # Validate urgency and normalize
+    ai_urgency = result.get("urgency", "Low")
+    valid_urgencies = ["Low", "Medium", "High", "Critical"]
+    if ai_urgency not in valid_urgencies:
+        # Calculate urgency based on score if invalid
+        if ai_risk_score < 30:
+            ai_urgency = "Low"
+        elif ai_risk_score < 50:
+            ai_urgency = "Medium"
+        elif ai_risk_score < 80:
+            ai_urgency = "High"
+        else:
+            ai_urgency = "Critical"
+        logger.warning(f"⚠️ Invalid urgency '{result.get('urgency')}' normalized to '{ai_urgency}' based on score")
+    
+    # Validate trend
+    ai_trend = result.get("trend", "Stable")
+    valid_trends = ["Worsening", "Improving", "Stable"]
+    if ai_trend not in valid_trends:
+        ai_trend = "Stable"
+        logger.warning(f"⚠️ Invalid trend '{result.get('trend')}' normalized to 'Stable'")
+    
+    # === SANITY CHECK: Compare AI score with deterministic score ===
+    score_variance = abs(ai_risk_score - deterministic_score)
+    ai_variance_detected = False
+    final_risk_score = ai_risk_score
+    trend_analysis = result.get("trend_analysis", result.get("prediction", "Unable to generate analysis."))
+    
+    if score_variance > 50:
+        # Large variance detected - flag it
+        ai_variance_detected = True
+        logger.warning(f"🚨 AI Variance Detected: AI score={ai_risk_score}, Deterministic={deterministic_score}, Variance={score_variance}")
+        
+        # Use the higher score (more conservative/safe)
+        final_risk_score = max(ai_risk_score, deterministic_score)
+        
+        # Append variance flag to trend analysis
+        trend_analysis = f"{trend_analysis} [AI Variance: AI={ai_risk_score}, Math={deterministic_score}, Using={final_risk_score}]"
+        
+        # Recalculate urgency based on final score
+        if final_risk_score < 30:
+            ai_urgency = "Low"
+        elif final_risk_score < 50:
+            ai_urgency = "Medium"
+        elif final_risk_score < 80:
+            ai_urgency = "High"
+        else:
+            ai_urgency = "Critical"
+    
+    normalized = {
+        "risk_score": final_risk_score,
+        "urgency": ai_urgency,
+        "trend": ai_trend,
+        "prediction": result.get("prediction", "Unable to generate prediction."),
+        "alert_needed": bool(result.get("alert_needed", False)),
+        "trend_analysis": trend_analysis
+    }
+    
+    # Log final normalized result
+    if ai_variance_detected:
+        logger.warning(f"✅ Final normalized result (with variance correction): {normalized}")
+    else:
+        logger.info(f"✅ Final normalized result: {normalized}")
+    
+    return normalized
+
+
+def _fallback_to_deterministic(deterministic_score: int, logs_data: List[Dict]) -> Dict[str, Any]:
+    """
+    Fallback to deterministic calculation when AI fails.
+    
+    Args:
+        deterministic_score: Calculated score based on average severity
+        logs_data: Log data used for analysis (can be empty list)
+    """
+    # Ensure deterministic_score is valid
+    deterministic_score = max(0, min(100, deterministic_score))
+    
+    # Calculate urgency from deterministic score
+    if deterministic_score < 30:
+        urgency = "Low"
+    elif deterministic_score < 50:
+        urgency = "Medium"
+    elif deterministic_score < 80:
+        urgency = "High"
+    else:
+        urgency = "Critical"
+    
+    # Determine trend from logs (simple heuristic: compare first and last severity)
+    trend = "Stable"
+    if logs_data and len(logs_data) >= 2:
+        first_scores = list(logs_data[0].get("severity_scores", {}).values())
+        last_scores = list(logs_data[-1].get("severity_scores", {}).values())
+        
+        if first_scores and last_scores:
+            first_avg = sum(first_scores) / len(first_scores)
+            last_avg = sum(last_scores) / len(last_scores)
+            
+            if last_avg > first_avg + 2:
+                trend = "Worsening"
+            elif last_avg < first_avg - 2:
+                trend = "Improving"
+    
+    logger.info(f"📊 Using deterministic fallback: score={deterministic_score}, urgency={urgency}, trend={trend}")
+    
+    return {
+        "risk_score": deterministic_score,
+        "urgency": urgency,
+        "trend": trend,
+        "prediction": "AI unavailable. Risk calculated based on severity average. Please consult with a veterinarian for detailed analysis.",
+        "alert_needed": deterministic_score >= 70,
+        "trend_analysis": "AI unavailable. Risk calculated based on severity average."
+    }
+
+
+def _default_health_analysis() -> Dict[str, Any]:
+    """Return default health analysis when AI fails and no logs available."""
+    return {
+        "risk_score": 0,
+        "urgency": "Low",
+        "trend": "Stable",
+        "prediction": "Analysis unavailable. Please consult with a veterinarian.",
+        "alert_needed": False,
+        "trend_analysis": "No data available for analysis."
+    }
 

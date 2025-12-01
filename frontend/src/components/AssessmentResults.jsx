@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
 const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAssessment, onAskFollowUp, onLogSymptoms }) => {
+  const navigate = useNavigate();
   const { pet_name, predictions = [], overall_recommendation, urgency_level, triage_assessment } = assessmentData;
 
   // --- HELPER FUNCTIONS (Must be defined BEFORE they are used) ---
@@ -61,6 +63,36 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
   const safetyOverride = triage_assessment?.safety_override_applied || false;
   const overallUrgency = triage_assessment?.overall_urgency || urgency_level?.toLowerCase() || 'low';
   const isCritical = overallUrgency === 'critical' || safetyOverride;
+  
+  // Check if we can show "Monitor These Symptoms" button (only for routine, low, or moderate)
+  const canStartTracking = !isCritical && 
+                           overallUrgency !== 'high' && 
+                           overallUrgency !== 'urgent' &&
+                           (overallUrgency === 'routine' || 
+                            overallUrgency === 'low' || 
+                            overallUrgency === 'moderate');
+  
+  // Get matched symptoms from top prediction for tracking
+  const topPrediction = predictions?.[0];
+  const matchedSymptoms = topPrediction?.matched_symptoms || 
+                         topPrediction?.symptoms || 
+                         [];
+  
+  // Handle "Start Tracking" navigation
+  const handleStartTracking = () => {
+    if (matchedSymptoms.length > 0) {
+      navigate('/symptom-tracker', {
+        state: {
+          prefillSymptoms: matchedSymptoms,
+          fromDiagnosis: true,
+          petName: pet_name
+        }
+      });
+    } else {
+      // If no matched symptoms, just navigate to tracker
+      navigate('/symptom-tracker');
+    }
+  };
   
   // Use triage_assessment fields if available (takes precedence)
   const finalUrgency = isCritical ? 'critical' : overallUrgency;
@@ -248,6 +280,24 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
             )}
           </div>
         </div>
+
+        {/* "Monitor These Symptoms" Button - Only for non-critical cases */}
+        {canStartTracking && matchedSymptoms.length > 0 && (
+          <div className="border-t border-gray-300 pt-4 mt-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <p className="text-sm text-blue-800 mb-3">
+                💡 <strong>Want to track these symptoms over time?</strong> Start monitoring to see how your pet's condition changes.
+              </p>
+              <button
+                onClick={handleStartTracking}
+                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+              >
+                <span>📊</span>
+                Monitor These Symptoms
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="border-t border-gray-300 pt-4 mt-4">

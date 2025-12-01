@@ -12,6 +12,8 @@ import PetProfile from './components/PetProfile';
 import ProfileSettings from './components/ProfileSettings';
 import ProtectedRoute from './components/ProtectedRoute';
 import RegisterStep2 from './components/RegisterStep2';
+import SymptomLogger from './components/SymptomLogger';
+import SymptomTimeline from './components/SymptomTimeline';
 import VerifyEmail from './components/VerifyEmail';
 import VerifyResetCode from './components/VerifyResetCode';
 
@@ -107,6 +109,14 @@ function AppWithFade() {
         element={
           <ProtectedRoute>
             <FadeWrapper><Chat /></FadeWrapper>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/symptom-tracker" 
+        element={
+          <ProtectedRoute>
+            <FadeWrapper><SymptomTimeline /></FadeWrapper>
           </ProtectedRoute>
         } 
       />

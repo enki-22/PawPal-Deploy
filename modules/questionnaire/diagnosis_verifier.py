@@ -204,6 +204,22 @@ class DiagnosisVerifier:
             context_data = {}
         user_notes_text = user_notes or context_data.get('user_notes', 'None')
         
+        # Get medical history from symptom tracker (Memory Upgrade)
+        medical_history = context_data.get('medical_history', '')
+        risk_score = context_data.get('risk_score')
+        urgency_level = context_data.get('urgency_level')
+        
+        # Build medical history section for prompt
+        medical_history_section = ""
+        if medical_history:
+            medical_history_section = f"""
+        - **Symptom Tracker History (7-Day Trend):**
+          {medical_history}"""
+            if risk_score is not None:
+                medical_history_section += f"\n          Risk Score: {risk_score}/100"
+            if urgency_level:
+                medical_history_section += f"\n          Previous Urgency: {urgency_level}"
+        
         prompt = f"""
         Act as a Senior Veterinary Diagnostician. Analyze the Patient Data to validate the System Predictions.
 
@@ -215,7 +231,7 @@ class DiagnosisVerifier:
 
         - Checkbox Symptoms: {symptoms_str}
 
-        - Database Predictions: {preds_str}
+        - Database Predictions: {preds_str}{medical_history_section}
 
         ANALYSIS INSTRUCTIONS:
 
@@ -223,7 +239,17 @@ class DiagnosisVerifier:
 
            - If a toxin ingestion is described, you MUST diagnose the specific toxicity (e.g., "Xylitol Toxicity") as the primary condition, even if the Database predicted generic vomiting.
 
-        2. **SYMPTOM NUANCE (Rule Out Mimics):**
+        2. **SYMPTOM PROGRESSION (Memory Check):**
+           
+           - **CRITICAL:** If "Symptom Tracker History" is provided above, this pet has been tracked over multiple days.
+           
+           - Consider the progression: Is the condition worsening, improving, or stable? A pet that has been sick for 5 days with worsening symptoms is MORE URGENT than a pet with the same symptoms for 1 day.
+           
+           - If the tracker shows a "worsening trend" or "high risk score", this should INCREASE your risk assessment (e.g., from MODERATE to HIGH, or HIGH to CRITICAL).
+           
+           - Example: "Vomiting for 1 day" = MODERATE risk. "Vomiting for 5 days with worsening trend" = HIGH/CRITICAL risk.
+
+        3. **SYMPTOM NUANCE (Rule Out Mimics):**
 
            - Compare the severity described vs. the database prediction.
 
@@ -233,9 +259,11 @@ class DiagnosisVerifier:
 
            - If the Database Prediction is too mild (e.g., Indigestion for Bloat) or too severe (e.g., Obstruction for Reverse Sneezing), REJECT it and provide the correct diagnosis.
 
-        3. **RISK ASSESSMENT:**
+        4. **RISK ASSESSMENT:**
 
            - Assign a risk level based on the *likely* condition: CRITICAL, HIGH, MODERATE, or LOW.
+           
+           - **Factor in symptom duration and progression** from the tracker history if available.
 
         OUTPUT JSON:
 

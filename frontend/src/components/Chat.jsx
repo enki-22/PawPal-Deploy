@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useConversations } from '../context/ConversationsContext';
 import AssessmentResults from './AssessmentResults';
@@ -41,6 +41,7 @@ const Chat = () => {
   const [sessionKey, setSessionKey] = useState(() => Date.now());
   
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, token, logout } = useAuth();
   
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
@@ -214,19 +215,58 @@ const Chat = () => {
     }
   };
 
+  // Handle location state from symptom tracker (worsening trend alert)
+  useEffect(() => {
+    if (location.state && location.state.mode === 'symptom_checker' && location.state.reason === 'worsening_trend') {
+      // Set chat mode to symptom_checker
+      setChatMode('symptom_checker');
+      
+      // If pet context is provided, set it
+      if (location.state.petId) {
+        // You may want to fetch the full pet details here
+        // For now, we'll set a basic context
+        setCurrentPetContext({
+          id: location.state.petId,
+          name: location.state.petName || 'Your Pet',
+          species: 'Pet',
+          breed: 'Unknown',
+          age: 0
+        });
+      }
+      
+      // Show symptom checker immediately
+      setShowSymptomChecker(true);
+      
+      // Optionally, you could add a message about the worsening trend
+      if (location.state.history_summary) {
+        const trendMessage = {
+          id: `trend-${Date.now()}`,
+          content: `⚠️ **Worsening Trend Detected**\n\n${location.state.history_summary}\n\nPlease complete the symptom assessment below to get updated insights.`,
+          isUser: false,
+          sender: 'PawPal',
+          timestamp: new Date().toISOString()
+        };
+        setMessages([trendMessage]);
+      }
+    }
+  }, [location.state]);
+
   // Main Effect to handle URL changes
   useEffect(() => {
       fetchConversations();
       
       // Always reset state and start new session when URL changes
-      startNewSession();
+      // BUT: Don't reset if we're coming from symptom tracker with state
+      if (!location.state || location.state.mode !== 'symptom_checker') {
+        startNewSession();
+      }
       
       if (conversationId && conversationId !== 'new') {
         // If it's a real ID, load it
         loadConversation(conversationId);
       } 
-      // If 'new', startNewSession already cleared everything.
-    }, [fetchConversations, conversationId, loadConversation, startNewSession]);
+      // If 'new', startNewSession already cleared everything (unless we have location state).
+    }, [fetchConversations, conversationId, loadConversation, startNewSession, location.state]);
 
   // --- HANDLERS ---
 
