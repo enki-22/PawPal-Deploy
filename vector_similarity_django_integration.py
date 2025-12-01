@@ -9,11 +9,13 @@ import json
 import os
 import re
 from chatbot.utils import get_gemini_client
+from modules.questionnaire.diagnosis_verifier import DiagnosisVerifier
 
 logger = logging.getLogger(__name__)
 
 # Initialize engine (singleton - loads once)
 _triage_engine = None
+_diagnosis_verifier = None
 
 def get_triage_engine():
     """Get or initialize the triage engine"""
@@ -26,6 +28,20 @@ def get_triage_engine():
             logger.error(f"✗ Failed to initialize engine: {e}")
             raise
     return _triage_engine
+
+
+def get_diagnosis_verifier():
+    """Get or initialize the diagnosis verifier"""
+    global _diagnosis_verifier
+    if _diagnosis_verifier is None:
+        try:
+            _diagnosis_verifier = DiagnosisVerifier('knowledge_base_enhanced.csv')
+            logger.info("✓ Diagnosis Verifier initialized successfully")
+        except Exception as e:
+            logger.error(f"✗ Failed to initialize diagnosis verifier: {e}")
+            # Don't raise - allow system to work without verifier
+            logger.warning("⚠️ Continuing without diagnosis verification (OOD detection disabled)")
+    return _diagnosis_verifier
 
 
 # RED FLAG SYMPTOMS (trigger emergency classification)
@@ -369,8 +385,132 @@ def predict_with_vector_similarity(payload):
                 'contagious': match['contagious'],
                 'matched_symptoms': match['matched_symptoms'],
                 'match_explanation': f"Matched {len(match['matched_symptoms'])} symptoms ({match['user_coverage']:.0f}% of your symptoms)",
-                'total_symptoms': match['total_disease_symptoms']
+                'total_symptoms': match['total_disease_symptoms'],
+                'is_external': False  # Default: all from database
             })
+        
+        # === DIAGNOSIS VERIFICATION LAYER: Gemini Safety Check for OOD Detection ===
+        verification_result = None
+        ood_detected = False
+        verifier = get_diagnosis_verifier()
+        
+        if verifier:
+            try:
+                logger.info("🔍 Running Diagnosis Verification Layer (Gemini Safety Check)...")
+                verification_result = verifier.verify_diagnosis(
+                    user_symptoms=symptoms_list,
+                    system_predictions=predictions,
+                    species=species,
+                    user_notes=user_notes
+                )
+                
+                logger.info(f"✓ Verification complete:")
+                logger.info(f"   Agreement: {verification_result['agreement']}")
+                logger.info(f"   Risk Assessment: {verification_result['risk_assessment']}")
+                logger.info(f"   Alternative Diagnosis: {verification_result['alternative_diagnosis']}")
+                
+                # Check for Out-of-Domain (OOD) disease detection
+                if (not verification_result['agreement'] and 
+                    verification_result['alternative_diagnosis']['name'] and
+                    not verification_result['alternative_diagnosis']['is_in_database']):
+                    
+                    ood_detected = True
+                    alt_diag = verification_result['alternative_diagnosis']
+                    
+                    # Extract risk assessment and map to system urgency levels
+                    risk_assessment = verification_result.get('risk_assessment', 'HIGH')
+                    ood_urgency = risk_assessment.upper()  # CRITICAL, HIGH, MODERATE, LOW
+                    
+                    # Normalize to system's urgency format (lowercase for consistency)
+                    urgency_map = {
+                        'CRITICAL': 'critical',
+                        'HIGH': 'high',
+                        'MODERATE': 'moderate',
+                        'LOW': 'low'
+                    }
+                    ood_urgency_normalized = urgency_map.get(ood_urgency, 'high')
+                    
+                    logger.warning(f"{'='*70}")
+                    logger.warning(f"🚨 OUT-OF-DOMAIN (OOD) DISEASE DETECTED 🚨")
+                    logger.warning(f"Disease: {alt_diag['name']}")
+                    logger.warning(f"Confidence: {alt_diag['confidence']:.2f}")
+                    logger.warning(f"Risk Assessment: {risk_assessment} -> Urgency: {ood_urgency_normalized}")
+                    logger.warning(f"Reasoning: {verification_result['reasoning']}")
+                    logger.warning(f"{'='*70}")
+                    
+                    # Conditional warning message based on urgency
+                    if ood_urgency in ['CRITICAL', 'HIGH']:
+                        match_explanation = (
+                            f"⚠️ AI Warning: This condition was flagged by our safety system "
+                            f"but is outside our standard verified database. {verification_result['reasoning']}"
+                        )
+                    else:
+                        match_explanation = (
+                            f"AI Insight: This condition is not in our standard database but matches your symptoms. "
+                            f"Please consult a vet to confirm. {verification_result['reasoning']}"
+                        )
+                    
+                    # Create OOD prediction object with dynamic urgency
+                    ood_prediction = {
+                        'disease': f"⚠️ Potential Match: {alt_diag['name']}",
+                        'probability': alt_diag['confidence'],
+                        'confidence': alt_diag['confidence'] * 100,  # Convert to percentage
+                        'urgency': ood_urgency_normalized,  # Dynamic based on risk assessment
+                        'contagious': False,  # Unknown for external diseases
+                        'matched_symptoms': symptoms_list[:5],  # Show some symptoms
+                        'match_explanation': match_explanation,
+                        'total_symptoms': len(symptoms_list),
+                        'is_external': True,  # Mark as external
+                        'verification_reasoning': verification_result['reasoning'],
+                        'risk_assessment': risk_assessment
+                    }
+                    
+                    # Insert OOD prediction as #1 (highest priority)
+                    predictions.insert(0, ood_prediction)
+                    logger.warning(f"✅ Injected OOD disease as #1 prediction: {alt_diag['name']} (Urgency: {ood_urgency_normalized})")
+                    
+            except Exception as e:
+                logger.error(f"✗ Diagnosis verification failed: {e}")
+                logger.exception(e)
+                # Continue with original predictions if verification fails
+        
+        # === OOD HANDLING: Update triage assessment if OOD detected ===
+        if ood_detected and verification_result:
+            # Use dynamic urgency from risk assessment
+            risk_assessment = verification_result.get('risk_assessment', 'HIGH')
+            ood_urgency = risk_assessment.upper()
+            
+            # Map to system urgency levels
+            urgency_map = {
+                'CRITICAL': 'CRITICAL',
+                'HIGH': 'HIGH',
+                'MODERATE': 'MODERATE',
+                'LOW': 'LOW'
+            }
+            ood_urgency_system = urgency_map.get(ood_urgency, 'HIGH')
+            
+            # Update result urgency if OOD urgency is higher, or use OOD urgency if it's more specific
+            # For OOD cases, prioritize the verifier's risk assessment
+            current_urgency_level = result['urgency'].upper()
+            urgency_hierarchy = {'LOW': 1, 'MODERATE': 2, 'HIGH': 3, 'CRITICAL': 4}
+            
+            ood_level = urgency_hierarchy.get(ood_urgency_system, 3)
+            current_level = urgency_hierarchy.get(current_urgency_level, 2)
+            
+            if ood_level >= current_level:
+                logger.info(f"📊 OOD urgency ({ood_urgency_system}) >= current urgency ({current_urgency_level}), using OOD urgency")
+                result['urgency'] = ood_urgency_system
+                result['urgency_reason'] = (
+                    f"Out-of-domain condition detected with {risk_assessment} risk assessment. "
+                    f"{verification_result['reasoning']}"
+                )
+            else:
+                logger.info(f"📊 Current urgency ({current_urgency_level}) is higher than OOD urgency ({ood_urgency_system}), keeping current")
+                # Still update reason to mention OOD detection
+                result['urgency_reason'] = (
+                    f"{result['urgency_reason']} "
+                    f"[Note: OOD condition detected with {risk_assessment} risk: {verification_result['reasoning']}]"
+                )
         
         # === SAFETY INTERCEPTOR: Build triage assessment with override logic ===
         # If safety override is active, FORCE critical urgency regardless of RAP/engine results
@@ -398,7 +538,7 @@ def predict_with_vector_similarity(payload):
                 ],
                 'red_flags': [
                     f"🚨 SAFETY INTERCEPTOR: {symptom_list} mentioned in typed symptoms",
-                ] + result.get('red_flags', []),
+                ] + (result.get('red_flags') or []),
                 'engine_type': 'Vector Similarity Search + Safety Interceptor',
                 'explainable': True,
                 'hybrid_triage_extraction': extraction_result,
@@ -435,18 +575,40 @@ def predict_with_vector_similarity(payload):
             else:
                 care_within = "2-7 days or monitor"
             
+            # Build urgency reasoning - include verification insights if available
+            urgency_reasoning = [result['urgency_reason']]
+            if verification_result and not verification_result['agreement']:
+                urgency_reasoning.append(
+                    f"⚠️ Verification Note: {verification_result['reasoning']}"
+                )
+            
+            # Ensure red_flags is always a list (handle None case)
+            red_flags_list = result.get('red_flags') or []
+            if not isinstance(red_flags_list, list):
+                red_flags_list = []
+            
             triage_assessment = {
                 'overall_urgency': result['urgency'].lower(),
                 'emergency_indicators': emergency_indicators,
                 'requires_immediate_care': requires_immediate,
                 'requires_care_within': care_within,
-                'urgency_reasoning': [result['urgency_reason']],
-                'red_flags': result.get('red_flags', []),
-                'engine_type': 'Vector Similarity Search',
+                'urgency_reasoning': urgency_reasoning,
+                'red_flags': red_flags_list,
+                'engine_type': 'Vector Similarity Search + Diagnosis Verification' if verification_result else 'Vector Similarity Search',
                 'explainable': True,
                 'hybrid_triage_extraction': extraction_result if extraction_result['extracted_symptoms'] else None,
-                'safety_override_applied': False
+                'safety_override_applied': False,
+                'verification_result': verification_result if verification_result else None,
+                'ood_detected': ood_detected
             }
+            
+            # Add missed red flags from verification if any
+            if verification_result and verification_result.get('missed_red_flags'):
+                # Safety check: ensure red_flags is a list before extending
+                if triage_assessment.get('red_flags') is None:
+                    triage_assessment['red_flags'] = []
+                triage_assessment['red_flags'].extend(verification_result['missed_red_flags'])
+                logger.warning(f"⚠️ Verification flagged missed red flags: {verification_result['missed_red_flags']}")
         
         # Add emergency override if detected
         if result.get('action'):
