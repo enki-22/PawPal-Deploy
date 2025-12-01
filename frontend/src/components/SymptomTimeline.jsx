@@ -54,7 +54,7 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `${API_BASE_URL}/chatbot/get-user-pets/`,
+        `${API_BASE_URL}/get-user-pets/`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -105,7 +105,12 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
       setLatestTrend(response.data.latest_trend || null);
     } catch (err) {
       console.error('Error loading timeline:', err);
-      setError(err.response?.data?.error || 'Failed to load health timeline');
+      // Extract error message as string (handle both string and object errors)
+      const errorData = err.response?.data?.error;
+      const errorMessage = typeof errorData === 'string' 
+        ? errorData 
+        : (errorData?.message || errorData?.error || err.message || 'Failed to load health timeline');
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -203,11 +208,13 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
   }
 
   if (error) {
+    // Ensure error is a string for rendering
+    const errorText = typeof error === 'string' ? error : (error?.message || error?.toString() || 'An unknown error occurred');
     return (
       <div className="symptom-timeline p-6">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <h3 className="text-red-800 font-semibold mb-2">⚠️ Error Loading Timeline</h3>
-          <p className="text-red-600 mb-4">{error}</p>
+          <p className="text-red-600 mb-4">{errorText}</p>
           <button
             onClick={loadData}
             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
@@ -277,7 +284,7 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
           <div className="text-6xl mb-4">📋</div>
           <h3 className="text-2xl font-semibold text-gray-800 mb-2">No Symptom Logs Yet</h3>
           <p className="text-gray-600 mb-6">
-            Start tracking {selectedPet?.name || 'your pet'}'s symptoms to see progression over time.
+            Start tracking {selectedPet?.name || 'your pet'}&apos;s symptoms to see progression over time.
           </p>
           <button
             onClick={() => setShowLogger(true)}
@@ -301,7 +308,7 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
               <div className="flex-1">
                 <h3 className="text-xl font-bold mb-2">Worsening Trend Detected</h3>
                 <p className="text-red-50 mb-4">
-                  Our AI analysis indicates your pet's symptoms are showing a concerning trend. 
+                  Our AI analysis indicates your pet&apos;s symptoms are showing a concerning trend. 
                   We recommend running a new AI Assessment to get updated insights.
                 </p>
                 <button

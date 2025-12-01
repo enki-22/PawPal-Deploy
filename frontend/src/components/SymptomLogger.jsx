@@ -186,7 +186,11 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
       }
     } catch (error) {
       console.error('Error logging symptoms:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to log symptoms. Please try again.';
+      // Extract error message as string (handle both string and object errors)
+      const errorData = error.response?.data?.error;
+      const errorMessage = typeof errorData === 'string'
+        ? errorData
+        : (errorData?.message || errorData?.error || error.message || 'Failed to log symptoms. Please try again.');
       
       if (showToast) {
         showToast(errorMessage, 'error');

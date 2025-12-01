@@ -4,9 +4,9 @@ Endpoints for logging symptoms, tracking progression, and managing alerts
 """
 
 from rest_framework import viewsets, status
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.db.models import Avg, Count, Q
@@ -588,7 +588,8 @@ class SymptomTrackerViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def log_daily_symptoms(request):
     """
     Log daily symptoms and trigger AI analysis.
@@ -610,6 +611,12 @@ def log_daily_symptoms(request):
         "analysis": {...}  // PetHealthTrend data
     }
     """
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Authenticate user (pet owner only)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
     
     pet_id = request.data.get('pet_id')
     symptoms = request.data.get('symptoms', [])
@@ -631,7 +638,7 @@ def log_daily_symptoms(request):
     
     # Get pet and verify ownership
     try:
-        pet = Pet.objects.get(id=pet_id, owner=request.user)
+        pet = Pet.objects.get(id=pet_id, owner=user_obj)
     except Pet.DoesNotExist:
         return Response(
             {'error': 'Pet not found or access denied'},
@@ -653,7 +660,7 @@ def log_daily_symptoms(request):
     # Create symptom log
     try:
         symptom_log = SymptomLog.objects.create(
-            user=request.user,
+            user=user_obj,
             pet=pet,
             symptom_date=timezone.now().date(),
             symptoms=symptoms,
@@ -710,7 +717,8 @@ def log_daily_symptoms(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
 def get_pet_health_timeline(request):
     """
     Get pet health timeline with logs and latest trend analysis.
@@ -726,6 +734,12 @@ def get_pet_health_timeline(request):
         "latest_trend": {...}  // Most recent PetHealthTrend
     }
     """
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Authenticate user (pet owner only)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
     
     pet_id = request.query_params.get('pet_id')
     
@@ -737,7 +751,7 @@ def get_pet_health_timeline(request):
     
     # Get pet and verify ownership
     try:
-        pet = Pet.objects.get(id=pet_id, owner=request.user)
+        pet = Pet.objects.get(id=pet_id, owner=user_obj)
     except Pet.DoesNotExist:
         return Response(
             {'error': 'Pet not found or access denied'},
