@@ -8,7 +8,6 @@ import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
 import Modal from './LogoutModal';
 import AddPetModal from './AddPetModal';
-import EditPetModal from './EditPetModal';
 import { useAuth } from '../context/AuthContext';
 import useConversations from '../hooks/useConversations';
 import MedicalRecordDetailsModal from './MedicalRecordDetailsModal';
@@ -81,9 +80,6 @@ const PetProfile = () => {
   const { petId } = useParams();
   const { token, logout } = useAuth();
   const navigate = useNavigate();
-
-  // Edit modal state
-  const [showEditPetModal, setShowEditPetModal] = useState(false);
 
   // Use conversations hook for sidebar chat functionality
   const {
@@ -163,19 +159,6 @@ const PetProfile = () => {
     // Set initial current pet ID from URL parameter
     setCurrentPetId(parseInt(petId));
   }, [petId, token, fetchAllPets, fetchPetDetails]);
-
-  // Handler when pet is updated from EditPetModal
-  const handlePetUpdated = (updatedPet) => {
-    if (updatedPet) {
-      setPet(updatedPet);
-      try {
-        fetchAllPets();
-      } catch (e) {
-        // ignore
-      }
-    }
-    setShowEditPetModal(false);
-  };
 
   const handlePetSelect = (selectedPetId) => {
     if (selectedPetId !== currentPetId) {
@@ -685,11 +668,7 @@ const PetProfile = () => {
                       >
                         {pet.name}
                       </h1>
-                      <button 
-                        onClick={() => setShowEditPetModal(true)}
-                        className="text-white/80 hover:text-white hover:bg-white/20 p-1.5 rounded-full transition-all"
-                        title="Edit Pet Details"
-                      >
+                      <button className="text-white hover:text-gray-200 transition-colors">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
@@ -1282,15 +1261,6 @@ const PetProfile = () => {
           }}
         />
       )}
-
-      {/* Edit Pet Modal */}
-      <EditPetModal
-        isOpen={showEditPetModal}
-        onClose={() => setShowEditPetModal(false)}
-        onPetUpdated={handlePetUpdated}
-        token={token}
-        petToEdit={pet}
-      />
     </div>
   );
 };
