@@ -140,55 +140,60 @@ export default function LandingPage() {
           </div>
           
           <div className="flex-1 overflow-y-auto py-4 flex flex-col gap-2 px-4">
-            <button onClick={() => scrollToSection('home')} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Home</button>
-            <button onClick={() => scrollToSection('meet-pawpal')} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Meet PawPal</button>
-            <button onClick={() => scrollToSection('promotions')} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Promotions</button>
-            <button onClick={() => scrollToSection('help')} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Help</button>
-            <button onClick={() => scrollToSection('find-us')} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Find Us</button>
+            <motion.button onClick={() => scrollToSection('home')} whileTap={{ scale: 0.95 }} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Home</motion.button>
+            <motion.button onClick={() => scrollToSection('meet-pawpal')} whileTap={{ scale: 0.95 }} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Meet PawPal</motion.button>
+            <motion.button onClick={() => scrollToSection('promotions')} whileTap={{ scale: 0.95 }} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Promotions</motion.button>
+            <motion.button onClick={() => scrollToSection('help')} whileTap={{ scale: 0.95 }} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Help</motion.button>
+            <motion.button onClick={() => scrollToSection('find-us')} whileTap={{ scale: 0.95 }} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Find Us</motion.button>
           </div>
 
           <div className="p-5 border-t flex flex-col gap-3 bg-[#f7f6fa]">
-            <button 
+            <motion.button 
               onClick={() => navigate("/petowner/login")}
               className="w-full h-[44px] rounded-full bg-white border border-[#7e57c2] text-[#7e57c2] font-bold"
+              whileTap={{ scale: 0.95 }}
             >
               Log In
-            </button>
-            <button 
+            </motion.button>
+            <motion.button 
               onClick={() => navigate("/petowner/register")}
               className="w-full h-[44px] rounded-full bg-[#7e57c2] text-white font-bold shadow-md"
+              whileTap={{ scale: 0.95 }}
             >
               Sign Up
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>
 
       {/* --- HEADER --- */}
       <div
-        className="w-full bg-white h-[56px] flex items-center justify-between px-4 md:px-8 shadow z-50 absolute top-0 left-0"
+        className="w-full bg-white/90 backdrop-blur-md h-[64px] flex items-center justify-between px-4 md:px-8 shadow-sm z-50 fixed top-0 left-0 transition-all duration-300"
         data-name="Container"
       >
         {/* Logo Section */}
-        <div 
-            className="flex items-center cursor-pointer"
-            onClick={() => scrollToSection('home')}
+        <button
+          type="button"
+          onClick={() => scrollToSection('home')}
+          className="flex items-center cursor-pointer focus:outline-none"
+          aria-label="Go to Home"
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollToSection('home'); } }}
         >
-            {/* Optional: Add small logo icon here if desired */}
-            <span
-            style={{
-                fontFamily: "Poppins, sans-serif",
-                fontWeight: 900,
-                fontSize: 20,
-                color: "#815FB3",
-                letterSpacing: 1,
-            }}
-            className="truncate max-w-[250px] lg:max-w-none"
-            >
-            SOUTHVALLEY
-            <span className="hidden md:inline"> VETERINARY CLINIC</span>
-            </span>
-        </div>
+          {/* Optional: Add small logo icon here if desired */}
+          <span
+          style={{
+            fontFamily: "Poppins, sans-serif",
+            fontWeight: 900,
+            fontSize: 20,
+            color: "#815FB3",
+            letterSpacing: 1,
+          }}
+          className="truncate max-w-[250px] lg:max-w-none"
+          >
+          SOUTHVALLEY
+          <span className="hidden md:inline"> VETERINARY CLINIC</span>
+          </span>
+        </button>
 
         {/* --- DESKTOP NAVIGATION LINKS (Hidden on mobile) --- */}
         <div className="hidden lg:flex items-center gap-20">

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useConversations } from '../context/ConversationsContext';
@@ -411,6 +412,36 @@ const Chat = () => {
         setLoading(false);
       }
     }
+  };
+
+  // Auto-resize handler for textarea and Enter-to-send (shift+Enter for newline)
+  const handleInputResize = (e) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = `${e.target.scrollHeight}px`;
+    setMessageInput(e.target.value);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
+
+  // Animation variants for staggered message loading
+  const listContainerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+      },
+    },
+  };
+
+  const messageItemVariants = {
+    hidden: { opacity: 0, y: 10, scale: 0.95 },
+    show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 24 } },
   };
 
   useEffect(() => {
@@ -992,7 +1023,8 @@ const Chat = () => {
               </div>
             )}
 
-            {messages.map((message) => {
+            <motion.div variants={listContainerVariants} initial="hidden" animate="show" className="flex flex-col">
+              {messages.map((message) => {
               // === CRITICAL: Only render assessment results in symptom_checker mode ===
               // This prevents assessments from appearing in "general" mode conversations
               if (message.isAssessment && message.assessmentData) {
@@ -1002,7 +1034,7 @@ const Chat = () => {
                   return null;
                 }
                 return (
-                  <div key={message.id} className="flex justify-start mb-4">
+                  <motion.div key={message.id} variants={messageItemVariants} className="flex justify-start mb-4">
                     <AssessmentResults
                       assessmentData={message.assessmentData}
                       onSaveToAIDiagnosis={handleSaveToAIDiagnosis}
@@ -1010,14 +1042,14 @@ const Chat = () => {
                       onAskFollowUp={handleAskFollowUp}
                       onLogSymptoms={handleLogSymptoms}
                     />
-                  </div>
+                  </motion.div>
                 );
               }
               
               if (!message.isUser) {
                 const paragraphs = message.content.split(/\n\n+/);
                 return (
-                  <div key={message.id} className="flex justify-start mb-4">
+                  <motion.div key={message.id} variants={messageItemVariants} className="flex justify-start mb-4">
                     <div 
                       className="max-w-[80vw] md:max-w-xs lg:max-w-md px-3 md:px-4 py-2 rounded-lg text-[#111827] shadow-sm"
                       style={{ backgroundColor: '#FFFFF2' }}
@@ -1047,11 +1079,11 @@ const Chat = () => {
                         );
                       })}
                     </div>
-                  </div>
+                  </motion.div>
                 );
               }
               return (
-                <div key={message.id} className="flex justify-end mb-4">
+                <motion.div key={message.id} variants={messageItemVariants} className="flex justify-end mb-4">
                   <div 
                     className="max-w-[80vw] md:max-w-xs lg:max-w-md px-3 md:px-4 py-2 rounded-lg text-white shadow-sm"
                     style={{ backgroundColor: '#815FB3' }}
@@ -1060,9 +1092,10 @@ const Chat = () => {
                       {message.content}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
+            </motion.div>
             
             {showSymptomChecker && currentPetContext && (
               <div className="flex justify-start mb-4">
@@ -1111,11 +1144,11 @@ const Chat = () => {
             )}
             
             {loading && (
-              <div className="flex justify-start">
-                <div className="text-gray-900 px-3 md:px-4 py-2 rounded-lg" style={{ backgroundColor: '#FFFFF2' }}>
-                  <p className="text-[13px] md:text-[14px] animate-pulse" style={{ fontFamily: 'Raleway' }}>
-                    Typing...
-                  </p>
+              <div className="flex justify-start mb-4">
+                <div className="bg-[#FFFFF2] px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-[#815FB3] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-[#815FB3] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-[#815FB3] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                 </div>
               </div>
             )}
@@ -1146,38 +1179,40 @@ const Chat = () => {
                 </div>
               )}
               
-              <form onSubmit={handleSubmit} className="relative">
-                <input
-                  type="text"
+              <form 
+                onSubmit={handleSubmit} 
+                className="relative flex items-end gap-2 bg-[#E4DEED] rounded-xl px-2 py-2 md:px-4 border border-transparent focus-within:border-[#815FB3] focus-within:ring-1 focus-within:ring-[#815FB3] transition-all"
+              >
+                <textarea
+                  rows={1}
                   value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
+                  onChange={handleInputResize}
+                  onKeyDown={handleKeyDown}
                   placeholder={
                     showSymptomChecker
                       ? "Complete the questionnaire above first..."
                       : chatMode === 'general' || !chatMode
                       ? "Ask about your pet's health..."
                       : assessmentData
-                      ? "Ask a follow-up question about the assessment..."
+                      ? "Ask a follow-up question..."
                       : "Describe your pet's symptoms..."
                   }
-                  className="w-full px-2 md:px-6 py-2 md:py-3 pr-10 md:pr-16 border border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-[#815FB3] text-xs md:text-[15px] lg:text-[18px] bg-[#E4DEED] font-medium placeholder-gray-500 text-[#34113F]"
-                  style={{ fontFamily: 'Raleway', marginBottom: '6px' }}
+                  className="w-full bg-transparent border-none appearance-none focus:outline-none focus:ring-0 resize-none text-[#34113F] placeholder-gray-500 text-[15px] md:text-[16px] py-2 max-h-[120px] overflow-y-auto custom-scrollbar"
+                  style={{ fontFamily: 'Raleway', outline: 'none', border: 'none' }}
                   disabled={loading || showSymptomChecker || showSymptomLogger}
                   required
                 />
-                <div className="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 flex items-center">
-                  <button
-                    type="submit"
-                    disabled={loading || !messageInput.trim()}
-                    className="p-0 bg-transparent hover:opacity-70 transition-opacity disabled:opacity-30"
-                  >
-                    <img
-                      src="/Vector.png"
-                      alt="Send message"
-                      className="w-5 h-5 md:w-6 md:h-6 object-contain pb-1 md: pb-1"
-                    />
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  disabled={loading || !messageInput.trim()}
+                  className="mb-1 p-2 bg-[#815FB3] hover:bg-[#6a4c9c] rounded-full text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                >
+                  <img
+                    src="/Vector.png"
+                    alt="Send"
+                    className="w-4 h-4 md:w-5 md:h-5 object-contain filter brightness-0 invert" 
+                  />
+                </button>
               </form>
               
               <p className="text-xs md:text-[13px] text-gray-500 mt-1 md:mt-2 text-center" style={{ fontFamily: 'Raleway', marginBottom: '-1px' }}>
