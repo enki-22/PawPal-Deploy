@@ -7,6 +7,7 @@ import AddPetModal from './AddPetModal';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
 import LogoutModal from './LogoutModal';
+import Skeleton from './common/Skeleton';
 
 const PetHealthRecords = () => {
   const [pets, setPets] = useState([]);
@@ -346,9 +347,17 @@ const PetHealthRecords = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 justify-items-center py-4 md:py-8 min-h-[200px] md:min-h-[300px]">
             {loading ? (
-              <div className="col-span-full flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3]"></div>
-              </div>
+              // MODERN SKELETON LOADING STATE
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="w-40 md:w-60 h-[230px] md:h-[260px] bg-white rounded-xl shadow-sm p-4 flex flex-col gap-3">
+                  <Skeleton className="w-full h-28 md:h-48 rounded-lg" />
+                  <Skeleton className="w-3/4 h-6" />
+                  <div className="flex gap-2 mt-2">
+                    <Skeleton className="w-1/3 h-4" />
+                    <Skeleton className="w-1/3 h-4" />
+                  </div>
+                </div>
+              ))
             ) : (
               pets.map((pet) => (
                 <div 
@@ -397,19 +406,21 @@ const PetHealthRecords = () => {
                 </div>
               ))
             )}
-            
-            {/* Add Pet Card */}
+
+            {/* Add Pet Card - MODERNIZED */}
             <div 
               onClick={() => setShowAddPetModal(true)}
-              className="cursor-pointer hover:transform hover:scale-105 transition-all duration-300 w-40 md:w-60 h-auto border-2 border-[#815FB3] rounded-xl bg-transparent flex items-center justify-center min-h-[230px] md:min-h-[260px]"
+              // CHANGED: bg-white/30 (transparent), border-dashed, border-2, hover effect
+              className="cursor-pointer group hover:-translate-y-1 transition-all duration-300 w-40 md:w-60 h-auto border-2 border-dashed border-[#815FB3] bg-white/30 hover:bg-purple-50 rounded-xl flex flex-col items-center justify-center min-h-[230px] md:min-h-[260px] gap-3"
             >
-              <div className="relative w-full h-full flex items-center justify-center">
-                <img 
-                  src="/basil_add-solid.png" 
-                  alt="Add Pet" 
-                  className="w-16 h-16 md:w-24 md:h-24"
-                />
+              <div className="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center bg-purple-100 rounded-full group-hover:bg-[#815FB3] transition-colors duration-300">
+                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 md:h-10 md:w-10 text-[#815FB3] group-hover:text-white transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                 </svg>
               </div>
+              <span className="font-raleway font-bold text-[#815FB3] text-sm md:text-base group-hover:text-[#6D4C9A]">
+                Add New Pet
+              </span>
             </div>
           </div>
         </div>
