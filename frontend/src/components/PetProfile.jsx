@@ -956,14 +956,34 @@ const PetProfile = () => {
                         ))}
                         </div>
                       ) : (
-                        <div className="text-center py-8">
-                          <div className="flex justify-center mb-4">
-                            <svg className="w-12 h-12" fill="#CCCCCC" viewBox="0 0 24 24">
-                              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-7-7z"/>
-                              <polyline points="13,2 13,9 20,9"/>
-                            </svg>
+                        <div className="text-center py-6 h-full flex flex-col items-center justify-center">
+                          <div className="flex justify-center mb-3">
+                            <div className="w-12 h-12 bg-[#FFF4C9] rounded-full flex items-center justify-center">
+                              <img src="/files.png" alt="No files" className="w-6 h-6 opacity-50" />
+                            </div>
                           </div>
-                          <p className="font-raleway text-[14px] font-normal text-[#999999]">There are no files yet.</p>
+                          <p className="font-raleway text-[14px] font-medium text-gray-500 mb-3">No files uploaded yet.</p>
+                          
+                          {/* New Action Button */}
+                          <label 
+                            htmlFor="file-upload-empty" 
+                            className="px-4 py-2 bg-white border border-[#815FB3] text-[#815FB3] rounded-lg text-xs font-bold cursor-pointer hover:bg-[#F0F0FF] transition-colors shadow-sm"
+                          >
+                            Upload First File
+                            <input
+                              id="file-upload-empty"
+                              type="file"
+                              accept="application/pdf"
+                              className="hidden"
+                              onChange={e => {
+                                const file = e.target.files[0];
+                                if (file) document.getElementById('file-upload').files = e.target.files;
+                                // trigger change on main input so existing handler runs
+                                const main = document.getElementById('file-upload');
+                                if (main) main.dispatchEvent(new Event('change', { bubbles: true }));
+                              }}
+                            />
+                          </label>
                         </div>
                       )}
                     </div>
