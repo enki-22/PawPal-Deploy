@@ -175,16 +175,42 @@ export const AdminAuthProvider = ({ children }) => {
     }
   };
 
-  // FIXED: Provide the adminAxios instance to components
-  const value = {
-    admin,
-    token,
-    adminLogin,
-    adminLogout,
-    loading,
-    isAdminAuthenticated: !!token && !!admin,
-    adminAxios, // ADDED: Provide configured axios instance
-  };
+    // Helper to update admin state directly (e.g., after profile update)
+    const updateAdmin = (newAdminData) => {
+      setAdmin(prev => ({ ...prev, ...newAdminData }));
+    };
+
+    // Provide the adminAxios instance and update helper to components
+    const value = {
+      admin,
+      token,
+      adminLogin,
+      adminLogout,
+      updateAdmin, // Exposed helper to update admin state
+        loading,
+        isAdminAuthenticated: !!token && !!admin,
+        // Derived role helpers (make role checks robust across different API shapes/casing)
+        isMaster: (() => {
+          try {
+            if (!admin) return false;
+            // Check multiple possible fields that backends might return
+            const roleCandidates = [admin.role, admin.role_display, admin.role_name, admin.roleTitle, admin.roles];
+            for (const r of roleCandidates) {
+              if (!r) continue;
+              if (Array.isArray(r)) {
+                if (r.map(x => String(x).toUpperCase()).includes('MASTER')) return true;
+              } else {
+                const s = String(r).toUpperCase();
+                if (s.includes('MASTER') || s.includes('MASTER ADMIN') || s.includes('SUPERADMIN')) return true;
+              }
+            }
+            return false;
+          } catch (e) {
+            return false;
+          }
+        })(),
+      adminAxios,
+    };
 
   return (
     <AdminAuthContext.Provider value={value}>

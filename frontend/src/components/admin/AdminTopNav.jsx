@@ -4,7 +4,7 @@ import { Settings, LogOut } from 'lucide-react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 
 export default function AdminTopNav({ activePage = '' }) {
-  const { admin, adminLogout } = useAdminAuth();
+  const { admin, adminLogout, isMaster, adminAxios } = useAdminAuth();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
@@ -16,9 +16,38 @@ export default function AdminTopNav({ activePage = '' }) {
     { href: '/admin/clients', label: 'Clients' },
     { href: '/admin/pets', label: 'Pets' },
     // Admin Roles link only visible to MASTER admins
-    ...(admin?.role === 'MASTER' ? [{ href: '/admin/roles', label: 'Admin Roles' }] : []),
+    ...(isMaster ? [{ href: '/admin/roles', label: 'Admin Roles' }] : []),
     { href: '/admin/announcements', label: 'Announcements' },
   ];
+
+  // Resolve profile image URL robustly (accept multiple field names and handle relative URLs)
+  const _rawAvatar = (
+    admin?.profile_image || admin?.profileImage || admin?.avatar || admin?.profile || ''
+  ).toString().trim();
+
+  // If backend returns a relative path (starting with '/'), prefix with origin so image loads across pages
+  const profileImage = (() => {
+    if (!_rawAvatar) return '/pat-removebg-preview 2.png';
+    try {
+      if (_rawAvatar.startsWith('//')) return window.location.protocol + _rawAvatar; // protocol-relative
+      if (_rawAvatar.startsWith('/')) {
+        // If admin Axios is available, derive backend origin from its baseURL (strip trailing /api)
+        try {
+          const base = adminAxios?.defaults?.baseURL || '';
+          const backendOrigin = base ? base.replace(/\/api\/?$/, '') : window.location.origin;
+          return backendOrigin + _rawAvatar;
+        } catch (e) {
+          return window.location.origin + _rawAvatar;
+        }
+      }
+      return _rawAvatar; // assume absolute URL
+    } catch (e) {
+      return '/pat-removebg-preview 2.png';
+    }
+  })();
+
+  // Debug to help trace avatar issues across pages
+  console.debug('AdminTopNav: admin', admin, 'resolvedProfileImage', profileImage);
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-[#57166b] h-[80px] flex items-center justify-between px-[28px] z-50">
@@ -30,7 +59,7 @@ export default function AdminTopNav({ activePage = '' }) {
           </div>
           <img src="/PAWPAL.png" alt="PAWPAL" className="h-[26.25px] ml-4 object-contain" />
         </div>
-  <nav className="flex items-center gap-x-10 ml-20">
+        <nav className="flex items-center gap-x-10 ml-20">
           {navLinks.map(link => (
             <a
               key={link.href}
@@ -50,7 +79,8 @@ export default function AdminTopNav({ activePage = '' }) {
           onClick={() => setProfileMenuOpen((open) => !open)}
           style={{ position: 'relative', zIndex: 51 }}
         >
-          <img src="/pat-removebg-preview 2.png" alt="User Avatar" className="w-full h-full object-cover" />
+          {/* UPDATED: Dynamic Profile Image */}
+          <img src={profileImage} alt="User Avatar" className="w-full h-full object-cover" />
         </div>
         {profileMenuOpen && (
           <div
@@ -74,18 +104,17 @@ export default function AdminTopNav({ activePage = '' }) {
                 <LogOut className="w-6 h-6" />
                 Logout
               </button>
-      {/* Logout Modal */}
-      <LogoutModal
-        isOpen={logoutModalOpen}
-        loading={logoutLoading}
-        onClose={() => setLogoutModalOpen(false)}
-        onConfirm={async () => {
-          setLogoutLoading(true);
-          await adminLogout();
-          setLogoutLoading(false);
-          setLogoutModalOpen(false);
-        }}
-      />
+              <LogoutModal
+                isOpen={logoutModalOpen}
+                loading={logoutLoading}
+                onClose={() => setLogoutModalOpen(false)}
+                onConfirm={async () => {
+                  setLogoutLoading(true);
+                  await adminLogout();
+                  setLogoutLoading(false);
+                  setLogoutModalOpen(false);
+                }}
+              />
             </div>
           </div>
         )}
