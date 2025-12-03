@@ -54,6 +54,7 @@ const PetProfile = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [currentPetId, setCurrentPetId] = useState(null); // Add state for current pet ID
   const [showAddPetModal, setShowAddPetModal] = useState(false); // Modal state for AddPetModal
+  const [editingPet, setEditingPet] = useState(null);
   // Medical records state and search
   const [medicalRecords, setMedicalRecords] = useState(() => {
     const saved = localStorage.getItem('medicalRecords');
@@ -200,6 +201,11 @@ const PetProfile = () => {
     } finally {
       setPetSwitchLoading(false);
     }
+  };
+
+  const handleEditClick = (petToOpen) => {
+    setEditingPet(petToOpen);
+    setShowAddPetModal(true);
   };
 
     // --- Extracted Excel Logic ---
@@ -366,9 +372,14 @@ const PetProfile = () => {
       {/* AddPetModal - overlays everything including header */}
       <AddPetModal
         isOpen={showAddPetModal}
-        onClose={() => setShowAddPetModal(false)}
+        petToEdit={editingPet}
+        onClose={() => {
+          setShowAddPetModal(false);
+          setEditingPet(null);
+        }}
         onPetAdded={() => {
           setShowAddPetModal(false);
+          setEditingPet(null);
           fetchAllPets();
           // Clear records for new pet
           setMedicalRecords([]);
@@ -619,10 +630,16 @@ const PetProfile = () => {
           {/* AddPetModal - Centered, overlay, blur */}
           <AddPetModal
             isOpen={showAddPetModal}
-            onClose={() => setShowAddPetModal(false)}
+            petToEdit={editingPet}
+            onClose={() => {
+              setShowAddPetModal(false);
+              setEditingPet(null);
+            }}
             onPetAdded={() => {
               setShowAddPetModal(false);
+              setEditingPet(null);
               fetchAllPets(); // Refresh pets after adding
+              fetchPetDetails();
             }}
             token={token}
           />
@@ -668,7 +685,7 @@ const PetProfile = () => {
                       >
                         {pet.name}
                       </h1>
-                      <button className="text-white hover:text-gray-200 transition-colors">
+                      <button onClick={() => handleEditClick(pet)} className="text-[#815FB3] hover:text-[#6d4a96] transition-colors bg-white/30 rounded-full p-2">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
