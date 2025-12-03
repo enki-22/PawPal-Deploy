@@ -335,9 +335,37 @@ class DiagnosisVerifier:
         if not isinstance(alt_diag, dict):
             alt_diag = {}
         
+        # Extract suggested disease name
+        suggested_name = alt_diag.get("name") or None
+        
+        # Source of Truth Check: Validate is_in_database using actual database
+        ai_guessed_is_in_db = bool(alt_diag.get("is_in_database", False))
+        is_actually_in_db = False
+        
+        if suggested_name:
+            # Perform case-insensitive check against valid_diseases set
+            suggested_name_lower = suggested_name.lower().strip()
+            is_actually_in_db = suggested_name_lower in self.valid_diseases
+            
+            # Log if AI's guess differed from actual database check
+            if ai_guessed_is_in_db != is_actually_in_db:
+                logger.info(
+                    f"🤖 AI hallucinated DB presence for '{suggested_name}'. "
+                    f"AI guessed: {ai_guessed_is_in_db}, Actual: {is_actually_in_db}. "
+                    f"Corrected to {is_actually_in_db}."
+                )
+        else:
+            # No disease name provided, default to False
+            is_actually_in_db = False
+            if ai_guessed_is_in_db:
+                logger.info(
+                    f"🤖 AI claimed disease is in database but no disease name provided. "
+                    f"Corrected to False."
+                )
+        
         normalized["alternative_diagnosis"] = {
-            "name": alt_diag.get("name") or None,
-            "is_in_database": bool(alt_diag.get("is_in_database", False)),
+            "name": suggested_name,
+            "is_in_database": is_actually_in_db,  # Override with computed value
             "confidence": float(alt_diag.get("confidence", 0.0))
         }
         

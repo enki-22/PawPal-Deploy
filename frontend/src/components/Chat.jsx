@@ -209,6 +209,13 @@ const Chat = () => {
     scrollToBottom();
   }, [messages, isAnalyzing]);
 
+  // Auto-scroll when symptom logger opens
+  useEffect(() => {
+    if (showSymptomLogger) {
+      scrollToBottom();
+    }
+  }, [showSymptomLogger]);
+
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -415,14 +422,29 @@ const Chat = () => {
       if (chatSessionIdRef.current !== mySessionId) return;
 
       if (response.data && response.data.response) {
+        let aiResponseText = response.data.response;
+        let shouldShowLogger = false;
+        
+        // Check for [[TRIGGER_LOG_UI]] tag
+        if (aiResponseText.includes('[[TRIGGER_LOG_UI]]')) {
+          // Remove the tag from the response text
+          aiResponseText = aiResponseText.replace('[[TRIGGER_LOG_UI]]', '').trim();
+          shouldShowLogger = true;
+        }
+        
         const aiMessage = {
           id: Date.now() + Math.random(),
-          content: response.data.response,
+          content: aiResponseText,
           isUser: false,
           sender: 'PawPal',
           timestamp: new Date().toISOString(),
         };
         setMessages(prev => [...prev, aiMessage]);
+        
+        // Open symptom logger if tag was detected
+        if (shouldShowLogger && currentPetContext) {
+          setShowSymptomLogger(true);
+        }
         
         if (response.data.conversation_id && !currentConversationId) {
           setCurrentConversationId(response.data.conversation_id);

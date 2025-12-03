@@ -452,17 +452,9 @@ def get_gemini_response_with_pet_context(user_message, conversation_history=None
             4. When to see a vet
             
             **DATA LOGGING TRIGGER:**
-            If the user asks to log symptoms OR describes the current status of an ongoing condition (e.g., 'He is worse today', 'Vomiting stopped'), you MUST:
+            If the user explicitly asks to log symptoms, OR if they describe a change in the pet's condition (e.g., 'He is worse today', 'Vomiting stopped'), do NOT try to log it yourself.
             
-            1. Acknowledge the update textually.
-            
-            2. Generate a **hidden JSON block** at the very end of your response in this format:
-            
-               `[[LOG_ENTRY: {"symptoms": ["vomiting"], "severity": {"vomiting": 5}, "notes": "User description"}]]
-            
-               - Infer severity (1-10) from context (e.g. 'mild'=2, 'bad'=8). Default to 5 if unknown.
-               - The severity object should use snake_case symptom names matching the symptoms list.
-               - Include any additional context the user provided in the "notes" field.
+            Instead, respond empathetically and end your message with this exact tag: `[[TRIGGER_LOG_UI]]`.
             """
         else:  # general mode
             system_prompt = """You are PawPal, a friendly AI veterinary assistant focused on general pet health education.
@@ -477,17 +469,9 @@ def get_gemini_response_with_pet_context(user_message, conversation_history=None
             - Keep responses informative but friendly
             
             **DATA LOGGING TRIGGER:**
-            If the user asks to log symptoms OR describes the current status of an ongoing condition (e.g., 'He is worse today', 'Vomiting stopped'), you MUST:
+            If the user explicitly asks to log symptoms, OR if they describe a change in the pet's condition (e.g., 'He is worse today', 'Vomiting stopped'), do NOT try to log it yourself.
             
-            1. Acknowledge the update textually.
-            
-            2. Generate a **hidden JSON block** at the very end of your response in this format:
-            
-               `[[LOG_ENTRY: {"symptoms": ["vomiting"], "severity": {"vomiting": 5}, "notes": "User description"}]]
-            
-               - Infer severity (1-10) from context (e.g. 'mild'=2, 'bad'=8). Default to 5 if unknown.
-               - The severity object should use snake_case symptom names matching the symptoms list.
-               - Include any additional context the user provided in the "notes" field.
+            Instead, respond empathetically and end your message with this exact tag: `[[TRIGGER_LOG_UI]]`.
             """
        
         # Build conversation context
@@ -761,91 +745,8 @@ def chat(request):
         )
         print(f"AI response: {ai_response}")
         
-        # Parse for symptom logging request
-        symptom_log_data = None
-        cleaned_response = ai_response
-        
-        # Check for [[LOG_ENTRY: ...]] pattern
-        import re
-        import json
-        log_entry_pattern = r'\[\[LOG_ENTRY:\s*({.*?})\]\]'
-        match = re.search(log_entry_pattern, ai_response, re.DOTALL)
-        
-        if match:
-            try:
-                symptom_log_data = json.loads(match.group(1))
-                # Remove the JSON block from the response shown to user
-                cleaned_response = re.sub(log_entry_pattern, '', ai_response, flags=re.DOTALL).strip()
-                print(f"✅ Detected symptom log request: {symptom_log_data}")
-            except json.JSONDecodeError as e:
-                print(f"⚠️ Failed to parse symptom log JSON: {e}")
-                logger.warning(f"Failed to parse symptom log JSON: {e}")
-        
-        # Handle symptom logging if detected
-        if symptom_log_data and pet_context and conversation.pet:
-            try:
-                from .models import SymptomLog, PetHealthTrend
-                from .utils import analyze_symptom_progression
-                
-                pet = conversation.pet
-                symptoms = symptom_log_data.get('symptoms', [])
-                # Support both "severity" and "severity_map" for backward compatibility
-                severity_map = symptom_log_data.get('severity', symptom_log_data.get('severity_map', {}))
-                notes = symptom_log_data.get('notes', '')
-                
-                # Validate symptoms
-                if symptoms and isinstance(symptoms, list):
-                    # Determine overall severity from severity_map
-                    if severity_map:
-                        avg_severity = sum(severity_map.values()) / len(severity_map)
-                        if avg_severity >= 7:
-                            overall_severity = 'severe'
-                        elif avg_severity >= 4:
-                            overall_severity = 'moderate'
-                        else:
-                            overall_severity = 'mild'
-                    else:
-                        overall_severity = 'moderate'  # Default
-                    
-                    # Create symptom log
-                    symptom_log = SymptomLog.objects.create(
-                        user=user_obj,
-                        pet=pet,
-                        symptom_date=timezone.now().date(),
-                        symptoms=symptoms,
-                        overall_severity=overall_severity,
-                        symptom_details=severity_map,
-                        notes=notes
-                    )
-                    
-                    # Trigger AI analysis
-                    analysis_result = analyze_symptom_progression(pet.id)
-                    
-                    # Create PetHealthTrend from analysis
-                    trend_analysis_text = analysis_result.get('trend_analysis') or f"Trend: {analysis_result.get('trend', 'Unknown')}"
-                    
-                    health_trend = PetHealthTrend.objects.create(
-                        pet=pet,
-                        risk_score=analysis_result.get('risk_score', 0),
-                        urgency_level=analysis_result.get('urgency', 'Low'),
-                        trend_analysis=trend_analysis_text,
-                        prediction=analysis_result.get('prediction', ''),
-                        alert_needed=analysis_result.get('alert_needed', False)
-                    )
-                    
-                    # Remove the block from ai_response before saving the message to the DB
-                    # Append confirmation message
-                    cleaned_response += "\n\n(✅ Symptom logged to Tracker)"
-                    print(f"✅ Symptom log created: ID {symptom_log.id} for pet {pet.name}")
-                else:
-                    print(f"⚠️ Invalid symptom data in log request: {symptom_log_data}")
-            except Exception as e:
-                logger.error(f"Error processing symptom log from chat: {e}")
-                print(f"❌ Error processing symptom log: {e}")
-                # Don't fail the chat response, just log the error
-        
-        # Use cleaned response (with symptom log block removed if present)
-        ai_response = cleaned_response
+        # Note: Symptom logging is now handled via the frontend widget ([[TRIGGER_LOG_UI]] tag)
+        # The backend just returns the AI response with the tag, and the frontend opens the form
         
         # Automatically create SOAP report for symptom checker mode if pet is linked
         soap_report = None
@@ -860,60 +761,59 @@ def chat(request):
                 # Extract symptoms from user message (use the message as symptoms text)
                 symptoms_text = user_message
                 
-                # Create a new request for predict_symptoms
-                # Since predict_symptoms is a DRF view, we need to create a Django HttpRequest
-                # The @api_view decorator will wrap it in a DRF Request
-                from django.test import RequestFactory
-                import json
-                
-                factory = RequestFactory()
-                predict_data = {
-                    'symptoms': symptoms_text,
-                    'species': getattr(pet, 'animal_type', 'dog').lower(),
-                    'pet_id': pet.id
-                }
-                # Create request with JSON body
-                json_body = json.dumps(predict_data)
-                
-                # Generate JWT token for the user so predict_symptoms can authenticate
-                from users.utils import generate_jwt_token
-                user_token = generate_jwt_token(user_obj)
-                
-                predict_request = factory.post(
-                    '/api/chatbot/predict/',
-                    data=json_body,
-                    content_type='application/json',
-                    HTTP_AUTHORIZATION=f'Bearer {user_token}'  # Add Authorization header
-                )
-                # Ensure the body is set correctly for DRF parsing
-                predict_request._body = json_body.encode('utf-8')
-                
-                # Call predict_symptoms with Django HttpRequest (not DRF Request)
-                # The @api_view decorator will handle wrapping it
-                ml_response = predict_symptoms(predict_request)
-                
-                print(f"[SOAP_CREATION] predict_symptoms response status: {ml_response.status_code}")
-                if hasattr(ml_response, 'data'):
-                    print(f"[SOAP_CREATION] predict_symptoms response data keys: {list(ml_response.data.keys()) if isinstance(ml_response.data, dict) else 'Not a dict'}")
-                    if isinstance(ml_response.data, dict) and 'error' in ml_response.data:
-                        print(f"[SOAP_CREATION] Error in response: {ml_response.data.get('error')}")
-                else:
-                    print(f"[SOAP_CREATION] predict_symptoms response: {ml_response}")
-                
                 # Extract symptoms list (try to parse from message or use as single item)
                 symptoms_list = [s.strip() for s in symptoms_text.replace(',', '|').replace(' and ', '|').split('|') if s.strip()]
                 if not symptoms_list:
                     symptoms_list = [symptoms_text]
                 
-                # Try to get ML predictions, but create SOAP report even if ML fails
+                # Import vector similarity engine
+                from vector_similarity_django_integration import predict_with_vector_similarity
+                
+                # Prepare payload for Vector Engine
+                vector_payload = {
+                    'species': getattr(pet, 'species', getattr(pet, 'animal_type', 'Dog')),
+                    'symptoms_list': symptoms_list,
+                    'user_notes': user_message,  # Pass full message for Hybrid Triage
+                    'severity': 'moderate',  # Default
+                    'pet_id': pet.id
+                }
+                
+                # Call the new engine
                 ml_data = None
-                if ml_response.status_code == 200:
-                    ml_data = ml_response.data
-                    print(f"[SOAP_CREATION] Successfully got ML predictions, proceeding with SOAP creation...")
-                else:
-                    print(f"⚠️ predict_symptoms returned non-200 status: {ml_response.status_code}")
-                    if hasattr(ml_response, 'data'):
-                        print(f"⚠️ Error response: {ml_response.data}")
+                try:
+                    vector_result = predict_with_vector_similarity(vector_payload)
+                    
+                    # Extract predictions for SOAP Report
+                    # Map the vector_result['predictions'] structure to what SOAPReport expects
+                    # Map vector urgency (critical/high/moderate/low) to SOAP format (emergency/soon/routine)
+                    vector_urgency = vector_result['triage_assessment']['overall_urgency'].lower()
+                    urgency_mapping = {
+                        'critical': 'immediate',
+                        'high': 'soon',
+                        'moderate': 'routine',
+                        'low': 'routine'
+                    }
+                    soap_urgency = urgency_mapping.get(vector_urgency, 'routine')
+                    
+                    ml_data = {
+                        'predictions': [],
+                        'urgency': soap_urgency,
+                        'ai_explanation': vector_result['overall_recommendation']
+                    }
+                    
+                    for pred in vector_result['predictions']:
+                        ml_data['predictions'].append({
+                            'label': pred['disease'],
+                            'confidence': pred['probability'],
+                            'recommendation': pred['match_explanation']
+                        })
+                    
+                    print(f"[SOAP_CREATION] Successfully got Vector predictions")
+                    
+                except Exception as e:
+                    print(f"⚠️ Vector prediction failed: {e}")
+                    logger.error(f"Vector prediction failed in SOAP creation: {e}")
+                    ml_data = None
                     print(f"[SOAP_CREATION] Creating SOAP report without ML predictions (using AI response only)...")
                 
                 # Build assessment entries
