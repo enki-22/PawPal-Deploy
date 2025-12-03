@@ -716,10 +716,15 @@ const Chat = () => {
   };
   
   const handleStartNewAssessment = () => {
-    // Only allow new assessment in symptom_checker mode
+    // If not in symptom_checker mode, switch to it first
     if (chatMode !== 'symptom_checker') {
-      console.warn('handleStartNewAssessment called outside symptom_checker mode');
-      return;
+      // Switch to symptom_checker mode
+      setChatMode('symptom_checker');
+      // If no pet is selected, show pet selection
+      if (!currentPetContext) {
+        setShowPetSelection(true);
+        return;
+      }
     }
     
     // Clear previous assessment data
@@ -753,7 +758,28 @@ const Chat = () => {
     };
     setMessages(prev => [...prev, successMessage]);
     
-    if (response.alert) {
+    // Check for danger conditions: HIGH/CRITICAL urgency or alert_needed
+    const urgencyLevel = response.analysis?.urgency_level || response.risk_assessment?.level || '';
+    const alertNeeded = response.analysis?.alert_needed || response.alert !== null && response.alert !== undefined;
+    const isDanger = (urgencyLevel && (urgencyLevel.toLowerCase() === 'high' || urgencyLevel.toLowerCase() === 'critical')) || alertNeeded;
+    
+    if (isDanger) {
+      // Create special risk alert message with intervention UI
+      const alertMessage = response.alert?.alert_message || response.analysis?.trend_analysis || 
+        `Risk level is ${urgencyLevel.toUpperCase()}. Immediate attention recommended.`;
+      
+      const riskAlertMessage = {
+        id: Date.now() + Math.random() + 1,
+        content: alertMessage,
+        isUser: false,
+        sender: 'PawPal',
+        timestamp: new Date().toISOString(),
+        isRiskAlert: true,
+        petName: currentPetContext?.name || 'your pet'
+      };
+      setMessages(prev => [...prev, riskAlertMessage]);
+    } else if (response.alert) {
+      // Non-critical alert - show standard alert message
       const alertMessage = {
         id: Date.now() + Math.random() + 1,
         content: `⚠️ ALERT: ${response.alert.alert_message}`,
@@ -1072,6 +1098,44 @@ const Chat = () => {
                       onAskFollowUp={handleAskFollowUp}
                       onLogSymptoms={handleLogSymptoms}
                     />
+                  </div>
+                );
+              }
+              
+              // === RISK ALERT: Special UI for high/critical risk from symptom logging ===
+              if (message.isRiskAlert) {
+                return (
+                  <div key={message.id} className="flex justify-start mb-4">
+                    <div 
+                      className="max-w-[80vw] md:max-w-xs lg:max-w-md px-4 md:px-5 py-4 rounded-lg shadow-lg border-l-4"
+                      style={{ 
+                        backgroundColor: '#FEE2E2', 
+                        borderLeftColor: '#DC2626',
+                        borderLeftWidth: '4px'
+                      }}
+                    >
+                      <div className="flex items-start gap-2 mb-3">
+                        <span className="text-2xl">⚠️</span>
+                        <div className="flex-1">
+                          <h3 className="text-[15px] md:text-[16px] font-bold text-red-800 mb-1" style={{ fontFamily: 'Raleway' }}>
+                            Concern Detected
+                          </h3>
+                          <p className="text-[13px] md:text-[14px] text-red-700 mb-3" style={{ fontFamily: 'Raleway' }}>
+                            {message.content}
+                          </p>
+                          <p className="text-[12px] md:text-[13px] text-red-600 mb-4" style={{ fontFamily: 'Raleway' }}>
+                            Based on your log, {message.petName}&apos;s condition is worsening. We recommend a quick re-evaluation.
+                          </p>
+                          <button
+                            onClick={handleStartNewAssessment}
+                            className="w-full px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold text-[13px] md:text-[14px] transition-colors shadow-sm"
+                            style={{ fontFamily: 'Raleway' }}
+                          >
+                            Start Emergency Re-Assessment
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 );
               }
