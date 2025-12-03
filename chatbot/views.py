@@ -450,6 +450,19 @@ def get_gemini_response_with_pet_context(user_message, conversation_history=None
             2. Possible causes (if appropriate)
             3. Recommended action level
             4. When to see a vet
+            
+            **DATA LOGGING TRIGGER:**
+            If the user asks to log symptoms OR describes the current status of an ongoing condition (e.g., 'He is worse today', 'Vomiting stopped'), you MUST:
+            
+            1. Acknowledge the update textually.
+            
+            2. Generate a **hidden JSON block** at the very end of your response in this format:
+            
+               `[[LOG_ENTRY: {"symptoms": ["vomiting"], "severity": {"vomiting": 5}, "notes": "User description"}]]
+            
+               - Infer severity (1-10) from context (e.g. 'mild'=2, 'bad'=8). Default to 5 if unknown.
+               - The severity object should use snake_case symptom names matching the symptoms list.
+               - Include any additional context the user provided in the "notes" field.
             """
         else:  # general mode
             system_prompt = """You are PawPal, a friendly AI veterinary assistant focused on general pet health education.
@@ -462,6 +475,19 @@ def get_gemini_response_with_pet_context(user_message, conversation_history=None
             - Be encouraging and supportive for pet parents
             - Always recommend professional care when appropriate
             - Keep responses informative but friendly
+            
+            **DATA LOGGING TRIGGER:**
+            If the user asks to log symptoms OR describes the current status of an ongoing condition (e.g., 'He is worse today', 'Vomiting stopped'), you MUST:
+            
+            1. Acknowledge the update textually.
+            
+            2. Generate a **hidden JSON block** at the very end of your response in this format:
+            
+               `[[LOG_ENTRY: {"symptoms": ["vomiting"], "severity": {"vomiting": 5}, "notes": "User description"}]]
+            
+               - Infer severity (1-10) from context (e.g. 'mild'=2, 'bad'=8). Default to 5 if unknown.
+               - The severity object should use snake_case symptom names matching the symptoms list.
+               - Include any additional context the user provided in the "notes" field.
             """
        
         # Build conversation context
@@ -734,6 +760,92 @@ def chat(request):
             assessment_context
         )
         print(f"AI response: {ai_response}")
+        
+        # Parse for symptom logging request
+        symptom_log_data = None
+        cleaned_response = ai_response
+        
+        # Check for [[LOG_ENTRY: ...]] pattern
+        import re
+        import json
+        log_entry_pattern = r'\[\[LOG_ENTRY:\s*({.*?})\]\]'
+        match = re.search(log_entry_pattern, ai_response, re.DOTALL)
+        
+        if match:
+            try:
+                symptom_log_data = json.loads(match.group(1))
+                # Remove the JSON block from the response shown to user
+                cleaned_response = re.sub(log_entry_pattern, '', ai_response, flags=re.DOTALL).strip()
+                print(f"✅ Detected symptom log request: {symptom_log_data}")
+            except json.JSONDecodeError as e:
+                print(f"⚠️ Failed to parse symptom log JSON: {e}")
+                logger.warning(f"Failed to parse symptom log JSON: {e}")
+        
+        # Handle symptom logging if detected
+        if symptom_log_data and pet_context and conversation.pet:
+            try:
+                from .models import SymptomLog, PetHealthTrend
+                from .utils import analyze_symptom_progression
+                
+                pet = conversation.pet
+                symptoms = symptom_log_data.get('symptoms', [])
+                # Support both "severity" and "severity_map" for backward compatibility
+                severity_map = symptom_log_data.get('severity', symptom_log_data.get('severity_map', {}))
+                notes = symptom_log_data.get('notes', '')
+                
+                # Validate symptoms
+                if symptoms and isinstance(symptoms, list):
+                    # Determine overall severity from severity_map
+                    if severity_map:
+                        avg_severity = sum(severity_map.values()) / len(severity_map)
+                        if avg_severity >= 7:
+                            overall_severity = 'severe'
+                        elif avg_severity >= 4:
+                            overall_severity = 'moderate'
+                        else:
+                            overall_severity = 'mild'
+                    else:
+                        overall_severity = 'moderate'  # Default
+                    
+                    # Create symptom log
+                    symptom_log = SymptomLog.objects.create(
+                        user=user_obj,
+                        pet=pet,
+                        symptom_date=timezone.now().date(),
+                        symptoms=symptoms,
+                        overall_severity=overall_severity,
+                        symptom_details=severity_map,
+                        notes=notes
+                    )
+                    
+                    # Trigger AI analysis
+                    analysis_result = analyze_symptom_progression(pet.id)
+                    
+                    # Create PetHealthTrend from analysis
+                    trend_analysis_text = analysis_result.get('trend_analysis') or f"Trend: {analysis_result.get('trend', 'Unknown')}"
+                    
+                    health_trend = PetHealthTrend.objects.create(
+                        pet=pet,
+                        risk_score=analysis_result.get('risk_score', 0),
+                        urgency_level=analysis_result.get('urgency', 'Low'),
+                        trend_analysis=trend_analysis_text,
+                        prediction=analysis_result.get('prediction', ''),
+                        alert_needed=analysis_result.get('alert_needed', False)
+                    )
+                    
+                    # Remove the block from ai_response before saving the message to the DB
+                    # Append confirmation message
+                    cleaned_response += "\n\n(✅ Symptom logged to Tracker)"
+                    print(f"✅ Symptom log created: ID {symptom_log.id} for pet {pet.name}")
+                else:
+                    print(f"⚠️ Invalid symptom data in log request: {symptom_log_data}")
+            except Exception as e:
+                logger.error(f"Error processing symptom log from chat: {e}")
+                print(f"❌ Error processing symptom log: {e}")
+                # Don't fail the chat response, just log the error
+        
+        # Use cleaned response (with symptom log block removed if present)
+        ai_response = cleaned_response
         
         # Automatically create SOAP report for symptom checker mode if pet is linked
         soap_report = None

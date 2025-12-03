@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useConversations } from '../context/ConversationsContext';
 import AssessmentResults from './AssessmentResults';
@@ -552,7 +552,7 @@ const Chat = () => {
             'Content-Type': 'application/json',
             'Authorization': token ? `Token ${token}` : '',
           },
-          timeout: 30000,
+          timeout: 90000,
         }
       );
       
