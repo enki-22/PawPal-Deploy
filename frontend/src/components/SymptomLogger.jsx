@@ -20,7 +20,7 @@ const SYMPTOM_CATEGORIES = {
     ]
   },
   'Skin & Coat': {
-    icon: '🐾',
+    icon: <img src="/mdi_paw.png" alt="Skin & Coat" className="w-5 h-5 inline-block" />,
     symptoms: [
       'scratching', 'itching', 'hair_loss', 'bald_patches', 'red_skin',
       'irritated_skin', 'skin_lesions', 'rash', 'scabs', 'dandruff'

@@ -1024,12 +1024,26 @@ const Chat = () => {
 
             {chatMode && messages.length > 0 && (
               <div className="flex justify-center mb-4">
-                <div className={`px-4 py-2 rounded-full text-sm font-medium ${
+                <div className={`px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 ${
                   chatMode === 'general'
                     ? 'bg-[#E4DEED] text-[#34113F]'
                     : 'bg-[#FFF4C9] text-[#574103]'
                 }`} style={{ fontFamily: 'Raleway' }}>
-                  {chatMode === 'general' ? '🐾 General Pet Health' : '🔍 Symptom Checker'}
+                  {chatMode === 'general' ? (
+                    <>
+                      <img src="/mdi_paw.png" alt="Paw" className="w-4 h-4" />
+                      General Pet Health
+                    </>
+                  ) : (
+                    <>
+                      <img 
+                        src="/mingcute_search-fill.png" 
+                        alt="Symptom Checker" 
+                        className="w-4 h-4"
+                      />
+                      <span>Symptom Checker</span>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -1176,8 +1190,9 @@ const Chat = () => {
                     </svg>
                     Change Mode
                   </button>
-                  <div className="text-sm font-semibold" style={{ color: '#815FB3' }}>
-                    🐾 {currentPetContext.name} ({currentPetContext.species})
+                  <div className="text-sm font-semibold flex items-center gap-2" style={{ color: '#815FB3' }}>
+                    <img src="/mdi_paw.png" alt="Paw" className="w-4 h-4" />
+                    {currentPetContext.name} ({currentPetContext.species})
                   </div>
                 </div>
               )}

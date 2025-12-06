@@ -47,7 +47,7 @@ const PurpleCarousel = () => {
           {pawIcon ? (
             <img src={pawIcon} alt="Paw" className="w-20 h-20" />
           ) : (
-            <span className="text-5xl mr-3">🐾</span>
+            <img src="/mdi_paw.png" alt="Paw" className="w-12 h-12 mr-3" />
           )}
           <h1 className="text-[#FFF07B] font-museo font-black text-[49px] leading-[100%] tracking-[0%]">
             PAWPAL
@@ -100,7 +100,12 @@ const PurpleCarousel = () => {
                   {pawBullet ? (
                     <img src={pawBullet} alt="Paw" className="w-6 h-6 transform rotate-45" style={{ marginRight: '12px', flexShrink: 0 }} />
                   ) : (
-                    <span className="text-yellow-400 text-lg" style={{ marginRight: '12px', flexShrink: 0 }}>🐾</span>
+                    <img 
+                      src="/mdi_paw.png" 
+                      alt="Paw" 
+                      className="w-5 h-5" 
+                      style={{ marginRight: '12px', flexShrink: 0, filter: 'brightness(0) saturate(100%) invert(89%) sepia(23%) saturate(913%) hue-rotate(359deg) brightness(103%) contrast(104%)' }} 
+                    />
                   )}
                   <span className="text-[20px] font-medium leading-[100%] tracking-[0%]"
                         style={{ 
@@ -115,7 +120,12 @@ const PurpleCarousel = () => {
                   {pawBullet ? (
                     <img src={pawBullet} alt="Paw" className="w-6 h-6 transform rotate-45" style={{ marginRight: '12px', flexShrink: 0 }} />
                   ) : (
-                    <span className="text-yellow-400 text-lg" style={{ marginRight: '12px', flexShrink: 0 }}>🐾</span>
+                    <img 
+                      src="/mdi_paw.png" 
+                      alt="Paw" 
+                      className="w-5 h-5" 
+                      style={{ marginRight: '12px', flexShrink: 0, filter: 'brightness(0) saturate(100%) invert(89%) sepia(23%) saturate(913%) hue-rotate(359deg) brightness(103%) contrast(104%)' }} 
+                    />
                   )}
                   <span className="text-[20px] font-medium leading-[100%] tracking-[0%]"
                         style={{ 
@@ -130,7 +140,12 @@ const PurpleCarousel = () => {
                   {pawBullet ? (
                     <img src={pawBullet} alt="Paw" className="w-6 h-6 transform rotate-45" style={{ marginRight: '12px', flexShrink: 0 }} />
                   ) : (
-                    <span className="text-yellow-400 text-lg" style={{ marginRight: '12px', flexShrink: 0 }}>🐾</span>
+                    <img 
+                      src="/mdi_paw.png" 
+                      alt="Paw" 
+                      className="w-5 h-5" 
+                      style={{ marginRight: '12px', flexShrink: 0, filter: 'brightness(0) saturate(100%) invert(89%) sepia(23%) saturate(913%) hue-rotate(359deg) brightness(103%) contrast(104%)' }} 
+                    />
                   )}
                   <span className="text-[20px] font-medium leading-[100%] tracking-[0%]"
                         style={{ 

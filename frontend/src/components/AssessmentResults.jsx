@@ -86,10 +86,17 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
         <div className={`border-b pb-2 mb-4 ${
           isCritical ? 'border-red-400' : 'border-gray-300'
         }`}>
-          <h3 className={`text-lg font-bold flex items-center ${
+          <h3 className={`text-lg font-bold flex items-center gap-2 ${
             isCritical ? 'text-red-800' : 'text-gray-800'
           }`}>
-            {isCritical ? '🚨' : '🔍'} Assessment Results for {pet_name}
+            {isCritical ? '🚨' : (
+              <img 
+                src="/mingcute_search-fill.png" 
+                alt="Assessment" 
+                className="w-5 h-5 object-contain" 
+              />
+            )} 
+            Assessment Results for {pet_name}
           </h3>
           {isCritical && (
             <div className="mt-2 text-sm font-bold text-red-700">
@@ -181,14 +188,28 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
               {/* Recommendation */}
               {prediction.recommendation && (
                 <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded">
-                  <p className="text-xs font-semibold text-blue-700 mb-1">💡 Recommendation:</p>
+                  <p className="text-xs font-semibold text-blue-700 mb-1 flex items-center gap-1.5">
+                    <img 
+                      src="/f7_lightbulb-fill.png" 
+                      alt="Tip" 
+                      className="w-3 h-3 object-contain" 
+                    />
+                    Recommendation:
+                  </p>
                   <p className="text-xs text-blue-600">{prediction.recommendation}</p>
                 </div>
               )}
 
               {prediction.care_guidelines && (
                 <div className="text-sm text-gray-700 mb-2">
-                  <span className="font-semibold">💡 What to do:</span>
+                  <span className="font-semibold flex items-center gap-1.5">
+                    <img 
+                      src="/f7_lightbulb-fill.png" 
+                      alt="Tip" 
+                      className="w-3 h-3 object-contain" 
+                    />
+                    What to do:
+                  </span>
                   <br />
                   {prediction.care_guidelines}
                 </div>
@@ -196,7 +217,14 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
 
               {prediction.when_to_see_vet && (
                 <div className="text-sm text-gray-700">
-                  <span className="font-semibold">⚠️ See a vet if:</span>
+                  <span className="font-semibold flex items-center gap-1.5">
+                    <img 
+                      src="/mingcute_alert-line.png" 
+                      alt="Warning" 
+                      className="w-3 h-3 object-contain" 
+                    />
+                    See a vet if:
+                  </span>
                   <br />
                   {prediction.when_to_see_vet}
                 </div>
@@ -209,13 +237,19 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
             isCritical ? 'border-red-400 bg-red-50' : 'border-gray-300'
           }`}>
             <div className="mb-3">
-              <span className={`font-bold ${
+              <span className={`font-bold flex items-center gap-2 ${
                 isCritical ? 'text-red-800' : 'text-gray-800'
               }`}>
-                {isCritical ? '🚨' : '📋'} Overall Recommendation:
+                {isCritical ? '🚨' : (
+                  <img 
+                    src="/gg_notes.png" 
+                    alt="Recommendation" 
+                    className="w-5 h-5 object-contain" 
+                  />
+                )} 
+                Overall Recommendation:
               </span>
-              <br />
-              <span className={`text-sm font-semibold ${
+              <span className={`text-sm font-semibold block mt-1 ${
                 isCritical ? 'text-red-900' : 'text-gray-700'
               }`}>
                 {finalRecommendation}
@@ -223,13 +257,20 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
             </div>
 
             <div>
-              <span className={`font-bold ${
+              <span className={`font-bold flex items-center gap-2 ${
                 isCritical ? 'text-red-800' : 'text-gray-800'
               }`}>
-                {isCritical ? '🚨' : '⏰'} Action Timeline:
+                {isCritical ? '🚨' : (
+                  <img 
+                    src="/mingcute_time-fill.png" 
+                    alt="Timeline" 
+                    className="w-5 h-5 object-contain" 
+                    style={{ filter: 'brightness(0) saturate(100%) invert(47%) sepia(32%) saturate(1188%) hue-rotate(237deg) brightness(92%) contrast(87%)' }}
+                  />
+                )} 
+                Action Timeline:
               </span>
-              <br />
-              <span className={`text-sm font-bold ${
+              <span className={`text-sm font-bold block mt-1 ${
                 isCritical ? 'text-red-900' : 'text-gray-700'
               }`}>
                 {finalTimeline}
@@ -254,27 +295,51 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
           <div className="flex flex-wrap gap-2 justify-center">
             <button
               onClick={() => onSaveToAIDiagnosis(assessmentData)}
-              className="px-4 py-2 bg-[#815FB3] text-white rounded-lg text-sm font-semibold hover:bg-[#6d4c96] transition-colors"
+              className="px-4 py-2 bg-[#815FB3] text-white rounded-lg text-sm font-semibold hover:bg-[#6d4c96] transition-colors flex items-center gap-2"
             >
-              💾 Save to AI Diagnosis
+              <img 
+                src="/material-symbols_save.png" 
+                alt="Save" 
+                className="w-4 h-4 object-contain" 
+                style={{ filter: 'brightness(0) saturate(100%) invert(98%) sepia(14%) saturate(865%) hue-rotate(314deg) brightness(105%) contrast(100%)' }}
+              />
+              Save to AI Diagnosis
             </button>
             <button
               onClick={onLogSymptoms}
-              className="px-4 py-2 bg-[#3498db] text-white rounded-lg text-sm font-semibold hover:bg-[#2980b9] transition-colors"
+              className="px-4 py-2 bg-[#3498db] text-white rounded-lg text-sm font-semibold hover:bg-[#2980b9] transition-colors flex items-center gap-2"
             >
-              📝 Log Daily Symptoms
+              <img 
+                src="/icon-park-solid_notebook-and-pen.png" 
+                alt="Log" 
+                className="w-4 h-4 object-contain" 
+                style={{ filter: 'brightness(0) saturate(100%) invert(98%) sepia(14%) saturate(865%) hue-rotate(314deg) brightness(105%) contrast(100%)' }}
+              />
+              Log Daily Symptoms
             </button>
             <button
               onClick={onStartNewAssessment}
-              className="px-4 py-2 bg-[#F4D06F] text-gray-800 rounded-lg text-sm font-semibold hover:bg-[#f0c659] transition-colors"
+              className="px-4 py-2 bg-[#F4D06F] text-gray-800 rounded-lg text-sm font-semibold hover:bg-[#f0c659] transition-colors flex items-center gap-2"
             >
-              🔄 New Assessment
+              <img 
+                src="/codicon_new-file.png" 
+                alt="New" 
+                className="w-4 h-4 object-contain" 
+                style={{ filter: 'brightness(0) saturate(100%) invert(98%) sepia(14%) saturate(865%) hue-rotate(314deg) brightness(105%) contrast(100%)' }}
+              />
+              New Assessment
             </button>
             <button
               onClick={onAskFollowUp}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300 transition-colors"
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300 transition-colors flex items-center gap-2"
             >
-              💬 Ask Follow-up
+              <img 
+                src="/wpf_ask-question.png" 
+                alt="Ask" 
+                className="w-4 h-4 object-contain" 
+                style={{ filter: 'brightness(0) saturate(100%) invert(98%) sepia(14%) saturate(865%) hue-rotate(314deg) brightness(105%) contrast(100%)' }}
+              />
+              Ask Follow-up
             </button>
           </div>
         </div>
