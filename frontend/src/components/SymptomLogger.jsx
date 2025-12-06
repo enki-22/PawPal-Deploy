@@ -166,7 +166,8 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
-          }
+          },
+          timeout: 90000
         }
       );
 

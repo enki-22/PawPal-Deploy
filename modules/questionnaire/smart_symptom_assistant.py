@@ -1,6 +1,5 @@
 from .question_flow import QuestionFlow
 from .symptom_standardizer import SymptomStandardizer
-from .similar_case_retriever import SimilarCaseRetriever
 from .diagnosis_engine import DiagnosisEngine
 
 
@@ -8,7 +7,6 @@ class SmartSymptomAssistant:
     def __init__(self, questions=None):
         self.flow = QuestionFlow(questions)
         self.standardizer = SymptomStandardizer()
-        self.retriever = SimilarCaseRetriever()
         self.engine = DiagnosisEngine()
 
     def start_session(self):
@@ -26,14 +24,8 @@ class SmartSymptomAssistant:
     def standardized_answers(self):
         return self.standardizer.standardize(self.flow.answers)
 
-    def fit_cases(self, cases):
-        self.retriever.fit(cases)
-
     def train_diagnosis(self, data):
         self.engine.train(data)
-
-    def get_similar_cases(self, k=3):
-        return self.retriever.retrieve_top_k(self.standardized_answers(), k=k)
 
     def diagnose(self, top_k=3):
         return self.engine.predict(self.standardized_answers(), top_k=top_k)

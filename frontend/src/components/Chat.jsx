@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useConversations } from '../context/ConversationsContext';
 import AssessmentResults from './AssessmentResults';
 import ConversationalSymptomChecker from './ConversationalSymptomChecker';
+import EmergencyOverlay from './EmergencyOverlay';
 import LogoutModal from './LogoutModal';
 import PetSelectionModal from './PetSelectionModal';
 import ProfileButton from './ProfileButton';
@@ -30,6 +31,7 @@ const Chat = () => {
   const [showSymptomLogger, setShowSymptomLogger] = useState(false);
   const [assessmentData, setAssessmentData] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [emergencyAlert, setEmergencyAlert] = useState(null);
   
   // --- REFS ---
   const activeConversationIdRef = useRef(conversationId);
@@ -749,45 +751,43 @@ const Chat = () => {
   const handleSymptomLogComplete = (response) => {
     setShowSymptomLogger(false);
     
+    // Fix: Handle both 'risk_assessment' (old) and 'analysis' (new) formats
+    const riskData = response.risk_assessment || response.analysis || {};
+    const riskLevel = riskData.level || riskData.urgency_level || 'unknown';
+    const riskScore = riskData.score ?? riskData.risk_score ?? 0;
+    
     const successMessage = {
       id: Date.now() + Math.random(),
-      content: `✅ Symptoms logged successfully for ${currentPetContext.name}! Risk Level: ${response.risk_assessment.level.toUpperCase()} (${response.risk_assessment.score}/100)`,
+      content: `✅ Symptoms logged successfully for ${currentPetContext.name}! Risk Level: ${riskLevel.toUpperCase()} (${riskScore}/100)`,
       isUser: false,
       sender: 'PawPal',
       timestamp: new Date().toISOString(),
     };
     setMessages(prev => [...prev, successMessage]);
     
-    // Check for danger conditions: HIGH/CRITICAL urgency or alert_needed
-    const urgencyLevel = response.analysis?.urgency_level || response.risk_assessment?.level || '';
-    const alertNeeded = response.analysis?.alert_needed || response.alert !== null && response.alert !== undefined;
-    const isDanger = (urgencyLevel && (urgencyLevel.toLowerCase() === 'high' || urgencyLevel.toLowerCase() === 'critical')) || alertNeeded;
+    // Check for alerts (support both formats)
+    const alertMessage = response.alert?.alert_message || response.analysis?.trend_analysis;
     
-    if (isDanger) {
-      // Create special risk alert message with intervention UI
-      const alertMessage = response.alert?.alert_message || response.analysis?.trend_analysis || 
-        `Risk level is ${urgencyLevel.toUpperCase()}. Immediate attention recommended.`;
-      
-      const riskAlertMessage = {
-        id: Date.now() + Math.random() + 1,
-        content: alertMessage,
-        isUser: false,
-        sender: 'PawPal',
-        timestamp: new Date().toISOString(),
-        isRiskAlert: true,
-        petName: currentPetContext?.name || 'your pet'
-      };
-      setMessages(prev => [...prev, riskAlertMessage]);
+    // Check if we need to show the emergency overlay
+    const isCritical = (
+      riskLevel.toLowerCase() === 'critical' || 
+      riskLevel.toLowerCase() === 'high' || 
+      response.alert?.alert_type === 'risk_escalation' ||
+      response.analysis?.alert_needed
+    );
+
+    if (isCritical) {
+       setEmergencyAlert(alertMessage || "Critical symptoms detected.");
     } else if (response.alert) {
-      // Non-critical alert - show standard alert message
-      const alertMessage = {
-        id: Date.now() + Math.random() + 1,
-        content: `⚠️ ALERT: ${response.alert.alert_message}`,
-        isUser: false,
-        sender: 'PawPal',
-        timestamp: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, alertMessage]);
+       // Standard alert message
+       const msg = {
+          id: Date.now() + Math.random() + 1,
+          content: `⚠️ ALERT: ${response.alert.alert_message}`,
+          isUser: false,
+          sender: 'PawPal',
+          timestamp: new Date().toISOString(),
+       };
+       setMessages(prev => [...prev, msg]);
     }
   };
 
@@ -869,6 +869,14 @@ const Chat = () => {
 
   return (
     <div className="min-h-screen bg-[#F0F0F0] flex flex-col md:flex-row overflow-hidden">
+      {/* Emergency Overlay - Shown when critical risk detected */}
+      {emergencyAlert && (
+        <EmergencyOverlay
+          alertMessage={emergencyAlert}
+          onDismiss={() => setEmergencyAlert(null)}
+        />
+      )}
+      
       <div className="hidden md:block sticky top-0 h-screen z-30">
         <Sidebar
           sidebarVisible={sidebarVisible}

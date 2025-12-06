@@ -254,27 +254,6 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
   if (!logs || logs.length === 0) {
     return (
       <div className="symptom-timeline p-6 bg-gray-50 min-h-screen">
-        {/* Chat to Log CTA Banner */}
-        <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">💡</span>
-              <div>
-                <h4 className="font-semibold text-gray-800 mb-1">Log Symptoms via Chat</h4>
-                <p className="text-sm text-gray-600">
-                  You can now log symptoms directly in the Chat! Just tell PawPal &quot;Log vomiting severity 5&quot; or &quot;Track these symptoms: lethargy 6, loss of appetite 4&quot;.
-                </p>
-              </div>
-            </div>
-            <Link
-              to="/chat"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm whitespace-nowrap transition-colors"
-            >
-              Go to Chat →
-            </Link>
-          </div>
-        </div>
-
         <div className="text-center py-12 bg-white rounded-lg shadow-md p-8">
           <div className="text-6xl mb-4">📋</div>
           <h3 className="text-2xl font-semibold text-gray-800 mb-2">No Symptom Logs Yet</h3>
@@ -311,11 +290,6 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
                 </button>
               </div>
               <div className="p-6">
-                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    💡 <strong>Tip:</strong> You can also log symptoms via Chat by saying &quot;Log vomiting severity 5&quot;. This form is available as a fallback option.
-                  </p>
-                </div>
                 <SymptomLogger 
                   pet={selectedPet} 
                   onComplete={handleLogComplete}
@@ -388,27 +362,6 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
           >
             📝 Manual Log
           </button>
-        </div>
-      </div>
-
-      {/* Chat to Log CTA Banner */}
-      <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg p-4 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">💡</span>
-            <div>
-              <h4 className="font-semibold text-gray-800 mb-1">Log Symptoms via Chat</h4>
-              <p className="text-sm text-gray-600">
-                You can now log symptoms directly in the Chat! Just tell PawPal &quot;Log vomiting severity 5&quot; or &quot;Track these symptoms: lethargy 6, loss of appetite 4&quot;.
-              </p>
-            </div>
-          </div>
-          <Link
-            to="/chat"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm whitespace-nowrap transition-colors"
-          >
-            Go to Chat →
-          </Link>
         </div>
       </div>
 
@@ -622,11 +575,6 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
                   </p>
                 </div>
               )}
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  💡 <strong>Tip:</strong> You can also log symptoms via Chat by saying &quot;Log vomiting severity 5&quot;. This form is available as a fallback option.
-                </p>
-              </div>
               <SymptomLogger 
                 pet={selectedPet} 
                 onComplete={handleLogComplete}
