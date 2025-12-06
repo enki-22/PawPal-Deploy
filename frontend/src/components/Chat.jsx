@@ -12,6 +12,17 @@ import ProfileButton from './ProfileButton';
 import Sidebar from './Sidebar';
 import SymptomLogger from './SymptomLogger';
 
+// TypingIndicator Component
+const TypingIndicator = () => (
+  <div className="flex justify-start mb-4">
+    <div className="bg-[#FFFFF2] px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 flex items-center space-x-1">
+      <div className="w-2 h-2 bg-[#815FB3] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+      <div className="w-2 h-2 bg-[#815FB3] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+      <div className="w-2 h-2 bg-[#815FB3] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+    </div>
+  </div>
+);
+
 const Chat = () => {
   // --- STATE ---
   const [messages, setMessages] = useState([]);
@@ -368,7 +379,7 @@ const Chat = () => {
             'Content-Type': 'application/json',
             'Authorization': token ? `Token ${token}` : '',
           },
-          timeout: 30000,
+          timeout: 90000,
         }
       );
 
@@ -543,7 +554,7 @@ const Chat = () => {
             'Content-Type': 'application/json',
             'Authorization': token ? `Token ${token}` : '',
           },
-          timeout: 30000,
+          timeout: 90000,
         }
       );
       
@@ -1143,15 +1154,7 @@ const Chat = () => {
               </div>
             )}
             
-            {loading && (
-              <div className="flex justify-start mb-4">
-                <div className="bg-[#FFFFF2] px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-[#815FB3] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 bg-[#815FB3] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2 h-2 bg-[#815FB3] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                </div>
-              </div>
-            )}
+            {loading && <TypingIndicator />}
           </div>
         </div>
 

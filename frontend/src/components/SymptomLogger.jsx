@@ -495,48 +495,36 @@ const SymptomLogger = ({ pet, onComplete }) => {
       <div className="severity-section">
         <h3>📊 Overall Severity</h3>
         <p className="section-description">How severe are {pet.name}&apos;s symptoms overall?</p>
-        <div className="severity-options">
-          <label className={`severity-option ${severity === 'mild' ? 'selected' : ''}`}>
-            <input
-              type="radio"
-              value="mild"
-              checked={severity === 'mild'}
-              onChange={(e) => setSeverity(e.target.value)}
-            />
-            <div className="severity-content">
-              <span className="severity-icon">🟢</span>
-              <strong>Mild</strong>
-              <small>{pet.name} is bothered but eating, drinking, and acting mostly normal</small>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {[
+            { value: 'mild', label: 'Mild', icon: '🟢', desc: 'Eating & acting mostly normal', color: 'border-green-400 bg-green-50' },
+            { value: 'moderate', label: 'Moderate', icon: '🟡', desc: 'Uncomfortable, behavior changes', color: 'border-yellow-400 bg-yellow-50' },
+            { value: 'severe', label: 'Severe', icon: '🔴', desc: 'Very unwell, major changes', color: 'border-red-400 bg-red-50' }
+          ].map((option) => (
+            <div
+              key={option.value}
+              onClick={() => setSeverity(option.value)}
+              className={`
+                cursor-pointer rounded-xl p-4 border-2 transition-all duration-200
+                ${severity === option.value ? option.color : 'border-gray-200 bg-white hover:border-gray-300'}
+              `}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">{option.icon}</span>
+                <span className="font-bold text-gray-800">{option.label}</span>
+              </div>
+              <p className="text-xs text-gray-600 leading-tight">{option.desc}</p>
+              
+              {/* Hidden radio for form logic compatibility */}
+              <input
+                type="radio"
+                value={option.value}
+                checked={severity === option.value}
+                onChange={() => setSeverity(option.value)}
+                className="hidden"
+              />
             </div>
-          </label>
-
-          <label className={`severity-option ${severity === 'moderate' ? 'selected' : ''}`}>
-            <input
-              type="radio"
-              value="moderate"
-              checked={severity === 'moderate'}
-              onChange={(e) => setSeverity(e.target.value)}
-            />
-            <div className="severity-content">
-              <span className="severity-icon">🟡</span>
-              <strong>Moderate</strong>
-              <small>{pet.name} is uncomfortable with some changes in behavior or activity</small>
-            </div>
-          </label>
-
-          <label className={`severity-option ${severity === 'severe' ? 'selected' : ''}`}>
-            <input
-              type="radio"
-              value="severe"
-              checked={severity === 'severe'}
-              onChange={(e) => setSeverity(e.target.value)}
-            />
-            <div className="severity-content">
-              <span className="severity-icon">🔴</span>
-              <strong>Severe</strong>
-              <small>{pet.name} is very unwell with major changes in behavior or activity</small>
-            </div>
-          </label>
+          ))}
         </div>
       </div>
 
