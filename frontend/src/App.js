@@ -66,11 +66,14 @@ function App() {
 
 function AppWithFade() {
   const location = useLocation();
+  
+  // MODIFIED: AnimatePresence must wrap Routes to detect page exit correctly
   return (
-    <Routes location={location} key={location.pathname}>
-  {/* Pet Owner Routes */}
-  {/* Redirect legacy /login to /petowner/login */}
-  <Route path="/login" element={<Navigate to="/petowner/login" replace />} />
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        {/* Pet Owner Routes */}
+        {/* Redirect legacy /login to /petowner/login */}
+        <Route path="/login" element={<Navigate to="/petowner/login" replace />} />
       <Route path="petowner/login" element={<FadeWrapper><Login /></FadeWrapper>} />
       <Route path="petowner/register" element={<FadeWrapper><Login /></FadeWrapper>} />
       <Route path="petowner/register/step2" element={<FadeWrapper><RegisterStep2 /></FadeWrapper>} />
@@ -195,30 +198,30 @@ function AppWithFade() {
           </AdminProtectedRoute>
         } 
       />
-      {/* Default Routes */}
-  <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
-  <Route path="/" element={<FadeWrapper><LandingPage /></FadeWrapper>} />
-  {/* /login route removed, use /petowner/login only */}
-    </Routes>
+        {/* Default Routes */}
+        <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+        <Route path="/" element={<FadeWrapper><LandingPage /></FadeWrapper>} />
+        {/* /login route removed, use /petowner/login only */}
+      </Routes>
+    </AnimatePresence>
   );
 }
 
+// MODIFIED: Simplified to a clean opacity fade without movement
 function FadeWrapper({ children }) {
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -15 }}
-        transition={{
-          duration: 0.3,
-          ease: [0.22, 1, 0.36, 1]
-        }}
-        className="w-full h-full"
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ 
+        duration: 0.25, 
+        ease: "easeInOut" 
+      }}
+      className="w-full h-full"
+    >
+      {children}
+    </motion.div>
   );
 }
 
