@@ -394,10 +394,12 @@ const PetHealthRecords = () => {
                   {/* Pet Info Section - inside card */}
                   {/* Changed justify-between to justify-start (for mobile) and added gap-2 */}
                   <div className="flex flex-col flex-1 px-2 py-3 md:px-6 md:py-4 justify-start gap-2 md:justify-between md:gap-0">
-                    <h3 className="font-raleway font-extrabold text-base md:text-2xl text-black mb-1 break-words">
+                    {/* Added capitalize to name as well for consistency */}
+                    <h3 className="font-raleway font-extrabold text-base md:text-2xl text-black mb-1 break-words capitalize">
                       {pet.name}, {pet.age}
                     </h3>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs md:text-sm text-black">
+                    {/* MODIFIED: Added 'capitalize' class here to fix Species and Sex casing */}
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs md:text-sm text-black capitalize">
                       <span><span className="text-black/70">Animal:</span> {pet.animal_type}</span>
                       <span><span className="text-black/70">Sex:</span> {pet.sex}</span>
                       <span><span className="text-black/70">Breed:</span> {pet.breed || 'Mixed'}</span>
