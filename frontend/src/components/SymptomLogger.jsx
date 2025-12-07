@@ -8,61 +8,61 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api
 // Organized by category to match the risk calculator
 const SYMPTOM_CATEGORIES = {
   'General Symptoms': {
-    icon: '🩺',
+    icon: <img src="/basil_other-1-solid.png" alt="General" className="w-5 h-5 inline-block" />,
     symptoms: [
       'vomiting', 'diarrhea', 'lethargy', 'loss_of_appetite', 'weight_loss',
       'fever', 'dehydration', 'weakness', 'seizures'
     ]
   },
   'Respiratory': {
-    icon: '🫁',
+    icon: <img src="/mingcute_lungs-fill.png" alt="Respiratory" className="w-5 h-5 inline-block" />,
     symptoms: [
       'coughing', 'sneezing', 'wheezing', 'labored_breathing', 'difficulty_breathing',
       'nasal_discharge', 'nasal_congestion', 'respiratory_distress'
     ]
   },
   'Skin & Coat': {
-    icon: <img src="/mdi_paw.png" alt="Skin & Coat" className="w-5 h-5 inline-block" />,
+    icon: <img src="/streamline-ultimate-color_hair-skin.png" alt="Skin & Coat" className="w-5 h-5 inline-block" />,
     symptoms: [
       'scratching', 'itching', 'hair_loss', 'bald_patches', 'red_skin',
       'irritated_skin', 'skin_lesions', 'rash', 'scabs', 'dandruff'
     ]
   },
   'Eyes & Ears': {
-    icon: '👁️',
+    icon: <img src="/icon-park-outline_eyes.png" alt="Eyes & Ears" className="w-5 h-5 inline-block" />,
     symptoms: [
       'watery_eyes', 'eye_discharge', 'red_eyes', 'squinting',
       'ear_discharge', 'ear_scratching', 'head_shaking'
     ]
   },
   'Digestive': {
-    icon: '🍽️',
+    icon: <img src="/hugeicons_digestion.png" alt="Digestive" className="w-5 h-5 inline-block" />,
     symptoms: [
       'constipation', 'bloating', 'gas', 'not_eating', 'excessive_eating'
     ]
   },
   'Urinary': {
-    icon: '💧',
+    icon: <img src="/entypo_water.png" alt="Urinary" className="w-5 h-5 inline-block" />,
     symptoms: [
       'blood_in_urine', 'frequent_urination', 'straining_to_urinate',
       'dark_urine', 'cloudy_urine'
     ]
   },
   'Oral & Dental': {
-    icon: '🦷',
+    icon: <img src="/streamline-sharp_tooth-remix.png" alt="Oral & Dental" className="w-5 h-5 inline-block" />,
     symptoms: [
       'bad_breath', 'drooling', 'difficulty_eating', 'swollen_gums',
       'red_gums', 'mouth_pain'
     ]
   },
   'Behavioral': {
-    icon: '🧠',
+    icon: <img src="/mdi_brain.png" alt="Behavioral" className="w-5 h-5 inline-block" />,
     symptoms: [
       'aggression', 'hiding', 'restlessness', 'confusion', 'circling'
     ]
   },
   'Mobility': {
-    icon: '🦴',
+    icon: <img src="/twemoji_paw-prints.png" alt="Mobility" className="w-5 h-5 inline-block" />,
     symptoms: [
       'limping', 'lameness', 'difficulty_walking', 'stiffness',
       'reluctance_to_move', 'paralysis'
@@ -237,7 +237,10 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
   return (
     <div className="symptom-logger bg-white rounded-lg shadow-md p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">🩺 Daily Symptom Log</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+          <img src="/maki_doctor.png" alt="Doctor" className="w-6 h-6 inline-block" />
+          Daily Symptom Log
+        </h2>
         <div className="text-sm text-gray-600">
           <span className="font-semibold">{pet?.name}</span>
           <span className="mx-2">•</span>
@@ -256,7 +259,7 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
           <input
             type="text"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="🔍 Search symptoms..."
+            placeholder="Search symptoms..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -302,13 +305,16 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-700 mb-4">Select Symptoms</h3>
           <div className="space-y-4">
-            {Object.entries(SYMPTOM_CATEGORIES).map(([category, { symptoms }]) => {
+            {Object.entries(SYMPTOM_CATEGORIES).map(([category, { symptoms, icon }]) => {
               const filteredSymptoms = filterSymptoms(symptoms);
               if (searchTerm && filteredSymptoms.length === 0) return null;
 
               return (
                 <div key={category} className="border border-gray-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-gray-700 mb-3">{category}</h4>
+                  <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    {icon}
+                    <span>{category}</span>
+                  </h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                     {filteredSymptoms.map(symptom => {
                       const isSelected = selectedSymptoms.includes(symptom);
@@ -389,7 +395,7 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Add any additional notes about your pet's condition..."
+            placeholder="Add any additional notes about your pet&apos;s condition..."
             rows={4}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
@@ -397,7 +403,10 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
 
       {/* Severity Selection */}
       <div className="severity-section">
-        <h3>📊 Overall Severity</h3>
+        <h3 className="flex items-center gap-2">
+          <img src="/picon_chart.png" alt="Chart" className="w-5 h-5 inline-block" />
+          Overall Severity
+        </h3>
         <p className="section-description">How severe are {pet.name}&apos;s symptoms overall?</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {[
@@ -450,7 +459,7 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <span>💾</span>
+                <img src="/material-symbols_save.png" alt="Save" className="w-5 h-5 inline-block" />
                 Log Symptoms
               </span>
             )}
