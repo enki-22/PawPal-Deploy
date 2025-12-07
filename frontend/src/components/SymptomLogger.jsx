@@ -302,7 +302,7 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-700 mb-4">Select Symptoms</h3>
           <div className="space-y-4">
-            {Object.entries(SYMPTOM_CATEGORIES).map(([category, symptoms]) => {
+            {Object.entries(SYMPTOM_CATEGORIES).map(([category, { symptoms }]) => {
               const filteredSymptoms = filterSymptoms(symptoms);
               if (searchTerm && filteredSymptoms.length === 0) return null;
 
