@@ -443,13 +443,13 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
             Start tracking {selectedPet?.name || 'your pet'}&apos;s symptoms to see progression over time.
           </p>
           <div className="flex gap-3 justify-center">
-            <Link
-              to="/chat"
+            <button
+              onClick={() => navigate('/chat/new')}
               className="px-6 py-3 bg-[#815FB3] text-white rounded-xl hover:bg-[#6a4c9c] font-semibold transition-colors"
               style={{ fontFamily: 'Raleway' }}
             >
               💬 Log via Chat
-            </Link>
+            </button>
             <button
               onClick={() => setShowLogger(true)}
               className="px-6 py-3 bg-[#DCCEF1] text-[#34113F] rounded-xl hover:bg-[#c9b8e8] font-semibold border border-[#815FB3] transition-colors"
@@ -540,12 +540,12 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
               ))}
             </select>
           )}
-          {/* Log Symptoms Button - Primary Action */}
+          {/* Log Symptoms Button - Primary Action - Navigates to Chat */}
           <button
-            onClick={() => setShowLogger(true)}
+            onClick={() => navigate('/chat/new')}
             className="px-4 py-2 bg-[#815FB3] text-white rounded-xl hover:bg-[#6a4c9c] font-medium transition-colors shadow-sm"
             style={{ fontFamily: 'Raleway' }}
-            title="Log symptoms"
+            title="Log symptoms via chat"
           >
             📝 Log Symptoms
           </button>
