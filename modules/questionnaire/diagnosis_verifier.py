@@ -312,9 +312,11 @@ class DiagnosisVerifier:
 
             "clinical_summary": "Professional veterinary narrative (3-4 sentences).",
 
-            "care_advice": ["Action 1", "Action 2", "Action 3"],
+            "care_advice": ["Specific Action 1", "Specific Action 2", "Specific Action 3", "Specific Action 4"],
 
             "severity_explanation": "Specific explanation of risk level.",
+
+            "symptoms_consistent": ["Symptom A", "Symptom B"],  # Global list of symptoms found in user notes
 
 
 
@@ -324,7 +326,9 @@ class DiagnosisVerifier:
 
                "is_in_database": boolean,
 
-               "confidence": float (0.90+)
+               "confidence": float (0.90+),
+
+               "matched_symptoms": ["Specific Symptom 1", "Specific Symptom 2"] # Symptoms specific to this diagnosis
 
             }}
 
@@ -367,72 +371,52 @@ class DiagnosisVerifier:
             alt_diag_data = {}
             
         # 2. Smart Agreement Inference
-        # If agreement is explicitly None (AI output null), infer from correction
         if raw_agreement is None:
             has_correction = bool(alt_diag_data.get("name"))
+            raw_agreement = not has_correction
             if has_correction:
-                # AI offered a correction, so it likely disagreed
-                raw_agreement = False
                 logger.info("⚠️ Agreement was None, but Correction found -> Inferred Agreement: False")
-            else:
-                # No correction offered, so stick with original predictions
-                raw_agreement = True
-                logger.info("⚠️ Agreement was None and No Correction -> Inferred Agreement: True")
 
-        # Extract risk_assessment and normalize to uppercase
+        # 3. Extract Risk
         risk_raw = result.get("risk_assessment", "MODERATE")
-        if isinstance(risk_raw, str):
-            risk_upper = risk_raw.upper()
-        else:
-            risk_upper = "MODERATE"
+        risk_upper = risk_raw.upper() if isinstance(risk_raw, str) else "MODERATE"
+        valid_risks = {"CRITICAL", "HIGH", "MODERATE", "LOW"}
+        if risk_upper not in valid_risks: risk_upper = "MODERATE"
+
+        # 4. Extract Symptoms (CRITICAL FIX)
+        # Get specific symptoms from the alternative diagnosis
+        specific_matched = alt_diag_data.get("matched_symptoms", [])
+        if isinstance(specific_matched, str): specific_matched = [specific_matched]
         
-        # Map new format risk levels to old format if needed
-        risk_mapping = {
-            "LOW": "LOW",
-            "MODERATE": "MODERATE", 
-            "HIGH": "HIGH",
-            "CRITICAL": "CRITICAL"
-        }
-        risk_assessment = risk_mapping.get(risk_upper, "MODERATE")
+        # Get global symptoms from the root
+        global_consistent = result.get("symptoms_consistent", [])
+        if isinstance(global_consistent, str): global_consistent = [global_consistent]
+        
+        # FAILSAFE: If global list is empty but specific list exists, copy specific to global
+        # This prevents "Symptoms noted in clinical text" fallback
+        if not global_consistent and specific_matched:
+            global_consistent = specific_matched
+            logger.info(f"🔧 Auto-filled empty global symptoms with specific matches: {global_consistent}")
 
         normalized = {
             "agreement": bool(raw_agreement),
             "reasoning": result.get("reasoning", "No specific reasoning provided."),
-            "risk_assessment": risk_assessment,
+            "risk_assessment": risk_upper,
             "missed_red_flags": result.get("missed_red_flags", []),
             
-            # Pass through rich content (default to None if missing)
+            # Rich Content
             "clinical_summary": result.get("clinical_summary"),
             "care_advice": result.get("care_advice", []),
             "severity_explanation": result.get("severity_explanation"),
+            "symptoms_consistent": global_consistent,  # Now guaranteed to have data if alt_diag has it
             
             "alternative_diagnosis": {
                 "name": alt_diag_data.get("name"),
                 "is_in_database": bool(alt_diag_data.get("is_in_database", False)),
-                "confidence": max(0.0, min(1.0, float(alt_diag_data.get("confidence", 0.0))))
+                "confidence": max(0.0, min(1.0, float(alt_diag_data.get("confidence", 0.0)))),
+                "matched_symptoms": specific_matched
             }
         }
-        
-        # Validate risk_assessment
-        valid_risks = {"CRITICAL", "HIGH", "MODERATE", "LOW"}
-        if normalized["risk_assessment"] not in valid_risks:
-            normalized["risk_assessment"] = "MODERATE"
-            
-        # Source of Truth Check: Validate is_in_database using actual database
-        suggested_name = normalized["alternative_diagnosis"]["name"]
-        if suggested_name:
-            # Perform case-insensitive check against valid_diseases set
-            suggested_name_lower = suggested_name.lower().strip()
-            is_actually_in_db = suggested_name_lower in self.valid_diseases
-            
-            # Log if AI's guess differed from actual database check
-            if normalized["alternative_diagnosis"]["is_in_database"] != is_actually_in_db:
-                logger.info(
-                    f"🤖 AI hallucinated DB presence for '{suggested_name}'. "
-                    f"AI guessed: {normalized['alternative_diagnosis']['is_in_database']}, Actual: {is_actually_in_db}. "
-                    f"Corrected to {is_actually_in_db}."
-                )
-                normalized["alternative_diagnosis"]["is_in_database"] = is_actually_in_db
             
         return normalized
     
@@ -443,8 +427,9 @@ class DiagnosisVerifier:
             "reasoning": "Verification system unavailable - using system predictions as-is.",
             "risk_assessment": "MODERATE",
             "missed_red_flags": [],
-            "alternative_diagnosis": {"name": None, "is_in_database": False, "confidence": 0.0},
+            "alternative_diagnosis": {"name": None, "is_in_database": False, "confidence": 0.0, "matched_symptoms": []},
             "clinical_summary": None,
             "care_advice": [],
-            "severity_explanation": None
+            "severity_explanation": None,
+            "symptoms_consistent": []
         }

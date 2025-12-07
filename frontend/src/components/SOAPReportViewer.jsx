@@ -91,7 +91,19 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
               <p><span className="text-gray-500 text-sm">Sex: </span><span className="font-bold text-black text-sm">{report.pet?.sex || 'N/A'}</span></p>
               <p><span className="text-gray-500 text-sm">Blood Type: </span><span className="font-bold text-black text-sm">{report.pet?.blood_type || 'N/A'}</span></p>
               <p><span className="text-gray-500 text-sm">Spayed/Neutered: </span><span className="font-bold text-black text-sm">{report.pet?.spayed_neutered || 'N/A'}</span></p>
-              <p><span className="text-gray-500 text-sm">Age: </span><span className="font-bold text-black text-sm">{report.pet?.age || 'N/A'}</span></p>
+              {(() => {
+                const ageVal = report.pet?.age;
+                let displayAge = 'N/A';
+                if (ageVal !== null && ageVal !== undefined) {
+                  // If age is 0, display "Under 1 year" to be accurate yet professional
+                  if (ageVal == 0) displayAge = 'Under 1 year';
+                  else if (ageVal == 1) displayAge = '1 year';
+                  else displayAge = `${ageVal} years`;
+                }
+                return (
+                  <p><span className="text-gray-500 text-sm">Age: </span><span className="font-bold text-black text-sm">{displayAge}</span></p>
+                );
+              })()}
               <p><span className="text-gray-500 text-sm">Allergies: </span><span className="font-bold text-black text-sm">{report.pet?.allergies || 'N/A'}</span></p>
               <p><span className="text-gray-500 text-sm">Chronic Disease: </span><span className="font-bold text-black text-sm">{report.pet?.chronic_disease || 'N/A'}</span></p>
             </div>
@@ -112,10 +124,15 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
           </div>
         )}
 
-        {/* 2. DIAGNOSES CARDS */}
+        {/* DIAGNOSES SECTION */}
         {diagnoses.length > 0 && (
           <div className="px-2 md:px-8 mt-6 space-y-4">
             {diagnoses.map((d, i) => {
+              // Handle matched_symptoms being an array or string
+              const symptomsText = Array.isArray(d.matched_symptoms) 
+                ? d.matched_symptoms.join(', ') 
+                : (d.matched_symptoms || 'None specified');
+
               // Determine Color
               const score = d.likelihood_percentage || 0;
               let badgeColor = 'bg-[#89FE72]'; // Green
@@ -132,7 +149,8 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
                   </div>
                   <p className="text-gray-700 text-sm mb-3">{d.description}</p>
                   <ul className="list-disc ml-5 text-sm space-y-1 text-gray-800">
-                    <li><span className="font-semibold">Matched Symptoms:</span> {Array.isArray(d.matched_symptoms) ? d.matched_symptoms.join(', ') : d.matched_symptoms}</li>
+                    {/* Render the processed symptoms text */}
+                    <li><span className="font-semibold">Matched Symptoms:</span> {symptomsText}</li>
                     <li><span className="font-semibold">Urgency:</span> {d.urgency}</li>
                     <li><span className="font-semibold">Contagious:</span> {d.contagious ? 'Yes' : 'No'}</li>
                   </ul>
@@ -142,14 +160,12 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
           </div>
         )}
 
-        {/* 3. SEVERITY & ADVICE */}
+        {/* PLAN & ADVICE SECTION */}
         {report.plan && (
           <div className="px-2 md:px-8 mt-8 mb-10">
             <div className="flex items-start mb-4">
-              {/* Yellow Flag Icon */}
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="#FFD700" className="flex-shrink-0 mr-4">
-                <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/>
-              </svg>
+              {/* Severity Flag */}
+              <div className="flex-shrink-0 mr-4 text-3xl">🚩</div>
               <div>
                 <h4 className="font-bold text-black text-lg">Severity Level: {report.plan.severityLevel}</h4>
                 <p className="text-sm text-gray-700 mt-1">{report.plan.aiExplanation}</p>
@@ -159,9 +175,14 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
             <div className="mt-6">
               <h4 className="font-bold text-black mb-2">Care Advice:</h4>
               <ul className="list-disc ml-6 space-y-2 text-sm text-gray-800">
-                {report.plan.careAdvice?.map((advice, idx) => (
-                  <li key={idx}>{advice}</li>
-                ))}
+                {/* Map through care advice array */}
+                {Array.isArray(report.plan.careAdvice) ? (
+                  report.plan.careAdvice.map((advice, idx) => (
+                    <li key={idx}>{advice}</li>
+                  ))
+                ) : (
+                  <li>{report.plan.careAdvice || "No specific advice available."}</li>
+                )}
               </ul>
             </div>
           </div>
