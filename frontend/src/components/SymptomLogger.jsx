@@ -4,6 +4,71 @@ import axios from 'axios';
 import './SymptomLogger.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/chatbot';
+// EXACT 81 CANONICAL SYMPTOMS from train_model.py
+// Organized by category to match the risk calculator
+const SYMPTOM_CATEGORIES = {
+  'General Symptoms': {
+    icon: '🩺',
+    symptoms: [
+      'vomiting', 'diarrhea', 'lethargy', 'loss_of_appetite', 'weight_loss',
+      'fever', 'dehydration', 'weakness', 'seizures'
+    ]
+  },
+  'Respiratory': {
+    icon: '🫁',
+    symptoms: [
+      'coughing', 'sneezing', 'wheezing', 'labored_breathing', 'difficulty_breathing',
+      'nasal_discharge', 'nasal_congestion', 'respiratory_distress'
+    ]
+  },
+  'Skin & Coat': {
+    icon: <img src="/mdi_paw.png" alt="Skin & Coat" className="w-5 h-5 inline-block" />,
+    symptoms: [
+      'scratching', 'itching', 'hair_loss', 'bald_patches', 'red_skin',
+      'irritated_skin', 'skin_lesions', 'rash', 'scabs', 'dandruff'
+    ]
+  },
+  'Eyes & Ears': {
+    icon: '👁️',
+    symptoms: [
+      'watery_eyes', 'eye_discharge', 'red_eyes', 'squinting',
+      'ear_discharge', 'ear_scratching', 'head_shaking'
+    ]
+  },
+  'Digestive': {
+    icon: '🍽️',
+    symptoms: [
+      'constipation', 'bloating', 'gas', 'not_eating', 'excessive_eating'
+    ]
+  },
+  'Urinary': {
+    icon: '💧',
+    symptoms: [
+      'blood_in_urine', 'frequent_urination', 'straining_to_urinate',
+      'dark_urine', 'cloudy_urine'
+    ]
+  },
+  'Oral & Dental': {
+    icon: '🦷',
+    symptoms: [
+      'bad_breath', 'drooling', 'difficulty_eating', 'swollen_gums',
+      'red_gums', 'mouth_pain'
+    ]
+  },
+  'Behavioral': {
+    icon: '🧠',
+    symptoms: [
+      'aggression', 'hiding', 'restlessness', 'confusion', 'circling'
+    ]
+  },
+  'Mobility': {
+    icon: '🦴',
+    symptoms: [
+      'limping', 'lameness', 'difficulty_walking', 'stiffness',
+      'reluctance_to_move', 'paralysis'
+    ]
+  }
+};
 
 // Common symptoms organized by category
 const SYMPTOM_CATEGORIES = {
@@ -365,6 +430,42 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
             rows={4}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
+      </div>
+
+      {/* Severity Selection */}
+      <div className="severity-section">
+        <h3>📊 Overall Severity</h3>
+        <p className="section-description">How severe are {pet.name}&apos;s symptoms overall?</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {[
+            { value: 'mild', label: 'Mild', icon: '🟢', desc: 'Eating & acting mostly normal', color: 'border-green-400 bg-green-50' },
+            { value: 'moderate', label: 'Moderate', icon: '🟡', desc: 'Uncomfortable, behavior changes', color: 'border-yellow-400 bg-yellow-50' },
+            { value: 'severe', label: 'Severe', icon: '🔴', desc: 'Very unwell, major changes', color: 'border-red-400 bg-red-50' }
+          ].map((option) => (
+            <div
+              key={option.value}
+              onClick={() => setSeverity(option.value)}
+              className={`
+                cursor-pointer rounded-xl p-4 border-2 transition-all duration-200
+                ${severity === option.value ? option.color : 'border-gray-200 bg-white hover:border-gray-300'}
+              `}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">{option.icon}</span>
+                <span className="font-bold text-gray-800">{option.label}</span>
+              </div>
+              <p className="text-xs text-gray-600 leading-tight">{option.desc}</p>
+              
+              {/* Hidden radio for form logic compatibility */}
+              <input
+                type="radio"
+                value={option.value}
+                checked={severity === option.value}
+                onChange={() => setSeverity(option.value)}
+                className="hidden"
+              />
+            </div>
+          ))}
         </div>
 
         {/* Submit Button */}

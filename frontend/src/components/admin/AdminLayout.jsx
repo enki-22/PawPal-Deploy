@@ -4,7 +4,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { admin, adminLogout } = useAdminAuth();
+  const { admin, adminLogout, isMaster } = useAdminAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -16,8 +16,8 @@ const AdminLayout = ({ children }) => {
     { name: 'Announcements', href: '/admin/announcements', icon: '📢' },
   ];
 
-  // Only show Admin Roles for MASTER admin
-  if (admin?.role === 'MASTER') {
+  // Only show Admin Roles for MASTER admin (use centralized helper)
+  if (isMaster) {
     navigation.push({ name: 'Admin Roles', href: '/admin/roles', icon: '👨‍⚕️' });
   }
 

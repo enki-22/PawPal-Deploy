@@ -160,7 +160,12 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
             }}
           >
             <div className="flex items-start gap-3 mb-4">
-              <span className="text-3xl">⚠️</span>
+              <img 
+                src="/mingcute_alert-line.png" 
+                alt="Urgent" 
+                className="w-8 h-8 object-contain"
+                style={{ filter: 'brightness(0) saturate(100%) invert(47%) sepia(32%) saturate(1188%) hue-rotate(237deg) brightness(92%) contrast(87%)' }}
+              />
               <div>
                 <h3
                   className="text-lg font-bold mb-1"
@@ -176,7 +181,12 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
 
             <div className="space-y-4 mb-5">
               <div className="flex gap-3">
-                <span className="text-2xl">📞</span>
+                <img 
+                  src="/line-md_phone-filled.png" 
+                  alt="Phone" 
+                  className="w-6 h-6 object-contain"
+                  style={{ filter: 'brightness(0) saturate(100%) invert(47%) sepia(32%) saturate(1188%) hue-rotate(237deg) brightness(92%) contrast(87%)' }}
+                />
                 <div>
                   <p className="font-bold text-[14px] text-gray-900">1. Call your emergency vet NOW</p>
                   <p className="text-[13px] text-gray-700 mt-1">
@@ -186,7 +196,12 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
               </div>
 
               <div className="flex gap-3">
-                <span className="text-2xl">🚗</span>
+                <img 
+                  src="/icon-park-solid_car.png" 
+                  alt="Transport" 
+                  className="w-6 h-6 object-contain"
+                  style={{ filter: 'brightness(0) saturate(100%) invert(47%) sepia(32%) saturate(1188%) hue-rotate(237deg) brightness(92%) contrast(87%)' }}
+                />
                 <div>
                   <p className="font-bold text-[14px] text-gray-900">2. Transport {petName} carefully</p>
                   <ul className="text-[13px] text-gray-700 mt-1 list-disc list-inside space-y-1">
@@ -198,7 +213,12 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
               </div>
 
               <div className="flex gap-3">
-                <span className="text-2xl">⏰</span>
+                <img 
+                  src="/mingcute_time-fill.png" 
+                  alt="Time" 
+                  className="w-6 h-6 object-contain"
+                  style={{ filter: 'brightness(0) saturate(100%) invert(47%) sepia(32%) saturate(1188%) hue-rotate(237deg) brightness(92%) contrast(87%)' }}
+                />
                 <div>
                   <p className="font-bold text-[14px] text-gray-900">3. Do NOT wait - time is critical</p>
                   <p className="text-[13px] text-gray-700 mt-1">
@@ -226,7 +246,7 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
                   className="px-5 py-2.5 rounded-[10px] text-[14px] font-bold text-white transition-opacity hover:opacity-90 inline-block shadow-md"
                   style={{ backgroundColor: EMERGENCY_COLOR }}
                 >
-                  📞 Call Emergency Vet
+                  Call Emergency Vet
                 </a>
               </div>
             </div>
@@ -298,8 +318,15 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
             </div>
 
             <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-[11px] text-gray-500 italic">
-                💡 This follows veterinary telephone triage best practices where asking &quot;What changed that prompted you to contact us today?&quot; helps owners identify their pet&apos;s primary concern.
+              <p className="text-[11px] text-gray-500 italic flex items-start gap-1.5">
+                <img 
+                  src="/f7_lightbulb-fill.png" 
+                  alt="Tip" 
+                  className="w-3 h-3 mt-0.5 object-contain" 
+                />
+                <span>
+                  This follows veterinary telephone triage best practices where asking &quot;What changed that prompted you to contact us today?&quot; helps owners identify their pet&apos;s primary concern.
+                </span>
               </p>
             </div>
           </div>
@@ -325,8 +352,13 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
 
             {/* SECTION 1: RESPIRATION */}
             <div className="border-l-4 border-purple-400 pl-4">
-              <h4 className="text-[15px] font-bold text-gray-900 mb-2">
-                🫁 SECTION 1: RESPIRATION
+              <h4 className="text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <img 
+                  src="/mingcute_lungs-fill.png" 
+                  alt="Respiration" 
+                  className="w-5 h-5 object-contain" 
+                />
+                SECTION 1: RESPIRATION
               </h4>
               <p className="text-[14px] text-gray-800 mb-3 font-semibold">
                 How is {petName}&apos;s breathing right now?
@@ -360,8 +392,13 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
 
             {/* SECTION 2: ALERTNESS */}
             <div className="border-l-4 border-purple-400 pl-4">
-              <h4 className="text-[15px] font-bold text-gray-900 mb-2">
-                🧠 SECTION 2: ALERTNESS (Level of Consciousness)
+              <h4 className="text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <img 
+                  src="/mdi_brain.png" 
+                  alt="Alertness" 
+                  className="w-5 h-5 object-contain" 
+                />
+                SECTION 2: ALERTNESS (Level of Consciousness)
               </h4>
               <p className="text-[14px] text-gray-800 mb-3 font-semibold">
                 How responsive is {petName} right now?
@@ -395,14 +432,26 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
 
             {/* SECTION 3: PERFUSION */}
             <div className="border-l-4 border-purple-400 pl-4">
-              <h4 className="text-[15px] font-bold text-gray-900 mb-2">
-                💧 SECTION 3: PERFUSION (Circulation)
+              <h4 className="text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <img 
+                  src="/streamline-ultimate_blood-drop-bold.png" 
+                  alt="Circulation" 
+                  className="w-5 h-5 object-contain" 
+                />
+                SECTION 3: PERFUSION (Circulation)
               </h4>
               <p className="text-[14px] text-gray-800 mb-2 font-semibold">
                 If you can safely check, what color are {petName}&apos;s gums?
               </p>
-              <p className="text-[12px] text-gray-600 mb-3 bg-blue-50 p-2 rounded border border-blue-100">
-                💡 <strong>Helper:</strong> Gently lift {petName}&apos;s lip to see gum color. If you can&apos;t check safely, select &quot;Not sure&quot;.
+              <p className="text-[12px] text-gray-600 mb-3 bg-blue-50 p-2 rounded border border-blue-100 flex items-start gap-1.5">
+                <img 
+                  src="/f7_lightbulb-fill.png" 
+                  alt="Tip" 
+                  className="w-3 h-3 mt-0.5 object-contain" 
+                />
+                <span>
+                  <strong>Helper:</strong> Gently lift {petName}&apos;s lip to see gum color. If you can&apos;t check safely, select &quot;Not sure&quot;.
+                </span>
               </p>
               <div className="space-y-2">
                 {PERFUSION_OPTIONS.map((option) => {
@@ -433,8 +482,13 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
 
             {/* SECTION 4: CRITICAL SYMPTOMS CHECK */}
             <div className="border-l-4 border-red-400 pl-4">
-              <h4 className="text-[15px] font-bold text-gray-900 mb-2">
-                ⚠️ SECTION 4: CRITICAL SYMPTOMS CHECK
+              <h4 className="text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <img 
+                  src="/solar_danger-bold.png" 
+                  alt="Danger" 
+                  className="w-5 h-5 object-contain" 
+                />
+                SECTION 4: CRITICAL SYMPTOMS CHECK
               </h4>
               <p className="text-[14px] text-gray-800 mb-3 font-semibold">
                 Is {petName} experiencing ANY of these symptoms right now?

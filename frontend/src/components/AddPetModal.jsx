@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import showToast from '../utils/toast';
 
-const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
+const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) => {
   // Blood type options by species
   const bloodTypeOptions = {
     dog: [
@@ -26,20 +26,64 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
     rabbit: [ { value: 'Unknown', label: 'Unknown' } ],
     fish: [ { value: 'Unknown', label: 'Unknown' } ],
   };
-  const [newPet, setNewPet] = useState({
+  const initialPetState = {
     name: '',
     animal_type: '',
     breed: '',
     date_of_birth: '',
+    age: '', // for edit mode fallback
     sex: '',
+    weight: '',
     blood_type: '',
     allergies: '',
     chronic_disease: '',
     spayed_neutered: false,
     image: null
-  });
+  };
+
+  const [newPet, setNewPet] = useState(initialPetState);
   const [addingPet, setAddingPet] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+
+  // Populate form when editing
+  useEffect(() => {
+    if (isOpen && petToEdit) {
+      const notes = petToEdit.medical_notes || '';
+      const bloodTypeMatch = notes.match(/Blood Type: ([^\n]+)/);
+      const allergiesMatch = notes.match(/Allergies: ([^\n]+)/);
+      const chronicMatch = notes.match(/Chronic Disease: ([^\n]+)/);
+      const spayedMatch = notes.match(/Spayed\/Neutered: ([^\n]+)/);
+
+      let isSpayed = false;
+      if (spayedMatch) {
+        isSpayed = spayedMatch[1].trim() === 'Yes';
+      } else if (typeof petToEdit.spayed_neutered !== 'undefined') {
+        isSpayed = petToEdit.spayed_neutered;
+      }
+
+      setNewPet({
+        name: petToEdit.name || '',
+        animal_type: petToEdit.animal_type || '',
+        breed: petToEdit.breed || '',
+        date_of_birth: '',
+        age: petToEdit.age || '',
+        sex: petToEdit.sex || '',
+        weight: petToEdit.weight || '',
+        blood_type: bloodTypeMatch ? bloodTypeMatch[1].trim() : (petToEdit.blood_type || ''),
+        allergies: allergiesMatch ? allergiesMatch[1].trim() : (petToEdit.allergies || ''),
+        chronic_disease: chronicMatch ? chronicMatch[1].trim() : (petToEdit.chronic_disease || ''),
+        spayed_neutered: isSpayed,
+        image: null
+      });
+
+      if (petToEdit.image || petToEdit.image_url) {
+        setPreviewImage(petToEdit.image_url || petToEdit.image);
+      } else setPreviewImage(null);
+    } else if (isOpen && !petToEdit) {
+      setNewPet(initialPetState);
+      setPreviewImage(null);
+    }
+  }, [isOpen, petToEdit]);
 
   const handleInputChange = (field, value) => {
     setNewPet(prev => ({ ...prev, [field]: value }));
@@ -77,30 +121,32 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
     try {
       const formData = new FormData();
       
-      // Calculate age from date of birth
-      let age = 0;
+      // Determine final age
+      let finalAge = newPet.age;
       if (newPet.date_of_birth) {
         const birthDate = new Date(newPet.date_of_birth);
         const today = new Date();
-        age = today.getFullYear() - birthDate.getFullYear();
+        let calculatedAge = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-          age--;
+          calculatedAge--;
         }
+        finalAge = calculatedAge;
       }
 
-      // Append all fields to FormData
       formData.append('name', newPet.name);
       formData.append('animal_type', newPet.animal_type);
       formData.append('breed', newPet.breed || '');
-      formData.append('age', age);
+      formData.append('age', finalAge);
       formData.append('sex', newPet.sex);
-      formData.append('medical_notes', 
-        `Blood Type: ${newPet.blood_type || 'Unknown'}\n` +
+      if (newPet.weight) formData.append('weight', newPet.weight);
+
+      const medicalNotes = `Blood Type: ${newPet.blood_type || 'Unknown'}\n` +
         `Allergies: ${newPet.allergies || 'None'}\n` +
         `Chronic Disease: ${newPet.chronic_disease || 'None'}\n` +
-        `Spayed/Neutered: ${newPet.spayed_neutered ? 'Yes' : 'No'}`
-      );
+        `Spayed/Neutered: ${newPet.spayed_neutered ? 'Yes' : 'No'}`;
+
+      formData.append('medical_notes', medicalNotes);
       
       if (newPet.image) {
         formData.append('image', newPet.image);
@@ -112,21 +158,36 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
         console.log('FormData:', key, value);
       }
 
-      const response = await axios.post(
-        'http://localhost:8000/api/pets/create/',
-        formData,
-        {
-          headers: {
-            'Authorization': `Token ${token}`,
-            'Content-Type': 'multipart/form-data',
+      let response;
+      if (petToEdit) {
+        response = await axios.put(
+          `http://localhost:8000/api/pets/${petToEdit.id}/`,
+          formData,
+          {
+            headers: {
+              'Authorization': `Token ${token}`,
+              'Content-Type': 'multipart/form-data',
+            }
           }
-        }
-      );
+        );
+        showToast({ message: 'Pet Updated Successfully!', type: 'success' });
+      } else {
+        response = await axios.post(
+          'http://localhost:8000/api/pets/create/',
+          formData,
+          {
+            headers: {
+              'Authorization': `Token ${token}`,
+              'Content-Type': 'multipart/form-data',
+            }
+          }
+        );
+        showToast({ message: 'Pet Added Successfully!', type: 'success' });
+      }
 
-      console.log('Pet created:', response.data);
-      onPetAdded(); // Refresh the pets list
-      handleClose(); // Close modal
-      try { showToast({ message: 'Pet Added Successfully!', type: 'success' }); } catch (e) { console.debug('toast failed', e); }
+      console.log('Pet saved:', response.data);
+      onPetAdded();
+      handleClose();
       
     } catch (error) {
       console.error('Error creating pet:', error);
@@ -144,7 +205,7 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
         {/* Modal Header */}
         <div className="bg-[#815FB3] text-white p-4 md:p-6 flex items-center justify-between flex-shrink-0">
           <h2 className="text-xl md:text-2xl font-bold" style={{ fontFamily: 'Raleway' }}>
-            Add Pet
+            {petToEdit ? 'Edit Pet' : 'Add Pet'}
           </h2>
           <button
             type="button"
@@ -430,7 +491,7 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token }) => {
                 className="bg-[#815FB3] text-white px-12 py-3 rounded-lg hover:bg-[#6d4a96] transition-colors text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
                 style={{ fontFamily: 'Raleway' }}
               >
-                {addingPet ? 'Creating Pet...' : 'Create Pet'}
+                {addingPet ? (petToEdit ? 'Saving...' : 'Creating Pet...') : (petToEdit ? 'Save Changes' : 'Create Pet')}
               </button>
             </div>
           </form>

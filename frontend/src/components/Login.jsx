@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import pawIcon from '../Assets/Images/paw-icon.png';
@@ -46,7 +47,7 @@ const PurpleCarousel = () => {
           {pawIcon ? (
             <img src={pawIcon} alt="Paw" className="w-20 h-20" />
           ) : (
-            <span className="text-5xl mr-3">🐾</span>
+            <img src="/mdi_paw.png" alt="Paw" className="w-12 h-12 mr-3" />
           )}
           <h1 className="text-[#FFF07B] font-museo font-black text-[49px] leading-[100%] tracking-[0%]">
             PAWPAL
@@ -55,11 +56,17 @@ const PurpleCarousel = () => {
       </div>
 
       {/* CAROUSEL CONTENT AREA - Only content below logo changes */}
-      <div className="flex-1 w-full" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-  <div>
+      <div className="flex-1 w-full relative">
+        <AnimatePresence mode='wait'>
           {currentSlide === 0 ? (
-            // Slide 1: Health companion content (without logo)
-            <>
+            <motion.div
+              key="slide1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0 flex flex-col justify-center items-center"
+            >
               <h2 className="text-[24px] font-bold leading-[100%] tracking-[0%] mb-6"
                   style={{ 
                     fontFamily: 'Raleway', 
@@ -93,7 +100,12 @@ const PurpleCarousel = () => {
                   {pawBullet ? (
                     <img src={pawBullet} alt="Paw" className="w-6 h-6 transform rotate-45" style={{ marginRight: '12px', flexShrink: 0 }} />
                   ) : (
-                    <span className="text-yellow-400 text-lg" style={{ marginRight: '12px', flexShrink: 0 }}>🐾</span>
+                    <img 
+                      src="/mdi_paw.png" 
+                      alt="Paw" 
+                      className="w-5 h-5" 
+                      style={{ marginRight: '12px', flexShrink: 0, filter: 'brightness(0) saturate(100%) invert(89%) sepia(23%) saturate(913%) hue-rotate(359deg) brightness(103%) contrast(104%)' }} 
+                    />
                   )}
                   <span className="text-[20px] font-medium leading-[100%] tracking-[0%]"
                         style={{ 
@@ -108,7 +120,12 @@ const PurpleCarousel = () => {
                   {pawBullet ? (
                     <img src={pawBullet} alt="Paw" className="w-6 h-6 transform rotate-45" style={{ marginRight: '12px', flexShrink: 0 }} />
                   ) : (
-                    <span className="text-yellow-400 text-lg" style={{ marginRight: '12px', flexShrink: 0 }}>🐾</span>
+                    <img 
+                      src="/mdi_paw.png" 
+                      alt="Paw" 
+                      className="w-5 h-5" 
+                      style={{ marginRight: '12px', flexShrink: 0, filter: 'brightness(0) saturate(100%) invert(89%) sepia(23%) saturate(913%) hue-rotate(359deg) brightness(103%) contrast(104%)' }} 
+                    />
                   )}
                   <span className="text-[20px] font-medium leading-[100%] tracking-[0%]"
                         style={{ 
@@ -123,7 +140,12 @@ const PurpleCarousel = () => {
                   {pawBullet ? (
                     <img src={pawBullet} alt="Paw" className="w-6 h-6 transform rotate-45" style={{ marginRight: '12px', flexShrink: 0 }} />
                   ) : (
-                    <span className="text-yellow-400 text-lg" style={{ marginRight: '12px', flexShrink: 0 }}>🐾</span>
+                    <img 
+                      src="/mdi_paw.png" 
+                      alt="Paw" 
+                      className="w-5 h-5" 
+                      style={{ marginRight: '12px', flexShrink: 0, filter: 'brightness(0) saturate(100%) invert(89%) sepia(23%) saturate(913%) hue-rotate(359deg) brightness(103%) contrast(104%)' }} 
+                    />
                   )}
                   <span className="text-[20px] font-medium leading-[100%] tracking-[0%]"
                         style={{ 
@@ -134,10 +156,16 @@ const PurpleCarousel = () => {
                   </span>
                 </div>
               </div>
-            </>
+            </motion.div>
           ) : (
-            // Slide 2: Banner image only (without logo) - Much larger now
-            <>
+            <motion.div
+              key="slide2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0 flex flex-col justify-center items-center"
+            >
               <div className="w-full h-full flex items-center justify-center" style={{ overflow: 'visible' }}>
                 <img 
                   src="/194911935_109537641352555_8380857820585025274_n 1.png" 
@@ -151,9 +179,9 @@ const PurpleCarousel = () => {
                   }}
                 />
               </div>
-            </>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </div>
       
       {/* Page Indicator Dots - Fixed Position */}

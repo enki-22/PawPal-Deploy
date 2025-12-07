@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
+import showToast from '../../utils/toast';
 import AdminTopNav from './AdminTopNav';
-import { Eye, EyeOff, Camera, Edit2, X, Check, Lock, Mail, MapPin, Phone } from 'lucide-react';
+import { Eye, EyeOff, Camera, X, Check, Lock, Mail, MapPin, Phone } from 'lucide-react';
 
 // --- Reusable Modal Component ---
 const Modal = ({ isOpen, onClose, title, children }) => {
@@ -58,14 +59,11 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, loading
 };
 
 export default function AdminProfileSettings() {
-  const { adminAxios, adminLogout } = useAdminAuth();
+  const { adminAxios, adminLogout, updateAdmin } = useAdminAuth();
   const [adminData, setAdminData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
-
-  // Modal States
-  const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [recoveryEmailOpen, setRecoveryEmailOpen] = useState(false);
   
@@ -73,13 +71,6 @@ export default function AdminProfileSettings() {
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', action: null });
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Form States
-  const [formData, setFormData] = useState({
-    name: '',
-    clinic_info: '',
-    contact_number: ''
-  });
-  
   const [passData, setPassData] = useState({
     current_password: '',
     new_password: '',
@@ -103,12 +94,10 @@ export default function AdminProfileSettings() {
       const response = await adminAxios.get('/admin/profile');
       if (response.data.success) {
         setAdminData(response.data.admin);
-        // Initialize form data
-        setFormData({
-          name: response.data.admin.name || '',
-          clinic_info: response.data.admin.clinic_info || '',
-          contact_number: response.data.admin.contact_number || ''
-        });
+        // Debug: log admin object returned by profile API so role visibility can be confirmed
+        console.debug('fetchAdminProfile: admin from API:', response.data.admin);
+        // Update global context so header image updates immediately
+        if (updateAdmin) updateAdmin(response.data.admin);
         setRecoveryData(prev => ({ ...prev, recovery_email: response.data.admin.recovery_email || '' }));
       }
     } catch (err) {
@@ -148,39 +137,12 @@ export default function AdminProfileSettings() {
       if (response.data.success) {
         await fetchAdminProfile(); // Refresh data
         setConfirmModal({ ...confirmModal, isOpen: false });
-        alert('Profile picture updated successfully!');
+        showToast({ message: 'Profile picture updated successfully!', type: 'success' });
       }
     } catch (err) {
       console.error('Upload failed:', err);
-      alert(err.response?.data?.error || 'Failed to upload image.');
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleProfileSubmit = (e) => {
-    e.preventDefault();
-    setEditProfileOpen(false);
-    setConfirmModal({
-      isOpen: true,
-      title: 'Save Profile Changes',
-      message: 'Are you sure you want to update your profile information?',
-      action: executeProfileUpdate
-    });
-  };
-
-  const executeProfileUpdate = async () => {
-    setActionLoading(true);
-    try {
-      const response = await adminAxios.put('/admin/profile', formData);
-      if (response.data.success) {
-        await fetchAdminProfile();
-        setConfirmModal({ ...confirmModal, isOpen: false });
-        alert('Profile updated successfully!');
-      }
-    } catch (err) {
-      console.error('Update failed:', err);
-      alert(err.response?.data?.error || 'Failed to update profile.');
+      const msg = err.response?.data?.error || 'Failed to upload image.';
+      showToast({ message: msg, type: 'error' });
     } finally {
       setActionLoading(false);
     }
@@ -297,14 +259,7 @@ export default function AdminProfileSettings() {
           {/* PROFILE CARD */}
           <div className="bg-[#FFFFF0] rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center md:items-start gap-8 relative">
             
-            {/* Edit Button */}
-            <button 
-              onClick={() => setEditProfileOpen(true)}
-              className="absolute top-6 right-6 p-2 text-gray-400 hover:text-[#815fb3] hover:bg-purple-50 rounded-full transition-all"
-              title="Edit Profile Details"
-            >
-              <Edit2 size={24} />
-            </button>
+              {/* REMOVED: Edit Button for Personal Info */}
 
             {/* Avatar Section */}
             <div className="relative shrink-0 group">
@@ -439,45 +394,7 @@ export default function AdminProfileSettings() {
 
       {/* --- MODALS --- */}
 
-      {/* 1. Edit Profile Modal */}
-      <Modal isOpen={editProfileOpen} onClose={() => setEditProfileOpen(false)} title="Edit Profile Details">
-        <form onSubmit={handleProfileSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
-            <input 
-              type="text" 
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#815fb3] focus:border-transparent outline-none"
-              required
-            />
-          </div>
-          <div>
-             <label className="block text-sm font-bold text-gray-700 mb-1">Clinic Info</label>
-             <input 
-              type="text"
-              value={formData.clinic_info}
-              onChange={(e) => setFormData({...formData, clinic_info: e.target.value})}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#815fb3] focus:border-transparent outline-none"
-            />
-          </div>
-          <div>
-             <label className="block text-sm font-bold text-gray-700 mb-1">Contact Number</label>
-             <input 
-              type="text"
-              value={formData.contact_number}
-              onChange={(e) => setFormData({...formData, contact_number: e.target.value})}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#815fb3] focus:border-transparent outline-none"
-              placeholder="09XX-XXX-XXXX"
-            />
-          </div>
-          <div className="flex justify-end pt-2">
-            <button type="submit" className="bg-[#815fb3] text-white font-bold py-2 px-6 rounded-lg hover:bg-[#6f4ea0] transition-colors">
-              Save Changes
-            </button>
-          </div>
-        </form>
-      </Modal>
+      {/* REMOVED: Edit Profile Modal */}
 
       {/* 2. Change Password Modal */}
       <Modal isOpen={changePasswordOpen} onClose={() => setChangePasswordOpen(false)} title="Change Password">

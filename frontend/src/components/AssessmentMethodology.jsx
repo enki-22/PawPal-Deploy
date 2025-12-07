@@ -13,7 +13,12 @@ const AssessmentMethodology = () => {
       >
         <span className="text-[13px] font-semibold text-gray-700 flex items-center gap-2">
           <span className="text-lg">{isExpanded ? '▼' : '▶'}</span>
-          📋 About This Assessment Methodology
+          <img 
+            src="/gg_notes.png" 
+            alt="Methodology" 
+            className="w-4 h-4 object-contain" 
+          />
+          About This Assessment Methodology
         </span>
       </button>
 
@@ -21,7 +26,12 @@ const AssessmentMethodology = () => {
       {isExpanded && (
         <div className="mt-3 border-2 border-gray-300 rounded-lg p-5 bg-white shadow-sm">
           <h3 className="text-[16px] font-bold text-gray-900 mb-3 flex items-center gap-2">
-            📋 Clinical Methodology
+            <img 
+              src="/gg_notes.png" 
+              alt="Clinical" 
+              className="w-4 h-4 object-contain" 
+            />
+            Clinical Methodology
           </h3>
 
           <div className="space-y-4 text-[13px] text-gray-800 leading-relaxed">

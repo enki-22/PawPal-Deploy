@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import showToast from '../utils/toast';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
 import LogoutModal from './LogoutModal';
@@ -341,7 +342,7 @@ const ProfileSettings = () => {
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert(error.response?.data?.error || 'Failed to update profile.');
+      showToast({ message: error.response?.data?.error || 'Failed to update profile.', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -423,7 +424,7 @@ const ProfileSettings = () => {
       if (response.status === 200) {
         setChangingPassword(false);
         setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
-        alert('Password changed successfully. Please log in again.');
+        showToast({ message: 'Password changed successfully. Please log in again.', type: 'success' });
         // Force logout so user re-authenticates with new password
         await logout();
         navigate('/petowner/login');
@@ -437,7 +438,7 @@ const ProfileSettings = () => {
         }
         setPasswordErrors(fieldErrors);
       } else {
-        alert('Failed to change password.');
+        showToast({ message: 'Failed to change password.', type: 'error' });
       }
     } finally {
       setLoading(false);

@@ -221,7 +221,7 @@ const RegisterStep1 = () => {
                         name="username"
                         value={formData.username}
                         onChange={handleChange}
-                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F]"
+                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F] focus:border-[#815FB3] transition-colors duration-300"
                         style={{ fontFamily: 'Raleway', color: '#333333' }}
                         required
                       />
@@ -239,7 +239,7 @@ const RegisterStep1 = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F]"
+                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F] focus:border-[#815FB3] transition-colors duration-300"
                         style={{ fontFamily: 'Raleway', color: '#333333' }}
                         required
                       />
@@ -257,7 +257,7 @@ const RegisterStep1 = () => {
                         name="password1"
                         value={formData.password1}
                         onChange={handleChange}
-                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F]"
+                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F] focus:border-[#815FB3] transition-colors duration-300"
                         style={{ fontFamily: 'Raleway', color: '#333333' }}
                         required
                       />
@@ -275,7 +275,7 @@ const RegisterStep1 = () => {
                         name="password2"
                         value={formData.password2}
                         onChange={handleChange}
-                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F]"
+                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F] focus:border-[#815FB3] transition-colors duration-300"
                         style={{ fontFamily: 'Raleway', color: '#333333' }}
                         required
                       />

@@ -7,15 +7,15 @@ const PRIMARY_COLOR = '#815FB3';
 const ACCENT_COLOR = '#F4D06F';
 
 const MAIN_CONCERNS = [
-  { id: 'Digestive Issues', label: 'Digestive Issues', icon: '🔴', vtlCategory: 'Gastrointestinal' },
-  { id: 'Respiratory Problems', label: 'Respiratory Problems', icon: '🫁', vtlCategory: 'Respiratory' },
-  { id: 'Skin & Coat Issues', label: 'Skin & Coat Issues', icon: '🐾', vtlCategory: 'Generalised/External' },
-  { id: 'Behavioral Changes', label: 'Behavioral Changes', icon: '🧠', vtlCategory: 'Neurological/Generalised' },
-  { id: 'Movement Problems', label: 'Movement Problems', icon: '🦴', vtlCategory: 'Musculoskeletal' },
-  { id: 'Eyes & Ears', label: 'Eyes & Ears', icon: '👁️', vtlCategory: 'Generalised/External' },
-  { id: 'Urinary Issues', label: 'Urinary Issues', icon: '💧', vtlCategory: 'Urogenital' },
-  { id: 'Oral/Dental Problems', label: 'Oral/Dental Problems', icon: '🦷', vtlCategory: 'Generalised' },
-  { id: 'Other', label: 'Other', icon: '❓', vtlCategory: 'Generalised' },
+  { id: 'Digestive Issues', label: 'Digestive Issues', icon: '/hugeicons_digestion.png', vtlCategory: 'Gastrointestinal' },
+  { id: 'Respiratory Problems', label: 'Respiratory Problems', icon: '/mingcute_lungs-fill.png', vtlCategory: 'Respiratory' },
+  { id: 'Skin & Coat Issues', label: 'Skin & Coat Issues', icon: '/streamline-ultimate-color_hair-skin.png', vtlCategory: 'Generalised/External' },
+  { id: 'Behavioral Changes', label: 'Behavioral Changes', icon: '/mdi_brain.png', vtlCategory: 'Neurological/Generalised' },
+  { id: 'Movement Problems', label: 'Movement Problems', icon: '/twemoji_paw-prints.png', vtlCategory: 'Musculoskeletal' },
+  { id: 'Eyes & Ears', label: 'Eyes & Ears', icon: '/icon-park-outline_eyes.png', vtlCategory: 'Generalised/External' },
+  { id: 'Urinary Issues', label: 'Urinary Issues', icon: '/entypo_water.png', vtlCategory: 'Urogenital' },
+  { id: 'Oral/Dental Problems', label: 'Oral/Dental Problems', icon: '/streamline-sharp_tooth-remix.png', vtlCategory: 'Generalised' },
+  { id: 'Other', label: 'Other', icon: '/basil_other-1-solid.png', vtlCategory: 'Generalised' },
 ];
 
 const PRIMARY_SYMPTOMS_BY_CONCERN = {
@@ -158,10 +158,10 @@ const DURATION_OPTIONS = [
 ];
 
 const PROGRESSION_OPTIONS = [
-  { key: 'getting_worse', label: '📈 Getting worse', emoji: '📈' },
-  { key: 'staying_same', label: '➡️ Staying about the same', emoji: '➡️' },
-  { key: 'getting_better', label: '📉 Getting better', emoji: '📉' },
-  { key: 'intermittent', label: '🔄 Coming and going (intermittent)', emoji: '🔄' },
+  { key: 'getting_worse', label: 'Getting worse', emoji: '📈' },
+  { key: 'staying_same', label: 'Staying about the same', emoji: '➡️' },
+  { key: 'getting_better', label: 'Getting better', emoji: '📉' },
+  { key: 'intermittent', label: 'Coming and going (intermittent)', emoji: '🔄' },
 ];
 
 const getSpeciesCategory = (speciesRaw) => {
@@ -630,17 +630,29 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
                   key={option.id}
                   type="button"
                   onClick={() => handleSelectMainConcern(option.id)}
-                  className={`px-3 py-2 rounded-[8px] text-[13px] font-semibold flex items-center gap-1 text-white hover:opacity-90 transition-opacity shadow-md`}
+                  className={`px-3 py-2 rounded-[8px] text-[13px] font-semibold flex items-center gap-2 text-white hover:opacity-90 transition-opacity shadow-md`}
                   style={{ backgroundColor: PRIMARY_COLOR }}
                 >
-                  <span>{option.icon}</span>
+                  <img 
+                    src={option.icon} 
+                    alt={option.label}
+                    className="w-5 h-5 object-contain"
+                    style={{ filter: 'brightness(0) saturate(100%) invert(95%) sepia(18%) saturate(424%) hue-rotate(344deg) brightness(103%) contrast(93%)' }}
+                  />
                   <span>{option.label}</span>
                 </button>
               ))}
             </div>
             <div className="mt-3 pt-3 border-t border-gray-300">
-              <p className="text-[12px] text-gray-600">
-                &#x1F4A1; This assessment follows veterinary body system organization to ensure we gather the most relevant information for {petName}&apos;s symptoms.
+              <p className="text-[12px] text-gray-600 flex items-start gap-1.5">
+                <img 
+                  src="/f7_lightbulb-fill.png" 
+                  alt="Tip" 
+                  className="w-3 h-3 mt-0.5 object-contain" 
+                />
+                <span>
+                  This assessment follows veterinary body system organization to ensure we gather the most relevant information for {petName}&apos;s symptoms.
+                </span>
               </p>
               <p className="text-[11px] text-gray-500 italic mt-2">
                 Body system organization follows the Veterinary Triage List (VTL) approach, adapted from the Manchester Triage Scale.
@@ -677,7 +689,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
                     }`}
                   >
                     <span>{formatSymptomLabel(code)}</span>
-                    <span className="ml-2 text-xs text-[#815FB3]">{isSelected ? '&#x2611;' : '&#x2610;'}</span>
+                    <span className="ml-2 text-xs text-[#815FB3]">{isSelected ? '☑' : '☐'}</span>
                   </button>
                 );
               })}
@@ -782,8 +794,15 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
                 })}
               </div>
               <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-[12px] text-gray-700">
-                  💡 <strong>Helper:</strong> Understanding how symptoms are changing helps determine urgency and appropriate care.
+                <p className="text-[12px] text-gray-700 flex items-start gap-1.5">
+                  <img 
+                    src="/f7_lightbulb-fill.png" 
+                    alt="Tip" 
+                    className="w-3 h-3 mt-0.5 object-contain" 
+                  />
+                  <span>
+                    <strong>Helper:</strong> Understanding how symptoms are changing helps determine urgency and appropriate care.
+                  </span>
                 </p>
               </div>
               <div className="flex justify-end mt-1">
@@ -945,8 +964,13 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
                 rows="3"
                 style={{ fontFamily: 'Raleway' }}
               />
-              <p className="text-[11px] text-gray-500 mt-1">
-                💡 Type any symptoms not covered by the checkboxes above. This helps us provide a more accurate assessment.
+              <p className="text-[11px] text-gray-500 mt-1 flex items-start gap-1.5">
+                <img 
+                  src="/f7_lightbulb-fill.png" 
+                  alt="Tip" 
+                  className="w-3 h-3 mt-0.5 object-contain" 
+                />
+                <span>Type any symptoms not covered by the checkboxes above. This helps us provide a more accurate assessment.</span>
               </p>
             </div>
 
