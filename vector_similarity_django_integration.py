@@ -389,6 +389,42 @@ def predict_with_vector_similarity(payload):
                 'is_external': False  # Default: all from database
             })
         
+        # === MEMORY UPGRADE: Fetch Symptom Tracker History ===
+        # This prevents the "Amnesia Problem" where AI forgets the pet has been sick for days
+        context_data = {}
+        pet_id = payload.get('pet_id')
+        
+        if pet_id:
+            try:
+                # Import here to avoid circular dependencies
+                from chatbot.models import PetHealthTrend
+                
+                # Fetch the latest health trend for this pet
+                latest_trend = PetHealthTrend.objects.filter(
+                    pet_id=pet_id
+                ).order_by('-analysis_date').first()
+                
+                if latest_trend:
+                    # Build medical history context
+                    medical_history = (
+                        f"Recent Trend: {latest_trend.trend_analysis}. "
+                        f"Prediction: {latest_trend.prediction}"
+                    )
+                    context_data['medical_history'] = medical_history
+                    context_data['risk_score'] = latest_trend.risk_score
+                    context_data['urgency_level'] = latest_trend.urgency_level
+                    context_data['alert_needed'] = latest_trend.alert_needed
+                    
+                    logger.info(f"📋 Memory Upgrade: Loaded symptom tracker history for pet_id={pet_id}")
+                    logger.info(f"   Risk Score: {latest_trend.risk_score}")
+                    logger.info(f"   Urgency: {latest_trend.urgency_level}")
+                    logger.info(f"   Trend: {latest_trend.trend_analysis[:100]}...")
+                else:
+                    logger.info(f"ℹ️  No symptom tracker history found for pet_id={pet_id}")
+            except Exception as e:
+                logger.warning(f"⚠️  Failed to fetch symptom tracker history: {e}")
+                # Continue without history - don't fail the entire prediction
+        
         # === DIAGNOSIS VERIFICATION LAYER: Gemini Safety Check for OOD Detection ===
         verification_result = None
         ood_detected = False
@@ -401,7 +437,8 @@ def predict_with_vector_similarity(payload):
                     user_symptoms=symptoms_list,
                     system_predictions=predictions,
                     species=species,
-                    user_notes=user_notes
+                    user_notes=user_notes,
+                    context_data=context_data if context_data else None
                 )
                 
                 logger.info(f"✓ Verification complete:")
@@ -409,65 +446,209 @@ def predict_with_vector_similarity(payload):
                 logger.info(f"   Risk Assessment: {verification_result['risk_assessment']}")
                 logger.info(f"   Alternative Diagnosis: {verification_result['alternative_diagnosis']}")
                 
-                # Check for Out-of-Domain (OOD) disease detection
-                if (not verification_result['agreement'] and 
-                    verification_result['alternative_diagnosis']['name'] and
-                    not verification_result['alternative_diagnosis']['is_in_database']):
-                    
-                    ood_detected = True
+                # === TWO-STAGE RETRIEVAL & RERANKING: Safe Reranking Logic ===
+                if not verification_result['agreement']:
                     alt_diag = verification_result['alternative_diagnosis']
+                    found_match = False
                     
-                    # Extract risk assessment and map to system urgency levels
-                    risk_assessment = verification_result.get('risk_assessment', 'HIGH')
-                    ood_urgency = risk_assessment.upper()  # CRITICAL, HIGH, MODERATE, LOW
-                    
-                    # Normalize to system's urgency format (lowercase for consistency)
-                    urgency_map = {
-                        'CRITICAL': 'critical',
-                        'HIGH': 'high',
-                        'MODERATE': 'moderate',
-                        'LOW': 'low'
-                    }
-                    ood_urgency_normalized = urgency_map.get(ood_urgency, 'high')
-                    
-                    logger.warning(f"{'='*70}")
-                    logger.warning(f"🚨 OUT-OF-DOMAIN (OOD) DISEASE DETECTED 🚨")
-                    logger.warning(f"Disease: {alt_diag['name']}")
-                    logger.warning(f"Confidence: {alt_diag['confidence']:.2f}")
-                    logger.warning(f"Risk Assessment: {risk_assessment} -> Urgency: {ood_urgency_normalized}")
-                    logger.warning(f"Reasoning: {verification_result['reasoning']}")
-                    logger.warning(f"{'='*70}")
-                    
-                    # Conditional warning message based on urgency
-                    if ood_urgency in ['CRITICAL', 'HIGH']:
-                        match_explanation = (
-                            f"⚠️ AI Warning: This condition was flagged by our safety system "
-                            f"but is outside our standard verified database. {verification_result['reasoning']}"
-                        )
-                    else:
-                        match_explanation = (
-                            f"AI Insight: This condition is not in our standard database but matches your symptoms. "
-                            f"Please consult a vet to confirm. {verification_result['reasoning']}"
-                        )
-                    
-                    # Create OOD prediction object with dynamic urgency
-                    ood_prediction = {
-                        'disease': f"⚠️ Potential Match: {alt_diag['name']}",
-                        'probability': alt_diag['confidence'],
-                        'confidence': alt_diag['confidence'] * 100,  # Convert to percentage
-                        'urgency': ood_urgency_normalized,  # Dynamic based on risk assessment
-                        'contagious': False,  # Unknown for external diseases
-                        'matched_symptoms': symptoms_list[:5],  # Show some symptoms
-                        'match_explanation': match_explanation,
-                        'total_symptoms': len(symptoms_list),
-                        'is_external': True,  # Mark as external
-                        'verification_reasoning': verification_result['reasoning'],
-                        'risk_assessment': risk_assessment
-                    }
-                    
-                    # Insert OOD prediction as #1 (highest priority)
-                    predictions.insert(0, ood_prediction)
-                    logger.warning(f"✅ Injected OOD disease as #1 prediction: {alt_diag['name']} (Urgency: {ood_urgency_normalized})")
+                    # Stage 1: Attempt Reranking (Context Fix)
+                    # Check if the alternative_diagnosis suggested by Gemini is in the existing predictions list
+                    if alt_diag and alt_diag.get('name'):
+                        alt_disease_name = alt_diag['name']
+                        
+                        # Search for matching disease in predictions (case-insensitive, flexible matching)
+                        for idx, pred in enumerate(predictions):
+                            pred_disease = pred.get('disease', '').strip()
+                            # Remove any prefixes like "⚠️ Potential Match: " or "⚠️ AI Corrected: " for comparison
+                            pred_disease_clean = pred_disease.replace('⚠️ Potential Match: ', '').replace('⚠️ AI Corrected: ', '').replace('✅ Verified Match: ', '').replace('⚠️ AI Assessment: ', '').strip()
+                            
+                            # Check for exact match or close match (handles variations)
+                            if (pred_disease_clean.lower() == alt_disease_name.lower() or
+                                alt_disease_name.lower() in pred_disease_clean.lower() or
+                                pred_disease_clean.lower() in alt_disease_name.lower()):
+                                
+                                found_match = True
+                                original_probability = pred.get('probability', 0.0)
+                                original_confidence = pred.get('confidence', 0.0)
+                                original_pct = original_confidence if original_confidence > 0 else (original_probability * 100)
+                                
+                                # Check if this is a low-confidence match (Retrieval Miss) or good match (Rerank)
+                                if original_probability < 0.50:
+                                    # Low confidence: Treat as "Retrieval Miss" - Create new synthetic prediction
+                                    logger.info(f"{'='*70}")
+                                    logger.info(f"🔧 RETRIEVAL MISS (Low Confidence): Found in predictions but weak match")
+                                    logger.info(f"   Disease: {alt_disease_name}")
+                                    logger.info(f"   Original position: {idx + 1}")
+                                    logger.info(f"   Original confidence: {original_pct:.1f}% (below 50% threshold)")
+                                    logger.info(f"   Reasoning: {verification_result['reasoning']}")
+                                    logger.info(f"{'='*70}")
+                                    
+                                    # Remove the original low-confidence object
+                                    predictions.pop(idx)
+                                    
+                                    # Extract risk assessment and map to system urgency levels
+                                    risk_assessment = verification_result.get('risk_assessment', 'HIGH')
+                                    retrieval_urgency = risk_assessment.upper()  # CRITICAL, HIGH, MODERATE, LOW
+                                    
+                                    # Normalize to system's urgency format (lowercase for consistency)
+                                    urgency_map = {
+                                        'CRITICAL': 'critical',
+                                        'HIGH': 'high',
+                                        'MODERATE': 'moderate',
+                                        'LOW': 'low'
+                                    }
+                                    retrieval_urgency_normalized = urgency_map.get(retrieval_urgency, 'high')
+                                    
+                                    # Create new synthetic prediction object (AI Assessment)
+                                    ai_assessment_prediction = {
+                                        'disease': f"⚠️ AI Assessment: {alt_disease_name}",
+                                        'probability': 0.95,
+                                        'confidence': 95.0,
+                                        'urgency': retrieval_urgency_normalized,
+                                        'contagious': False,  # Will be populated from database if needed
+                                        'matched_symptoms': pred.get('matched_symptoms', symptoms_list[:5] if symptoms_list else []),
+                                        'match_explanation': f"Hybrid Analysis: While the database match was weak ({original_pct:.1f}%), the AI identified strong clinical indicators: {verification_result['reasoning']}",
+                                        'total_symptoms': pred.get('total_symptoms', len(symptoms_list) if symptoms_list else 0),
+                                        'is_external': False,  # This is a valid database entry
+                                        'verification_reasoning': verification_result['reasoning'],
+                                        'risk_assessment': risk_assessment,
+                                        'injected': True,  # Flag for debugging
+                                        'original_confidence': original_pct  # Preserve original for transparency
+                                    }
+                                    
+                                    # Insert at index 0 (top of the list)
+                                    predictions.insert(0, ai_assessment_prediction)
+                                    logger.info(f"✅ Created AI Assessment prediction at position #1 (Confidence: 95%, Original: {original_pct:.1f}%)")
+                                    
+                                else:
+                                    # Good confidence: Standard reranking (sorting a good list)
+                                    logger.info(f"{'='*70}")
+                                    logger.info(f"🔄 RERANKING: Found alternative diagnosis in predictions list")
+                                    logger.info(f"   Disease: {alt_disease_name}")
+                                    logger.info(f"   Original position: {idx + 1}")
+                                    logger.info(f"   Original confidence: {original_pct:.1f}% (above 50% threshold)")
+                                    logger.info(f"   Reasoning: {verification_result['reasoning']}")
+                                    logger.info(f"{'='*70}")
+                                    
+                                    # Remove from current position
+                                    reranked_pred = predictions.pop(idx)
+                                    
+                                    # Boost confidence slightly (to 0.90 or 0.95) and update explanation
+                                    reranked_pred['confidence'] = 95.0
+                                    reranked_pred['probability'] = 0.95
+                                    reranked_pred['disease'] = f"✅ Verified Match: {pred_disease_clean}"  # Update label
+                                    reranked_pred['match_explanation'] = f"AI-Verified Match: {verification_result['reasoning']}"
+                                    reranked_pred['verification_reasoning'] = verification_result['reasoning']
+                                    reranked_pred['reranked'] = True  # Flag for debugging
+                                    
+                                    # Move to index 0 (top of the list)
+                                    predictions.insert(0, reranked_pred)
+                                    
+                                    logger.info(f"✅ Reranked disease to position #1 with 95% confidence")
+                                    logger.info(f"   Updated explanation: {reranked_pred['match_explanation']}")
+                                
+                                break
+                        
+                        # Stage 2: Handle cases where disease was not found in top 5 predictions
+                        if not found_match:
+                            # Stage 2a: Safety Check (OOD) - Disease not in database
+                            if not alt_diag.get('is_in_database', False):
+                                ood_detected = True
+                                
+                                # Extract risk assessment and map to system urgency levels
+                                risk_assessment = verification_result.get('risk_assessment', 'HIGH')
+                                ood_urgency = risk_assessment.upper()  # CRITICAL, HIGH, MODERATE, LOW
+                                
+                                # Normalize to system's urgency format (lowercase for consistency)
+                                urgency_map = {
+                                    'CRITICAL': 'critical',
+                                    'HIGH': 'high',
+                                    'MODERATE': 'moderate',
+                                    'LOW': 'low'
+                                }
+                                ood_urgency_normalized = urgency_map.get(ood_urgency, 'high')
+                                
+                                logger.warning(f"{'='*70}")
+                                logger.warning(f"🚨 OUT-OF-DOMAIN (OOD) DISEASE DETECTED 🚨")
+                                logger.warning(f"Disease: {alt_diag['name']}")
+                                logger.warning(f"Confidence: {alt_diag['confidence']:.2f}")
+                                logger.warning(f"Risk Assessment: {risk_assessment} -> Urgency: {ood_urgency_normalized}")
+                                logger.warning(f"Reasoning: {verification_result['reasoning']}")
+                                logger.warning(f"{'='*70}")
+                                
+                                # Conditional warning message based on urgency
+                                if ood_urgency in ['CRITICAL', 'HIGH']:
+                                    match_explanation = (
+                                        f"⚠️ AI Warning: This condition was flagged by our safety system "
+                                        f"but is outside our standard verified database. {verification_result['reasoning']}"
+                                    )
+                                else:
+                                    match_explanation = (
+                                        f"AI Insight: This condition is not in our standard database but matches your symptoms. "
+                                        f"Please consult a vet to confirm. {verification_result['reasoning']}"
+                                    )
+                                
+                                # Create OOD prediction object with dynamic urgency
+                                ood_prediction = {
+                                    'disease': f"⚠️ Potential Match: {alt_diag['name']}",
+                                    'probability': alt_diag['confidence'],
+                                    'confidence': alt_diag['confidence'] * 100,  # Convert to percentage
+                                    'urgency': ood_urgency_normalized,  # Dynamic based on risk assessment
+                                    'contagious': False,  # Unknown for external diseases
+                                    'matched_symptoms': symptoms_list[:5],  # Show some symptoms
+                                    'match_explanation': match_explanation,
+                                    'total_symptoms': len(symptoms_list),
+                                    'is_external': True,  # Mark as external
+                                    'verification_reasoning': verification_result['reasoning'],
+                                    'risk_assessment': risk_assessment
+                                }
+                                
+                                # Insert OOD prediction as #1 (highest priority)
+                                predictions.insert(0, ood_prediction)
+                                logger.warning(f"✅ Injected OOD disease as #1 prediction: {alt_diag['name']} (Urgency: {ood_urgency_normalized})")
+                            
+                            # Stage 2b: Retrieval Miss (Injection) - Disease is in database but Vector Search missed it
+                            elif alt_diag.get('is_in_database', False):
+                                # Extract risk assessment and map to system urgency levels
+                                risk_assessment = verification_result.get('risk_assessment', 'HIGH')
+                                retrieval_urgency = risk_assessment.upper()  # CRITICAL, HIGH, MODERATE, LOW
+                                
+                                # Normalize to system's urgency format (lowercase for consistency)
+                                urgency_map = {
+                                    'CRITICAL': 'critical',
+                                    'HIGH': 'high',
+                                    'MODERATE': 'moderate',
+                                    'LOW': 'low'
+                                }
+                                retrieval_urgency_normalized = urgency_map.get(retrieval_urgency, 'high')
+                                
+                                logger.info(f"{'='*70}")
+                                logger.info(f"🔧 RETRIEVAL MISS DETECTED - Injecting Corrected Diagnosis")
+                                logger.info(f"Disease: {alt_diag['name']}")
+                                logger.info(f"Status: Valid database entry (Vector Search missed it)")
+                                logger.info(f"Risk Assessment: {risk_assessment} -> Urgency: {retrieval_urgency_normalized}")
+                                logger.info(f"Reasoning: {verification_result['reasoning']}")
+                                logger.info(f"{'='*70}")
+                                
+                                # Create injection prediction object
+                                injection_prediction = {
+                                    'disease': f"⚠️ AI Corrected: {alt_diag['name']}",
+                                    'probability': 0.95,
+                                    'confidence': 95.0,
+                                    'urgency': retrieval_urgency_normalized,
+                                    'contagious': False,  # Will be populated from database if needed
+                                    'matched_symptoms': symptoms_list[:5] if symptoms_list else [],
+                                    'match_explanation': f"AI System detected a retrieval miss. Corrected based on clinical context: {verification_result['reasoning']}",
+                                    'total_symptoms': len(symptoms_list) if symptoms_list else 0,
+                                    'is_external': False,  # This is a valid database entry
+                                    'verification_reasoning': verification_result['reasoning'],
+                                    'risk_assessment': risk_assessment,
+                                    'injected': True  # Flag for debugging
+                                }
+                                
+                                # Insert injection prediction as #1 (highest priority)
+                                predictions.insert(0, injection_prediction)
+                                logger.info(f"✅ Injected corrected diagnosis as #1 prediction: {alt_diag['name']} (Urgency: {retrieval_urgency_normalized}, Confidence: 95%)")
                     
             except Exception as e:
                 logger.error(f"✗ Diagnosis verification failed: {e}")

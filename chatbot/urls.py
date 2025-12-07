@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from . import views_symptom_tracker
 from .views_symptom_tracker import SymptomTrackerViewSet
 
 # Create router for symptom tracker
@@ -39,6 +40,10 @@ urlpatterns = [
     
     # Symptom checker endpoints
     path('symptom-checker/predict/', views.symptom_checker_predict, name='symptom_checker_predict'),
+    
+    # Symptom Tracker endpoints (AI-powered)
+    path('symptom-tracker/log-daily/', views_symptom_tracker.log_daily_symptoms, name='log_symptoms'),
+    path('symptom-tracker/health-timeline/', views_symptom_tracker.get_pet_health_timeline, name='symptom_timeline'),
    
     # Debug endpoints
     path('debug/', views.debug_gemini, name='debug_gemini'),

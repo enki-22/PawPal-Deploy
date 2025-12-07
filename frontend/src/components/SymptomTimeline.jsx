@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import {
   LineChart,
@@ -8,156 +9,154 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-  Area,
-  AreaChart,
-  ReferenceLine
+  ResponsiveContainer
 } from 'recharts';
 import './SymptomTimeline.css';
+import SymptomLogger from './SymptomLogger';
 
-const SymptomTimeline = ({ petId, pet }) => {
-  const [timeline, setTimeline] = useState([]);
-  const [alerts, setAlerts] = useState([]);
-  const [progression, setProgression] = useState(null);
-  const [summary, setSummary] = useState(null);
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/chatbot';
+
+const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [selectedPetId, setSelectedPetId] = useState(propPetId || null);
+  const [selectedPet, setSelectedPet] = useState(propPet || null);
+  const [pets, setPets] = useState([]);
+  const [logs, setLogs] = useState([]);
+  const [latestTrend, setLatestTrend] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dateRange, setDateRange] = useState(30);
-  const [selectedLog, setSelectedLog] = useState(null);
-
+  const [showLogger, setShowLogger] = useState(false);
+  
+  // Check if we should show logger immediately (from diagnosis navigation)
   useEffect(() => {
-    if (petId) {
+    if (location.state?.prefillSymptoms && location.state?.fromDiagnosis) {
+      // Wait for pet to be loaded before showing logger as modal
+      if (selectedPet) {
+        setShowLogger(true);
+      }
+    }
+  }, [location.state, selectedPet]);
+
+  // Fetch user's pets
+  useEffect(() => {
+    fetchUserPets();
+  }, []);
+
+  // Load data when pet is selected
+  useEffect(() => {
+    if (selectedPetId) {
       loadData();
     }
-  }, [petId, dateRange]);
+  }, [selectedPetId]);
+
+  const fetchUserPets = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${API_BASE_URL}/get-user-pets/`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.success && response.data.pets) {
+        setPets(response.data.pets);
+        // Auto-select first pet if no petId provided
+        if (!selectedPetId && response.data.pets.length > 0) {
+          const firstPet = response.data.pets[0];
+          setSelectedPetId(firstPet.id);
+          setSelectedPet(firstPet);
+        } else if (selectedPetId) {
+          // Find and set the selected pet
+          const pet = response.data.pets.find(p => p.id === selectedPetId);
+          if (pet) {
+            setSelectedPet(pet);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching pets:', err);
+    }
+  };
 
   const loadData = async () => {
+    if (!selectedPetId) return;
+    
     setLoading(true);
     setError(null);
 
     try {
       const token = localStorage.getItem('token');
-      const headers = {
-        'Authorization': `Token ${token}`,
-        'Content-Type': 'application/json'
-      };
+      const response = await axios.get(
+        `${API_BASE_URL}/symptom-tracker/health-timeline/?pet_id=${selectedPetId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
-      const [timelineRes, alertsRes, progressionRes] = await Promise.all([
-        axios.get(`/api/chatbot/symptom-tracker/timeline/?pet_id=${petId}&days=${dateRange}`, { headers }),
-        axios.get(`/api/chatbot/symptom-tracker/alerts/?pet_id=${petId}&acknowledged=false`, { headers }),
-        axios.get(`/api/chatbot/symptom-tracker/progression/?pet_id=${petId}`, { headers })
-      ]);
-
-      setTimeline(timelineRes.data.timeline || []);
-      setSummary(timelineRes.data.summary || null);
-      setAlerts(alertsRes.data.alerts || []);
-      setProgression(progressionRes.data || null);
+      setLogs(response.data.logs || []);
+      setLatestTrend(response.data.latest_trend || null);
     } catch (err) {
       console.error('Error loading timeline:', err);
-      setError(err.response?.data?.error || 'Failed to load symptom timeline');
+      // Extract error message as string (handle both string and object errors)
+      const errorData = err.response?.data?.error;
+      const errorMessage = typeof errorData === 'string' 
+        ? errorData 
+        : (errorData?.message || errorData?.error || err.message || 'Failed to load health timeline');
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const acknowledgeAlert = async (alertId) => {
-    try {
-      const token = localStorage.getItem('token');
-      await axios.post(
-        `/api/chatbot/symptom-tracker/${alertId}/acknowledge-alert/`,
-        {},
-        {
-          headers: {
-            'Authorization': `Token ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      // Remove from alerts list
-      setAlerts(alerts.filter(a => a.id !== alertId));
-    } catch (err) {
-      console.error('Error acknowledging alert:', err);
-      alert('Failed to acknowledge alert');
-    }
+  const handlePetSelect = (petId) => {
+    const pet = pets.find(p => p.id === petId);
+    setSelectedPetId(petId);
+    setSelectedPet(pet);
+    setShowLogger(false);
   };
 
-  const acknowledgeAllAlerts = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      await axios.post(
-        '/api/chatbot/symptom-tracker/acknowledge-all-alerts/',
-        { pet_id: petId },
-        {
-          headers: {
-            'Authorization': `Token ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      setAlerts([]);
-    } catch (err) {
-      console.error('Error acknowledging alerts:', err);
-      alert('Failed to acknowledge alerts');
-    }
+  const handleLogComplete = () => {
+    setShowLogger(false);
+    loadData(); // Refresh timeline
   };
 
-  // Prepare chart data
-  const chartData = timeline.map(log => ({
-    date: new Date(log.symptom_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    fullDate: log.symptom_date,
-    risk_score: log.risk_score,
-    risk_level: log.risk_level,
-    symptoms: log.symptoms,
-    severity: log.overall_severity
-  }));
-
-  // Custom tooltip for chart
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="custom-tooltip">
-          <p className="tooltip-date"><strong>{data.fullDate}</strong></p>
-          <p className="tooltip-risk">
-            Risk Score: <strong>{data.risk_score}</strong>
-          </p>
-          <p className="tooltip-level">
-            Level: <span className={`risk-badge ${data.risk_level}`}>
-              {data.risk_level.toUpperCase()}
-            </span>
-          </p>
-          <p className="tooltip-severity">
-            Severity: {data.severity}
-          </p>
-          <p className="tooltip-symptoms">
-            {data.symptoms.length} symptom(s)
-          </p>
-        </div>
-      );
-    }
-    return null;
+  const handleRunNewAssessment = () => {
+    // Navigate to chat with symptom checker mode and context
+    navigate('/chat/new', {
+      state: {
+        mode: 'symptom_checker',
+        reason: 'worsening_trend',
+        history_summary: latestTrend?.trend_analysis || '',
+        petId: selectedPetId,
+        petName: selectedPet?.name || 'Your Pet'
+      }
+    });
   };
 
-  // Get risk level color
-  const getRiskColor = (level) => {
-    switch (level?.toLowerCase()) {
-      case 'critical': return '#e74c3c';
-      case 'high': return '#f39c12';
-      case 'moderate': return '#f1c40f';
-      case 'low': return '#2ecc71';
-      default: return '#95a5a6';
-    }
+  // Get risk score color
+  const getRiskColor = (score) => {
+    if (score >= 70) return '#ef4444'; // Red - Critical
+    if (score >= 50) return '#f59e0b'; // Orange - High
+    if (score >= 30) return '#eab308'; // Yellow - Moderate
+    return '#10b981'; // Green - Low
   };
 
-  // Get trend icon
-  const getTrendIcon = (trend) => {
-    switch (trend?.toLowerCase()) {
-      case 'improving': return '📉';
-      case 'worsening': return '📈';
-      case 'stable': return '➡️';
-      default: return '❓';
+  // Get urgency badge color
+  const getUrgencyColor = (urgency) => {
+    switch (urgency?.toLowerCase()) {
+      case 'critical': return 'bg-red-100 text-red-800 border-red-300';
+      case 'high': return 'bg-orange-100 text-orange-800 border-orange-300';
+      case 'moderate': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      case 'low': return 'bg-green-100 text-green-800 border-green-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
 
@@ -169,24 +168,57 @@ const SymptomTimeline = ({ petId, pet }) => {
       .join(' ');
   };
 
+  // Prepare chart data - show max severity per day
+  const chartData = logs.map(log => {
+    const severityScores = log.severity_scores || {};
+    const maxSeverity = Object.values(severityScores).length > 0
+      ? Math.max(...Object.values(severityScores))
+      : 5; // Default to 5 if no scores
+    
+    // Get top 2 symptoms by severity
+    const sortedSymptoms = Object.entries(severityScores)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 2);
+    
+    const dataPoint = {
+      date: new Date(log.log_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      fullDate: log.log_date,
+      maxSeverity: maxSeverity,
+      symptoms: log.symptoms || []
+    };
+    
+    // Add top 2 symptoms as separate lines
+    sortedSymptoms.forEach(([symptom, severity], index) => {
+      dataPoint[`symptom_${index + 1}`] = severity;
+      dataPoint[`symptom_${index + 1}_name`] = formatSymptomName(symptom);
+    });
+    
+    return dataPoint;
+  });
+
   if (loading) {
     return (
-      <div className="symptom-timeline">
-        <div className="loading-container">
-          <div className="spinner-large"></div>
-          <p>Loading symptom timeline...</p>
+      <div className="symptom-timeline flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading health timeline...</p>
         </div>
       </div>
     );
   }
 
   if (error) {
+    // Ensure error is a string for rendering
+    const errorText = typeof error === 'string' ? error : (error?.message || error?.toString() || 'An unknown error occurred');
     return (
-      <div className="symptom-timeline">
-        <div className="error-container">
-          <h3>⚠️ Error Loading Timeline</h3>
-          <p>{error}</p>
-          <button onClick={loadData} className="btn btn-primary">
+      <div className="symptom-timeline p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h3 className="text-red-800 font-semibold mb-2">⚠️ Error Loading Timeline</h3>
+          <p className="text-red-600 mb-4">{errorText}</p>
+          <button
+            onClick={loadData}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
             Try Again
           </button>
         </div>
@@ -194,369 +226,363 @@ const SymptomTimeline = ({ petId, pet }) => {
     );
   }
 
-  if (!timeline || timeline.length === 0) {
+  // Note: Logger is now shown as a modal, not a full-page view
+
+  // Pet selection screen
+  if (!selectedPetId && pets.length > 0) {
     return (
-      <div className="symptom-timeline">
-        <div className="empty-state">
-          <div className="empty-icon">📋</div>
-          <h3>No Symptom Logs Yet</h3>
-          <p>Start tracking {pet?.name || 'your pet'}'s symptoms to see progression over time.</p>
-          <button
-            onClick={() => window.location.href = `/pets/${petId}/log-symptoms`}
-            className="btn btn-primary"
-          >
-            <span>➕</span> Log Symptoms
-          </button>
+      <div className="symptom-timeline p-6">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-gray-800 mb-6">Select a Pet</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {pets.map(pet => (
+              <button
+                key={pet.id}
+                onClick={() => handlePetSelect(pet.id)}
+                className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-left"
+              >
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">{pet.name}</h3>
+                <p className="text-gray-600">{pet.animal_type}</p>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
+  if (!logs || logs.length === 0) {
+    return (
+      <div className="symptom-timeline p-6 bg-gray-50 min-h-screen">
+        <div className="text-center py-12 bg-white rounded-lg shadow-md p-8">
+          <div className="text-6xl mb-4">📋</div>
+          <h3 className="text-2xl font-semibold text-gray-800 mb-2">No Symptom Logs Yet</h3>
+          <p className="text-gray-600 mb-6">
+            Start tracking {selectedPet?.name || 'your pet'}&apos;s symptoms to see progression over time.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Link
+              to="/chat"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
+            >
+              💬 Log via Chat
+            </Link>
+            <button
+              onClick={() => setShowLogger(true)}
+              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold border border-gray-300"
+            >
+              📝 Manual Log
+            </button>
+          </div>
+        </div>
+
+        {/* Manual Log Modal */}
+        {showLogger && selectedPet && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+                <h3 className="text-xl font-bold text-gray-800">Manual Symptom Log Entry</h3>
+                <button
+                  onClick={() => setShowLogger(false)}
+                  className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="p-6">
+                <SymptomLogger 
+                  pet={selectedPet} 
+                  onComplete={handleLogComplete}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className="symptom-timeline">
+    <div className="symptom-timeline p-6 bg-gray-50 min-h-screen">
+      {/* Worsening Alert Banner - Prominent at Top */}
+      {latestTrend && latestTrend.alert_needed && (
+        <div className="mb-6 bg-red-600 text-white rounded-lg shadow-lg p-6 border-l-4 border-red-800">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3 flex-1">
+              <span className="text-3xl">⚠️</span>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold mb-2">Worsening Trend Detected</h3>
+                <p className="text-red-50 mb-4">
+                  Our AI analysis indicates your pet&apos;s symptoms are showing a concerning trend. 
+                  We recommend running a new AI Assessment to get updated insights.
+                </p>
+                <button
+                  onClick={handleRunNewAssessment}
+                  className="px-6 py-3 bg-white text-red-600 rounded-lg font-bold hover:bg-red-50 transition-colors shadow-md"
+                >
+                  🔍 Run New Assessment
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
-      <div className="timeline-header">
-        <div className="header-content">
-          <h2>📊 Symptom Timeline</h2>
-          {pet && (
-            <div className="pet-info">
-              <strong>{pet.name}</strong>
-              <span className="separator">•</span>
-              <span>{pet.animal_type}</span>
+      <div className="mb-6 flex justify-between items-start">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">📊 Health Timeline</h2>
+          {selectedPet && (
+            <div className="text-gray-600">
+              <span className="font-semibold">{selectedPet.name}</span>
+              <span className="mx-2">•</span>
+              <span>{selectedPet.animal_type}</span>
             </div>
           )}
         </div>
-        <div className="header-actions">
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(Number(e.target.value))}
-            className="date-range-select"
+        <div className="flex items-center gap-3">
+          {pets.length > 1 && (
+            <select
+              value={selectedPetId}
+              onChange={(e) => handlePetSelect(parseInt(e.target.value))}
+              className="px-4 py-2 border border-gray-300 rounded-lg bg-white"
+            >
+              {pets.map(pet => (
+                <option key={pet.id} value={pet.id}>
+                  {pet.name}
+                </option>
+              ))}
+            </select>
+          )}
+          {/* Secondary Log Button - Less Prominent */}
+          <button
+            onClick={() => setShowLogger(true)}
+            className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium border border-gray-300"
+            title="Manual log entry (fallback)"
           >
-            <option value={7}>Last 7 days</option>
-            <option value={14}>Last 14 days</option>
-            <option value={30}>Last 30 days</option>
-            <option value={60}>Last 60 days</option>
-            <option value={90}>Last 90 days</option>
-          </select>
-          <button onClick={loadData} className="btn btn-secondary btn-icon">
-            🔄
+            📝 Manual Log
           </button>
         </div>
       </div>
 
-      {/* Active Alerts */}
-      {alerts.length > 0 && (
-        <div className="alerts-section">
-          <div className="alerts-header">
-            <h3>⚠️ Active Alerts ({alerts.length})</h3>
-            {alerts.length > 1 && (
-              <button
-                onClick={acknowledgeAllAlerts}
-                className="btn btn-text"
+      {/* AI Insight Header - Main Focus */}
+      {latestTrend && (
+        <div className="mb-6 bg-white rounded-lg shadow-lg p-6 border-2 border-blue-100">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-4">
+              {/* Risk Score Badge */}
+              <div
+                className="w-24 h-24 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-lg"
+                style={{ backgroundColor: getRiskColor(latestTrend.risk_score) }}
               >
-                Acknowledge All
-              </button>
-            )}
-          </div>
-          <div className="alerts-list">
-            {alerts.map(alert => (
-              <div key={alert.id} className={`alert-card alert-${alert.alert_type}`}>
-                <div className="alert-icon">
-                  {alert.alert_type_display.split(' ')[0]}
-                </div>
-                <div className="alert-content">
-                  <div className="alert-title">{alert.alert_type_display}</div>
-                  <div className="alert-message">{alert.alert_message}</div>
-                  <div className="alert-meta">
-                    <span>{alert.time_since_created}</span>
-                    <span className="separator">•</span>
-                    <span>{alert.symptom_date}</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => acknowledgeAlert(alert.id)}
-                  className="btn btn-text btn-small"
-                >
-                  Acknowledge
-                </button>
+                {latestTrend.risk_score}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Summary Stats */}
-      {summary && (
-        <div className="summary-cards">
-          <div className="stat-card">
-            <div className="stat-label">Total Logs</div>
-            <div className="stat-value">{summary.total_logs}</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-label">Current Risk</div>
-            <div className={`stat-value risk-${summary.current_risk_level}`}>
-              {summary.current_risk_score}
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-1">AI Health Analysis</h3>
+                <p className="text-sm text-gray-600">
+                  Last updated: {new Date(latestTrend.analysis_date).toLocaleDateString()}
+                </p>
+              </div>
             </div>
-            <div className="stat-sublabel">{summary.current_risk_level}</div>
+            <span className={`px-4 py-2 rounded-full border font-semibold ${getUrgencyColor(latestTrend.urgency_level)}`}>
+              {latestTrend.urgency_level}
+            </span>
           </div>
-          <div className="stat-card">
-            <div className="stat-label">Average Risk</div>
-            <div className="stat-value">{summary.average_risk_score?.toFixed(1)}</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-label">Highest Risk</div>
-            <div className="stat-value">{summary.highest_risk_score}</div>
-          </div>
-        </div>
-      )}
 
-      {/* Progression Analysis */}
-      {progression && (
-        <div className="progression-section">
-          <h3>📈 Progression Analysis</h3>
-          <div className="progression-card">
-            <div className="progression-main">
-              <div className="trend-indicator">
-                <span className="trend-icon">{getTrendIcon(progression.trend)}</span>
-                <div className="trend-info">
-                  <div className="trend-label">Trend</div>
-                  <div className={`trend-value trend-${progression.trend}`}>
-                    {progression.trend.toUpperCase()}
-                  </div>
-                  <div className="trend-description">{progression.analysis.trend_description}</div>
-                </div>
-              </div>
-              <div className="progression-stats">
-                <div className="prog-stat">
-                  <span className="prog-label">Latest Risk</span>
-                  <span className={`prog-value risk-${progression.analysis.latest_risk_level}`}>
-                    {progression.analysis.latest_risk_score}
-                  </span>
-                </div>
-                <div className="prog-stat">
-                  <span className="prog-label">Average</span>
-                  <span className="prog-value">
-                    {progression.analysis.average_risk_score}
-                  </span>
-                </div>
-                <div className="prog-stat">
-                  <span className="prog-label">Range</span>
-                  <span className="prog-value">
-                    {progression.analysis.lowest_risk_score} - {progression.analysis.highest_risk_score}
-                  </span>
+          {/* Alert Indicator (Smaller, since we have prominent banner above) */}
+          {latestTrend.alert_needed && (
+            <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-3 rounded">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🚨</span>
+                <div>
+                  <strong className="text-red-800">Alert Status Active</strong>
+                  <p className="text-red-700 text-sm mt-1">
+                    See the alert banner above for recommended action.
+                  </p>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Recurring Symptoms */}
-            {progression.recurring_symptoms && progression.recurring_symptoms.length > 0 && (
-              <div className="recurring-symptoms">
-                <h4>Most Common Symptoms</h4>
-                <div className="symptom-tags">
-                  {progression.recurring_symptoms.slice(0, 8).map((item, index) => (
-                    <span key={index} className="symptom-tag">
-                      {formatSymptomName(item.symptom)}
-                      <span className="symptom-count">×{item.frequency}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+          {/* Trend Analysis */}
+          <div className="mb-4">
+            <h4 className="font-semibold text-gray-700 mb-2">Trend Analysis</h4>
+            <p className="text-gray-600">{latestTrend.trend_analysis}</p>
+          </div>
 
-            {/* Risk Distribution */}
-            {progression.risk_level_distribution && (
-              <div className="risk-distribution">
-                <h4>Risk Level Distribution</h4>
-                <div className="distribution-bars">
-                  {Object.entries(progression.risk_level_distribution).map(([level, count]) => (
-                    <div key={level} className="distribution-item">
-                      <span className="distribution-label">{level}</span>
-                      <div className="distribution-bar">
-                        <div
-                          className={`distribution-fill risk-${level}`}
-                          style={{
-                            width: `${(count / progression.analysis.days_analyzed) * 100}%`
-                          }}
-                        />
-                      </div>
-                      <span className="distribution-count">{count}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+          {/* Prediction */}
+          <div>
+            <h4 className="font-semibold text-gray-700 mb-2">24-Hour Forecast</h4>
+            <p className="text-gray-600">{latestTrend.prediction}</p>
           </div>
         </div>
       )}
 
-      {/* Risk Score Chart */}
-      <div className="chart-section">
-        <h3>📈 Risk Score Over Time</h3>
-        <div className="chart-container">
+      {/* Trend Chart - Main Focus */}
+      {chartData.length > 0 && (
+        <div className="mb-6 bg-white rounded-lg shadow-lg p-6 border-2 border-blue-100">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">📈 Severity Over Time</h3>
           <ResponsiveContainer width="100%" height={350}>
-            <AreaChart data={chartData}>
-              <defs>
-                <linearGradient id="colorRisk" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3498db" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#3498db" stopOpacity={0.1}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ecf0f1" />
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
                 dataKey="date"
                 tick={{ fontSize: 12 }}
-                stroke="#7f8c8d"
+                stroke="#6b7280"
               />
               <YAxis
-                domain={[0, 100]}
+                domain={[0, 10]}
                 tick={{ fontSize: 12 }}
-                stroke="#7f8c8d"
-                label={{ value: 'Risk Score', angle: -90, position: 'insideLeft' }}
+                stroke="#6b7280"
+                label={{ value: 'Severity (1-10)', angle: -90, position: 'insideLeft' }}
               />
-              <Tooltip content={<CustomTooltip />} />
-              <ReferenceLine y={70} stroke="#e74c3c" strokeDasharray="3 3" label="Critical" />
-              <ReferenceLine y={50} stroke="#f39c12" strokeDasharray="3 3" label="High" />
-              <ReferenceLine y={30} stroke="#f1c40f" strokeDasharray="3 3" label="Moderate" />
-              <Area
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const data = payload[0].payload;
+                    return (
+                      <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-3">
+                        <p className="font-semibold text-gray-800 mb-2">{data.fullDate}</p>
+                        <p className="text-sm text-gray-600 mb-1">
+                          Max Severity: <strong>{data.maxSeverity}/10</strong>
+                        </p>
+                        {data.symptoms && data.symptoms.length > 0 && (
+                          <p className="text-sm text-gray-600">
+                            Symptoms: {data.symptoms.map(s => formatSymptomName(s)).join(', ')}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Legend />
+              <Line
                 type="monotone"
-                dataKey="risk_score"
-                stroke="#3498db"
+                dataKey="maxSeverity"
+                stroke="#3b82f6"
                 strokeWidth={3}
-                fill="url(#colorRisk)"
+                name="Max Severity"
+                dot={{ r: 4 }}
               />
-            </AreaChart>
+              {chartData[0]?.symptom_1 && (
+                <Line
+                  type="monotone"
+                  dataKey="symptom_1"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  name={chartData[0]?.symptom_1_name || 'Top Symptom 1'}
+                  dot={{ r: 3 }}
+                />
+              )}
+              {chartData[0]?.symptom_2 && (
+                <Line
+                  type="monotone"
+                  dataKey="symptom_2"
+                  stroke="#f59e0b"
+                  strokeWidth={2}
+                  name={chartData[0]?.symptom_2_name || 'Top Symptom 2'}
+                  dot={{ r: 3 }}
+                />
+              )}
+            </LineChart>
           </ResponsiveContainer>
         </div>
-        <div className="chart-legend">
-          <div className="legend-item">
-            <span className="legend-dot" style={{ background: '#e74c3c' }}></span>
-            <span>Critical (70-100)</span>
-          </div>
-          <div className="legend-item">
-            <span className="legend-dot" style={{ background: '#f39c12' }}></span>
-            <span>High (50-69)</span>
-          </div>
-          <div className="legend-item">
-            <span className="legend-dot" style={{ background: '#f1c40f' }}></span>
-            <span>Moderate (30-49)</span>
-          </div>
-          <div className="legend-item">
-            <span className="legend-dot" style={{ background: '#2ecc71' }}></span>
-            <span>Low (0-29)</span>
-          </div>
-        </div>
-      </div>
+      )}
 
-      {/* Timeline List */}
-      <div className="timeline-list-section">
-        <h3>📋 Detailed Log History</h3>
-        <div className="timeline-list">
-          {timeline.slice().reverse().map((log, index) => (
+      {/* Log History */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="text-xl font-semibold text-gray-800 mb-4">📋 Log History</h3>
+        <div className="space-y-4">
+          {logs.map((log, index) => (
             <div
               key={log.id}
-              className={`timeline-entry ${selectedLog === log.id ? 'selected' : ''}`}
-              onClick={() => setSelectedLog(selectedLog === log.id ? null : log.id)}
+              className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
             >
-              <div className="entry-marker">
-                <div className={`marker-dot risk-${log.risk_level}`}></div>
-                {index < timeline.length - 1 && <div className="marker-line"></div>}
-              </div>
-
-              <div className="entry-content">
-                <div className="entry-header">
-                  <div className="entry-date">
-                    <strong>{new Date(log.symptom_date).toLocaleDateString('en-US', {
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <h4 className="font-semibold text-gray-800">
+                    {new Date(log.log_date).toLocaleDateString('en-US', {
                       weekday: 'long',
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric'
-                    })}</strong>
-                    <span className="days-ago">{log.days_since_logged} days ago</span>
-                  </div>
-                  <div className={`risk-badge risk-${log.risk_level}`}>
-                    {log.risk_level_display}
-                  </div>
+                    })}
+                  </h4>
+                  <p className="text-sm text-gray-500">
+                    {new Date(log.created_at).toLocaleTimeString()}
+                  </p>
                 </div>
-
-                <div className="entry-body">
-                  <div className="entry-row">
-                    <span className="entry-label">Symptoms ({log.symptom_count}):</span>
-                    <div className="symptom-chips">
-                      {log.symptoms.map((symptom, idx) => (
-                        <span key={idx} className="symptom-chip-small">
-                          {formatSymptomName(symptom)}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="entry-row">
-                    <span className="entry-label">Severity:</span>
-                    <span className={`severity-badge severity-${log.overall_severity}`}>
-                      {log.overall_severity}
-                    </span>
-                  </div>
-
-                  {log.compared_to_yesterday && (
-                    <div className="entry-row">
-                      <span className="entry-label">Compared to Yesterday:</span>
-                      <span className={`comparison-badge comparison-${log.compared_to_yesterday}`}>
-                        {log.compared_to_yesterday === 'worse' && '📈 Getting Worse'}
-                        {log.compared_to_yesterday === 'better' && '📉 Getting Better'}
-                        {log.compared_to_yesterday === 'same' && '➡️ About the Same'}
-                        {log.compared_to_yesterday === 'new' && '🆕 First Occurrence'}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="entry-row">
-                    <span className="entry-label">Risk Score:</span>
-                    <div className="risk-score-bar">
-                      <div
-                        className={`risk-score-fill risk-${log.risk_level}`}
-                        style={{ width: `${log.risk_score}%` }}
-                      >
-                        <span className="risk-score-text">{log.risk_score}/100</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {log.notes && selectedLog === log.id && (
-                    <div className="entry-notes">
-                      <span className="entry-label">Notes:</span>
-                      <p>{log.notes}</p>
-                    </div>
-                  )}
-                </div>
-
-                {log.notes && (
-                  <div className="entry-footer">
-                    <button className="btn-expand">
-                      {selectedLog === log.id ? 'Hide Details ▲' : 'Show Details ▼'}
-                    </button>
-                  </div>
-                )}
               </div>
+
+              {/* Symptoms */}
+              {log.symptoms && log.symptoms.length > 0 && (
+                <div className="mb-3">
+                  <span className="text-sm font-medium text-gray-700">Symptoms: </span>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {log.symptoms.map((symptom, idx) => {
+                      const severity = log.severity_scores?.[symptom] || 5;
+                      return (
+                        <span
+                          key={idx}
+                          className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs"
+                        >
+                          {formatSymptomName(symptom)}
+                          {log.severity_scores && (
+                            <span className="ml-1 font-semibold">({severity}/10)</span>
+                          )}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Notes */}
+              {log.notes && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium">Notes: </span>
+                    {log.notes}
+                  </p>
+                </div>
+              )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="timeline-actions">
-        <button
-          onClick={() => window.location.href = `/pets/${petId}/log-symptoms`}
-          className="btn btn-primary"
-        >
-          <span>➕</span> Log New Symptoms
-        </button>
-        <button
-          onClick={() => window.print()}
-          className="btn btn-secondary"
-        >
-          <span>🖨️</span> Print Timeline
-        </button>
-      </div>
+      {/* Manual Log Option - Shown as Modal */}
+      {showLogger && selectedPet && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+              <h3 className="text-xl font-bold text-gray-800">Manual Symptom Log Entry</h3>
+              <button
+                onClick={() => setShowLogger(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-6">
+              {location.state?.fromDiagnosis && (
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    💡 <strong>Pre-filled from diagnosis:</strong> Symptoms from your recent assessment have been pre-selected. 
+                    Adjust severity and add any additional observations.
+                  </p>
+                </div>
+              )}
+              <SymptomLogger 
+                pet={selectedPet} 
+                onComplete={handleLogComplete}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

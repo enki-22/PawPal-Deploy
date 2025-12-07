@@ -26,7 +26,7 @@ Dog,Roundworms,"diarrhea, vomiting, bloating, weight_loss, coughing, weakness",m
 Dog,Rickettsial Infections,"fever, loss_of_appetite, lethargy, weakness, limping, coughing, weight_loss",medium,no,vet_verified
 Dog,Leptospirosis,"lethargy, loss_of_appetite, vomiting, diarrhea, fever, mouth_pain, blood_in_urine, stiffness, red_eyes, dehydration",high,yes,vet_verified
 Dog,Giardia,"diarrhea, lethargy, loss_of_appetite, bloating, weight_loss",medium,yes,vet_verified
-Dog,Tapeworms,"scratching, itching, weight_loss, vomiting, constipation",medium,yes,vet_verified
+Dog,Tapeworms,"scratching, anal_itching, weight_loss, vomiting, constipation",medium,yes,vet_verified
 Dog,Whipworms,"diarrhea, weight_loss, dehydration, weakness, lethargy",medium,yes,vet_verified
 Dog,Canine Enteric Coronavirus,"diarrhea, vomiting, loss_of_appetite, bloating, lethargy, dehydration, fever, seizures",medium,yes,vet_verified
 Dog,Canine Respiratory Coronavirus,"coughing, sneezing, difficulty_breathing, eye_discharge, nasal_discharge, fever, lethargy, loss_of_appetite",medium,yes,vet_verified
@@ -67,7 +67,7 @@ Cat,Squamous Cell Carcinoma,"drooling, lumps, bad_breath, difficulty_eating, los
 Cat,Upper Respiratory Infection,"sneezing, eye_discharge, red_eyes, squinting, nasal_congestion, nasal_discharge, loss_of_appetite, coughing, lethargy, fever, difficulty_breathing",medium,yes,vet_verified
 Cat,Urethral Obstruction,"blood_in_urine, straining_to_urinate, frequent_urination, lethargy, loss_of_appetite, vomiting",emergency,no,vet_verified
 Cat,Roundworms,"bloating, diarrhea, weight_loss, vomiting, coughing",medium,yes,vet_verified
-Cat,Tapeworms,"itching, scratching, diarrhea, vomiting, loss_of_appetite, lethargy, weight_loss",medium,yes,vet_verified
+Cat,Tapeworms,"anal_itching, scooting, diarrhea, vomiting, loss_of_appetite, lethargy, weight_loss",medium,yes,vet_verified
 Cat,Hookworms,"blood_in_urine, weight_loss, lethargy, diarrhea, vomiting",medium,yes,vet_verified
 Cat,Giardia,"diarrhea, vomiting, gas, loss_of_appetite, lethargy, weight_loss",medium,yes,vet_verified
 Cat,Cystitis,"straining_to_urinate, frequent_urination, blood_in_urine, lethargy, loss_of_appetite, vomiting, diarrhea",high,no,vet_verified

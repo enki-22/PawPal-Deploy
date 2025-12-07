@@ -29,7 +29,7 @@ from pets.models import Pet
 from .models import Conversation, Message, AIDiagnosis, SOAPReport, DiagnosisSuggestion
 # Note: image_classifier is now lazily loaded via analyze_pet_image when needed
 import logging
-from .utils import get_gemini_client
+from .utils import get_gemini_client, get_cached_response, save_response_to_cache
 logger = logging.getLogger(__name__)
 
 PAWPAL_MODEL = None
@@ -337,8 +337,6 @@ def _validate_symptom_checker_payload(data: dict) -> tuple[bool, dict | None, Re
 def get_gemini_response(user_message, conversation_history=None, chat_mode='general'):
     """Generate AI response using Google Gemini with different modes"""
     try:
-        model = get_gemini_client()
-       
         # Different system prompts based on mode
         if chat_mode == 'symptom_checker':
             system_prompt = """You are PawPal's Symptom Checker, an AI veterinary diagnostic assistant.
@@ -394,11 +392,21 @@ def get_gemini_response(user_message, conversation_history=None, chat_mode='gene
        
         print(f"Using chat mode: {chat_mode}")
        
-        # Generate response
+        # Check cache first
+        cached_response = get_cached_response(conversation_text)
+        if cached_response:
+            logger.info("💾 Using cached response for chat")
+            return cached_response
+       
+        # No cache hit - call Gemini
+        model = get_gemini_client()
         response = model.generate_content(conversation_text)
        
         if response and hasattr(response, 'text') and response.text:
-            return response.text.strip()
+            response_text = response.text.strip()
+            # Save to cache
+            save_response_to_cache(conversation_text, response_text)
+            return response_text
         else:
             return "I'm having trouble responding right now. Could you please try again?"
        
@@ -425,8 +433,6 @@ def get_gemini_response(user_message, conversation_history=None, chat_mode='gene
 def get_gemini_response_with_pet_context(user_message, conversation_history=None, chat_mode='general', pet_context=None, assessment_context=None):
     """Generate AI response using Google Gemini with pet context"""
     try:
-        model = get_gemini_client()
-       
         # Different system prompts based on mode
         if chat_mode == 'symptom_checker':
             system_prompt = """You are PawPal's Symptom Checker, an AI veterinary diagnostic assistant.
@@ -450,6 +456,11 @@ def get_gemini_response_with_pet_context(user_message, conversation_history=None
             2. Possible causes (if appropriate)
             3. Recommended action level
             4. When to see a vet
+            
+            **DATA LOGGING TRIGGER:**
+            If the user explicitly asks to log symptoms, OR if they describe a change in the pet's condition (e.g., 'He is worse today', 'Vomiting stopped'), do NOT try to log it yourself.
+            
+            Instead, respond empathetically and end your message with this exact tag: `[[TRIGGER_LOG_UI]]`.
             """
         else:  # general mode
             system_prompt = """You are PawPal, a friendly AI veterinary assistant focused on general pet health education.
@@ -462,6 +473,11 @@ def get_gemini_response_with_pet_context(user_message, conversation_history=None
             - Be encouraging and supportive for pet parents
             - Always recommend professional care when appropriate
             - Keep responses informative but friendly
+            
+            **DATA LOGGING TRIGGER:**
+            If the user explicitly asks to log symptoms, OR if they describe a change in the pet's condition (e.g., 'He is worse today', 'Vomiting stopped'), do NOT try to log it yourself.
+            
+            Instead, respond empathetically and end your message with this exact tag: `[[TRIGGER_LOG_UI]]`.
             """
        
         # Build conversation context
@@ -521,11 +537,21 @@ You already know about {pet_context['name']}, so don't ask for basic information
         if pet_context:
             print(f"Pet context: {pet_context['name']} ({pet_context['species']})")
        
-        # Generate response
+        # Check cache first
+        cached_response = get_cached_response(conversation_text)
+        if cached_response:
+            logger.info("💾 Using cached response for chat with pet context")
+            return cached_response
+       
+        # No cache hit - call Gemini
+        model = get_gemini_client()
         response = model.generate_content(conversation_text)
        
         if response and hasattr(response, 'text') and response.text:
-            return response.text.strip()
+            response_text = response.text.strip()
+            # Save to cache
+            save_response_to_cache(conversation_text, response_text)
+            return response_text
         else:
             return "I'm having trouble responding right now. Could you please try again?"
        
@@ -548,6 +574,8 @@ You already know about {pet_context['name']}, so don't ask for basic information
         else:
             logger.error(f"Unexpected Gemini error: {error_str}")
             return f"I'm experiencing technical difficulties: {error_str}. Please try again or consult with a veterinarian for immediate concerns."
+
+
 def generate_conversation_title(first_message, ai_response=None):
     """Generate a conversation title using Gemini"""
     try:
@@ -735,6 +763,9 @@ def chat(request):
         )
         print(f"AI response: {ai_response}")
         
+        # Note: Symptom logging is now handled via the frontend widget ([[TRIGGER_LOG_UI]] tag)
+        # The backend just returns the AI response with the tag, and the frontend opens the form
+        
         # Automatically create SOAP report for symptom checker mode if pet is linked
         soap_report = None
         ai_diagnosis = None
@@ -748,60 +779,59 @@ def chat(request):
                 # Extract symptoms from user message (use the message as symptoms text)
                 symptoms_text = user_message
                 
-                # Create a new request for predict_symptoms
-                # Since predict_symptoms is a DRF view, we need to create a Django HttpRequest
-                # The @api_view decorator will wrap it in a DRF Request
-                from django.test import RequestFactory
-                import json
-                
-                factory = RequestFactory()
-                predict_data = {
-                    'symptoms': symptoms_text,
-                    'species': getattr(pet, 'animal_type', 'dog').lower(),
-                    'pet_id': pet.id
-                }
-                # Create request with JSON body
-                json_body = json.dumps(predict_data)
-                
-                # Generate JWT token for the user so predict_symptoms can authenticate
-                from users.utils import generate_jwt_token
-                user_token = generate_jwt_token(user_obj)
-                
-                predict_request = factory.post(
-                    '/api/chatbot/predict/',
-                    data=json_body,
-                    content_type='application/json',
-                    HTTP_AUTHORIZATION=f'Bearer {user_token}'  # Add Authorization header
-                )
-                # Ensure the body is set correctly for DRF parsing
-                predict_request._body = json_body.encode('utf-8')
-                
-                # Call predict_symptoms with Django HttpRequest (not DRF Request)
-                # The @api_view decorator will handle wrapping it
-                ml_response = predict_symptoms(predict_request)
-                
-                print(f"[SOAP_CREATION] predict_symptoms response status: {ml_response.status_code}")
-                if hasattr(ml_response, 'data'):
-                    print(f"[SOAP_CREATION] predict_symptoms response data keys: {list(ml_response.data.keys()) if isinstance(ml_response.data, dict) else 'Not a dict'}")
-                    if isinstance(ml_response.data, dict) and 'error' in ml_response.data:
-                        print(f"[SOAP_CREATION] Error in response: {ml_response.data.get('error')}")
-                else:
-                    print(f"[SOAP_CREATION] predict_symptoms response: {ml_response}")
-                
                 # Extract symptoms list (try to parse from message or use as single item)
                 symptoms_list = [s.strip() for s in symptoms_text.replace(',', '|').replace(' and ', '|').split('|') if s.strip()]
                 if not symptoms_list:
                     symptoms_list = [symptoms_text]
                 
-                # Try to get ML predictions, but create SOAP report even if ML fails
+                # Import vector similarity engine
+                from vector_similarity_django_integration import predict_with_vector_similarity
+                
+                # Prepare payload for Vector Engine
+                vector_payload = {
+                    'species': getattr(pet, 'species', getattr(pet, 'animal_type', 'Dog')),
+                    'symptoms_list': symptoms_list,
+                    'user_notes': user_message,  # Pass full message for Hybrid Triage
+                    'severity': 'moderate',  # Default
+                    'pet_id': pet.id
+                }
+                
+                # Call the new engine
                 ml_data = None
-                if ml_response.status_code == 200:
-                    ml_data = ml_response.data
-                    print(f"[SOAP_CREATION] Successfully got ML predictions, proceeding with SOAP creation...")
-                else:
-                    print(f"⚠️ predict_symptoms returned non-200 status: {ml_response.status_code}")
-                    if hasattr(ml_response, 'data'):
-                        print(f"⚠️ Error response: {ml_response.data}")
+                try:
+                    vector_result = predict_with_vector_similarity(vector_payload)
+                    
+                    # Extract predictions for SOAP Report
+                    # Map the vector_result['predictions'] structure to what SOAPReport expects
+                    # Map vector urgency (critical/high/moderate/low) to SOAP format (emergency/soon/routine)
+                    vector_urgency = vector_result['triage_assessment']['overall_urgency'].lower()
+                    urgency_mapping = {
+                        'critical': 'immediate',
+                        'high': 'soon',
+                        'moderate': 'routine',
+                        'low': 'routine'
+                    }
+                    soap_urgency = urgency_mapping.get(vector_urgency, 'routine')
+                    
+                    ml_data = {
+                        'predictions': [],
+                        'urgency': soap_urgency,
+                        'ai_explanation': vector_result['overall_recommendation']
+                    }
+                    
+                    for pred in vector_result['predictions']:
+                        ml_data['predictions'].append({
+                            'label': pred['disease'],
+                            'confidence': pred['probability'],
+                            'recommendation': pred['match_explanation']
+                        })
+                    
+                    print(f"[SOAP_CREATION] Successfully got Vector predictions")
+                    
+                except Exception as e:
+                    print(f"⚠️ Vector prediction failed: {e}")
+                    logger.error(f"Vector prediction failed in SOAP creation: {e}")
+                    ml_data = None
                     print(f"[SOAP_CREATION] Creating SOAP report without ML predictions (using AI response only)...")
                 
                 # Build assessment entries

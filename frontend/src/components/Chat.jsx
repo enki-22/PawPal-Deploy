@@ -1,11 +1,13 @@
 import axios from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useConversations } from '../context/ConversationsContext';
 import AssessmentResults from './AssessmentResults';
 import ConversationalSymptomChecker from './ConversationalSymptomChecker';
+import EmergencyOverlay from './EmergencyOverlay';
 import LogoutModal from './LogoutModal';
 import PetSelectionModal from './PetSelectionModal';
 import ProfileButton from './ProfileButton';
@@ -42,6 +44,7 @@ const Chat = () => {
   const [showSymptomLogger, setShowSymptomLogger] = useState(false);
   const [assessmentData, setAssessmentData] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [emergencyAlert, setEmergencyAlert] = useState(null);
   
   // --- REFS ---
   const activeConversationIdRef = useRef(conversationId);
@@ -53,6 +56,7 @@ const Chat = () => {
   const [sessionKey, setSessionKey] = useState(() => Date.now());
   
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, token, logout } = useAuth();
   
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
@@ -220,25 +224,71 @@ const Chat = () => {
     scrollToBottom();
   }, [messages, isAnalyzing]);
 
+  // Auto-scroll when symptom logger opens
+  useEffect(() => {
+    if (showSymptomLogger) {
+      scrollToBottom();
+    }
+  }, [showSymptomLogger]);
+
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   };
 
+  // Handle location state from symptom tracker (worsening trend alert)
+  useEffect(() => {
+    if (location.state && location.state.mode === 'symptom_checker' && location.state.reason === 'worsening_trend') {
+      // Set chat mode to symptom_checker
+      setChatMode('symptom_checker');
+      
+      // If pet context is provided, set it
+      if (location.state.petId) {
+        // You may want to fetch the full pet details here
+        // For now, we'll set a basic context
+        setCurrentPetContext({
+          id: location.state.petId,
+          name: location.state.petName || 'Your Pet',
+          species: 'Pet',
+          breed: 'Unknown',
+          age: 0
+        });
+      }
+      
+      // Show symptom checker immediately
+      setShowSymptomChecker(true);
+      
+      // Optionally, you could add a message about the worsening trend
+      if (location.state.history_summary) {
+        const trendMessage = {
+          id: `trend-${Date.now()}`,
+          content: `⚠️ **Worsening Trend Detected**\n\n${location.state.history_summary}\n\nPlease complete the symptom assessment below to get updated insights.`,
+          isUser: false,
+          sender: 'PawPal',
+          timestamp: new Date().toISOString()
+        };
+        setMessages([trendMessage]);
+      }
+    }
+  }, [location.state]);
+
   // Main Effect to handle URL changes
   useEffect(() => {
       fetchConversations();
       
       // Always reset state and start new session when URL changes
-      startNewSession();
+      // BUT: Don't reset if we're coming from symptom tracker with state
+      if (!location.state || location.state.mode !== 'symptom_checker') {
+        startNewSession();
+      }
       
       if (conversationId && conversationId !== 'new') {
         // If it's a real ID, load it
         loadConversation(conversationId);
       } 
-      // If 'new', startNewSession already cleared everything.
-    }, [fetchConversations, conversationId, loadConversation, startNewSession]);
+      // If 'new', startNewSession already cleared everything (unless we have location state).
+    }, [fetchConversations, conversationId, loadConversation, startNewSession, location.state]);
 
   // --- HANDLERS ---
 
@@ -387,14 +437,29 @@ const Chat = () => {
       if (chatSessionIdRef.current !== mySessionId) return;
 
       if (response.data && response.data.response) {
+        let aiResponseText = response.data.response;
+        let shouldShowLogger = false;
+        
+        // Check for [[TRIGGER_LOG_UI]] tag
+        if (aiResponseText.includes('[[TRIGGER_LOG_UI]]')) {
+          // Remove the tag from the response text
+          aiResponseText = aiResponseText.replace('[[TRIGGER_LOG_UI]]', '').trim();
+          shouldShowLogger = true;
+        }
+        
         const aiMessage = {
           id: Date.now() + Math.random(),
-          content: response.data.response,
+          content: aiResponseText,
           isUser: false,
           sender: 'PawPal',
           timestamp: new Date().toISOString(),
         };
         setMessages(prev => [...prev, aiMessage]);
+        
+        // Open symptom logger if tag was detected
+        if (shouldShowLogger && currentPetContext) {
+          setShowSymptomLogger(true);
+        }
         
         if (response.data.conversation_id && !currentConversationId) {
           setCurrentConversationId(response.data.conversation_id);
@@ -696,10 +761,15 @@ const Chat = () => {
   };
   
   const handleStartNewAssessment = () => {
-    // Only allow new assessment in symptom_checker mode
+    // If not in symptom_checker mode, switch to it first
     if (chatMode !== 'symptom_checker') {
-      console.warn('handleStartNewAssessment called outside symptom_checker mode');
-      return;
+      // Switch to symptom_checker mode
+      setChatMode('symptom_checker');
+      // If no pet is selected, show pet selection
+      if (!currentPetContext) {
+        setShowPetSelection(true);
+        return;
+      }
     }
     
     // Clear previous assessment data
@@ -724,24 +794,43 @@ const Chat = () => {
   const handleSymptomLogComplete = (response) => {
     setShowSymptomLogger(false);
     
+    // Fix: Handle both 'risk_assessment' (old) and 'analysis' (new) formats
+    const riskData = response.risk_assessment || response.analysis || {};
+    const riskLevel = riskData.level || riskData.urgency_level || 'unknown';
+    const riskScore = riskData.score ?? riskData.risk_score ?? 0;
+    
     const successMessage = {
       id: Date.now() + Math.random(),
-      content: `✅ Symptoms logged successfully for ${currentPetContext.name}! Risk Level: ${response.risk_assessment.level.toUpperCase()} (${response.risk_assessment.score}/100)`,
+      content: `✅ Symptoms logged successfully for ${currentPetContext.name}! Risk Level: ${riskLevel.toUpperCase()} (${riskScore}/100)`,
       isUser: false,
       sender: 'PawPal',
       timestamp: new Date().toISOString(),
     };
     setMessages(prev => [...prev, successMessage]);
     
-    if (response.alert) {
-      const alertMessage = {
-        id: Date.now() + Math.random() + 1,
-        content: `⚠️ ALERT: ${response.alert.alert_message}`,
-        isUser: false,
-        sender: 'PawPal',
-        timestamp: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, alertMessage]);
+    // Check for alerts (support both formats)
+    const alertMessage = response.alert?.alert_message || response.analysis?.trend_analysis;
+    
+    // Check if we need to show the emergency overlay
+    const isCritical = (
+      riskLevel.toLowerCase() === 'critical' || 
+      riskLevel.toLowerCase() === 'high' || 
+      response.alert?.alert_type === 'risk_escalation' ||
+      response.analysis?.alert_needed
+    );
+
+    if (isCritical) {
+       setEmergencyAlert(alertMessage || "Critical symptoms detected.");
+    } else if (response.alert) {
+       // Standard alert message
+       const msg = {
+          id: Date.now() + Math.random() + 1,
+          content: `⚠️ ALERT: ${response.alert.alert_message}`,
+          isUser: false,
+          sender: 'PawPal',
+          timestamp: new Date().toISOString(),
+       };
+       setMessages(prev => [...prev, msg]);
     }
   };
 
@@ -823,6 +912,18 @@ const Chat = () => {
 
   return (
     <div className="min-h-screen bg-[#F0F0F0] flex flex-col md:flex-row overflow-hidden">
+      {/* Emergency Overlay - Shown when critical risk detected */}
+      {emergencyAlert && (
+        <EmergencyOverlay
+          alertMessage={emergencyAlert}
+          onDismiss={() => setEmergencyAlert(null)}
+          onReassess={() => {
+            setEmergencyAlert(null);
+            handleStartNewAssessment();
+          }}
+        />
+      )}
+      
       <div className="hidden md:block sticky top-0 h-screen z-30">
         <Sidebar
           sidebarVisible={sidebarVisible}
@@ -1068,6 +1169,44 @@ const Chat = () => {
                       onLogSymptoms={handleLogSymptoms}
                     />
                   </motion.div>
+                );
+              }
+              
+              // === RISK ALERT: Special UI for high/critical risk from symptom logging ===
+              if (message.isRiskAlert) {
+                return (
+                  <div key={message.id} className="flex justify-start mb-4">
+                    <div 
+                      className="max-w-[80vw] md:max-w-xs lg:max-w-md px-4 md:px-5 py-4 rounded-lg shadow-lg border-l-4"
+                      style={{ 
+                        backgroundColor: '#FEE2E2', 
+                        borderLeftColor: '#DC2626',
+                        borderLeftWidth: '4px'
+                      }}
+                    >
+                      <div className="flex items-start gap-2 mb-3">
+                        <span className="text-2xl">⚠️</span>
+                        <div className="flex-1">
+                          <h3 className="text-[15px] md:text-[16px] font-bold text-red-800 mb-1" style={{ fontFamily: 'Raleway' }}>
+                            Concern Detected
+                          </h3>
+                          <p className="text-[13px] md:text-[14px] text-red-700 mb-3" style={{ fontFamily: 'Raleway' }}>
+                            {message.content}
+                          </p>
+                          <p className="text-[12px] md:text-[13px] text-red-600 mb-4" style={{ fontFamily: 'Raleway' }}>
+                            Based on your log, {message.petName}&apos;s condition is worsening. We recommend a quick re-evaluation.
+                          </p>
+                          <button
+                            onClick={handleStartNewAssessment}
+                            className="w-full px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold text-[13px] md:text-[14px] transition-colors shadow-sm"
+                            style={{ fontFamily: 'Raleway' }}
+                          >
+                            Start Emergency Re-Assessment
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 );
               }
               

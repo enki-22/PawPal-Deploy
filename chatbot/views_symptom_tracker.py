@@ -4,15 +4,17 @@ Endpoints for logging symptoms, tracking progression, and managing alerts
 """
 
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.db.models import Avg, Count, Q
 from datetime import timedelta
+import json
+import logging
 
-from .models import SymptomLog, SymptomAlert
+from .models import SymptomLog, SymptomAlert, PetHealthTrend
 from pets.models import Pet
 from .serializers import (
     SymptomLogSerializer,
@@ -20,6 +22,9 @@ from .serializers import (
     SymptomAlertSerializer
 )
 from utils.risk_calculator import calculate_risk_score, should_create_alert
+from .utils import analyze_symptom_progression
+
+logger = logging.getLogger(__name__)
 
 
 class SymptomTrackerViewSet(viewsets.ModelViewSet):
@@ -580,3 +585,219 @@ class SymptomTrackerViewSet(viewsets.ModelViewSet):
             'symptoms_by_category': categories,
             'all_symptoms': sorted(CANONICAL_SYMPTOMS)
         })
+
+
+@api_view(['POST'])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
+def log_daily_symptoms(request):
+    """
+    Log daily symptoms and trigger AI analysis.
+    
+    POST /api/symptom-tracker/log-daily/
+    
+    Body:
+    {
+        "pet_id": 1,
+        "symptoms": ["vomiting", "lethargy"],
+        "severity_map": {"vomiting": 7, "lethargy": 4},  // 1-10 scale
+        "notes": "Started this morning"
+    }
+    
+    Returns:
+    {
+        "success": true,
+        "log": {...},
+        "analysis": {...}  // PetHealthTrend data
+    }
+    """
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Authenticate user (pet owner only)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    pet_id = request.data.get('pet_id')
+    symptoms = request.data.get('symptoms', [])
+    severity_map = request.data.get('severity_map', {})
+    notes = request.data.get('notes', '')
+    
+    # Validate required fields
+    if not pet_id:
+        return Response(
+            {'error': 'pet_id is required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if not symptoms or not isinstance(symptoms, list):
+        return Response(
+            {'error': 'symptoms must be a non-empty list'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Get pet and verify ownership
+    try:
+        pet = Pet.objects.get(id=pet_id, owner=user_obj)
+    except Pet.DoesNotExist:
+        return Response(
+            {'error': 'Pet not found or access denied'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    # Determine overall severity from severity_map
+    if severity_map:
+        avg_severity = sum(severity_map.values()) / len(severity_map)
+        if avg_severity >= 7:
+            overall_severity = 'severe'
+        elif avg_severity >= 4:
+            overall_severity = 'moderate'
+        else:
+            overall_severity = 'mild'
+    else:
+        overall_severity = 'moderate'  # Default
+    
+    # Create symptom log
+    try:
+        symptom_log = SymptomLog.objects.create(
+            user=user_obj,
+            pet=pet,
+            symptom_date=timezone.now().date(),
+            symptoms=symptoms,
+            overall_severity=overall_severity,
+            symptom_details=severity_map,  # Store severity_map in symptom_details
+            notes=notes
+        )
+        
+        # Trigger AI analysis (can be async in production)
+        analysis_result = analyze_symptom_progression(pet_id)
+        
+        # Create PetHealthTrend from analysis
+        # Use trend_analysis from result if available, otherwise construct from trend
+        trend_analysis_text = analysis_result.get('trend_analysis') or f"Trend: {analysis_result['trend']}"
+        
+        health_trend = PetHealthTrend.objects.create(
+            pet=pet,
+            risk_score=analysis_result['risk_score'],
+            urgency_level=analysis_result['urgency'],
+            trend_analysis=trend_analysis_text,
+            prediction=analysis_result['prediction'],
+            alert_needed=analysis_result['alert_needed']
+        )
+        
+        return Response({
+            'success': True,
+            'message': 'Symptoms logged and analyzed successfully',
+            'log': {
+                'id': symptom_log.id,
+                'pet_id': pet.id,
+                'log_date': symptom_log.symptom_date,
+                'symptoms': symptom_log.symptoms,
+                'severity_scores': symptom_log.symptom_details,
+                'notes': symptom_log.notes,
+                'created_at': symptom_log.logged_date
+            },
+            'analysis': {
+                'id': health_trend.id,
+                'analysis_date': health_trend.analysis_date,
+                'risk_score': health_trend.risk_score,
+                'urgency_level': health_trend.urgency_level,
+                'trend_analysis': health_trend.trend_analysis,
+                'prediction': health_trend.prediction,
+                'alert_needed': health_trend.alert_needed
+            }
+        }, status=status.HTTP_201_CREATED)
+    
+    except Exception as e:
+        logger.error(f"Error logging symptoms: {e}")
+        return Response(
+            {'error': f'Failed to log symptoms: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['GET'])
+@authentication_classes([])  # Disable DRF authentication - our custom function handles it
+@permission_classes([AllowAny])  # Allow any - our custom function handles auth
+def get_pet_health_timeline(request):
+    """
+    Get pet health timeline with logs and latest trend analysis.
+    
+    GET /api/symptom-tracker/health-timeline/?pet_id=1
+    
+    Query params:
+    - pet_id (required): Pet ID
+    
+    Returns:
+    {
+        "logs": [...],  // Last 14 logs
+        "latest_trend": {...}  // Most recent PetHealthTrend
+    }
+    """
+    from utils.unified_permissions import check_user_or_admin
+    
+    # Authenticate user (pet owner only)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    pet_id = request.query_params.get('pet_id')
+    
+    if not pet_id:
+        return Response(
+            {'error': 'pet_id parameter is required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Get pet and verify ownership
+    try:
+        pet = Pet.objects.get(id=pet_id, owner=user_obj)
+    except Pet.DoesNotExist:
+        return Response(
+            {'error': 'Pet not found or access denied'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    # Get last 14 logs
+    logs = SymptomLog.objects.filter(
+        pet=pet
+    ).order_by('-symptom_date')[:14]
+    
+    # Format logs
+    logs_data = []
+    for log in logs:
+        logs_data.append({
+            'id': log.id,
+            'log_date': log.symptom_date,
+            'symptoms': log.symptoms if isinstance(log.symptoms, list) else [],
+            'severity_scores': log.symptom_details if hasattr(log, 'symptom_details') else {},
+            'notes': log.notes or '',
+            'created_at': log.logged_date
+        })
+    
+    # Get latest trend
+    latest_trend = PetHealthTrend.objects.filter(
+        pet=pet
+    ).order_by('-analysis_date').first()
+    
+    trend_data = None
+    if latest_trend:
+        trend_data = {
+            'id': latest_trend.id,
+            'analysis_date': latest_trend.analysis_date,
+            'risk_score': latest_trend.risk_score,
+            'urgency_level': latest_trend.urgency_level,
+            'trend_analysis': latest_trend.trend_analysis,
+            'prediction': latest_trend.prediction,
+            'alert_needed': latest_trend.alert_needed
+        }
+    
+    return Response({
+        'pet': {
+            'id': pet.id,
+            'name': pet.name,
+            'animal_type': pet.animal_type
+        },
+        'logs': logs_data,
+        'latest_trend': trend_data
+    })

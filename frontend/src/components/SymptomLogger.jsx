@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './SymptomLogger.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/chatbot';
 // EXACT 81 CANONICAL SYMPTOMS from train_model.py
 // Organized by category to match the risk calculator
 const SYMPTOM_CATEGORIES = {
@@ -68,80 +70,88 @@ const SYMPTOM_CATEGORIES = {
   }
 };
 
-// Species-specific symptoms (shown only if relevant to pet type)
-const SPECIES_SYMPTOMS = {
-  'bird': {
-    icon: '🦜',
-    name: 'Bird-Specific',
-    symptoms: ['drooping_wing', 'feather_loss', 'wing_droop', 'fluffed_feathers', 'tail_bobbing']
-  },
-  'fish': {
-    icon: '🐠',
-    name: 'Fish-Specific',
-    symptoms: ['white_spots', 'fin_rot', 'swimming_upside_down', 'gasping_at_surface', 
-                'clamped_fins', 'rubbing_against_objects', 'cloudy_eyes']
-  },
-  'rabbit': {
-    icon: '🐰',
-    name: 'Rabbit-Specific',
-    symptoms: ['head_tilt', 'rolling', 'loss_of_balance', 'dental_issues']
-  },
-  'hamster': {
-    icon: '🐹',
-    name: 'Small Mammal',
-    symptoms: ['wet_tail', 'lumps', 'bumps', 'overgrown_teeth']
-  },
-  'guinea pig': {
-    icon: '🐹',
-    name: 'Small Mammal',
-    symptoms: ['wet_tail', 'lumps', 'bumps', 'overgrown_teeth']
-  }
+// Common symptoms organized by category
+const SYMPTOM_CATEGORIES = {
+  'General': [
+    'vomiting', 'diarrhea', 'lethargy', 'loss_of_appetite', 'weight_loss',
+    'fever', 'dehydration', 'weakness', 'seizures'
+  ],
+  'Respiratory': [
+    'coughing', 'sneezing', 'wheezing', 'labored_breathing', 'difficulty_breathing',
+    'nasal_discharge', 'nasal_congestion', 'respiratory_distress'
+  ],
+  'Skin & Coat': [
+    'scratching', 'itching', 'hair_loss', 'bald_patches', 'red_skin',
+    'irritated_skin', 'skin_lesions', 'rash', 'scabs', 'dandruff'
+  ],
+  'Eyes & Ears': [
+    'watery_eyes', 'eye_discharge', 'red_eyes', 'squinting',
+    'ear_discharge', 'ear_scratching', 'head_shaking'
+  ],
+  'Digestive': [
+    'constipation', 'bloating', 'gas', 'not_eating', 'excessive_eating'
+  ],
+  'Urinary': [
+    'blood_in_urine', 'frequent_urination', 'straining_to_urinate',
+    'dark_urine', 'cloudy_urine'
+  ],
+  'Oral & Dental': [
+    'bad_breath', 'drooling', 'difficulty_eating', 'swollen_gums',
+    'red_gums', 'mouth_pain'
+  ],
+  'Behavioral': [
+    'aggression', 'hiding', 'restlessness', 'confusion', 'circling'
+  ],
+  'Mobility': [
+    'limping', 'lameness', 'difficulty_walking', 'stiffness',
+    'reluctance_to_move', 'paralysis'
+  ]
 };
 
-const SymptomLogger = ({ pet, onComplete }) => {
+const SymptomLogger = ({ pet, onComplete, showToast }) => {
+  const location = useLocation();
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
-  const [severity, setSeverity] = useState('moderate');
-  const [comparedToYesterday, setComparedToYesterday] = useState('');
+  const [severityValues, setSeverityValues] = useState({}); // { symptom: 1-10 }
   const [notes, setNotes] = useState('');
-  const [symptomDetails, setSymptomDetails] = useState({});
-  const [riskAssessment, setRiskAssessment] = useState(null);
-  const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [expandedCategories, setExpandedCategories] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Get species-specific category
-  const petType = pet?.animal_type?.toLowerCase() || '';
-  const speciesCategory = SPECIES_SYMPTOMS[petType];
-
-  // Toggle category expansion
-  const toggleCategory = (category) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [category]: !prev[category]
-    }));
-  };
-
-  // Toggle symptom selection
-  const handleToggleSymptom = (symptom) => {
-    if (selectedSymptoms.includes(symptom)) {
-      setSelectedSymptoms(selectedSymptoms.filter(s => s !== symptom));
-      // Remove from symptom details if exists
-      const newDetails = { ...symptomDetails };
-      delete newDetails[symptom];
-      setSymptomDetails(newDetails);
-    } else {
-      setSelectedSymptoms([...selectedSymptoms, symptom]);
+  // Pre-fill symptoms from location.state (when navigating from diagnosis)
+  useEffect(() => {
+    if (location.state?.prefillSymptoms && Array.isArray(location.state.prefillSymptoms)) {
+      const prefillSymptoms = location.state.prefillSymptoms;
+      
+      // Normalize symptom names (handle both snake_case and spaces)
+      const normalizedSymptoms = prefillSymptoms.map(symptom => {
+        if (typeof symptom === 'string') {
+          // Convert spaces to underscores for consistency
+          return symptom.replace(/\s+/g, '_').toLowerCase();
+        }
+        return symptom;
+      });
+      
+      // Filter to only include symptoms that exist in our categories
+      const allAvailableSymptoms = Object.values(SYMPTOM_CATEGORIES).flat();
+      const validSymptoms = normalizedSymptoms.filter(symptom => 
+        allAvailableSymptoms.includes(symptom)
+      );
+      
+      if (validSymptoms.length > 0) {
+        setSelectedSymptoms(validSymptoms);
+        // Set default severity (5) for all pre-filled symptoms
+        const defaultSeverities = {};
+        validSymptoms.forEach(symptom => {
+          defaultSeverities[symptom] = 5;
+        });
+        setSeverityValues(defaultSeverities);
+        
+        // Show a toast if available
+        if (showToast) {
+          showToast(`Pre-filled ${validSymptoms.length} symptom(s) from diagnosis`, 'info');
+        }
+      }
     }
-  };
-
-  // Add detail for a symptom
-  const addSymptomDetail = (symptom, detail) => {
-    setSymptomDetails({
-      ...symptomDetails,
-      [symptom]: detail
-    });
-  };
+  }, [location.state, showToast]);
 
   // Format symptom name for display
   const formatSymptomName = (symptom) => {
@@ -151,62 +161,37 @@ const SymptomLogger = ({ pet, onComplete }) => {
       .join(' ');
   };
 
-  // Submit symptom log
-  const handleSubmit = async () => {
-    if (selectedSymptoms.length === 0) {
-      alert('⚠️ Please select at least one symptom');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await axios.post('/api/chatbot/symptom-tracker/log/', {
-        pet_id: pet.id,
-        symptom_date: new Date().toISOString().split('T')[0],
-        symptoms: selectedSymptoms,
-        overall_severity: severity,
-        symptom_details: symptomDetails,
-        compared_to_yesterday: comparedToYesterday || null,
-        notes: notes
-      }, {
-        headers: {
-          'Authorization': `Token ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
+  // Toggle symptom selection
+  const handleToggleSymptom = (symptom) => {
+    if (selectedSymptoms.includes(symptom)) {
+      setSelectedSymptoms(selectedSymptoms.filter(s => s !== symptom));
+      // Remove severity value
+      const newSeverity = { ...severityValues };
+      delete newSeverity[symptom];
+      setSeverityValues(newSeverity);
+    } else {
+      setSelectedSymptoms([...selectedSymptoms, symptom]);
+      // Set default severity to 5
+      setSeverityValues({
+        ...severityValues,
+        [symptom]: 5
       });
-
-      setRiskAssessment(response.data.risk_assessment);
-      setAlert(response.data.alert);
-      
-      if (onComplete) {
-        onComplete(response.data);
-      }
-    } catch (error) {
-      console.error('Error logging symptoms:', error);
-      if (error.response?.data?.details) {
-        const errorDetails = error.response.data.details;
-        if (errorDetails.symptoms) {
-          alert(`❌ ${errorDetails.symptoms.join(', ')}`);
-        } else {
-          alert('❌ Failed to log symptoms. Please check your input and try again.');
-        }
-      } else {
-        alert('❌ Failed to log symptoms. Please try again.');
-      }
-    } finally {
-      setLoading(false);
     }
   };
 
-  // Reset form
-  const resetForm = () => {
-    setRiskAssessment(null);
-    setAlert(null);
-    setSelectedSymptoms([]);
-    setSymptomDetails({});
-    setNotes('');
-    setComparedToYesterday('');
-    setSeverity('moderate');
+  // Update severity for a symptom
+  const handleSeverityChange = (symptom, value) => {
+    setSeverityValues({
+      ...severityValues,
+      [symptom]: parseInt(value)
+    });
+  };
+
+  // Get severity color class
+  const getSeverityColor = (value) => {
+    if (value <= 3) return 'severity-mild'; // Green
+    if (value <= 7) return 'severity-moderate'; // Yellow
+    return 'severity-severe'; // Red
   };
 
   // Filter symptoms by search term
@@ -217,122 +202,82 @@ const SymptomLogger = ({ pet, onComplete }) => {
     );
   };
 
-  // Get risk level styling
-  const getRiskLevelClass = (level) => {
-    switch(level?.toLowerCase()) {
-      case 'critical': return 'risk-critical';
-      case 'high': return 'risk-high';
-      case 'moderate': return 'risk-moderate';
-      case 'low': return 'risk-low';
-      default: return 'risk-unknown';
+  // Submit form
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (selectedSymptoms.length === 0) {
+      if (showToast) {
+        showToast('Please select at least one symptom', 'error');
+      } else {
+        alert('⚠️ Please select at least one symptom');
+      }
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        `${API_BASE_URL}/symptom-tracker/log-daily/`,
+        {
+          pet_id: pet.id,
+          symptoms: selectedSymptoms,
+          severity_map: severityValues,
+          notes: notes
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          timeout: 90000
+        }
+      );
+
+      // Success - clear form and show toast
+      setSelectedSymptoms([]);
+      setSeverityValues({});
+      setNotes('');
+      setSearchTerm('');
+
+      if (showToast) {
+        showToast('Symptoms logged successfully! AI analysis complete.', 'success');
+      }
+
+      // Trigger refresh if callback provided
+      if (onComplete) {
+        onComplete(response.data);
+      }
+    } catch (error) {
+      console.error('Error logging symptoms:', error);
+      // Extract error message as string (handle both string and object errors)
+      const errorData = error.response?.data?.error;
+      const errorMessage = typeof errorData === 'string'
+        ? errorData
+        : (errorData?.message || errorData?.error || error.message || 'Failed to log symptoms. Please try again.');
+      
+      if (showToast) {
+        showToast(errorMessage, 'error');
+      } else {
+        alert(`❌ ${errorMessage}`);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getRiskLevelIcon = (level) => {
-    switch(level?.toLowerCase()) {
-      case 'critical': return '🚨';
-      case 'high': return '⚠️';
-      case 'moderate': return '📋';
-      case 'low': return '👁️';
-      default: return '❓';
-    }
-  };
+  // Get all symptoms as flat list for search
+  const allSymptoms = Object.values(SYMPTOM_CATEGORIES).flat();
 
-  // Render risk assessment results
-  if (riskAssessment) {
-    return (
-      <div className="symptom-logger">
-        <div className="results-container">
-          <div className="results-header">
-            <h2>✅ Symptoms Logged Successfully</h2>
-            <p className="results-subtitle">
-              Logged for {pet.name} on {new Date().toLocaleDateString()}
-            </p>
-          </div>
-
-          {/* Alert Banner */}
-          {alert && (
-            <div className="alert-banner">
-              <div className="alert-icon">{alert.alert_type_display.split(' ')[0]}</div>
-              <div className="alert-content">
-                <strong>{alert.alert_type_display}</strong>
-                <p>{alert.alert_message}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Risk Level Card */}
-          <div className={`risk-level-card ${getRiskLevelClass(riskAssessment.level)}`}>
-            <div className="risk-badge">
-              <span className="risk-icon">{getRiskLevelIcon(riskAssessment.level)}</span>
-              <div className="risk-info">
-                <span className="risk-label">Risk Level</span>
-                <span className="risk-value">{riskAssessment.level.toUpperCase()}</span>
-              </div>
-            </div>
-            <div className="risk-score">
-              <div className="score-number">{riskAssessment.score}</div>
-              <div className="score-label">/ 100</div>
-            </div>
-          </div>
-
-          {/* Recommendation Box */}
-          <div className="recommendation-box">
-            <h3>📋 Veterinary Recommendation</h3>
-            <p className="recommendation-text">{riskAssessment.recommendation}</p>
-          </div>
-
-          {/* Risk Factors */}
-          {riskAssessment.risk_factors && riskAssessment.risk_factors.length > 0 && (
-            <div className="risk-factors-section">
-              <h3>🔍 Contributing Factors</h3>
-              <ul className="risk-factors-list">
-                {riskAssessment.risk_factors.map((factor, i) => (
-                  <li key={i}>{factor}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Summary Stats */}
-          <div className="summary-stats">
-            <div className="stat-card">
-              <div className="stat-value">{riskAssessment.symptoms_evaluated}</div>
-              <div className="stat-label">Symptoms Evaluated</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{riskAssessment.total_symptoms_reported}</div>
-              <div className="stat-label">Total Reported</div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="action-buttons">
-            <button onClick={resetForm} className="btn btn-secondary">
-              <span>➕</span> Log Another Entry
-            </button>
-            <button 
-              onClick={() => window.location.href = `/pets/${pet.id}/symptom-timeline`}
-              className="btn btn-primary"
-            >
-              <span>📊</span> View Timeline
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Render symptom logging form
   return (
-    <div className="symptom-logger">
-      <div className="logger-header">
-        <h2>🩺 Daily Symptom Log</h2>
-        <div className="pet-info">
-          <strong>{pet.name}</strong>
-          <span className="separator">•</span>
-          <span>{pet.animal_type}</span>
-          <span className="separator">•</span>
+    <div className="symptom-logger bg-white rounded-lg shadow-md p-6">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">🩺 Daily Symptom Log</h2>
+        <div className="text-sm text-gray-600">
+          <span className="font-semibold">{pet?.name}</span>
+          <span className="mx-2">•</span>
           <span>{new Date().toLocaleDateString('en-US', { 
             weekday: 'long', 
             year: 'numeric', 
@@ -342,153 +287,149 @@ const SymptomLogger = ({ pet, onComplete }) => {
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="search-section">
-        <input
-          type="text"
-          className="search-input"
-          placeholder="🔍 Search symptoms..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        {searchTerm && (
-          <button className="clear-search" onClick={() => setSearchTerm('')}>
-            ✕
-          </button>
-        )}
-      </div>
-
-      {/* Selected Symptoms Summary */}
-      {selectedSymptoms.length > 0 && (
-        <div className="selected-summary">
-          <div className="summary-header">
-            <strong>Selected Symptoms ({selectedSymptoms.length})</strong>
-            <button 
-              className="clear-all-btn"
-              onClick={() => {
-                setSelectedSymptoms([]);
-                setSymptomDetails({});
-              }}
-            >
-              Clear All
-            </button>
-          </div>
-          <div className="selected-chips">
-            {selectedSymptoms.map(symptom => (
-              <span key={symptom} className="symptom-chip">
-                {formatSymptomName(symptom)}
-                <button onClick={() => handleToggleSymptom(symptom)}>✕</button>
-              </span>
-            ))}
-          </div>
+      <form onSubmit={handleSubmit}>
+        {/* Search Bar */}
+        <div className="mb-6">
+          <input
+            type="text"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="🔍 Search symptoms..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-      )}
 
-      {/* Symptom Categories */}
-      <div className="categories-container">
-        {Object.entries(SYMPTOM_CATEGORIES).map(([category, data]) => {
-          const filteredSymptoms = filterSymptoms(data.symptoms);
-          if (searchTerm && filteredSymptoms.length === 0) return null;
-
-          const isExpanded = expandedCategories[category] !== false; // Default to expanded
-
-          return (
-            <div key={category} className="category-section">
+        {/* Selected Symptoms Summary */}
+        {selectedSymptoms.length > 0 && (
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+            <div className="flex justify-between items-center mb-2">
+              <strong className="text-blue-800">Selected Symptoms ({selectedSymptoms.length})</strong>
               <button
-                className="category-header"
-                onClick={() => toggleCategory(category)}
+                type="button"
+                onClick={() => {
+                  setSelectedSymptoms([]);
+                  setSeverityValues({});
+                }}
+                className="text-sm text-blue-600 hover:text-blue-800"
               >
-                <div className="category-title">
-                  <span className="category-icon">{data.icon}</span>
-                  <span className="category-name">{category}</span>
-                  <span className="category-count">
-                    {filteredSymptoms.filter(s => selectedSymptoms.includes(s)).length}/{filteredSymptoms.length}
-                  </span>
-                </div>
-                <span className={`expand-icon ${isExpanded ? 'expanded' : ''}`}>▼</span>
+                Clear All
               </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {selectedSymptoms.map(symptom => (
+                <span
+                  key={symptom}
+                  className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm flex items-center gap-2"
+                >
+                  {formatSymptomName(symptom)}
+                  <button
+                    type="button"
+                    onClick={() => handleToggleSymptom(symptom)}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    ✕
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
-              {isExpanded && (
-                <div className="symptoms-grid">
-                  {filteredSymptoms.map(symptom => {
-                    const isSelected = selectedSymptoms.includes(symptom);
-                    return (
-                      <div key={symptom} className="symptom-item">
-                        <label className={`symptom-checkbox ${isSelected ? 'checked' : ''}`}>
+        {/* Symptom Selection */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">Select Symptoms</h3>
+          <div className="space-y-4">
+            {Object.entries(SYMPTOM_CATEGORIES).map(([category, symptoms]) => {
+              const filteredSymptoms = filterSymptoms(symptoms);
+              if (searchTerm && filteredSymptoms.length === 0) return null;
+
+              return (
+                <div key={category} className="border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-700 mb-3">{category}</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                    {filteredSymptoms.map(symptom => {
+                      const isSelected = selectedSymptoms.includes(symptom);
+                      return (
+                        <label
+                          key={symptom}
+                          className={`flex items-center p-2 border rounded cursor-pointer transition-colors ${
+                            isSelected
+                              ? 'bg-blue-100 border-blue-500'
+                              : 'bg-white border-gray-300 hover:border-blue-300'
+                          }`}
+                        >
                           <input
                             type="checkbox"
                             checked={isSelected}
                             onChange={() => handleToggleSymptom(symptom)}
+                            className="mr-2"
                           />
-                          <span className="checkmark">✓</span>
-                          <span className="symptom-label">{formatSymptomName(symptom)}</span>
+                          <span className="text-sm">{formatSymptomName(symptom)}</span>
                         </label>
-                        {isSelected && (
-                          <input
-                            type="text"
-                            className="symptom-detail-input"
-                            placeholder="Add details (optional)..."
-                            value={symptomDetails[symptom] || ''}
-                            onChange={(e) => addSymptomDetail(symptom, e.target.value)}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              )}
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        </div>
 
-        {/* Species-Specific Symptoms */}
-        {speciesCategory && (
-          <div className="category-section species-specific">
-            <button
-              className="category-header"
-              onClick={() => toggleCategory('species')}
-            >
-              <div className="category-title">
-                <span className="category-icon">{speciesCategory.icon}</span>
-                <span className="category-name">{speciesCategory.name}</span>
-                <span className="category-count">
-                  {speciesCategory.symptoms.filter(s => selectedSymptoms.includes(s)).length}/{speciesCategory.symptoms.length}
-                </span>
-              </div>
-              <span className={`expand-icon ${expandedCategories['species'] !== false ? 'expanded' : ''}`}>▼</span>
-            </button>
-
-            {expandedCategories['species'] !== false && (
-              <div className="symptoms-grid">
-                {speciesCategory.symptoms.map(symptom => {
-                  const isSelected = selectedSymptoms.includes(symptom);
-                  return (
-                    <div key={symptom} className="symptom-item">
-                      <label className={`symptom-checkbox ${isSelected ? 'checked' : ''}`}>
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => handleToggleSymptom(symptom)}
-                        />
-                        <span className="checkmark">✓</span>
-                        <span className="symptom-label">{formatSymptomName(symptom)}</span>
+        {/* Dynamic Severity Sliders */}
+        {selectedSymptoms.length > 0 && (
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Severity (1-10 scale)</h3>
+            <div className="space-y-4">
+              {selectedSymptoms.map(symptom => {
+                const severity = severityValues[symptom] || 5;
+                const colorClass = getSeverityColor(severity);
+                return (
+                  <div key={symptom} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-medium text-gray-700">
+                        {formatSymptomName(symptom)}
                       </label>
-                      {isSelected && (
-                        <input
-                          type="text"
-                          className="symptom-detail-input"
-                          placeholder="Add details (optional)..."
-                          value={symptomDetails[symptom] || ''}
-                          onChange={(e) => addSymptomDetail(symptom, e.target.value)}
-                        />
-                      )}
+                      <span className={`text-sm font-bold ${colorClass}`}>
+                        {severity}/10
+                        {severity <= 3 && ' (Mild)'}
+                        {severity > 3 && severity <= 7 && ' (Moderate)'}
+                        {severity > 7 && ' (Severe)'}
+                      </span>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                    <input
+                      type="range"
+                      min="1"
+                      max="10"
+                      value={severity}
+                      onChange={(e) => handleSeverityChange(symptom, e.target.value)}
+                      className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${colorClass}`}
+                      style={{
+                        background: severity <= 3 
+                          ? `linear-gradient(to right, #10b981 0%, #10b981 ${(severity/10)*100}%, #e5e7eb ${(severity/10)*100}%, #e5e7eb 100%)`
+                          : severity <= 7
+                          ? `linear-gradient(to right, #f59e0b 0%, #f59e0b ${(severity/10)*100}%, #e5e7eb ${(severity/10)*100}%, #e5e7eb 100%)`
+                          : `linear-gradient(to right, #ef4444 0%, #ef4444 ${(severity/10)*100}%, #e5e7eb ${(severity/10)*100}%, #e5e7eb 100%)`
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
+
+        {/* Notes */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Any other observations?
+          </label>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Add any additional notes about your pet's condition..."
+            rows={4}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
       </div>
 
       {/* Severity Selection */}
@@ -526,60 +467,32 @@ const SymptomLogger = ({ pet, onComplete }) => {
             </div>
           ))}
         </div>
-      </div>
 
-      {/* Comparison to Yesterday */}
-      <div className="comparison-section">
-        <h3>📈 Progression</h3>
-        <p className="section-description">How do today&apos;s symptoms compare to yesterday?</p>
-        <select
-          value={comparedToYesterday}
-          onChange={(e) => setComparedToYesterday(e.target.value)}
-          className="comparison-select"
-        >
-          <option value="">Select comparison...</option>
-          <option value="worse">📈 Getting Worse</option>
-          <option value="same">➡️ About the Same</option>
-          <option value="better">📉 Getting Better</option>
-          <option value="new">🆕 First Occurrence</option>
-        </select>
-      </div>
-
-      {/* Additional Notes */}
-      <div className="notes-section">
-        <h3>📝 Additional Notes (Optional)</h3>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder={`Any other observations about ${pet.name}'s symptoms, behavior, eating, drinking, or activities...`}
-          rows={4}
-          className="notes-textarea"
-        />
-      </div>
-
-      {/* Submit Button */}
-      <div className="submit-section">
-        <button
-          onClick={handleSubmit}
-          disabled={selectedSymptoms.length === 0 || loading}
-          className="btn btn-submit"
-        >
-          {loading ? (
-            <>
-              <span className="spinner"></span>
-              Calculating Risk Score...
-            </>
-          ) : (
-            <>
-              <span>🧮</span>
-              Log Symptoms & Calculate Risk
-            </>
-          )}
-        </button>
-        {selectedSymptoms.length === 0 && (
-          <p className="submit-hint">Please select at least one symptom to continue</p>
-        )}
-      </div>
+        {/* Submit Button */}
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={selectedSymptoms.length === 0 || loading}
+            className={`px-6 py-3 rounded-lg font-semibold text-white transition-colors ${
+              selectedSymptoms.length === 0 || loading
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+          >
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <span className="animate-spin">⏳</span>
+                Analyzing with AI...
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <span>💾</span>
+                Log Symptoms
+              </span>
+            )}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

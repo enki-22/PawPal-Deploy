@@ -302,3 +302,35 @@ class SymptomAlert(models.Model):
         self.acknowledged = True
         self.acknowledged_at = timezone.now()
         self.save()
+
+
+class PetHealthTrend(models.Model):
+    """AI-generated health trend analysis for pets"""
+    
+    URGENCY_CHOICES = [
+        ('Low', 'Low'),
+        ('Medium', 'Medium'),
+        ('High', 'High'),
+        ('Critical', 'Critical'),
+    ]
+    
+    pet = models.ForeignKey('pets.Pet', on_delete=models.CASCADE, related_name='health_trends')
+    analysis_date = models.DateTimeField(auto_now_add=True)
+    
+    # AI-generated metrics
+    risk_score = models.IntegerField(default=0, help_text="Risk score from 0-100")
+    urgency_level = models.CharField(max_length=20, choices=URGENCY_CHOICES, default='Low')
+    trend_analysis = models.TextField(help_text="AI explanation of the trend")
+    prediction = models.TextField(help_text="AI forecast for next 24h")
+    alert_needed = models.BooleanField(default=False, help_text="Whether an alert should be shown")
+    
+    class Meta:
+        ordering = ['-analysis_date']
+        indexes = [
+            models.Index(fields=['pet', '-analysis_date']),
+        ]
+        verbose_name = 'Pet Health Trend'
+        verbose_name_plural = 'Pet Health Trends'
+    
+    def __str__(self):
+        return f"{self.pet.name} - {self.analysis_date.strftime('%Y-%m-%d')} - {self.urgency_level}"
