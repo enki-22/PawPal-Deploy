@@ -135,7 +135,7 @@ const AIDiagnosis = () => {
       <div className="hidden md:block sticky top-0 h-screen z-30">
         <Sidebar
           sidebarVisible={sidebarVisible}
-          currentPage="ai-diagnosis"
+          currentPage="ai-assessments"
           onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
           conversations={conversations}
           loadingConversations={loadingConversations}
@@ -171,7 +171,7 @@ const AIDiagnosis = () => {
         >
           <Sidebar
             sidebarVisible={true}
-            currentPage="ai-diagnosis"
+            currentPage="ai-assessments"
             onToggleSidebar={() => setIsMobileSidebarOpen(false)}
             conversations={conversations}
             loadingConversations={loadingConversations}
@@ -232,7 +232,7 @@ const AIDiagnosis = () => {
           <div className="hidden md:flex items-center justify-between w-full">
             <div className="flex items-center gap-2 md:gap-4">
               <h2 className="text-lg md:text-[24px] font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
-                AI Diagnosis
+                AI Assessments
               </h2>
             </div>
             {/* Search Bar - Hidden on mobile, flex on desktop */}
@@ -257,7 +257,7 @@ const AIDiagnosis = () => {
         {/* Page name below header for mobile */}
         <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#F2F4F7', paddingTop: '56px' }}>
           <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
-            AI Diagnosis
+            AI Assessments
           </h2>
         </div>
 

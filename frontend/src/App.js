@@ -84,7 +84,7 @@ function AppWithFade() {
       <Route path="/verify-reset-code" element={<FadeWrapper><VerifyResetCode /></FadeWrapper>} />
       <Route path="/create-new-password" element={<FadeWrapper><CreateNewPassword /></FadeWrapper>} />
       <Route 
-        path="/ai-diagnosis" 
+        path="/ai-assessments" 
         element={
           <ProtectedRoute>
             <FadeWrapper><AIDiagnosis /></FadeWrapper>

@@ -771,186 +771,24 @@ def chat(request):
         ai_diagnosis = None
         case_id = None
         print(f"[SOAP_CHECK] chat_mode={chat_mode}, has_pet={hasattr(conversation, 'pet') and conversation.pet is not None}")
-        if chat_mode == 'symptom_checker' and hasattr(conversation, 'pet') and conversation.pet:
-            try:
-                pet = conversation.pet
-                print(f"[SOAP_CREATION] Starting SOAP report creation for pet {pet.name} (ID: {pet.id})")
-                
-                # Extract symptoms from user message (use the message as symptoms text)
-                symptoms_text = user_message
-                
-                # Extract symptoms list (try to parse from message or use as single item)
-                symptoms_list = [s.strip() for s in symptoms_text.replace(',', '|').replace(' and ', '|').split('|') if s.strip()]
-                if not symptoms_list:
-                    symptoms_list = [symptoms_text]
-                
-                # Import vector similarity engine
-                from vector_similarity_django_integration import predict_with_vector_similarity
-                
-                # Prepare payload for Vector Engine
-                vector_payload = {
-                    'species': getattr(pet, 'species', getattr(pet, 'animal_type', 'Dog')),
-                    'symptoms_list': symptoms_list,
-                    'user_notes': user_message,  # Pass full message for Hybrid Triage
-                    'severity': 'moderate',  # Default
-                    'pet_id': pet.id
-                }
-                
-                # Call the new engine
-                ml_data = None
-                try:
-                    vector_result = predict_with_vector_similarity(vector_payload)
-                    
-                    # Extract predictions for SOAP Report
-                    # Map the vector_result['predictions'] structure to what SOAPReport expects
-                    # Map vector urgency (critical/high/moderate/low) to SOAP format (emergency/soon/routine)
-                    vector_urgency = vector_result['triage_assessment']['overall_urgency'].lower()
-                    urgency_mapping = {
-                        'critical': 'immediate',
-                        'high': 'soon',
-                        'moderate': 'routine',
-                        'low': 'routine'
-                    }
-                    soap_urgency = urgency_mapping.get(vector_urgency, 'routine')
-                    
-                    ml_data = {
-                        'predictions': [],
-                        'urgency': soap_urgency,
-                        'ai_explanation': vector_result['overall_recommendation']
-                    }
-                    
-                    for pred in vector_result['predictions']:
-                        ml_data['predictions'].append({
-                            'label': pred['disease'],
-                            'confidence': pred['probability'],
-                            'recommendation': pred['match_explanation']
-                        })
-                    
-                    print(f"[SOAP_CREATION] Successfully got Vector predictions")
-                    
-                except Exception as e:
-                    print(f"⚠️ Vector prediction failed: {e}")
-                    logger.error(f"Vector prediction failed in SOAP creation: {e}")
-                    ml_data = None
-                    print(f"[SOAP_CREATION] Creating SOAP report without ML predictions (using AI response only)...")
-                
-                # Build assessment entries
-                assessment = []
-                if ml_data and ml_data.get('predictions'):
-                    # Use ML predictions if available
-                    for pred in ml_data.get('predictions', [])[:3]:
-                        assessment.append({
-                            'condition': pred.get('label', 'Unknown'),
-                            'likelihood': float(pred.get('confidence', 0.0)),
-                            'description': 'AI-predicted condition based on reported symptoms.',
-                            'matched_symptoms': symptoms_list,
-                            'urgency': ml_data.get('urgency', 'routine').title() if ml_data.get('urgency') else 'Mild',
-                            'contagious': False,
-                        })
-                else:
-                    # Fallback: Create basic assessment from symptoms
-                    # Analyze symptoms to determine urgency (basic keyword matching)
-                    urgent_keywords = ['not moving', 'not eating', 'not responding', 'emergency', 'critical', 'severe', 'lethargy', 'unresponsive']
-                    symptom_lower = symptoms_text.lower()
-                    is_urgent = any(keyword in symptom_lower for keyword in urgent_keywords)
-                    
-                    assessment.append({
-                        'condition': 'Symptom Assessment Required',
-                        'likelihood': 0.7,
-                        'description': 'AI assessment based on reported symptoms. Veterinary examination recommended for accurate diagnosis.',
-                        'matched_symptoms': symptoms_list,
-                        'urgency': 'Immediate' if is_urgent else 'Soon',
-                        'contagious': False,
-                    })
-                
-                # Determine plan severity based on assessment urgency
-                severity_map = {
-                    'routine': 'Moderate',
-                    'soon': 'Urgent',
-                    'immediate': 'Emergency',
-                    'emergency': 'Emergency',
-                }
-                
-                if ml_data:
-                    # Use ML urgency if available
-                    ml_urgency = str(ml_data.get('urgency', 'routine')).lower()
-                    severity_level = severity_map.get(ml_urgency, 'Moderate')
-                else:
-                    # For symptom checker mode without ML, default to Urgent
-                    # This ensures consistent flag level matching
-                    severity_level = 'Urgent'
-                
-                # Ensure flag level matches severity level exactly
-                flag_level = severity_level
-                
-                # Debug logging
-                print(f"[FLAG_LEVEL] Severity Level: {severity_level}, Flag Level: {flag_level}")
-                if ml_data:
-                    print(f"[FLAG_LEVEL] ML Urgency: {ml_data.get('urgency')}")
-                else:
-                    print(f"[FLAG_LEVEL] No ML data - using default Urgent for symptom checker mode")
-                
-                # Generate case ID with better uniqueness (12 chars for maximum uniqueness)
-                case_id = f"#PDX-{timezone.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:12].upper()}"
-                
-                # Create SOAP Report
-                soap_report = SOAPReport.objects.create(
-                    case_id=case_id,
-                    pet=pet,
-                    chat_conversation=conversation,
-                    subjective=f"Owner reports: {symptoms_text}",
-                    objective={
-                        'symptoms': symptoms_list,
-                        'duration': '',  # Could extract from message if available
-                        'image_analysis': ml_data.get('image_analysis') if ml_data else None,
-                        'ml_confidence': ml_data.get('confidence_score', 0.0) if ml_data else 0.0
-                    },
-                    assessment=assessment,
-                    plan={
-                        'severityLevel': severity_level,
-                        'careAdvice': [
-                            'Monitor your pet closely and provide comfort.',
-                            'Ensure access to fresh water and rest.',
-                            'Seek veterinary care based on severity.',
-                        ],
-                        'aiExplanation': ml_data.get('ai_explanation', ai_response) if ml_data else ai_response,
-                        'recommendedActions': []
-                    },
-                    flag_level=flag_level,
-                )
-                
-                # Create AIDiagnosis record
-                ai_diagnosis = AIDiagnosis.objects.create(
-                    user=user_obj,
-                    pet=pet,
-                    case_id=case_id,
-                    symptoms_text=symptoms_text,
-                    image_analysis=ml_data.get('image_analysis') if ml_data else None,
-                    ml_predictions=ml_data.get('predictions', []) if ml_data else [],
-                    ai_explanation=ml_data.get('ai_explanation', ai_response) if ml_data else ai_response,
-                    suggested_diagnoses=assessment,
-                    overall_severity=ml_data.get('severity', 'moderate') if ml_data else 'moderate',
-                    urgency_level=ml_data.get('urgency', 'routine') if ml_data else 'soon',
-                    pet_context=pet_context or {},
-                    confidence_score=ml_data.get('confidence_score', 0.0) if ml_data else 0.0
-                )
-                
-                print(f"✅ Created SOAP report {case_id} and AI Diagnosis for conversation {conversation.id}")
-                print(f"✅ SOAP Report ID: {soap_report.id}, AI Diagnosis ID: {ai_diagnosis.id}")
-                if not ml_data:
-                    print(f"⚠️ Note: SOAP report created without ML predictions due to ML model error")
-                    
-            except Exception as e:
-                print(f"⚠️ Error creating SOAP report: {str(e)}")
-                print(f"⚠️ Error type: {type(e).__name__}")
-                # Don't fail the chat if SOAP creation fails
-                import traceback
-                traceback.print_exc()
-        else:
-            if chat_mode != 'symptom_checker':
-                print(f"[SOAP_CHECK] Skipping SOAP creation - chat_mode is '{chat_mode}', not 'symptom_checker'")
-            elif not hasattr(conversation, 'pet') or not conversation.pet:
-                print(f"[SOAP_CHECK] Skipping SOAP creation - conversation {conversation.id} has no pet linked")
+        # REMOVED: Automatic SOAP report and AI Diagnosis creation from chat flow
+        # Formal assessments should only be created via the create_ai_diagnosis endpoint
+        # (called by the frontend questionnaire), not from casual chat messages
+        soap_report = None
+        case_id = None
+        
+        # COMMENTED OUT: Automatic assessment creation from chat messages
+        # This was polluting the formal Assessment list with casual symptom chats
+        # if chat_mode == 'symptom_checker' and hasattr(conversation, 'pet') and conversation.pet:
+            # COMMENTED OUT: Entire automatic SOAP/AI Diagnosis creation block
+            # try:
+            #     pet = conversation.pet
+            #     print(f"[SOAP_CREATION] Starting SOAP report creation for pet {pet.name} (ID: {pet.id})")
+            #     ... (entire block removed to prevent casual chats from polluting formal assessments)
+            # except Exception as e:
+            #     ...
+        # else:
+        #     ...
         
         # Save AI response
         ai_msg = Message.objects.create(
