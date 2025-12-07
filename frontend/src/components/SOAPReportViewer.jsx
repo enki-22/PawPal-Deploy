@@ -1,33 +1,15 @@
-
 import React from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
-/**
- * Flag icon component
- */
 function MaterialSymbolsFlagRounded({ className }) {
-  // Simple flag icon SVG, smaller size, purple color
   return (
-    <svg
-      className={className}
-      width="32"
-      height="32"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#815fb3"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
+    <svg className={className} width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#815fb3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M5 21V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" />
       <line x1="5" y1="21" x2="5" y2="5" />
     </svg>
   );
 }
-
-
 
 const SOAPReportViewer = ({ caseId, onClose }) => {
   const [report, setReport] = React.useState(null);
@@ -39,16 +21,10 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
     try {
       setLoading(true);
       setError(null);
-      // Remove # if present in caseId
       const cleanCaseId = caseId.replace('#', '');
-      const response = await axios.get(
-        `http://localhost:8000/api/chatbot/diagnosis/soap/${cleanCaseId}`,
-        {
-          headers: {
-            'Authorization': token ? `Bearer ${token}` : '',
-          }
-        }
-      );
+      const response = await axios.get(`http://localhost:8000/api/chatbot/diagnosis/soap/${cleanCaseId}`, {
+        headers: { 'Authorization': token ? `Bearer ${token}` : '' }
+      });
       if (response.data.success && response.data.soap_report) {
         setReport(response.data.soap_report);
       } else {
@@ -62,28 +38,12 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
     }
   }, [caseId, token]);
 
-  React.useEffect(() => {
-    if (caseId) {
-      fetchSOAPReport();
-    }
-  }, [caseId, fetchSOAPReport]);
-
-
-  // Prevent main page from scrolling when modal is open
-  React.useEffect(() => {
-    document.body.classList.add('overflow-hidden');
-    return () => {
-      document.body.classList.remove('overflow-hidden');
-    };
-  }, []);
+  React.useEffect(() => { if (caseId) fetchSOAPReport(); }, [caseId, fetchSOAPReport]);
+  React.useEffect(() => { document.body.classList.add('overflow-hidden'); return () => document.body.classList.remove('overflow-hidden'); }, []);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    return new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
   const getLikelihoodColor = (likelihood) => {
@@ -92,258 +52,123 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
     return 'bg-[rgba(137,254,114,0.56)]';
   };
 
-  if (loading) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-lg p-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#815fb3] mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading SOAP report...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"><div className="bg-white rounded-lg p-8"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#815fb3] mx-auto mb-4"></div><p className="text-gray-600">Loading SOAP report...</p></div></div>;
+  if (error) return <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"><div className="bg-white rounded-lg p-6 text-center"><h3 className="text-xl text-red-600 mb-2">Error</h3><p className="text-gray-600 mb-4">{error}</p><button onClick={onClose} className="px-6 py-2 bg-[#815fb3] text-white rounded-lg">Close</button></div></div>;
+  if (!report) return null;
 
-  if (error) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-lg max-w-md w-full p-6">
-          <div className="text-center">
-            <div className="text-red-600 text-4xl mb-4">⚠️</div>
-            <h3 className="text-lg text-gray-900 mb-2">Error</h3>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <button
-              onClick={onClose}
-              className="px-6 py-2 bg-[#815fb3] text-white rounded-lg hover:bg-[#6d4d9a] transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!report) {
-    return null;
-  }
-
-  // Parse diagnoses - assessment is an array, not an object with diagnoses property
   const diagnoses = Array.isArray(report.assessment) ? report.assessment : (report.assessment?.diagnoses || []);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 md:p-4 z-50">
-      <div className="bg-[#fffff2] rounded-[10px] w-full max-w-full md:max-w-5xl min-w-0 md:min-w-[600px] my-4 md:my-8 relative max-h-[95vh] overflow-y-auto px-2 md:px-0">
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute right-2 top-2 md:right-4 md:top-4 text-gray-600 hover:text-gray-800 text-2xl md:text-3xl z-10 font-bold"
-        >
-          ×
-        </button>
+      <div className="bg-[#fffff2] rounded-[10px] w-full max-w-5xl my-4 md:my-8 relative max-h-[95vh] overflow-y-auto px-2 md:px-0">
+        <button onClick={onClose} className="absolute right-4 top-4 text-3xl font-bold text-gray-600 hover:text-gray-800">×</button>
 
-        {/* Header with logo */}
-        <div className="relative pt-4 md:pt-6 px-2 md:px-8">
-          <div className="flex flex-col md:flex-row items-start md:items-center">
-            <div className="w-[40px] h-[40px] md:w-[60px] md:h-[60px] flex-shrink-0 relative">
-              <img src="/pawpalicon.png" alt="PawPal" className="w-full h-full object-contain" />
-              <span
-                style={{
-                  position: 'absolute',
-                  left: '45px', // 5px right of logo (mobile)
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  fontFamily: 'MuseoModerno, sans-serif',
-                  fontStyle: 'normal',
-                  fontWeight: 900,
-                  fontSize: '18px',
-                  lineHeight: '24px',
-                  textAlign: 'left',
-                  color: '#815FB3',
-                  letterSpacing: '0.02em',
-                  zIndex: 2,
-                  whiteSpace: 'nowrap',
-                }}
-                className="md:text-[30px] md:line-[44px]"
-              >
-                PAWPAL
-              </span>
+        {/* HEADER */}
+        <div className="relative pt-6 px-8 flex flex-col md:flex-row items-center">
+          <div className="w-[60px] h-[60px] relative">
+            <img src="/pawpalicon.png" alt="PawPal" className="w-full h-full object-contain" />
+            <span className="absolute left-[50px] top-1/2 -translate-y-1/2 font-black text-[#815FB3] text-[30px] whitespace-nowrap">PAWPAL</span>
+          </div>
+          <div className="md:absolute md:top-6 md:right-12 text-right mt-2 md:mt-0">
+            <p className="text-sm text-gray-500">Date Generated: <span className="text-black">{formatDate(report.date_generated)}</span></p>
+            <p className="text-sm text-gray-500">Case ID: <span className="text-black">#{report.case_id}</span></p>
+          </div>
+        </div>
+
+        {/* PET & OWNER INFO */}
+        <div className="px-2 md:px-8 mt-6">
+          <div className="bg-[rgba(187,159,228,0.3)] rounded-[10px] p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-2 relative">
+            <div className="space-y-2">
+              <p><span className="text-gray-500 text-sm">Pet Owner Name: </span><span className="text-black text-sm">{report.owner?.name || 'N/A'}</span></p>
+              <p><span className="text-gray-500 text-sm">City/Province: </span><span className="text-black text-sm">{report.owner?.city || 'N/A'}</span></p>
+              <p><span className="text-gray-500 text-sm">Contact Number: </span><span className="text-black text-sm">{report.owner?.contact_number || 'N/A'}</span></p>
+              <p><span className="text-gray-500 text-sm">Pet Name: </span><span className="font-bold text-black text-sm">{report.pet?.name || 'N/A'}</span></p>
+              <p><span className="text-gray-500 text-sm">Animal Type: </span><span className="font-bold text-black text-sm">{report.pet?.animal_type || 'N/A'}</span></p>
+              <p><span className="text-gray-500 text-sm">Breed: </span><span className="font-bold text-black text-sm">{report.pet?.breed || 'N/A'}</span></p>
             </div>
-            <div className="flex flex-col md:absolute md:top-6 md:right-12 md:text-right ml-2 md:ml-0 mt-2 md:mt-0">
-              <p className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)] whitespace-nowrap">
-                Date Generated: <span className="text-black">{formatDate(report.date_generated)}</span>
-              </p>
-              <p className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)] whitespace-nowrap">
-                Case ID: <span className="text-black">#{report.case_id}</span>
-              </p>
+            <div className="hidden md:block absolute left-1/2 top-6 bottom-6 w-[1px] bg-black opacity-30"></div>
+            <div className="space-y-2">
+              <p><span className="text-gray-500 text-sm">Sex: </span><span className="font-bold text-black text-sm">{report.pet?.sex || 'N/A'}</span></p>
+              <p><span className="text-gray-500 text-sm">Blood Type: </span><span className="font-bold text-black text-sm">{report.pet?.blood_type || 'N/A'}</span></p>
+              <p><span className="text-gray-500 text-sm">Spayed/Neutered: </span><span className="font-bold text-black text-sm">{report.pet?.spayed_neutered || 'N/A'}</span></p>
+              <p><span className="text-gray-500 text-sm">Age: </span><span className="font-bold text-black text-sm">{report.pet?.age || 'N/A'}</span></p>
+              <p><span className="text-gray-500 text-sm">Allergies: </span><span className="font-bold text-black text-sm">{report.pet?.allergies || 'N/A'}</span></p>
+              <p><span className="text-gray-500 text-sm">Chronic Disease: </span><span className="font-bold text-black text-sm">{report.pet?.chronic_disease || 'N/A'}</span></p>
             </div>
           </div>
         </div>
 
-        {/* Pet and Owner Information Section */}
-        <div className="px-2 md:px-8 mt-4 md:mt-6">
-          <div className="bg-[rgba(187,159,228,0.3)] rounded-[10px] p-3 md:p-8 relative">
-            <div className="flex flex-col md:grid md:grid-cols-2 md:gap-x-12 gap-y-2">
-              {/* Left Column */}
-              <div className="space-y-2 md:space-y-3">
-                <div>
-                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Pet Owner Name: </span>
-                  <span className="font-['Inter'] text-xs md:text-sm text-black">{report.owner?.name || 'N/A'}</span>
-                </div>
-                <div>
-                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">City/Province: </span>
-                  <span className="font-['Inter'] text-xs md:text-sm text-black">{report.owner?.location || 'N/A'}</span>
-                </div>
-                <div>
-                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Contact Number: </span>
-                  <span className="font-['Inter'] text-xs md:text-sm text-black">{report.owner?.contact || 'N/A'}</span>
-                </div>
-                <div>
-                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Pet Name: </span>
-                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.name || 'N/A'}</span>
-                </div>
-                <div>
-                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Animal Type: </span>
-                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.animal_type || 'N/A'}</span>
-                </div>
-                <div>
-                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Breed: </span>
-                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.breed || 'N/A'}</span>
-                </div>
-              </div>
-
-              {/* Vertical divider (hide on mobile) */}
-              <div className="hidden md:block absolute left-1/2 top-6 bottom-6 w-[1px] bg-black opacity-70"></div>
-
-              {/* Right Column */}
-              <div className="space-y-2 md:space-y-3">
-                <div>
-                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Sex: </span>
-                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.sex || 'N/A'}</span>
-                </div>
-                <div>
-                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Blood Type: </span>
-                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.blood_type || 'N/A'}</span>
-                </div>
-                <div>
-                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Spayed/Neutered: </span>
-                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.spayed_neutered || 'N/A'}</span>
-                </div>
-                <div>
-                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Age: </span>
-                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.age || 'N/A'}</span>
-                </div>
-                <div>
-                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Allergies: </span>
-                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.allergies || 'N/A'}</span>
-                </div>
-                <div>
-                  <span className="font-['Inter'] text-xs md:text-sm text-[rgba(0,0,0,0.7)]">Chronic Disease: </span>
-                  <span className="font-['Inter'] text-xs md:text-sm text-black font-bold">{report.pet?.chronic_disease || 'N/A'}</span>
-                </div>
-              </div>
-            </div>
+        {/* 1. CLINICAL SUMMARY - Plain Text Style */}
+        {(report.clinical_summary || report.ai_explanation) && (
+          <div className="px-2 md:px-8 mt-6">
+            <p className="font-['Inter'] text-sm md:text-base text-black leading-relaxed">
+              {report.clinical_summary || report.ai_explanation}
+            </p>
+            
+            {/* Dynamic Symptoms Sentence */}
+            <p className="font-['Inter'] text-sm md:text-base text-black leading-relaxed mt-4">
+              The symptoms noted include: <span className="font-semibold">{Array.isArray(report.objective?.symptoms) ? report.objective.symptoms.join(', ') : (report.objective?.symptoms || 'N/A')}</span>.
+            </p>
           </div>
-        </div>
+        )}
 
-        {/* Subjective Section */}
-        <div className="px-2 md:px-8 mt-4 md:mt-6">
-          <div className="font-['Inter'] text-xs md:text-sm text-black leading-relaxed">
-            <p className="mb-2 md:mb-4">{report.subjective || 'No subjective information available.'}</p>
-            {report.objective && (
-              <p>
-                The symptoms noted include: {Array.isArray(report.objective.symptoms) 
-                  ? report.objective.symptoms.join(', ') 
-                  : report.objective.symptoms || 'N/A'}
-                {report.objective.duration && `. These have persisted for approximately ${report.objective.duration}.`}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Diagnoses Section */}
+        {/* 2. DIAGNOSES CARDS */}
         {diagnoses.length > 0 && (
-          <div className="px-2 md:px-8 mt-4 md:mt-6 space-y-3 md:space-y-4">
-            {diagnoses.map((diagnosis, index) => {
-              // Handle different field name formats (condition vs name, likelihood as decimal vs percentage)
-              const conditionName = diagnosis.condition || diagnosis.name || diagnosis.condition_name || 'Unknown Diagnosis';
-              const likelihood = diagnosis.likelihood_percentage !== undefined 
-                ? diagnosis.likelihood_percentage 
-                : (typeof diagnosis.likelihood === 'number' 
-                    ? (diagnosis.likelihood <= 1 ? diagnosis.likelihood * 100 : diagnosis.likelihood)
-                    : 0);
-              const matchedSymptoms = Array.isArray(diagnosis.matched_symptoms) 
-                ? diagnosis.matched_symptoms.join(', ') 
-                : (diagnosis.matched_symptoms || '');
-              
+          <div className="px-2 md:px-8 mt-6 space-y-4">
+            {diagnoses.map((d, i) => {
+              // Determine Color
+              const score = d.likelihood_percentage || 0;
+              let badgeColor = 'bg-[#89FE72]'; // Green
+              if (score >= 80) badgeColor = 'bg-[#E75A5A] text-white'; // Red
+              else if (score >= 40) badgeColor = 'bg-[#FFF07B]'; // Yellow
+
               return (
-                <div key={index} className="bg-[#f0f0f0] rounded-[10px] p-3 md:p-6 relative">
-                  <div className="absolute top-2 right-2 md:top-6 md:right-6">
-                    <div className={`${getLikelihoodColor(likelihood)} rounded-[5px] px-2 py-1 md:px-4 md:py-2`}>
-                      <span className="font-['Inter'] text-xs md:text-sm text-black font-medium">
-                        Likelihood: {Math.round(likelihood)}%
-                      </span>
-                    </div>
+                <div key={i} className="bg-[#f4f4f4] rounded-lg p-5">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-[#815FB3] font-bold text-lg">{d.condition || d.name}</h3>
+                    <span className={`${badgeColor} px-3 py-1 rounded-md text-sm font-bold shadow-sm`}>
+                      Likelihood: {Math.round(score)}%
+                    </span>
                   </div>
-                  <p className="font-['Inter'] font-medium text-[#815fb3] text-xs md:text-base mb-2 md:mb-3 pr-16 md:pr-32">
-                    {conditionName}
-                  </p>
-                  <div className="font-['Inter'] text-xs md:text-sm text-black">
-                    <p className="mb-2 md:mb-3 leading-relaxed">{diagnosis.description || ''}</p>
-                    <ul className="list-disc ml-4 md:ml-6 space-y-1 md:space-y-2">
-                      {matchedSymptoms && (
-                        <li>Matched Symptoms: {matchedSymptoms}</li>
-                      )}
-                      {diagnosis.urgency && (
-                        <li>Urgency: {diagnosis.urgency}</li>
-                      )}
-                      {diagnosis.contagious !== undefined && (
-                        <li>Contagious: {diagnosis.contagious ? 'Yes' : 'No'}</li>
-                      )}
-                    </ul>
-                  </div>
+                  <p className="text-gray-700 text-sm mb-3">{d.description}</p>
+                  <ul className="list-disc ml-5 text-sm space-y-1 text-gray-800">
+                    <li><span className="font-semibold">Matched Symptoms:</span> {Array.isArray(d.matched_symptoms) ? d.matched_symptoms.join(', ') : d.matched_symptoms}</li>
+                    <li><span className="font-semibold">Urgency:</span> {d.urgency}</li>
+                    <li><span className="font-semibold">Contagious:</span> {d.contagious ? 'Yes' : 'No'}</li>
+                  </ul>
                 </div>
               );
             })}
           </div>
         )}
 
-        {/* Severity Level Section */}
-        {report.plan?.severityLevel && (
-          <div className="px-2 md:px-8 mt-4 md:mt-6">
-            <div className="flex flex-col md:flex-row items-start">
-              <MaterialSymbolsFlagRounded className="size-[36px] md:size-[60px] flex-shrink-0" />
-              <div className="ml-2 md:ml-4 font-['Inter'] text-xs md:text-sm text-black">
-                <p className="mb-1 md:mb-2">
-                  <span className="font-bold text-xs md:text-base">Severity Level: {report.plan.severityLevel}</span>
-                </p>
-                <p className="leading-relaxed">{report.plan.aiExplanation || ''}</p>
+        {/* 3. SEVERITY & ADVICE */}
+        {report.plan && (
+          <div className="px-2 md:px-8 mt-8 mb-10">
+            <div className="flex items-start mb-4">
+              {/* Yellow Flag Icon */}
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="#FFD700" className="flex-shrink-0 mr-4">
+                <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/>
+              </svg>
+              <div>
+                <h4 className="font-bold text-black text-lg">Severity Level: {report.plan.severityLevel}</h4>
+                <p className="text-sm text-gray-700 mt-1">{report.plan.aiExplanation}</p>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Care Advice Section */}
-        {report.plan?.careAdvice && report.plan.careAdvice.length > 0 && (
-          <div className="px-2 md:px-8 mt-4 md:mt-6">
-            <div className="font-['Inter'] text-xs md:text-sm text-black md:ml-16">
-              <p className="font-bold mb-2 md:mb-3 text-xs md:text-base">Care Advice:</p>
-              <ul className="list-disc ml-4 md:ml-6 space-y-1 md:space-y-2 leading-relaxed">
-                {report.plan.careAdvice.map((advice, index) => (
-                  <li key={index}>{advice}</li>
+            
+            <div className="mt-6">
+              <h4 className="font-bold text-black mb-2">Care Advice:</h4>
+              <ul className="list-disc ml-6 space-y-2 text-sm text-gray-800">
+                {report.plan.careAdvice?.map((advice, idx) => (
+                  <li key={idx}>{advice}</li>
                 ))}
               </ul>
             </div>
           </div>
         )}
-
-          {/* Footer spacing */}
-          <div className="h-6 md:h-10"></div>
       </div>
     </div>
   );
 };
 
 export default SOAPReportViewer;
-

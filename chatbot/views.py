@@ -2611,16 +2611,46 @@ def create_ai_diagnosis(request):
         except Pet.DoesNotExist:
             return Response({'error': 'Pet not found'}, status=status.HTTP_404_NOT_FOUND)
         
+        # Generate explicit case_id with better uniqueness (12 chars for maximum uniqueness)
+        # This prevents collisions that were causing assessments to appear overwritten
+        # Generate it early so we can use it in SOAP data generation
+        explicit_case_id = f"PDX-{timezone.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:12].upper()}"
+        print(f"🟢 Step 0: Generated explicit case_id: {explicit_case_id}")
+        
         # Use assessment data from symptom checker if available
         if assessment_data:
             predictions = assessment_data.get('predictions', [])
             urgency_level = assessment_data.get('urgency_level', 'moderate')
             overall_recommendation = assessment_data.get('overall_recommendation', '')
             triage_assessment = assessment_data.get('triage_assessment', {})
-            soap_data = assessment_data.get('soap_data', {})
+            
+            # Extract verification_result from triage_assessment
+            verification_result = triage_assessment.get('verification_result', {})
+            
+            # Build raw_predictions dict for format_soap_report_with_vector_similarity
+            # This should contain 'confidences' (list of predictions) and other metadata
+            raw_predictions = {
+                'confidences': predictions,  # List of prediction dictionaries
+                'top_prediction': predictions[0].get('disease', predictions[0].get('label', 'Unknown')) if predictions else 'Unknown',
+                'confidence': predictions[0].get('confidence', 0) if predictions else 0,
+                'top_prediction_details': predictions[0] if predictions else {},
+                'symptoms': assessment_data.get('symptoms_list', []),
+                'duration': assessment_data.get('duration_days', 'Unspecified'),
+                'case_id': explicit_case_id
+            }
+            
+            # Generate SOAP data using the updated function signature
+            from vector_similarity_django_integration import format_soap_report_with_vector_similarity
+            
+            # Pass the full prediction payload so we get the Top 3 diseases
+            soap_data = format_soap_report_with_vector_similarity(
+                pet.name,           # 1. Pet Name
+                raw_predictions,    # 2. The raw prediction/search result dictionary (contains 'confidences')
+                verification_result # 3. The AI verification result
+            )
             
             logger.info(f"Assessment data keys: {assessment_data.keys()}")
-            logger.info(f"SOAP data present: {bool(soap_data)}")
+            logger.info(f"SOAP data generated: {bool(soap_data)}")
             logger.info(f"SOAP data keys: {soap_data.keys() if soap_data else 'None'}")
         else:
             return Response({'error': 'assessment_data is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -2644,10 +2674,6 @@ def create_ai_diagnosis(request):
             })
         
         print("🟢 Step 2: About to create AIDiagnosis record")
-        
-        # Generate explicit case_id with better uniqueness (12 chars for maximum uniqueness)
-        # This prevents collisions that were causing assessments to appear overwritten
-        explicit_case_id = f"PDX-{timezone.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:12].upper()}"
         print(f"🟢 Step 2a: Generated explicit case_id: {explicit_case_id}")
         
         # Create AI Diagnosis record with explicit case_id
@@ -2708,8 +2734,10 @@ def create_ai_diagnosis(request):
             'careAdvice': [overall_recommendation]
         }
         
-        # Use the explicit case_id we generated, ensuring # prefix for SOAP report
-        soap_case_id = f'#{explicit_case_id}' if not explicit_case_id.startswith('#') else explicit_case_id
+        # Use the explicit case_id we generated, save it cleanly without # prefix
+        # The frontend handles the display symbol
+        explicit_case_id_clean = explicit_case_id.lstrip('#')
+        soap_case_id = explicit_case_id_clean
         
         logger.info(f"🔵 About to create SOAP report for case_id: {soap_case_id}")
         logger.info(f"🔵 SOAP parameters: case_id={soap_case_id}, pet={pet.id}, flag_level={flag_level}")

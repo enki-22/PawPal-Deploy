@@ -473,27 +473,54 @@ def get_gemini_client():
         
         print(f"Found {len(supported_models)} models supporting generateContent")
         
-        # Sort models: prioritize those containing "1.5" and "flash" (case-insensitive)
+        # Sort models: prioritize PRO models for Thesis Defense (Accuracy > Speed)
         def get_priority_score(model_name):
-            """Higher score = higher priority"""
+            """
+            Scoring logic to prioritize models for Thesis Defense (Accuracy > Speed).
+            Priority Order:
+            1. Gemini 1.5 PRO (Highest reasoning capability)
+            2. Gemini 1.5 FLASH (Fallback)
+            3. Others
+            """
             name_lower = model_name.lower()
             score = 0
+            
+            # --- POSITIVE SCORING ---
+            
+            # TIER 1: PRO models (The "Brain" - Critical for Medical Diagnosis)
+            if "pro" in name_lower:
+                score += 100
+            
+            # TIER 2: Version 1.5 (Current Stable Standard)
             if "1.5" in name_lower:
-                score += 10
+                score += 50
+                
+            # TIER 3: Flash (Fast, but less reasoning depth - backup only)
             if "flash" in name_lower:
-                score += 5
-            if "1.5" in name_lower and "flash" in name_lower:
-                score += 5  # Bonus for both
+                score += 10  # Give it points, but much less than Pro
+                
+            # --- NEGATIVE SCORING ---
+            
+            # Penalize "Vision" specific models if we are doing text diagnosis (optional)
+            if "vision" in name_lower and "pro" not in name_lower:
+                score -= 10
+
+            # Penalize Experimental/Preview models (Stability Risk for Defense)
+            if "experimental" in name_lower or "preview" in name_lower:
+                score -= 20
+                
             return score
         
         # Sort by priority (highest first), then alphabetically
         sorted_models = sorted(supported_models, key=lambda x: (-get_priority_score(x), x))
         
-        print(f"\n=== TRYING MODELS (PRIORITIZING HIGH-QUOTA MODELS) ===")
+        print(f"\n=== TRYING MODELS (PRIORITIZING PRO FOR ACCURACY) ===")
         for i, model_name in enumerate(sorted_models, 1):
             priority_info = ""
-            if "1.5" in model_name.lower() and "flash" in model_name.lower():
-                priority_info = " [HIGH-QUOTA PRIORITY]"
+            if "pro" in model_name.lower():
+                priority_info = " [PRO - HIGHEST PRIORITY]"
+            elif "1.5" in model_name.lower() and "flash" in model_name.lower():
+                priority_info = " [FLASH - FALLBACK]"
             
             print(f"[{i}/{len(sorted_models)}] Trying model: {model_name}{priority_info}")
             

@@ -8,6 +8,7 @@ import logging
 import json
 import os
 import re
+import ast
 from chatbot.utils import get_gemini_client
 from modules.questionnaire.diagnosis_verifier import DiagnosisVerifier
 
@@ -817,7 +818,9 @@ def predict_with_vector_similarity(payload):
             'disclaimer': result['disclaimer'],
             # Legacy fields for backward compatibility
             'overall_recommendation': overall_recommendation,
-            'urgency_level': urgency_level
+            'urgency_level': urgency_level,
+            # Clinical summary from verification result (if available)
+            'clinical_summary': verification_result.get('clinical_summary', '') if verification_result else ''
         }
         
     except Exception as e:
@@ -825,77 +828,111 @@ def predict_with_vector_similarity(payload):
         raise
 
 
-def format_soap_report_with_vector_similarity(result, cleaned_payload):
-    """
-    Format SOAP report using vector similarity results
-    Compatible with existing SOAP report structure
-    """
-    predictions = result['predictions']
-    triage = result['triage_assessment']
+def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verification_result):
+    import datetime
+
+    # --- HELPER: Safe Extractor ---
+    def get_val(data, keys, default=None):
+        for k in keys:
+            if isinstance(data, dict) and data.get(k): return data[k]
+        return default
+
+    # 1. EXTRACT DATA SOURCES
+    # Try multiple keys for the list of predictions
+    candidates = get_val(raw_predictions, ['confidences', 'predictions', 'ranking'], [])
+    if not candidates and raw_predictions.get('top_prediction'):
+        # Handle flat structure
+        candidates = [{
+            'name': raw_predictions['top_prediction'],
+            'confidence': raw_predictions.get('confidence', 0),
+            'details': raw_predictions.get('top_prediction_details', {})
+        }]
+
+    # 2. EXTRACT SYMPTOMS (Priority: AI Verified -> Raw Input)
+    symptoms_list = verification_result.get("symptoms_consistent")
     
-    # Subjective
-    subjective_parts = []
-    subjective_parts.append(f"Owner reports: {cleaned_payload.get('main_concern', 'General symptoms')}")
-    subjective_parts.append(f"Symptoms: {', '.join(cleaned_payload.get('symptoms_list', []))}")
-    subjective_parts.append(f"Duration: {cleaned_payload.get('duration_days', 'Unknown')} days")
-    subjective_parts.append(f"Progression: {cleaned_payload.get('progression', 'Unknown')}")
+    # If AI didn't return symptoms, strictly look for them in raw input
+    if not symptoms_list or symptoms_list == "N/A":
+        symptoms_list = get_val(raw_predictions, ['symptoms', 'symptoms_list', 'input_symptoms'])
     
-    # Objective
-    objective_parts = []
-    objective_parts.append(f"Species: {cleaned_payload.get('species', 'Unknown')}")
-    objective_parts.append(f"Symptom count: {len(cleaned_payload.get('symptoms_list', []))}")
-    
-    emergency_screen = cleaned_payload.get('emergency_data', {}).get('emergencyScreen', {})
-    if emergency_screen:
-        objective_parts.append("Emergency screening:")
-        objective_parts.append(f"  - Respiration: {emergency_screen.get('respiration', 'Unknown')}")
-        objective_parts.append(f"  - Alertness: {emergency_screen.get('alertness', 'Unknown')}")
-        objective_parts.append(f"  - Perfusion: {emergency_screen.get('perfusion', 'Unknown')}")
-        if emergency_screen.get('criticalSymptoms'):
-            objective_parts.append(f"  - Critical symptoms: {', '.join(emergency_screen.get('criticalSymptoms', []))}")
-    
-    # Assessment
-    assessment_parts = []
-    assessment_parts.append(f"Urgency Level: {triage['overall_urgency'].upper()}")
-    assessment_parts.append(f"Reasoning: {triage['urgency_reasoning'][0]}")
-    
-    if triage.get('red_flags'):
-        assessment_parts.append(f"⚠️ Red Flags Detected: {', '.join(triage['red_flags'])}")
-    
-    assessment_parts.append("\nDifferential Diagnosis (by match confidence):")
-    for i, pred in enumerate(predictions[:5], 1):
-        assessment_parts.append(
-            f"{i}. {pred['disease']} ({pred['confidence']:.1f}% match)"
-        )
-        assessment_parts.append(f"   - {pred['match_explanation']}")
-        assessment_parts.append(f"   - Base urgency: {pred['urgency']}")
-    
-    # Plan
-    plan_parts = []
-    plan_parts.append(f"Recommended Action: {result['recommendation']}")
-    plan_parts.append(f"Timeline: {triage['requires_care_within']}")
-    
-    if triage.get('emergency_action'):
-        plan_parts.append(f"🚨 {triage['emergency_action']}")
-    
-    plan_parts.append("\nNext Steps:")
-    if triage['requires_immediate_care']:
-        plan_parts.append("1. Seek emergency veterinary care immediately")
-        plan_parts.append("2. Call ahead to emergency clinic")
-        plan_parts.append("3. Prepare pet for transport")
-    elif triage['overall_urgency'] == 'high':
-        plan_parts.append("1. Contact veterinarian for same-day appointment")
-        plan_parts.append("2. Monitor symptoms closely")
-        plan_parts.append("3. Prepare symptom timeline for vet")
-    else:
-        plan_parts.append("1. Schedule veterinary appointment")
-        plan_parts.append("2. Monitor symptoms for changes")
-        plan_parts.append("3. Document any progression")
-    
-    return {
-        'subjective': '\n'.join(subjective_parts),
-        'objective': '\n'.join(objective_parts),
-        'assessment': '\n'.join(assessment_parts),
-        'plan': '\n'.join(plan_parts),
-        'generated_at': cleaned_payload.get('timestamp', 'Unknown')
+    # Clean the list (handle stringified lists)
+    if isinstance(symptoms_list, str):
+        import ast
+        try:
+            # Try to parse "['vomiting', 'diarrhea']"
+            symptoms_list = ast.literal_eval(symptoms_list)
+        except:
+            # Fallback to comma split
+            symptoms_list = [s.strip() for s in symptoms_list.split(',') if s.strip()]
+            
+    if not symptoms_list:
+        symptoms_list = ["Symptoms noted in clinical text"]
+
+    # 3. CLINICAL SUMMARY (Use AI generated text)
+    summary_text = verification_result.get("clinical_summary")
+    if not summary_text:
+        # Fallback to reasoning if summary is missing
+        summary_text = verification_result.get("reasoning")
+    if not summary_text:
+        # Final fallback generator
+        cond = get_val(candidates[0], ['name', 'condition'], 'health concerns') if candidates else 'health concerns'
+        summary_text = f"{pet_name} presents with symptoms consistent with {cond}. The owner reports {', '.join(symptoms_list[:3])}."
+
+    # 4. BUILD DIAGNOSES LIST (Top 3)
+    diagnoses_output = []
+    for pred in candidates[:3]: 
+        name = get_val(pred, ['name', 'condition', 'disease', 'condition_name', 'prediction'], "Unknown Condition")
+        
+        conf = pred.get('confidence', 0)
+        if conf <= 1: conf *= 100
+        
+        details = pred.get('details', {})
+        
+        # Matched Symptoms: Try details first, then fall back to global list
+        matched = get_val(details, ['matched_symptoms'], symptoms_list)
+        
+        diagnoses_output.append({
+            "condition": name,
+            "likelihood_percentage": float(conf),
+            "description": details.get('description', f"A condition characterized by {', '.join(matched[:3])}."),
+            "matched_symptoms": matched,
+            "urgency": details.get('urgency', verification_result.get('urgency_level', 'Moderate')),
+            "contagious": details.get('contagious', False)
+        })
+
+    # 5. PLAN & ADVICE (Use AI generated text)
+    care_advice = verification_result.get("care_advice")
+    if not care_advice or not isinstance(care_advice, list):
+        # Fallback advice if AI fails
+        care_advice = [
+            "Monitor appetite, water intake, and activity levels.",
+            "Keep the pet in a comfortable, quiet environment.",
+            "Maintain a log of symptom progression."
+        ]
+        if "High" in verification_result.get("risk_assessment", ""):
+            care_advice.insert(0, "Seek veterinary attention immediately.")
+        else:
+            care_advice.append("Schedule a follow-up if symptoms persist.")
+
+    # 6. CONSTRUCT FINAL REPORT
+    soap_report = {
+        "case_id": raw_predictions.get("case_id", "N/A"),
+        "date_generated": datetime.datetime.now().isoformat(),
+        "clinical_summary": summary_text,
+        "subjective": f"Owner reports {pet_name} is experiencing {', '.join(symptoms_list[:3])}.",
+        "objective": {
+            "symptoms": symptoms_list,
+            "duration": raw_predictions.get("duration", "Unspecified"),
+            "vitals": {"temperature": "Not Recorded"}
+        },
+        "assessment": {
+            "diagnoses": diagnoses_output
+        },
+        "plan": {
+            "severityLevel": verification_result.get("risk_assessment", "Moderate"),
+            "aiExplanation": verification_result.get("severity_explanation", verification_result.get("reasoning", "")),
+            "careAdvice": care_advice
+        }
     }
+    
+    return soap_report

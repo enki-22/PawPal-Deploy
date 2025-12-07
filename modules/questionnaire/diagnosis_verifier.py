@@ -100,7 +100,8 @@ class DiagnosisVerifier:
                     "name": "Name of better fitting disease or null",
                     "is_in_database": boolean,
                     "confidence": float  # 0.0 to 1.0
-                }
+                },
+                "clinical_summary": "Professional narrative string"
             }
         """
         try:
@@ -248,7 +249,17 @@ class DiagnosisVerifier:
 
            - If a toxin ingestion is described, you MUST diagnose the specific toxicity (e.g., "Xylitol Toxicity") as the primary condition, even if the Database predicted generic vomiting.
 
-        2. **SYMPTOM PROGRESSION (Memory Check):**
+        2. **ANATOMICAL CONSISTENCY CHECK (Critical):**
+
+           - Compare the User's reported **Location of Pain** vs. the **Diagnosis**.
+
+           - *Example:* If User says "Back pain" or "Cries when touched on spine", and Database predicts "Patellar Luxation" (Knee) or "Otitis" (Ear), you MUST **DISAGREE**.
+
+           - *Example:* If User says "Head shaking", and Database predicts "Gastritis" (Stomach), you MUST **DISAGREE**.
+
+           - **Rule:** The Diagnosis MUST explain the PRIMARY area of pain. If the user mentions "Back Pain", the diagnosis must be spinal or hip-related (e.g., IVDD, Arthritis, Disco), NOT a knee/leg injury.
+
+        3. **SYMPTOM PROGRESSION (Memory Check):**
            
            - **CRITICAL:** If "Symptom Tracker History" is provided above, this pet has been tracked over multiple days.
            
@@ -258,7 +269,7 @@ class DiagnosisVerifier:
            
            - Example: "Vomiting for 1 day" = MODERATE risk. "Vomiting for 5 days with worsening trend" = HIGH/CRITICAL risk.
 
-        3. **SYMPTOM NUANCE (Rule Out Mimics):**
+        4. **SYMPTOM NUANCE (Rule Out Mimics):**
 
            - Compare the severity described vs. the database prediction.
 
@@ -268,25 +279,48 @@ class DiagnosisVerifier:
 
            - If the Database Prediction is too mild (e.g., Indigestion for Bloat) or too severe (e.g., Obstruction for Reverse Sneezing), REJECT it and provide the correct diagnosis.
 
-        4. **RISK ASSESSMENT:**
+        5. **RISK ASSESSMENT:**
 
            - Assign a risk level based on the *likely* condition: CRITICAL, HIGH, MODERATE, or LOW.
            
            - **Factor in symptom duration and progression** from the tracker history if available.
 
+        6. **CLINICAL SUMMARY:** Write a professional, 3-4 sentence veterinary narrative of the patient presentation. Combine the species, age, and symptoms into a natural narrative (e.g., "Charlie, a 2-year-old male Dog, presents with..."). Ignore typos in user notes.
+
+        7. **CARE ADVICE:** Generate 3-5 specific, actionable care steps relevant to the diagnosed condition. These should be condition-specific, not generic advice. Examples:
+           - For "Xylitol Toxicity": ["Immediately seek emergency veterinary care - do not wait", "Do not induce vomiting unless directed by a veterinarian", "Bring the product packaging to the clinic if available", "Monitor blood glucose levels closely"]
+           - For "Mild Skin Irritation": ["Apply a cool compress to the affected area", "Prevent the pet from scratching (use an E-collar if necessary)", "Schedule a routine veterinary appointment within 48 hours"]
+
+        8. **SEVERITY EXPLANATION:** Provide a specific, concise explanation of why the risk level was chosen. Examples:
+           - "Non-emergent but requires antiviral treatment within 24-48 hours"
+           - "Critical due to potential for rapid progression and organ failure"
+           - "Low risk - self-limiting condition with supportive care"
+
         OUTPUT JSON:
 
         {{
+
             "agreement": boolean, 
 
-            "reasoning": "Explain your logic. Cite specific details from the User Notes (e.g. 'User mentioned eating sugar-free gum').", 
+            "reasoning": "Explain your logic.", 
 
             "risk_assessment": "CRITICAL" | "HIGH" | "MODERATE" | "LOW", 
 
             "missed_red_flags": ["list", "of", "danger", "signs"],
 
+
+
+            "clinical_summary": "Professional veterinary narrative (3-4 sentences).",
+
+            "care_advice": ["Action 1", "Action 2", "Action 3"],
+
+            "severity_explanation": "Specific explanation of risk level.",
+
+
+
             "alternative_diagnosis": {{
-               "name": "Most Accurate Disease Name",
+
+               "name": "Most Accurate Disease Name (if disagreement)",
 
                "is_in_database": boolean,
 
@@ -325,75 +359,92 @@ class DiagnosisVerifier:
     
     def _normalize_verification_result(self, result: Dict[str, Any]) -> Dict[str, Any]:
         """Normalize and validate the verification result."""
-        # Ensure all required fields exist
+        
+        # 1. Extract raw values
+        raw_agreement = result.get("agreement")
+        alt_diag_data = result.get("alternative_diagnosis")
+        if not isinstance(alt_diag_data, dict):
+            alt_diag_data = {}
+            
+        # 2. Smart Agreement Inference
+        # If agreement is explicitly None (AI output null), infer from correction
+        if raw_agreement is None:
+            has_correction = bool(alt_diag_data.get("name"))
+            if has_correction:
+                # AI offered a correction, so it likely disagreed
+                raw_agreement = False
+                logger.info("⚠️ Agreement was None, but Correction found -> Inferred Agreement: False")
+            else:
+                # No correction offered, so stick with original predictions
+                raw_agreement = True
+                logger.info("⚠️ Agreement was None and No Correction -> Inferred Agreement: True")
+
+        # Extract risk_assessment and normalize to uppercase
+        risk_raw = result.get("risk_assessment", "MODERATE")
+        if isinstance(risk_raw, str):
+            risk_upper = risk_raw.upper()
+        else:
+            risk_upper = "MODERATE"
+        
+        # Map new format risk levels to old format if needed
+        risk_mapping = {
+            "LOW": "LOW",
+            "MODERATE": "MODERATE", 
+            "HIGH": "HIGH",
+            "CRITICAL": "CRITICAL"
+        }
+        risk_assessment = risk_mapping.get(risk_upper, "MODERATE")
+
         normalized = {
-            "agreement": result.get("agreement", True),
+            "agreement": bool(raw_agreement),
             "reasoning": result.get("reasoning", "No specific reasoning provided."),
-            "risk_assessment": result.get("risk_assessment", "MODERATE").upper(),
+            "risk_assessment": risk_assessment,
             "missed_red_flags": result.get("missed_red_flags", []),
-            "alternative_diagnosis": result.get("alternative_diagnosis", {})
+            
+            # Pass through rich content (default to None if missing)
+            "clinical_summary": result.get("clinical_summary"),
+            "care_advice": result.get("care_advice", []),
+            "severity_explanation": result.get("severity_explanation"),
+            
+            "alternative_diagnosis": {
+                "name": alt_diag_data.get("name"),
+                "is_in_database": bool(alt_diag_data.get("is_in_database", False)),
+                "confidence": max(0.0, min(1.0, float(alt_diag_data.get("confidence", 0.0))))
+            }
         }
         
         # Validate risk_assessment
         valid_risks = {"CRITICAL", "HIGH", "MODERATE", "LOW"}
         if normalized["risk_assessment"] not in valid_risks:
             normalized["risk_assessment"] = "MODERATE"
-        
-        # Normalize alternative_diagnosis
-        alt_diag = normalized["alternative_diagnosis"]
-        if not isinstance(alt_diag, dict):
-            alt_diag = {}
-        
-        # Extract suggested disease name
-        suggested_name = alt_diag.get("name") or None
-        
+            
         # Source of Truth Check: Validate is_in_database using actual database
-        ai_guessed_is_in_db = bool(alt_diag.get("is_in_database", False))
-        is_actually_in_db = False
-        
+        suggested_name = normalized["alternative_diagnosis"]["name"]
         if suggested_name:
             # Perform case-insensitive check against valid_diseases set
             suggested_name_lower = suggested_name.lower().strip()
             is_actually_in_db = suggested_name_lower in self.valid_diseases
             
             # Log if AI's guess differed from actual database check
-            if ai_guessed_is_in_db != is_actually_in_db:
+            if normalized["alternative_diagnosis"]["is_in_database"] != is_actually_in_db:
                 logger.info(
                     f"🤖 AI hallucinated DB presence for '{suggested_name}'. "
-                    f"AI guessed: {ai_guessed_is_in_db}, Actual: {is_actually_in_db}. "
+                    f"AI guessed: {normalized['alternative_diagnosis']['is_in_database']}, Actual: {is_actually_in_db}. "
                     f"Corrected to {is_actually_in_db}."
                 )
-        else:
-            # No disease name provided, default to False
-            is_actually_in_db = False
-            if ai_guessed_is_in_db:
-                logger.info(
-                    f"🤖 AI claimed disease is in database but no disease name provided. "
-                    f"Corrected to False."
-                )
-        
-        normalized["alternative_diagnosis"] = {
-            "name": suggested_name,
-            "is_in_database": is_actually_in_db,  # Override with computed value
-            "confidence": float(alt_diag.get("confidence", 0.0))
-        }
-        
-        # Clamp confidence to 0.0-1.0
-        normalized["alternative_diagnosis"]["confidence"] = max(0.0, min(1.0, normalized["alternative_diagnosis"]["confidence"]))
-        
+                normalized["alternative_diagnosis"]["is_in_database"] = is_actually_in_db
+            
         return normalized
     
     def _default_verification_result(self) -> Dict[str, Any]:
         """Return a default verification result when Gemini fails."""
         return {
-            "agreement": True,  # Default to agreement to avoid false positives
+            "agreement": True,
             "reasoning": "Verification system unavailable - using system predictions as-is.",
             "risk_assessment": "MODERATE",
             "missed_red_flags": [],
-            "alternative_diagnosis": {
-                "name": None,
-                "is_in_database": False,
-                "confidence": 0.0
-            }
+            "alternative_diagnosis": {"name": None, "is_in_database": False, "confidence": 0.0},
+            "clinical_summary": None,
+            "care_advice": [],
+            "severity_explanation": None
         }
-
