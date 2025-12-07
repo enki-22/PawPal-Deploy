@@ -416,7 +416,7 @@ const Chat = () => {
             'Content-Type': 'application/json',
             'Authorization': token ? `Token ${token}` : '',
           },
-          timeout: 30000,
+          timeout: 90000,
         }
       );
 
@@ -874,6 +874,10 @@ const Chat = () => {
         <EmergencyOverlay
           alertMessage={emergencyAlert}
           onDismiss={() => setEmergencyAlert(null)}
+          onReassess={() => {
+            setEmergencyAlert(null);
+            handleStartNewAssessment();
+          }}
         />
       )}
       

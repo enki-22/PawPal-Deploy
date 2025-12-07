@@ -29,7 +29,7 @@ from pets.models import Pet
 from .models import Conversation, Message, AIDiagnosis, SOAPReport, DiagnosisSuggestion
 # Note: image_classifier is now lazily loaded via analyze_pet_image when needed
 import logging
-from .utils import get_gemini_client
+from .utils import get_gemini_client, get_cached_response, save_response_to_cache
 logger = logging.getLogger(__name__)
 
 PAWPAL_MODEL = None
@@ -337,8 +337,6 @@ def _validate_symptom_checker_payload(data: dict) -> tuple[bool, dict | None, Re
 def get_gemini_response(user_message, conversation_history=None, chat_mode='general'):
     """Generate AI response using Google Gemini with different modes"""
     try:
-        model = get_gemini_client()
-       
         # Different system prompts based on mode
         if chat_mode == 'symptom_checker':
             system_prompt = """You are PawPal's Symptom Checker, an AI veterinary diagnostic assistant.
@@ -394,11 +392,21 @@ def get_gemini_response(user_message, conversation_history=None, chat_mode='gene
        
         print(f"Using chat mode: {chat_mode}")
        
-        # Generate response
+        # Check cache first
+        cached_response = get_cached_response(conversation_text)
+        if cached_response:
+            logger.info("💾 Using cached response for chat")
+            return cached_response
+       
+        # No cache hit - call Gemini
+        model = get_gemini_client()
         response = model.generate_content(conversation_text)
        
         if response and hasattr(response, 'text') and response.text:
-            return response.text.strip()
+            response_text = response.text.strip()
+            # Save to cache
+            save_response_to_cache(conversation_text, response_text)
+            return response_text
         else:
             return "I'm having trouble responding right now. Could you please try again?"
        
@@ -425,8 +433,6 @@ def get_gemini_response(user_message, conversation_history=None, chat_mode='gene
 def get_gemini_response_with_pet_context(user_message, conversation_history=None, chat_mode='general', pet_context=None, assessment_context=None):
     """Generate AI response using Google Gemini with pet context"""
     try:
-        model = get_gemini_client()
-       
         # Different system prompts based on mode
         if chat_mode == 'symptom_checker':
             system_prompt = """You are PawPal's Symptom Checker, an AI veterinary diagnostic assistant.
@@ -531,11 +537,21 @@ You already know about {pet_context['name']}, so don't ask for basic information
         if pet_context:
             print(f"Pet context: {pet_context['name']} ({pet_context['species']})")
        
-        # Generate response
+        # Check cache first
+        cached_response = get_cached_response(conversation_text)
+        if cached_response:
+            logger.info("💾 Using cached response for chat with pet context")
+            return cached_response
+       
+        # No cache hit - call Gemini
+        model = get_gemini_client()
         response = model.generate_content(conversation_text)
        
         if response and hasattr(response, 'text') and response.text:
-            return response.text.strip()
+            response_text = response.text.strip()
+            # Save to cache
+            save_response_to_cache(conversation_text, response_text)
+            return response_text
         else:
             return "I'm having trouble responding right now. Could you please try again?"
        
@@ -558,6 +574,8 @@ You already know about {pet_context['name']}, so don't ask for basic information
         else:
             logger.error(f"Unexpected Gemini error: {error_str}")
             return f"I'm experiencing technical difficulties: {error_str}. Please try again or consult with a veterinarian for immediate concerns."
+
+
 def generate_conversation_title(first_message, ai_response=None):
     """Generate a conversation title using Gemini"""
     try:

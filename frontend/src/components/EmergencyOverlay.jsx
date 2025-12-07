@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
  * EmergencyOverlay - Full-screen modal for critical pet health emergencies
  * Displays when risk_assessment.level === 'critical' or alert_type === 'risk_escalation'
  */
-const EmergencyOverlay = ({ alertMessage, onDismiss }) => {
+const EmergencyOverlay = ({ alertMessage, onDismiss, onReassess }) => {
   const handleFindVet = () => {
     window.open('https://www.google.com/maps/search/?api=1&query=Southvalley+Clinic+A.+Gomez+National+Highway+Balibago+Sta.+Rosa+Laguna', '_blank', 'noopener,noreferrer');
   };
@@ -107,9 +107,9 @@ const EmergencyOverlay = ({ alertMessage, onDismiss }) => {
             Go to Southvalley Clinic
           </button>
           
-          {/* Secondary action - Return to Chat */}
+          {/* Secondary action - Start Re-assessment */}
           <button
-            onClick={onDismiss}
+            onClick={onReassess}
             className="w-full py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 hover:bg-gray-200"
             style={{ 
               backgroundColor: '#f3f4f6',
@@ -117,7 +117,7 @@ const EmergencyOverlay = ({ alertMessage, onDismiss }) => {
               fontFamily: 'Raleway'
             }}
           >
-            Return to Chat
+            🔍 Start Re-assessment
           </button>
         </div>
         
@@ -158,7 +158,8 @@ const EmergencyOverlay = ({ alertMessage, onDismiss }) => {
 
 EmergencyOverlay.propTypes = {
   alertMessage: PropTypes.string.isRequired,
-  onDismiss: PropTypes.func.isRequired
+  onDismiss: PropTypes.func.isRequired,
+  onReassess: PropTypes.func.isRequired
 };
 
 export default EmergencyOverlay;
