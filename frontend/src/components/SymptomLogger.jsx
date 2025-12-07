@@ -70,44 +70,6 @@ const SYMPTOM_CATEGORIES = {
   }
 };
 
-// Common symptoms organized by category
-const SYMPTOM_CATEGORIES = {
-  'General': [
-    'vomiting', 'diarrhea', 'lethargy', 'loss_of_appetite', 'weight_loss',
-    'fever', 'dehydration', 'weakness', 'seizures'
-  ],
-  'Respiratory': [
-    'coughing', 'sneezing', 'wheezing', 'labored_breathing', 'difficulty_breathing',
-    'nasal_discharge', 'nasal_congestion', 'respiratory_distress'
-  ],
-  'Skin & Coat': [
-    'scratching', 'itching', 'hair_loss', 'bald_patches', 'red_skin',
-    'irritated_skin', 'skin_lesions', 'rash', 'scabs', 'dandruff'
-  ],
-  'Eyes & Ears': [
-    'watery_eyes', 'eye_discharge', 'red_eyes', 'squinting',
-    'ear_discharge', 'ear_scratching', 'head_shaking'
-  ],
-  'Digestive': [
-    'constipation', 'bloating', 'gas', 'not_eating', 'excessive_eating'
-  ],
-  'Urinary': [
-    'blood_in_urine', 'frequent_urination', 'straining_to_urinate',
-    'dark_urine', 'cloudy_urine'
-  ],
-  'Oral & Dental': [
-    'bad_breath', 'drooling', 'difficulty_eating', 'swollen_gums',
-    'red_gums', 'mouth_pain'
-  ],
-  'Behavioral': [
-    'aggression', 'hiding', 'restlessness', 'confusion', 'circling'
-  ],
-  'Mobility': [
-    'limping', 'lameness', 'difficulty_walking', 'stiffness',
-    'reluctance_to_move', 'paralysis'
-  ]
-};
-
 const SymptomLogger = ({ pet, onComplete, showToast }) => {
   const location = useLocation();
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
@@ -115,6 +77,7 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [severity, setSeverity] = useState('');
 
   // Pre-fill symptoms from location.state (when navigating from diagnosis)
   useEffect(() => {
@@ -467,9 +430,10 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Submit Button */}
-        <div className="flex justify-end">
+      {/* Submit Button */}
+      <div className="flex justify-end">
           <button
             type="submit"
             disabled={selectedSymptoms.length === 0 || loading}
