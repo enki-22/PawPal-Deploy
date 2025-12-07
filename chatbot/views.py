@@ -890,8 +890,8 @@ def chat(request):
                 else:
                     print(f"[FLAG_LEVEL] No ML data - using default Urgent for symptom checker mode")
                 
-                # Generate case ID
-                case_id = f"#PDX-{timezone.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:3].upper()}"
+                # Generate case ID with better uniqueness (12 chars for maximum uniqueness)
+                case_id = f"#PDX-{timezone.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:12].upper()}"
                 
                 # Create SOAP Report
                 soap_report = SOAPReport.objects.create(
@@ -1252,39 +1252,41 @@ def get_conversation_messages(request, conversation_id):
                 'timestamp': msg.created_at.isoformat()
             })
         
-        # Get assessment data from SOAP report if available
-        # CRITICAL FIX: Only use SOAP reports that are DIRECTLY linked to this conversation
-        # Do NOT look up SOAP reports by pet/user - this causes assessments from other conversations to bleed through
+        # Get ALL assessment data from SOAP reports (not just first)
+        # CRITICAL FIX: Retrieve all SOAP reports to prevent assessments from "disappearing"
         assessment_data = None
-        soap_report = conversation.soap_reports.first()
+        assessments_history = []
+        soap_reports = conversation.soap_reports.all().order_by('-date_generated')
         
-        # NOTE: Removed the fallback lookup by pet/user which caused assessment bleeding between conversations
-        # Each conversation should only show its own assessment data
+        # NOTE: Each conversation shows only its own assessment data
         
-        if soap_report:
-            # Get associated AIDiagnosis to build assessment data
+        if soap_reports.exists():
+            # Get associated AIDiagnosis to build assessment data for each report
             from .models import AIDiagnosis
-            try:
-                # Try exact match first (SOAP report might have # prefix)
+            
+            for soap_report in soap_reports:
                 try:
-                    ai_diagnosis = AIDiagnosis.objects.get(case_id=soap_report.case_id)
-                except AIDiagnosis.DoesNotExist:
-                    # Try without # prefix (AIDiagnosis doesn't have # prefix)
-                    case_id_clean = soap_report.case_id.lstrip('#')
+                    # Try exact match first (SOAP report might have # prefix)
                     try:
-                        ai_diagnosis = AIDiagnosis.objects.get(case_id=case_id_clean)
+                        ai_diagnosis = AIDiagnosis.objects.get(case_id=soap_report.case_id)
                     except AIDiagnosis.DoesNotExist:
-                        # Try with # prefix (in case SOAP was created without it but AIDiagnosis has it)
-                        case_id_with_hash = f'#{case_id_clean}'
-                        ai_diagnosis = AIDiagnosis.objects.get(case_id=case_id_with_hash)
-                # Transform suggested_diagnoses to predictions format expected by frontend
-                predictions = []
-                if isinstance(ai_diagnosis.suggested_diagnoses, list):
-                    for diag in ai_diagnosis.suggested_diagnoses:
-                        # Transform from AIDiagnosis format to frontend format
-                        prediction = {
-                            'disease': diag.get('condition_name', diag.get('condition', 'Unknown')),
-                            'label': diag.get('condition_name', diag.get('condition', 'Unknown')),
+                        # Try without # prefix (AIDiagnosis doesn't have # prefix)
+                        case_id_clean = soap_report.case_id.lstrip('#')
+                        try:
+                            ai_diagnosis = AIDiagnosis.objects.get(case_id=case_id_clean)
+                        except AIDiagnosis.DoesNotExist:
+                            # Try with # prefix (in case SOAP was created without it but AIDiagnosis has it)
+                            case_id_with_hash = f'#{case_id_clean}'
+                            ai_diagnosis = AIDiagnosis.objects.get(case_id=case_id_with_hash)
+                    
+                    # Transform suggested_diagnoses to predictions format expected by frontend
+                    predictions = []
+                    if isinstance(ai_diagnosis.suggested_diagnoses, list):
+                        for diag in ai_diagnosis.suggested_diagnoses:
+                            # Transform from AIDiagnosis format to frontend format
+                            prediction = {
+                                'disease': diag.get('condition_name', diag.get('condition', 'Unknown')),
+                                'label': diag.get('condition_name', diag.get('condition', 'Unknown')),
                             'confidence': diag.get('likelihood_percentage', 0) / 100.0 if diag.get('likelihood_percentage') else (diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else diag.get('likelihood', 0) / 100.0),
                             'likelihood': diag.get('likelihood_percentage', 0) / 100.0 if diag.get('likelihood_percentage') else (diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else diag.get('likelihood', 0) / 100.0),
                             'urgency': diag.get('urgency_level', diag.get('urgency', 'moderate')),
@@ -1292,52 +1294,69 @@ def get_conversation_messages(request, conversation_id):
                             'contagious': diag.get('contagious', False),
                             'red_flags': diag.get('red_flags', []),
                             'timeline': diag.get('timeline', ''),
-                        }
-                        predictions.append(prediction)
-                
-                # Build assessment data in the format expected by frontend
-                assessment_data = {
-                    'pet_name': conversation.pet.name if conversation.pet else 'Pet',
-                    'predictions': predictions,
-                    'overall_recommendation': ai_diagnosis.ai_explanation,
-                    'urgency_level': ai_diagnosis.urgency_level,
-                    'symptoms_text': ai_diagnosis.symptoms_text,
-                    'case_id': ai_diagnosis.case_id,
-                }
-            except AIDiagnosis.DoesNotExist:
-                # Fallback: use SOAP report assessment if AIDiagnosis doesn't exist
-                if soap_report.assessment and isinstance(soap_report.assessment, list):
-                    predictions = []
-                    for diag in soap_report.assessment:
-                        # Transform from SOAP report format to frontend format
-                        prediction = {
-                            'disease': diag.get('condition', diag.get('condition_name', 'Unknown')),
-                            'label': diag.get('condition', diag.get('condition_name', 'Unknown')),
-                            'confidence': diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else (diag.get('likelihood', 0) / 100.0),
-                            'likelihood': diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else (diag.get('likelihood', 0) / 100.0),
-                            'urgency': diag.get('urgency', 'moderate'),
-                            'description': diag.get('description', ''),
-                            'contagious': diag.get('contagious', False),
-                            'red_flags': diag.get('red_flags', []),
-                            'timeline': diag.get('timeline', ''),
-                        }
-                        predictions.append(prediction)
+                            }
+                            predictions.append(prediction)
                     
-                    assessment_data = {
+                    # Build assessment data in the format expected by frontend
+                    current_assessment = {
                         'pet_name': conversation.pet.name if conversation.pet else 'Pet',
                         'predictions': predictions,
-                        'overall_recommendation': soap_report.plan.get('aiExplanation', '') if isinstance(soap_report.plan, dict) else '',
-                        'urgency_level': soap_report.plan.get('severityLevel', 'moderate').lower() if isinstance(soap_report.plan, dict) else 'moderate',
-                        'symptoms_text': soap_report.subjective,
-                        'case_id': soap_report.case_id,
+                        'overall_recommendation': ai_diagnosis.ai_explanation,
+                        'urgency_level': ai_diagnosis.urgency_level,
+                        'symptoms_text': ai_diagnosis.symptoms_text,
+                        'case_id': ai_diagnosis.case_id,
+                        'date_generated': soap_report.date_generated.isoformat(),
                     }
+                    
+                    # Add to history
+                    assessments_history.append(current_assessment)
+                    
+                    # Use the first (most recent) assessment as the main assessment_data
+                    if assessment_data is None:
+                        assessment_data = current_assessment
+                        
+                except AIDiagnosis.DoesNotExist:
+                    # Fallback: use SOAP report assessment if AIDiagnosis doesn't exist
+                    if soap_report.assessment and isinstance(soap_report.assessment, list):
+                        predictions = []
+                        for diag in soap_report.assessment:
+                            # Transform from SOAP report format to frontend format
+                            prediction = {
+                                'disease': diag.get('condition', diag.get('condition_name', 'Unknown')),
+                                'label': diag.get('condition', diag.get('condition_name', 'Unknown')),
+                                'confidence': diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else (diag.get('likelihood', 0) / 100.0),
+                                'likelihood': diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else (diag.get('likelihood', 0) / 100.0),
+                                'urgency': diag.get('urgency', 'moderate'),
+                                'description': diag.get('description', ''),
+                                'contagious': diag.get('contagious', False),
+                                'red_flags': diag.get('red_flags', []),
+                                'timeline': diag.get('timeline', ''),
+                            }
+                            predictions.append(prediction)
+                        
+                        fallback_assessment = {
+                            'pet_name': conversation.pet.name if conversation.pet else 'Pet',
+                            'predictions': predictions,
+                            'overall_recommendation': soap_report.plan.get('aiExplanation', '') if isinstance(soap_report.plan, dict) else '',
+                            'urgency_level': soap_report.plan.get('severityLevel', 'moderate').lower() if isinstance(soap_report.plan, dict) else 'moderate',
+                            'symptoms_text': soap_report.subjective,
+                            'case_id': soap_report.case_id,
+                            'date_generated': soap_report.date_generated.isoformat(),
+                        }
+                        
+                        # Add to history
+                        assessments_history.append(fallback_assessment)
+                        
+                        # Use as main assessment_data if none set yet
+                        if assessment_data is None:
+                            assessment_data = fallback_assessment
         
         # Format response based on user type
         if request.user_type == 'admin':
             # Admin format (similar to admin endpoint)
             diagnosis_case_id = None
-            if soap_report:
-                diagnosis_case_id = soap_report.case_id
+            if soap_reports.exists():
+                diagnosis_case_id = soap_reports.first().case_id
             
             owner_name = ""
             if conversation.pet:
@@ -1386,9 +1405,13 @@ def get_conversation_messages(request, conversation_id):
                 }
             # ========================================
 
-            # Include assessment data if available
+            # Include assessment data if available (most recent for backward compatibility)
             if assessment_data:
                 response_data['assessment_data'] = assessment_data
+            
+            # Include full assessment history (for showing all past assessments)
+            if assessments_history:
+                response_data['assessments_history'] = assessments_history
             
             return Response(response_data, status=status.HTTP_200_OK)
        
@@ -1600,8 +1623,8 @@ def create_diagnosis(request):
        
         data = request.data
        
-        # Generate unique case ID
-        case_id = f"PDX-{datetime.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:3].upper()}"
+        # Generate unique case ID with better uniqueness (12 chars for maximum uniqueness)
+        case_id = f"PDX-{datetime.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:12].upper()}"
        
         diagnosis = Diagnosis.objects.create(
             user=user_obj,
@@ -2784,10 +2807,16 @@ def create_ai_diagnosis(request):
         
         print("🟢 Step 2: About to create AIDiagnosis record")
         
-        # Create AI Diagnosis record
+        # Generate explicit case_id with better uniqueness (12 chars for maximum uniqueness)
+        # This prevents collisions that were causing assessments to appear overwritten
+        explicit_case_id = f"PDX-{timezone.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:12].upper()}"
+        print(f"🟢 Step 2a: Generated explicit case_id: {explicit_case_id}")
+        
+        # Create AI Diagnosis record with explicit case_id
         ai_diagnosis = AIDiagnosis.objects.create(
             user=user_obj,
             pet=pet,
+            case_id=explicit_case_id,  # Use explicit case_id to prevent collisions
             symptoms_text=symptoms_text or assessment_data.get('symptoms_text', 'Symptom assessment completed'),
             image_analysis=None,  # Not using image analysis from symptom checker
             ml_predictions=predictions,
@@ -2841,42 +2870,37 @@ def create_ai_diagnosis(request):
             'careAdvice': [overall_recommendation]
         }
         
-        # Ensure case_id has # prefix for SOAP report (to match expected format)
-        soap_case_id = ai_diagnosis.case_id
-        if not soap_case_id.startswith('#'):
-            soap_case_id = f'#{soap_case_id}'
+        # Use the explicit case_id we generated, ensuring # prefix for SOAP report
+        soap_case_id = f'#{explicit_case_id}' if not explicit_case_id.startswith('#') else explicit_case_id
         
         logger.info(f"🔵 About to create SOAP report for case_id: {soap_case_id}")
         logger.info(f"🔵 SOAP parameters: case_id={soap_case_id}, pet={pet.id}, flag_level={flag_level}")
         
         try:
-            # Check if SOAP report already exists
-            existing_soap = SOAPReport.objects.filter(case_id=soap_case_id).first()
-            if existing_soap:
-                logger.info(f"⚠️ SOAP report already exists for case {soap_case_id}, skipping creation")
-                soap_report = existing_soap
-            else:
-                # Link to conversation if provided
-                conversation = None
-                if conversation_id:
-                    try:
-                        from .models import Conversation
-                        conversation = Conversation.objects.get(id=conversation_id, user=user_obj)
-                        logger.info(f"🔗 Linking SOAP report to conversation {conversation_id}")
-                    except Conversation.DoesNotExist:
-                        logger.warning(f"⚠️ Conversation {conversation_id} not found, creating SOAP report without conversation link")
-                
-                soap_report = SOAPReport.objects.create(
-                    case_id=soap_case_id,
-                    pet=pet,
-                    chat_conversation=conversation,  # Link to conversation if provided
-                    subjective=subjective_text,
-                    objective=objective_data,
-                    assessment=assessment_soap,
-                    plan=plan_data,
-                    flag_level=flag_level
-                )
-                logger.info(f"✅ Created SOAP report for case {soap_case_id}" + (f" linked to conversation {conversation_id}" if conversation else ""))
+            # Always create new SOAP report with our unique case_id
+            # No need to check for existing - our case_id is guaranteed unique
+            
+            # Link to conversation if provided
+            conversation = None
+            if conversation_id:
+                try:
+                    from .models import Conversation
+                    conversation = Conversation.objects.get(id=conversation_id, user=user_obj)
+                    logger.info(f"🔗 Linking SOAP report to conversation {conversation_id}")
+                except Conversation.DoesNotExist:
+                    logger.warning(f"⚠️ Conversation {conversation_id} not found, creating SOAP report without conversation link")
+            
+            soap_report = SOAPReport.objects.create(
+                case_id=soap_case_id,
+                pet=pet,
+                chat_conversation=conversation,  # Link to conversation if provided
+                subjective=subjective_text,
+                objective=objective_data,
+                assessment=assessment_soap,
+                plan=plan_data,
+                flag_level=flag_level
+            )
+            logger.info(f"✅ Created SOAP report for case {soap_case_id}" + (f" linked to conversation {conversation_id}" if conversation else ""))
         except Exception as soap_error:
             logger.error(f"❌ Failed to create SOAP report: {soap_error}")
             logger.error(f"SOAP error type: {type(soap_error).__name__}")
@@ -3588,7 +3612,7 @@ def generate_soap_report(request):
         # Set flag level to match severity level
         flag_level = severity_level
 
-        case_id = f"#PDX-{timezone.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:3].upper()}"
+        case_id = f"#PDX-{timezone.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:12].upper()}"
         report = SOAPReport.objects.create(
             case_id=case_id,
             pet=pet,

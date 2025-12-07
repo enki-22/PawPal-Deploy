@@ -150,6 +150,15 @@ class DiagnosisVerifier:
                 verification_result = json.loads(json_text)
                 logger.info("✓ Successfully parsed Gemini verification response")
                 
+                # Force print to console for visibility
+                print(f"\n🧠 [HYBRID AI BRAIN] Verification Result:")
+                print(f"   - Agreement: {verification_result.get('agreement')}")
+                print(f"   - Reasoning: {verification_result.get('reasoning')}")
+                print(f"   - Risk: {verification_result.get('risk_assessment')}")
+                if not verification_result.get('agreement'):
+                    print(f"   - ⚠️  CORRECTION: {verification_result.get('alternative_diagnosis')}")
+                print("-" * 50 + "\n")
+                
                 # Validate and normalize the response
                 return self._normalize_verification_result(verification_result)
                 

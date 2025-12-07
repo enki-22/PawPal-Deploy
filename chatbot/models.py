@@ -106,7 +106,7 @@ class AIDiagnosis(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.case_id:
-            self.case_id = f"PDX-{timezone.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:3].upper()}"
+            self.case_id = f"PDX-{timezone.now().strftime('%Y-%m%d')}-{str(uuid.uuid4())[:12].upper()}"
         super().save(*args, **kwargs)
 
 

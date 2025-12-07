@@ -31,18 +31,14 @@ def check_user_or_admin(request):
     """
     # Extract token from Authorization header
     auth_header = request.META.get('HTTP_AUTHORIZATION', '')
-    print(f"[UNIFIED_PERMISSIONS] Authorization header: {auth_header[:50] if auth_header else 'None'}...")
+    # Silenced: Noisy header logging on every request
     
     # Try to extract token (supports both "Bearer <token>" and "Token <token>" formats)
     token = None
     if auth_header.startswith('Bearer '):
         token = auth_header.split(' ', 1)[1] if len(auth_header.split(' ', 1)) > 1 else None
-        print(f"[UNIFIED_PERMISSIONS] Extracted Bearer token: {token[:30] if token else 'None'}...")
     elif auth_header.startswith('Token '):
         token = auth_header.split(' ', 1)[1] if len(auth_header.split(' ', 1)) > 1 else None
-        print(f"[UNIFIED_PERMISSIONS] Extracted Token token: {token[:30] if token else 'None'}...")
-    else:
-        print(f"[UNIFIED_PERMISSIONS] No Bearer/Token prefix found in header")
     
     if token:
         # Try admin authentication first
@@ -61,7 +57,7 @@ def check_user_or_admin(request):
                 pass
         
         # Try pet owner JWT authentication
-        print(f"[UNIFIED_PERMISSIONS] Attempting pet owner JWT verification...")
+        # Reduced verbosity - admin tokens will naturally fail pet owner check (expected behavior)
         payload, error = verify_jwt_token(token)
         if payload and not error:
             # Valid pet owner JWT token
@@ -73,16 +69,14 @@ def check_user_or_admin(request):
                 return ('pet_owner', user, None)
             except User.DoesNotExist:
                 print(f"[UNIFIED_PERMISSIONS] User with id {user_id} not found or inactive")
-        else:
-            print(f"[UNIFIED_PERMISSIONS] Pet owner JWT verification failed: {error}")
+        # Silenced: Pet owner JWT verification failure is expected for admin tokens
     
     # Fallback: Try Django's standard authentication (for DRF TokenAuthentication, etc.)
     if hasattr(request, 'user') and request.user.is_authenticated:
         print(f"[UNIFIED_PERMISSIONS] Pet owner authenticated via DRF: {request.user.email}")
         return ('pet_owner', request.user, None)
     
-    # Not authenticated
-    print(f"[UNIFIED_PERMISSIONS] Authentication failed - no valid token or user")
+    # Not authenticated (silenced - expected for unauthenticated requests)
     return (None, None, Response({
         'success': False,
         'error': 'Authentication required',

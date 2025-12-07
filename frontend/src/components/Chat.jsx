@@ -150,54 +150,87 @@ const Chat = () => {
           setChatMode(detectedMode);
         }
         
-        // Handle existing assessment in the conversation
+        // Handle existing assessment(s) in the conversation
         // CRITICAL: Only load assessment data for symptom_checker mode conversations
-        if (response.data.assessment_data && detectedMode === 'symptom_checker') {
-          const assessmentData = response.data.assessment_data;
-          setAssessmentData(assessmentData);
-          
-          const hasAssessmentMessage = formattedMessages.some(msg => msg.isAssessment);
-          if (!hasAssessmentMessage) {
-            const assessmentMessage = {
-              id: `assessment-${targetId}-${Date.now()}`,
-              content: '',
-              isUser: false,
-              sender: 'PawPal',
-              timestamp: assessmentData.case_id ? new Date().toISOString() : new Date().toISOString(),
-              isAssessment: true,
-              assessmentData: assessmentData
-            };
-            formattedMessages.push(assessmentMessage);
-          }
-          // Has assessment - don't show the questionnaire
-          setShowSymptomChecker(false);
-        } else {
-          // Clear assessment data for non-symptom-checker conversations
-          setAssessmentData(null);
-          
-          // === FIX: For NEW symptom checker conversations (no assessment yet), show the questionnaire ===
-          // Check if this is a symptom checker conversation that needs the questionnaire shown
-          // Note: pet_context might be a dummy context for "Continue Without Details" flow
-          if (detectedMode === 'symptom_checker') {
-            // This is a new symptom checker conversation - show the questionnaire
-            // If no pet_context, create a dummy one for the questionnaire to work
-            if (!response.data.pet_context) {
-              setCurrentPetContext({
-                id: 0,
-                name: 'Your Pet',
-                species: 'Pet',
-                breed: 'Unknown',
-                age: 0
-              });
-            }
-            setShowSymptomChecker(true);
-          } else {
+        if (detectedMode === 'symptom_checker') {
+          // Check for full assessment history first (new format)
+          if (response.data.assessments_history && Array.isArray(response.data.assessments_history) && response.data.assessments_history.length > 0) {
+            // Set the latest assessment (first in array, sorted newest-first) for follow-up context
+            setAssessmentData(response.data.assessments_history[0]);
+            
+            // Create assessment messages for ALL assessments in history
+            response.data.assessments_history.forEach((assessment) => {
+              const assessmentMessage = {
+                id: `assessment-${assessment.case_id}`,
+                content: '',
+                isUser: false,
+                sender: 'PawPal',
+                timestamp: assessment.date_generated || assessment.created_at || new Date().toISOString(),
+                isAssessment: true,
+                assessmentData: assessment
+              };
+              formattedMessages.push(assessmentMessage);
+            });
+            
+            // Has assessments - don't show the questionnaire
             setShowSymptomChecker(false);
+          } 
+          // Fallback: Backward compatibility with single assessment_data
+          else if (response.data.assessment_data) {
+            const assessmentData = response.data.assessment_data;
+            setAssessmentData(assessmentData);
+            
+            const hasAssessmentMessage = formattedMessages.some(msg => msg.isAssessment);
+            if (!hasAssessmentMessage) {
+              const assessmentMessage = {
+                id: `assessment-${assessmentData.case_id || targetId}-${Date.now()}`,
+                content: '',
+                isUser: false,
+                sender: 'PawPal',
+                timestamp: assessmentData.date_generated || assessmentData.created_at || new Date().toISOString(),
+                isAssessment: true,
+                assessmentData: assessmentData
+              };
+              formattedMessages.push(assessmentMessage);
+            }
+            // Has assessment - don't show the questionnaire
+            setShowSymptomChecker(false);
+          } else {
+            // Clear assessment data for non-symptom-checker conversations
+            setAssessmentData(null);
+            
+            // === FIX: For NEW symptom checker conversations (no assessment yet), show the questionnaire ===
+            // Check if this is a symptom checker conversation that needs the questionnaire shown
+            // Note: pet_context might be a dummy context for "Continue Without Details" flow
+            if (detectedMode === 'symptom_checker') {
+              // This is a new symptom checker conversation - show the questionnaire
+              // If no pet_context, create a dummy one for the questionnaire to work
+              if (!response.data.pet_context) {
+                setCurrentPetContext({
+                  id: 0,
+                  name: 'Your Pet',
+                  species: 'Pet',
+                  breed: 'Unknown',
+                  age: 0
+                });
+              }
+              setShowSymptomChecker(true);
+            } else {
+              setShowSymptomChecker(false);
+            }
           }
         }
         
         // Always reset symptom logger when loading a conversation
         setShowSymptomLogger(false);
+        
+        // CRITICAL: Sort all messages (including assessments) by timestamp (ascending)
+        // This ensures assessments appear chronologically between user messages, not all bunched at the end
+        formattedMessages.sort((a, b) => {
+          const timeA = new Date(a.timestamp).getTime();
+          const timeB = new Date(b.timestamp).getTime();
+          return timeA - timeB;
+        });
         
         setMessages(formattedMessages);
       } else {
