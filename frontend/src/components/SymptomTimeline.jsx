@@ -437,6 +437,7 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
             src="/si_ai-note-fill.png" 
             alt="No Logs" 
             className="w-20 h-20 mb-6 opacity-90"
+            style={{ clipPath: 'inset(6% 6% 6% 6%)', objectFit: 'cover' }}
           />
           <h3 className="text-2xl font-bold text-[#34113F] mb-3 text-center" style={{ fontFamily: 'Raleway' }}>
             No Symptom Logs Yet

@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { ChevronDown } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -14,7 +15,7 @@ const AIDiagnosis = () => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [pageSize] = useState(10);
+  const [pageSize] = useState(8);
   const [filters, setFilters] = useState({
     search: '',
     severity: '',
@@ -401,25 +402,24 @@ const AIDiagnosis = () => {
           )}
 
           {/* Pagination - always visible, even if only one page */}
-          <div className="flex justify-center items-center mt-6 gap-4">
+          <div className="flex items-center justify-center gap-2 mt-6 pb-2">
             <button
-              onClick={() => handlePageChange(currentPage - 1)}
+              className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black"
+              onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
               disabled={currentPage === 1}
-              className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-500 hover:text-[#815FB3] hover:border-[#815FB3] disabled:opacity-50 disabled:cursor-not-allowed bg-white"
-              aria-label="Previous page"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+              <ChevronDown className="w-[11px] h-[21px] rotate-90" />
             </button>
-            <div className="w-8 h-8 flex items-center justify-center rounded bg-[#815FB3] text-white text-base font-semibold" style={{ fontFamily: 'Raleway' }}>
-              {currentPage}
+            <div className="bg-[#815fb3] w-[27px] h-[27px] rounded-[5px] flex items-center justify-center">
+              <span className="font-['Inter:Regular',sans-serif] text-[12px] text-white">{currentPage}</span>
             </div>
+            <span className="text-[#888888] text-[12px]">/ {Math.max(1, totalPages)}</span>
             <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-500 hover:text-[#815FB3] hover:border-[#815FB3] disabled:opacity-50 disabled:cursor-not-allowed bg-white"
-              aria-label="Next page"
+              className="w-[24px] h-[24px] flex items-center justify-center text-[#888888] hover:text-black"
+              onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+              disabled={currentPage >= totalPages}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18" /></svg>
+              <ChevronDown className="w-[11px] h-[21px] -rotate-90" />
             </button>
           </div>
         </div>
