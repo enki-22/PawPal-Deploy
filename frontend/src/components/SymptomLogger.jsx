@@ -408,25 +408,43 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
           Overall Severity
         </h3>
         <p className="section-description">How severe are {pet.name}&apos;s symptoms overall?</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           {[
-            { value: 'mild', label: 'Mild', icon: '🟢', desc: 'Eating & acting mostly normal', color: 'border-green-400 bg-green-50' },
-            { value: 'moderate', label: 'Moderate', icon: '🟡', desc: 'Uncomfortable, behavior changes', color: 'border-yellow-400 bg-yellow-50' },
-            { value: 'severe', label: 'Severe', icon: '🔴', desc: 'Very unwell, major changes', color: 'border-red-400 bg-red-50' }
+            { 
+              value: 'mild', 
+              label: 'Mild', 
+              desc: 'Eating & acting mostly normal', 
+              activeClass: 'border-green-300 bg-green-50',
+              circleClass: 'bg-emerald-200'
+            },
+            { 
+              value: 'moderate', 
+              label: 'Moderate', 
+              desc: 'Uncomfortable, behavior changes', 
+              activeClass: 'border-yellow-300 bg-yellow-50',
+              circleClass: 'bg-amber-200' 
+            },
+            { 
+              value: 'severe', 
+              label: 'Severe', 
+              desc: 'Very unwell, major changes', 
+              activeClass: 'border-red-300 bg-red-50',
+              circleClass: 'bg-rose-300' 
+            }
           ].map((option) => (
             <div
               key={option.value}
               onClick={() => setSeverity(option.value)}
               className={`
-                cursor-pointer rounded-xl p-4 border-2 transition-all duration-200
-                ${severity === option.value ? option.color : 'border-gray-200 bg-white hover:border-gray-300'}
+                cursor-pointer rounded-lg p-3 border transition-all duration-200
+                ${severity === option.value ? option.activeClass : 'border-gray-200 bg-white hover:border-gray-300'}
               `}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">{option.icon}</span>
-                <span className="font-bold text-gray-800">{option.label}</span>
+              <div className="flex items-center gap-2 mb-1">
+                <div className={`w-4 h-4 rounded-full ${option.circleClass} border border-black/5`}></div>
+                <span className="font-bold text-gray-800 text-sm">{option.label}</span>
               </div>
-              <p className="text-xs text-gray-600 leading-tight">{option.desc}</p>
+              <p className="text-xs text-gray-600 leading-tight pl-6">{option.desc}</p>
               
               {/* Hidden radio for form logic compatibility */}
               <input
@@ -442,7 +460,7 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
       </div>
 
       {/* Submit Button */}
-      <div className="flex justify-end">
+      <div className="flex justify-end mt-6">
           <button
             type="submit"
             disabled={selectedSymptoms.length === 0 || loading}
