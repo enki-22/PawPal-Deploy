@@ -302,7 +302,31 @@ def get_soap_report_by_case_id(request, case_id):
         # Format response matching CHUNK2 spec format
         pet = soap_report.pet
         owner = pet.owner
-        owner_name = f"{owner.first_name} {owner.last_name}".strip() or owner.username or owner.email
+        
+        # Initialize owner details with "N/A" defaults
+        owner_city = "N/A"
+        owner_contact = "N/A"
+        
+        # Get owner name with fallback chain
+        owner_name = f"{owner.first_name} {owner.last_name}".strip()
+        if not owner_name:
+            owner_name = owner.username or owner.email or "N/A"
+        
+        # Get owner profile for contact_number and city with robust fallbacks
+        if hasattr(owner, 'profile'):
+            owner_profile = owner.profile
+            if owner_profile:
+                # Get city from profile
+                if hasattr(owner_profile, 'city') and owner_profile.city:
+                    owner_city = owner_profile.city
+                
+                # Get phone_number from profile
+                if hasattr(owner_profile, 'phone_number') and owner_profile.phone_number:
+                    owner_contact = owner_profile.phone_number
+        
+        # Crucial Fallback: If owner_contact is still "N/A", use email
+        if owner_contact == "N/A" and owner.email:
+            owner_contact = owner.email
         
         # Get animal_type display value
         animal_type = getattr(pet, 'animal_type', 'Unknown')
@@ -320,6 +344,43 @@ def get_soap_report_by_case_id(request, case_id):
             except:
                 sex = str(sex)
         
+        # Parse medical_notes to extract blood_type, spayed_neutered, allergies, chronic_disease
+        blood_type = None
+        spayed_neutered = None
+        allergies = None
+        chronic_disease = None
+        
+        if pet.medical_notes:
+            medical_notes_lines = pet.medical_notes.split('\n')
+            for line in medical_notes_lines:
+                line = line.strip()
+                if not line:
+                    continue
+                
+                # Check for Blood Type
+                if line.lower().startswith('blood type:'):
+                    blood_type = line.split(':', 1)[1].strip() if ':' in line else None
+                elif 'blood type' in line.lower() and ':' in line:
+                    blood_type = line.split(':', 1)[1].strip()
+                
+                # Check for Spayed/Neutered
+                if line.lower().startswith('spayed/neutered:') or line.lower().startswith('spayed-neutered:'):
+                    spayed_neutered = line.split(':', 1)[1].strip() if ':' in line else None
+                elif ('spayed' in line.lower() or 'neutered' in line.lower()) and ':' in line:
+                    spayed_neutered = line.split(':', 1)[1].strip()
+                
+                # Check for Allergies
+                if line.lower().startswith('allergies:'):
+                    allergies = line.split(':', 1)[1].strip() if ':' in line else None
+                elif 'allergies' in line.lower() and ':' in line:
+                    allergies = line.split(':', 1)[1].strip()
+                
+                # Check for Chronic Disease
+                if line.lower().startswith('chronic disease:') or line.lower().startswith('chronic:'):
+                    chronic_disease = line.split(':', 1)[1].strip() if ':' in line else None
+                elif 'chronic' in line.lower() and ':' in line:
+                    chronic_disease = line.split(':', 1)[1].strip()
+        
         return Response({
             'success': True,
             'case_id': soap_report.case_id,
@@ -332,12 +393,18 @@ def get_soap_report_by_case_id(request, case_id):
                     'breed': getattr(pet, 'breed', 'Unknown') or 'Unknown',
                     'age': getattr(pet, 'age', 'Unknown'),
                     'sex': sex,
-                    'weight': float(pet.weight) if pet.weight else None
+                    'weight': float(pet.weight) if pet.weight else None,
+                    'blood_type': blood_type,
+                    'spayed_neutered': spayed_neutered,
+                    'allergies': allergies,
+                    'chronic_disease': chronic_disease
                 },
                 'owner': {
                     'id': owner.id,
                     'name': owner_name,
-                    'email': owner.email
+                    'email': owner.email,
+                    'contact_number': owner_contact,
+                    'city': owner_city
                 },
                 'subjective': soap_report.subjective,
                 'objective': soap_report.objective,
