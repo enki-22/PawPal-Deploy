@@ -2624,9 +2624,6 @@ def create_ai_diagnosis(request):
             overall_recommendation = assessment_data.get('overall_recommendation', '')
             triage_assessment = assessment_data.get('triage_assessment', {})
             
-            # Extract verification_result from triage_assessment
-            verification_result = triage_assessment.get('verification_result', {})
-            
             # Build raw_predictions dict for format_soap_report_with_vector_similarity
             # This should contain 'confidences' (list of predictions) and other metadata
             raw_predictions = {
@@ -2639,14 +2636,18 @@ def create_ai_diagnosis(request):
                 'case_id': explicit_case_id
             }
             
-            # Generate SOAP data using the updated function signature
+            # Extract Verification & Triage Urgency
+            verification_result = assessment_data.get('triage_assessment', {}).get('verification_result') or {}
+            triage_urgency = assessment_data.get('triage_assessment', {}).get('overall_urgency')
+            
+            # Generate SOAP Data with Severity Override
             from vector_similarity_django_integration import format_soap_report_with_vector_similarity
             
-            # Pass the full prediction payload so we get the Top 3 diseases
             soap_data = format_soap_report_with_vector_similarity(
-                pet.name,           # 1. Pet Name
-                raw_predictions,    # 2. The raw prediction/search result dictionary (contains 'confidences')
-                verification_result # 3. The AI verification result
+                pet.name, 
+                raw_predictions, 
+                verification_result,
+                override_severity=triage_urgency 
             )
             
             logger.info(f"Assessment data keys: {assessment_data.keys()}")
@@ -2733,6 +2734,10 @@ def create_ai_diagnosis(request):
             'severityLevel': urgency_level,
             'careAdvice': [overall_recommendation]
         }
+        
+        # Preserve clinical_summary_backup if it exists in soap_data
+        if soap_data and soap_data.get('clinical_summary'):
+            plan_data['clinical_summary_backup'] = soap_data.get('clinical_summary')
         
         # Use the explicit case_id we generated, save it cleanly without # prefix
         # The frontend handles the display symbol
@@ -3512,6 +3517,26 @@ def get_soap_report(request, case_id: str):
         # permissions: owner can view own pet reports
         if report.pet.owner != request.user:
             return Response({'success': False, 'error': 'Forbidden'}, status=403)
+        
+        # FIX: Extract clinical summary
+        clinical_summary = ""
+        if isinstance(report.plan, dict):
+            clinical_summary = report.plan.get('clinical_summary_backup', '')
+        
+        if not clinical_summary:
+            # Try to get from AIDiagnosis (handle both with and without # prefix)
+            case_id_clean = case_id.lstrip('#')
+            try:
+                ai_diagnosis = AIDiagnosis.objects.get(case_id=case_id_clean)
+                clinical_summary = ai_diagnosis.ai_explanation
+            except AIDiagnosis.DoesNotExist:
+                try:
+                    # Try with # prefix
+                    ai_diagnosis = AIDiagnosis.objects.get(case_id=f"#{case_id_clean}")
+                    clinical_summary = ai_diagnosis.ai_explanation
+                except AIDiagnosis.DoesNotExist:
+                    pass
+        
         data = {
             'caseId': report.case_id,
             'petId': str(report.pet.id),
@@ -3524,6 +3549,9 @@ def get_soap_report(request, case_id: str):
             'assessment': report.assessment,
             'plan': report.plan,
             'flagLevel': report.flag_level,
+            # FIX: Return these explicitly
+            'clinical_summary': clinical_summary, 
+            'ai_explanation': report.plan.get('aiExplanation', '') if isinstance(report.plan, dict) else ''
         }
         return Response({'success': True, 'data': data})
     except SOAPReport.DoesNotExist:

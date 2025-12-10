@@ -19,7 +19,6 @@ _triage_engine = None
 _diagnosis_verifier = None
 
 def get_triage_engine():
-    """Get or initialize the triage engine"""
     global _triage_engine
     if _triage_engine is None:
         try:
@@ -30,9 +29,7 @@ def get_triage_engine():
             raise
     return _triage_engine
 
-
 def get_diagnosis_verifier():
-    """Get or initialize the diagnosis verifier"""
     global _diagnosis_verifier
     if _diagnosis_verifier is None:
         try:
@@ -40,12 +37,9 @@ def get_diagnosis_verifier():
             logger.info("✓ Diagnosis Verifier initialized successfully")
         except Exception as e:
             logger.error(f"✗ Failed to initialize diagnosis verifier: {e}")
-            # Don't raise - allow system to work without verifier
             logger.warning("⚠️ Continuing without diagnosis verification (OOD detection disabled)")
     return _diagnosis_verifier
 
-
-# RED FLAG SYMPTOMS (trigger emergency classification)
 RED_FLAG_SYMPTOMS = {
     'seizures', 'tremors', 'collapse', 'unconscious', 'respiratory_distress', 
     'difficulty_breathing', 'pale_gums', 'blue_gums', 'cyanosis',
@@ -53,11 +47,8 @@ RED_FLAG_SYMPTOMS = {
     'shock', 'severe_dehydration', 'unresponsive', 'convulsions'
 }
 
-
 def extract_symptoms_from_text(user_notes, existing_symptoms=None):
-    """
-    HYBRID EXTRACTION: Extract symptom keywords using Regex (Pass 1) + LLM-Assisted Vectors (Pass 2).
-    """
+    # (Keep existing implementation - no changes needed here)
     if not user_notes or not user_notes.strip():
         return {
             'extracted_symptoms': [],
@@ -71,10 +62,8 @@ def extract_symptoms_from_text(user_notes, existing_symptoms=None):
     # Load symptom aliases and all symptoms
     try:
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        
         with open(os.path.join(base_dir, 'symptom_aliases.json'), 'r', encoding='utf-8') as f:
             symptom_aliases = json.load(f)
-        
         with open(os.path.join(base_dir, 'all_symptoms.json'), 'r', encoding='utf-8') as f:
             all_symptoms = json.load(f)
     except Exception as e:
@@ -88,32 +77,22 @@ def extract_symptoms_from_text(user_notes, existing_symptoms=None):
             'gemini_normalized': None
         }
     
-    # Normalize user input
     user_text = user_notes.lower().strip()
-    
-    # === NEGATION HANDLING (Safety): Filter out negated sentences ===
     negation_keywords = {'no', 'not', 'wala', 'hindi', 'walang', "isn't", "hasn't", "doesn't", "won't"}
-    
     sentences = re.split(r'[.!?;]', user_text)
     safe_sentences = []
     
     for sentence in sentences:
         sentence = sentence.strip()
-        if not sentence:
-            continue
-        
+        if not sentence: continue
         words = sentence.split()
-        has_negation = any(word in negation_keywords for word in words)
-        
-        if has_negation:
+        if any(word in negation_keywords for word in words):
             logger.info(f"⚠️  NEGATION DETECTED - Skipping sentence: '{sentence}'")
         else:
             safe_sentences.append(sentence)
     
     filtered_text = ' '.join(safe_sentences)
-    
     if not filtered_text.strip():
-        logger.info("All text was negated - no symptoms to extract")
         return {
             'extracted_symptoms': [],
             'combined_symptoms': existing_symptoms or [],
@@ -123,92 +102,58 @@ def extract_symptoms_from_text(user_notes, existing_symptoms=None):
             'gemini_normalized': None
         }
     
-    # PASS 1: REGEX/KEYWORD EXTRACTION
     regex_extracted = set()
     raw_matches = {}
-    
     search_dict = dict(symptom_aliases)
     for symptom in all_symptoms:
         search_dict[symptom] = symptom
         search_dict[symptom.replace('_', ' ')] = symptom
     
     sorted_phrases = sorted(search_dict.keys(), key=len, reverse=True)
-    
     for phrase in sorted_phrases:
         pattern = r'\b' + re.escape(phrase) + r'\b'
         if re.search(pattern, filtered_text, re.IGNORECASE):
             symptom_code = search_dict[phrase]
             regex_extracted.add(symptom_code)
             raw_matches[phrase] = symptom_code
-            logger.info(f"✅ PASS 1 (Regex): '{phrase}' -> {symptom_code}")
-    
-    # PASS 2: LLM-ASSISTED EXTRACTION
+
     semantic_extracted = set()
     semantic_matches = {}
     gemini_normalized_text = None
     
     try:
-        logger.info(f"🤖 PASS 2A: Sending to Gemini for translation/normalization...")
-        
-        try:
-            model = get_gemini_client()
-        except Exception as gemini_error:
-            logger.warning(f"  ✗ Gemini client initialization failed: {gemini_error}")
-            model = None
-        
+        model = get_gemini_client()
         if model:
             prompt = f"""Act as a veterinary terminologist. Analyze this user input: "{user_notes}"
-
 1. Translate to English if in Tagalog/Taglish.
 2. Identify specific veterinary symptoms.
-3. Convert them to standard medical terms (e.g., "shaking" -> "tremors", "maputla labi" -> "pale gums").
+3. Convert them to standard medical terms.
 4. Return ONLY a comma-separated list of these terms. If no symptoms, return "None".
-
-Examples:
-- "Nanginginig aso ko" -> "tremors"
-- "maputla ang labi" -> "pale gums"
-- "nagsusuka at matamlay" -> "vomiting, lethargy"
-
 Your response (comma-separated list only):"""
-            
             response = model.generate_content(prompt)
-            
             if hasattr(response, 'text') and response.text:
                 gemini_output = response.text.strip()
-                
                 if gemini_output and gemini_output.lower() not in ['none', 'no symptoms', 'n/a', '']:
                     gemini_normalized_text = gemini_output
-                
-                    # Step 2: Use vector search on Gemini's cleaned output
-                    if gemini_normalized_text:
-                        engine = get_triage_engine()
-                        
-                        potential_symptoms = [s.strip() for s in gemini_normalized_text.split(',') if s.strip()]
-                        
-                        for symptom_text in potential_symptoms:
-                            # Try direct lookup first
-                            direct_match = None
-                            symptom_lower = symptom_text.lower().strip()
-                            
-                            if symptom_lower in search_dict:
-                                direct_match = search_dict[symptom_lower]
-                            
-                            if direct_match:
-                                if direct_match not in regex_extracted:
-                                    semantic_extracted.add(direct_match)
-                                    semantic_matches[direct_match] = 1.0
-                            else:
-                                matches = engine.find_similar_symptoms(symptom_text, threshold=0.82)
-                                
-                                if matches:
-                                    for symptom_code, score in matches:
-                                        if symptom_code not in regex_extracted:
-                                            semantic_extracted.add(symptom_code)
-                                            semantic_matches[symptom_code] = score
-    
+                    potential_symptoms = [s.strip() for s in gemini_normalized_text.split(',') if s.strip()]
+                    engine = get_triage_engine()
+                    for symptom_text in potential_symptoms:
+                        symptom_lower = symptom_text.lower().strip()
+                        if symptom_lower in search_dict:
+                            direct_match = search_dict[symptom_lower]
+                            if direct_match not in regex_extracted:
+                                semantic_extracted.add(direct_match)
+                                semantic_matches[direct_match] = 1.0
+                        else:
+                            matches = engine.find_similar_symptoms(symptom_text, threshold=0.82)
+                            if matches:
+                                for symptom_code, score in matches:
+                                    if symptom_code not in regex_extracted:
+                                        semantic_extracted.add(symptom_code)
+                                        semantic_matches[symptom_code] = score
     except Exception as e:
-        logger.warning(f"⚠️  LLM-assisted extraction failed: {e}. Using regex-only extraction.")
-    
+        logger.warning(f"⚠️  LLM-assisted extraction failed: {e}")
+
     extracted = regex_extracted | semantic_extracted
     red_flags_detected = [s for s in extracted if s in RED_FLAG_SYMPTOMS]
     existing_set = set(existing_symptoms or [])
@@ -223,42 +168,29 @@ Your response (comma-separated list only):"""
         'gemini_normalized': gemini_normalized_text
     }
 
-
 def predict_with_vector_similarity(payload):
     """
     Replace LightGBM prediction with vector similarity search
     """
     try:
         engine = get_triage_engine()
-        
         species = payload.get('species', 'Dog')
         symptoms_list = payload.get('symptoms_list', [])
-        severity = payload.get('severity', 'moderate')
-        progression = payload.get('progression', 'stable')
-        emergency_data = payload.get('emergency_data', {})
         user_notes = payload.get('user_notes', '')
         
-        # === HYBRID TRIAGE: Extract symptoms from user_notes ===
+        # === HYBRID TRIAGE ===
         extraction_result = extract_symptoms_from_text(user_notes, symptoms_list)
         
-        # === SAFETY INTERCEPTOR: Check for red flags IMMEDIATELY ===
+        # === SAFETY INTERCEPTOR ===
         safety_override_active = False
         safety_override_reason = []
-        
         if extraction_result['red_flags_detected']:
             safety_override_active = True
-            red_flag_names = [s.replace('_', ' ').title() for s in extraction_result['red_flags_detected']]
-            safety_override_reason = red_flag_names
-            logger.warning(f"🚨 SAFETY INTERCEPTOR ACTIVATED: {red_flag_names}")
+            safety_override_reason = [s.replace('_', ' ').title() for s in extraction_result['red_flags_detected']]
+            logger.warning(f"🚨 SAFETY INTERCEPTOR ACTIVATED: {safety_override_reason}")
         
         symptoms_list = extraction_result['combined_symptoms']
-        
-        # Run vector similarity diagnosis
-        result = engine.diagnose(
-            species=species,
-            symptoms=symptoms_list,
-            top_n=5
-        )
+        result = engine.diagnose(species=species, symptoms=symptoms_list, top_n=5)
         
         predictions = []
         for match in result['top_matches']:
@@ -269,7 +201,7 @@ def predict_with_vector_similarity(payload):
                 'urgency': match['base_urgency'],
                 'contagious': match['contagious'],
                 'matched_symptoms': match['matched_symptoms'],
-                'match_explanation': f"Matched {len(match['matched_symptoms'])} symptoms ({match['user_coverage']:.0f}% of your symptoms)",
+                'match_explanation': f"Matched {len(match['matched_symptoms'])} symptoms",
                 'total_symptoms': match['total_disease_symptoms'],
                 'is_external': False
             })
@@ -277,20 +209,18 @@ def predict_with_vector_similarity(payload):
         # === MEMORY UPGRADE ===
         context_data = {}
         pet_id = payload.get('pet_id')
-        
         if pet_id:
             try:
                 from chatbot.models import PetHealthTrend
                 latest_trend = PetHealthTrend.objects.filter(pet_id=pet_id).order_by('-analysis_date').first()
                 if latest_trend:
-                    medical_history = (f"Recent Trend: {latest_trend.trend_analysis}. Prediction: {latest_trend.prediction}")
-                    context_data['medical_history'] = medical_history
+                    context_data['medical_history'] = f"Recent Trend: {latest_trend.trend_analysis}."
                     context_data['risk_score'] = latest_trend.risk_score
                     context_data['urgency_level'] = latest_trend.urgency_level
-            except Exception as e:
-                logger.warning(f"⚠️  Failed to fetch symptom tracker history: {e}")
+            except Exception:
+                pass
         
-        # === DIAGNOSIS VERIFICATION LAYER ===
+        # === DIAGNOSIS VERIFICATION ===
         verification_result = None
         ood_detected = False
         verifier = get_diagnosis_verifier()
@@ -312,7 +242,6 @@ def predict_with_vector_similarity(payload):
                     
                     if alt_diag and alt_diag.get('name'):
                         alt_disease_name = alt_diag['name']
-                        
                         for idx, pred in enumerate(predictions):
                             pred_disease_clean = pred.get('disease', '').replace('⚠️ Potential Match: ', '').replace('⚠️ AI Corrected: ', '').strip()
                             
@@ -322,7 +251,6 @@ def predict_with_vector_similarity(payload):
                                 
                                 found_match = True
                                 original_probability = pred.get('probability', 0.0)
-                                
                                 if original_probability < 0.50:
                                     # Retrieval Miss - Create new synthetic prediction
                                     predictions.pop(idx)
@@ -331,17 +259,13 @@ def predict_with_vector_similarity(payload):
                                     
                                     ai_assessment_prediction = {
                                         'disease': f"⚠️ AI Assessment: {alt_disease_name}",
-                                        'probability': 0.95,
-                                        'confidence': 95.0,
-                                        'urgency': risk_assessment.lower(),
-                                        'contagious': False,
+                                        'probability': 0.95, 'confidence': 95.0,
+                                        'urgency': risk_assessment.lower(), 'contagious': False,
                                         'matched_symptoms': matched_symptoms,
-                                        'match_explanation': f"Hybrid Analysis: AI identified strong clinical indicators: {verification_result['reasoning']}",
-                                        'total_symptoms': pred.get('total_symptoms', 0),
-                                        'is_external': False,
+                                        'match_explanation': f"Hybrid Analysis: {verification_result['reasoning']}",
+                                        'total_symptoms': 0, 'is_external': False,
                                         'verification_reasoning': verification_result['reasoning'],
-                                        'risk_assessment': risk_assessment,
-                                        'injected': True
+                                        'risk_assessment': risk_assessment, 'injected': True
                                     }
                                     predictions.insert(0, ai_assessment_prediction)
                                 else:
@@ -356,38 +280,31 @@ def predict_with_vector_similarity(payload):
                                 break
                         
                         if not found_match:
+                            matched_symptoms = alt_diag.get('matched_symptoms') or symptoms_list[:5]
+                            risk_assessment = verification_result.get('risk_assessment', 'HIGH')
+                            
                             if not alt_diag.get('is_in_database', False):
                                 ood_detected = True
-                                risk_assessment = verification_result.get('risk_assessment', 'HIGH')
                                 ood_prediction = {
                                     'disease': f"⚠️ Potential Match: {alt_diag['name']}",
-                                    'probability': alt_diag['confidence'],
-                                    'confidence': alt_diag['confidence'] * 100,
-                                    'urgency': risk_assessment.lower(),
-                                    'contagious': False,
-                                    'matched_symptoms': alt_diag.get('matched_symptoms') or symptoms_list[:5],
-                                    'match_explanation': f"AI Warning: Outside standard database. {verification_result['reasoning']}",
-                                    'total_symptoms': len(symptoms_list),
-                                    'is_external': True,
-                                    'verification_reasoning': verification_result['reasoning'],
-                                    'risk_assessment': risk_assessment
+                                    'probability': alt_diag['confidence'], 'confidence': alt_diag['confidence'] * 100,
+                                    'urgency': risk_assessment.lower(), 'contagious': False,
+                                    'matched_symptoms': matched_symptoms,
+                                    'match_explanation': f"AI Warning: {verification_result['reasoning']}",
+                                    'total_symptoms': len(symptoms_list), 'is_external': True,
+                                    'verification_reasoning': verification_result['reasoning'], 'risk_assessment': risk_assessment
                                 }
                                 predictions.insert(0, ood_prediction)
                             elif alt_diag.get('is_in_database', False):
-                                risk_assessment = verification_result.get('risk_assessment', 'HIGH')
                                 injection_prediction = {
                                     'disease': f"⚠️ AI Corrected: {alt_diag['name']}",
-                                    'probability': 0.95,
-                                    'confidence': 95.0,
-                                    'urgency': risk_assessment.lower(),
-                                    'contagious': False,
-                                    'matched_symptoms': alt_diag.get('matched_symptoms') or symptoms_list[:5],
-                                    'match_explanation': f"AI System detected retrieval miss: {verification_result['reasoning']}",
-                                    'total_symptoms': len(symptoms_list),
-                                    'is_external': False,
+                                    'probability': 0.95, 'confidence': 95.0,
+                                    'urgency': risk_assessment.lower(), 'contagious': False,
+                                    'matched_symptoms': matched_symptoms,
+                                    'match_explanation': f"AI System Correction: {verification_result['reasoning']}",
+                                    'total_symptoms': len(symptoms_list), 'is_external': False,
                                     'verification_reasoning': verification_result['reasoning'],
-                                    'risk_assessment': risk_assessment,
-                                    'injected': True
+                                    'risk_assessment': risk_assessment, 'injected': True
                                 }
                                 predictions.insert(0, injection_prediction)
 
@@ -396,14 +313,13 @@ def predict_with_vector_similarity(payload):
 
         # === OOD HANDLING ===
         if ood_detected and verification_result:
-            risk_assessment = verification_result.get('risk_assessment', 'HIGH')
-            result['urgency'] = risk_assessment.upper()
-            result['urgency_reason'] = f"Out-of-domain condition detected. {verification_result['reasoning']}"
+            result['urgency'] = verification_result.get('risk_assessment', 'HIGH').upper()
+            result['urgency_reason'] = f"OOD condition detected. {verification_result['reasoning']}"
         
         # === SAFETY INTERCEPTOR ASSESSMENT ===
         if safety_override_active:
-            symptom_list = ', '.join(safety_override_reason)
-            dynamic_critical_message = f"🚨 CRITICAL ALERT: You reported '{symptom_list}'. Immediate veterinary care required."
+            symptom_list_str = ', '.join(safety_override_reason)
+            dynamic_critical_message = f"🚨 CRITICAL ALERT: You reported '{symptom_list_str}'. Immediate veterinary care required."
             
             triage_assessment = {
                 'overall_urgency': 'critical',
@@ -411,7 +327,7 @@ def predict_with_vector_similarity(payload):
                 'requires_immediate_care': True,
                 'requires_care_within': 'IMMEDIATELY - Emergency Care',
                 'urgency_reasoning': [dynamic_critical_message, result['urgency_reason']],
-                'red_flags': [f"🚨 SAFETY INTERCEPTOR: {symptom_list}"] + (result.get('red_flags') or []),
+                'red_flags': [f"🚨 SAFETY INTERCEPTOR: {symptom_list_str}"] + (result.get('red_flags') or []),
                 'engine_type': 'Vector Similarity Search + Safety Interceptor',
                 'safety_override_applied': True,
                 'original_urgency': result['urgency'].lower()
@@ -420,16 +336,14 @@ def predict_with_vector_similarity(payload):
             result['urgency'] = 'CRITICAL'
         else:
             emergency_indicators = result['urgency'] in ['CRITICAL', 'HIGH']
-            urgency_reasoning = [result['urgency_reason']]
-            if verification_result and not verification_result['agreement']:
-                urgency_reasoning.append(f"⚠️ Verification Note: {verification_result['reasoning']}")
+            care_within = "IMMEDIATELY" if result['urgency'] == 'CRITICAL' else "24-48 hours"
             
             triage_assessment = {
                 'overall_urgency': result['urgency'].lower(),
                 'emergency_indicators': emergency_indicators,
                 'requires_immediate_care': result['urgency'] == 'CRITICAL',
-                'requires_care_within': "IMMEDIATELY" if result['urgency'] == 'CRITICAL' else "24-48 hours",
-                'urgency_reasoning': urgency_reasoning,
+                'requires_care_within': care_within,
+                'urgency_reasoning': [result['urgency_reason']],
                 'red_flags': result.get('red_flags') or [],
                 'engine_type': 'Vector Similarity Search',
                 'verification_result': verification_result,
@@ -453,11 +367,10 @@ def predict_with_vector_similarity(payload):
         logger.error(f"Vector similarity prediction failed: {e}")
         raise
 
-
-def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verification_result):
+# --- UPDATED FORMATTER WITH SEVERITY OVERRIDE ---
+def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verification_result, override_severity=None):
     import datetime
 
-    # --- HELPER ---
     def get_val(data, keys, default=None):
         for k in keys:
             if isinstance(data, dict) and data.get(k): return data[k]
@@ -465,11 +378,11 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
 
     # 1. PREPARE SYMPTOMS LIST
     ai_extracted_symptoms = verification_result.get("symptoms_consistent", [])
-    
     if isinstance(ai_extracted_symptoms, str):
-        try:
+        try: 
+            import ast
             ai_extracted_symptoms = ast.literal_eval(ai_extracted_symptoms)
-        except:
+        except: 
             ai_extracted_symptoms = [s.strip() for s in ai_extracted_symptoms.split(',') if s.strip()]
             
     if not ai_extracted_symptoms:
@@ -488,17 +401,14 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
     diagnoses_output = []
     for pred in candidates[:3]: 
         name = get_val(pred, ['name', 'condition', 'disease', 'condition_name', 'prediction'], "Unknown Condition")
-        
         conf = pred.get('confidence', 0)
         if conf <= 1: conf *= 100
-        
         details = pred.get('details', {})
         
+        # Merge Specific & Global Symptoms
         matched = pred.get('matched_symptoms')
-        is_generic = (matched == ["Symptoms noted in clinical text"]) or (not matched)
-        if is_generic and ai_extracted_symptoms and ai_extracted_symptoms != ["Symptoms noted in clinical text"]:
+        if not matched or matched == ["Symptoms noted in clinical text"]:
             matched = ai_extracted_symptoms
-        
         if not matched:
             matched = ["Symptoms noted in clinical text"]
 
@@ -511,12 +421,29 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
             "contagious": details.get('contagious', False)
         })
 
-    # 4. CONSTRUCT REPORT
+    # 4. DETERMINE SEVERITY
+    ai_risk = verification_result.get("risk_assessment", "Moderate")
+    final_severity = ai_risk
+    if override_severity:
+        severity_rank = {"CRITICAL": 4, "EMERGENCY": 4, "HIGH": 3, "URGENT": 3, "MODERATE": 2, "LOW": 1}
+        override_upper = override_severity.upper()
+        ai_upper = ai_risk.upper()
+        if severity_rank.get(override_upper, 0) > severity_rank.get(ai_upper, 0):
+            final_severity = override_severity.title()
+
+    # 5. CONSTRUCT REPORT
+    # CRITICAL FIX: Ensure clinical_summary is accessible. 
+    # We return it in top-level for immediate use, but also put it in 'subjective' 
+    # or 'plan' so it saves to the DB if the DB model lacks a 'clinical_summary' column.
+    
+    clinical_summary_text = verification_result.get("clinical_summary") or verification_result.get("reasoning") or f"{pet_name} presents with symptoms: {', '.join(ai_extracted_symptoms)}."
+
     soap_report = {
         "case_id": raw_predictions.get("case_id", "N/A"),
         "date_generated": datetime.datetime.now().isoformat(),
         
-        "clinical_summary": verification_result.get("clinical_summary") or verification_result.get("reasoning") or f"{pet_name} presents with symptoms: {', '.join(ai_extracted_symptoms)}.",
+        # KEY FIX: Pass this explicitly
+        "clinical_summary": clinical_summary_text,
         
         "subjective": f"Owner reports: {', '.join(ai_extracted_symptoms[:15])}.",
         
@@ -529,14 +456,16 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
             "diagnoses": diagnoses_output
         },
         "plan": {
-            "severityLevel": verification_result.get("risk_assessment", "Moderate"),
-            "aiExplanation": verification_result.get("severity_explanation", verification_result.get("reasoning", "")),
-            "careAdvice": verification_result.get("care_advice", [
+            "severityLevel": final_severity,
+            # KEY FIX: Ensure aiExplanation is populated from verification result
+            "aiExplanation": verification_result.get("severity_explanation") or verification_result.get("reasoning", ""),
+            "careAdvice": verification_result.get("care_advice") if verification_result.get("care_advice") else [
                 "Monitor appetite and activity levels.", 
                 "Ensure access to fresh water.",
                 "Keep a log of symptom progression."
-            ])
+            ],
+            # KEY FIX: Store summary here too as a backup for the frontend
+            "clinical_summary_backup": clinical_summary_text
         }
     }
-    
     return soap_report

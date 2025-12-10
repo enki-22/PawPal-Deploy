@@ -25,8 +25,10 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
       const response = await axios.get(`http://localhost:8000/api/chatbot/diagnosis/soap/${cleanCaseId}`, {
         headers: { 'Authorization': token ? `Bearer ${token}` : '' }
       });
-      if (response.data.success && response.data.soap_report) {
-        setReport(response.data.soap_report);
+      // Handle both response structures: response.data.data OR response.data.soap_report
+      const reportData = response.data.data || response.data.soap_report;
+      if (response.data.success && reportData) {
+        setReport(reportData);
       } else {
         setError('Failed to load SOAP report');
       }
@@ -59,9 +61,24 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
   const diagnoses = Array.isArray(report.assessment) ? report.assessment : (report.assessment?.diagnoses || []);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 md:p-4 z-50">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 md:p-4 z-50"
+      onClick={(e) => {
+        // Close when clicking on the overlay (not the content)
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div className="bg-[#fffff2] rounded-[10px] w-full max-w-5xl my-4 md:my-8 relative max-h-[95vh] overflow-y-auto px-2 md:px-0">
-        <button onClick={onClose} className="absolute right-4 top-4 text-3xl font-bold text-gray-600 hover:text-gray-800">×</button>
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }} 
+          className="absolute right-4 top-4 text-3xl font-bold text-gray-600 hover:text-gray-800 z-10 cursor-pointer"
+          aria-label="Close"
+        >×</button>
 
         {/* HEADER */}
         <div className="relative pt-6 px-8 flex flex-col md:flex-row items-center">
@@ -91,11 +108,12 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
               <p><span className="text-gray-500 text-sm">Sex: </span><span className="font-bold text-black text-sm">{report.pet?.sex || 'N/A'}</span></p>
               <p><span className="text-gray-500 text-sm">Blood Type: </span><span className="font-bold text-black text-sm">{report.pet?.blood_type || 'N/A'}</span></p>
               <p><span className="text-gray-500 text-sm">Spayed/Neutered: </span><span className="font-bold text-black text-sm">{report.pet?.spayed_neutered || 'N/A'}</span></p>
+              
+              {/* FIXED AGE LOGIC */}
               {(() => {
                 const ageVal = report.pet?.age;
                 let displayAge = 'N/A';
                 if (ageVal !== null && ageVal !== undefined) {
-                  // If age is 0, display "Under 1 year" to be accurate yet professional
                   if (ageVal == 0) displayAge = 'Under 1 year';
                   else if (ageVal == 1) displayAge = '1 year';
                   else displayAge = `${ageVal} years`;
@@ -104,6 +122,7 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
                   <p><span className="text-gray-500 text-sm">Age: </span><span className="font-bold text-black text-sm">{displayAge}</span></p>
                 );
               })()}
+              
               <p><span className="text-gray-500 text-sm">Allergies: </span><span className="font-bold text-black text-sm">{report.pet?.allergies || 'N/A'}</span></p>
               <p><span className="text-gray-500 text-sm">Chronic Disease: </span><span className="font-bold text-black text-sm">{report.pet?.chronic_disease || 'N/A'}</span></p>
             </div>

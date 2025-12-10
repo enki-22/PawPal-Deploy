@@ -81,28 +81,6 @@ class DiagnosisVerifier:
     ) -> Dict[str, Any]:
         """
         Verify diagnosis predictions using Gemini AI.
-        
-        Args:
-            user_symptoms: List of symptoms reported by the user
-            system_predictions: List of predictions from vector search (top matches)
-            species: Pet species (Dog, Cat, etc.)
-            user_notes: User's typed notes/description (optional)
-            context_data: Additional context data dictionary (optional)
-        
-        Returns:
-            dict: Verification result with structure:
-            {
-                "agreement": boolean,
-                "reasoning": "Clinical explanation",
-                "risk_assessment": "CRITICAL" | "HIGH" | "MODERATE" | "LOW",
-                "missed_red_flags": ["list", "of", "symptoms"],
-                "alternative_diagnosis": {
-                    "name": "Name of better fitting disease or null",
-                    "is_in_database": boolean,
-                    "confidence": float  # 0.0 to 1.0
-                },
-                "clinical_summary": "Professional narrative string"
-            }
         """
         try:
             # Get valid diseases for this species (or all if species not found)
@@ -205,137 +183,50 @@ class DiagnosisVerifier:
         
         # Format symptoms as string
         symptoms_str = ', '.join(user_symptoms)
-        
-        # Format predictions (already formatted, use as-is)
         preds_str = predictions_text
         
-        # Get user notes from context_data if not provided directly
-        if context_data is None:
-            context_data = {}
+        if context_data is None: context_data = {}
         user_notes_text = user_notes or context_data.get('user_notes', 'None')
         
-        # Get medical history from symptom tracker (Memory Upgrade)
         medical_history = context_data.get('medical_history', '')
-        risk_score = context_data.get('risk_score')
-        urgency_level = context_data.get('urgency_level')
-        
-        # Build medical history section for prompt
-        medical_history_section = ""
-        if medical_history:
-            medical_history_section = f"""
-        - **Symptom Tracker History (7-Day Trend):**
-          {medical_history}"""
-            if risk_score is not None:
-                medical_history_section += f"\n          Risk Score: {risk_score}/100"
-            if urgency_level:
-                medical_history_section += f"\n          Previous Urgency: {urgency_level}"
         
         prompt = f"""
-        Act as a Senior Veterinary Diagnostician. Analyze the Patient Data to validate the System Predictions.
-
-        DATA:
-
-        - Species: {species}
-
-        - User's Typed Notes: "{user_notes_text}"
-
-        - Checkbox Symptoms: {symptoms_str}
-
-        - Database Predictions: {preds_str}{medical_history_section}
-
-        ANALYSIS INSTRUCTIONS:
-
-        1. **HISTORY & TOXIN CHECK:** - Read the "User's Typed Notes" carefully. Did the pet eat something specific? (e.g., Gum/Xylitol, Chocolate, Grapes, Medications). 
-
-           - If a toxin ingestion is described, you MUST diagnose the specific toxicity (e.g., "Xylitol Toxicity") as the primary condition, even if the Database predicted generic vomiting.
-
-        2. **ANATOMICAL CONSISTENCY CHECK (Critical):**
-
-           - Compare the User's reported **Location of Pain** vs. the **Diagnosis**.
-
-           - *Example:* If User says "Back pain" or "Cries when touched on spine", and Database predicts "Patellar Luxation" (Knee) or "Otitis" (Ear), you MUST **DISAGREE**.
-
-           - *Example:* If User says "Head shaking", and Database predicts "Gastritis" (Stomach), you MUST **DISAGREE**.
-
-           - **Rule:** The Diagnosis MUST explain the PRIMARY area of pain. If the user mentions "Back Pain", the diagnosis must be spinal or hip-related (e.g., IVDD, Arthritis, Disco), NOT a knee/leg injury.
-
-        3. **SYMPTOM PROGRESSION (Memory Check):**
-           
-           - **CRITICAL:** If "Symptom Tracker History" is provided above, this pet has been tracked over multiple days.
-           
-           - Consider the progression: Is the condition worsening, improving, or stable? A pet that has been sick for 5 days with worsening symptoms is MORE URGENT than a pet with the same symptoms for 1 day.
-           
-           - If the tracker shows a "worsening trend" or "high risk score", this should INCREASE your risk assessment (e.g., from MODERATE to HIGH, or HIGH to CRITICAL).
-           
-           - Example: "Vomiting for 1 day" = MODERATE risk. "Vomiting for 5 days with worsening trend" = HIGH/CRITICAL risk.
-
-        4. **SYMPTOM NUANCE (Rule Out Mimics):**
-
-           - Compare the severity described vs. the database prediction.
-
-           - *Example:* "Honking noise + Acts normal after" matches **Reverse Sneezing** (Low Risk), NOT Choking.
-
-           - *Example:* "Distended abdomen + Unproductive vomiting" matches **GDV/Bloat** (Critical Risk), NOT Indigestion.
-
-           - If the Database Prediction is too mild (e.g., Indigestion for Bloat) or too severe (e.g., Obstruction for Reverse Sneezing), REJECT it and provide the correct diagnosis.
-
-        5. **RISK ASSESSMENT:**
-
-           - Assign a risk level based on the *likely* condition: CRITICAL, HIGH, MODERATE, or LOW.
-           
-           - **Factor in symptom duration and progression** from the tracker history if available.
-
-        6. **CLINICAL SUMMARY:** Write a professional, 3-4 sentence veterinary narrative of the patient presentation. Combine the species, age, and symptoms into a natural narrative (e.g., "Charlie, a 2-year-old male Dog, presents with..."). Ignore typos in user notes.
-
-        7. **CARE ADVICE:** Generate 3-5 specific, actionable care steps relevant to the diagnosed condition. These should be condition-specific, not generic advice. Examples:
-           - For "Xylitol Toxicity": ["Immediately seek emergency veterinary care - do not wait", "Do not induce vomiting unless directed by a veterinarian", "Bring the product packaging to the clinic if available", "Monitor blood glucose levels closely"]
-           - For "Mild Skin Irritation": ["Apply a cool compress to the affected area", "Prevent the pet from scratching (use an E-collar if necessary)", "Schedule a routine veterinary appointment within 48 hours"]
-
-        8. **SEVERITY EXPLANATION:** Provide a specific, concise explanation of why the risk level was chosen. Examples:
-           - "Non-emergent but requires antiviral treatment within 24-48 hours"
-           - "Critical due to potential for rapid progression and organ failure"
-           - "Low risk - self-limiting condition with supportive care"
-
-        OUTPUT JSON:
-
+        *** MANDATORY OUTPUT FORMAT ***
+        You MUST return your analysis in this EXACT JSON structure. Do not skip any fields.
         {{
-
             "agreement": boolean, 
-
             "reasoning": "Explain your logic.", 
-
             "risk_assessment": "CRITICAL" | "HIGH" | "MODERATE" | "LOW", 
-
             "missed_red_flags": ["list", "of", "danger", "signs"],
 
-
-
-            "clinical_summary": "Professional veterinary narrative (3-4 sentences).",
-
-            "care_advice": ["Specific Action 1", "Specific Action 2", "Specific Action 3", "Specific Action 4"],
-
-            "severity_explanation": "Specific explanation of risk level.",
-
-            "symptoms_consistent": ["Symptom A", "Symptom B"],  # Global list of symptoms found in user notes
-
-
+            "clinical_summary": "REQUIRED: A professional 3-4 sentence veterinary narrative (e.g. 'Patient is a young dog presenting with...').",
+            "care_advice": ["REQUIRED: Specific Action 1", "Specific Action 2", "Specific Action 3"],
+            "severity_explanation": "REQUIRED: Specific explanation of why this risk level was chosen.",
+            "symptoms_consistent": ["Symptom A", "Symptom B"],  # Extract specific symptoms from user text
 
             "alternative_diagnosis": {{
-
                "name": "Most Accurate Disease Name (if disagreement)",
-
                "is_in_database": boolean,
-
                "confidence": float (0.90+),
-
-               "matched_symptoms": ["Specific Symptom 1", "Specific Symptom 2"] # Symptoms specific to this diagnosis
-
+               "matched_symptoms": ["Specific Symptom 1", "Specific Symptom 2"]
             }}
-
         }}
+        *******************************
 
+        Act as a Senior Veterinary Diagnostician. Analyze the Patient Data below.
+
+        PATIENT DATA:
+        - Species: {species}
+        - User's Typed Notes: "{user_notes_text}"
+        - Checkbox Symptoms: {symptoms_str}
+        - Database Predictions: {preds_str}
+        {f"- History: {medical_history}" if medical_history else ""}
+
+        ANALYSIS INSTRUCTIONS:
+        1. **HISTORY & TOXIN CHECK:** Check for toxins (Xylitol, Chocolate).
+        2. **ANATOMICAL CHECK:** Mismatched pain location (Back vs Knee) = DISAGREE.
+        3. **GENERATE CONTENT:** You must generate the 'clinical_summary' and 'care_advice' fields. They are NOT optional.
         """
-        
         return prompt
     
     def _extract_json_from_response(self, response_text: str) -> str:
@@ -358,7 +249,6 @@ class DiagnosisVerifier:
         if start != -1 and end != -1 and end > start:
             return response_text[start:end+1]
         
-        # Return as-is if no markers found
         return response_text
     
     def _normalize_verification_result(self, result: Dict[str, Any]) -> Dict[str, Any]:
@@ -373,9 +263,12 @@ class DiagnosisVerifier:
         # 2. Smart Agreement Inference
         if raw_agreement is None:
             has_correction = bool(alt_diag_data.get("name"))
-            raw_agreement = not has_correction
             if has_correction:
+                raw_agreement = False
                 logger.info("⚠️ Agreement was None, but Correction found -> Inferred Agreement: False")
+            else:
+                raw_agreement = True
+                logger.info("⚠️ Agreement was None and No Correction -> Inferred Agreement: True")
 
         # 3. Extract Risk
         risk_raw = result.get("risk_assessment", "MODERATE")
@@ -383,20 +276,16 @@ class DiagnosisVerifier:
         valid_risks = {"CRITICAL", "HIGH", "MODERATE", "LOW"}
         if risk_upper not in valid_risks: risk_upper = "MODERATE"
 
-        # 4. Extract Symptoms (CRITICAL FIX)
-        # Get specific symptoms from the alternative diagnosis
+        # 4. Extract Symptoms & Rich Content
         specific_matched = alt_diag_data.get("matched_symptoms", [])
         if isinstance(specific_matched, str): specific_matched = [specific_matched]
         
-        # Get global symptoms from the root
         global_consistent = result.get("symptoms_consistent", [])
         if isinstance(global_consistent, str): global_consistent = [global_consistent]
         
-        # FAILSAFE: If global list is empty but specific list exists, copy specific to global
-        # This prevents "Symptoms noted in clinical text" fallback
+        # FAILSAFE: If global list is empty but specific list exists, auto-fill it
         if not global_consistent and specific_matched:
             global_consistent = specific_matched
-            logger.info(f"🔧 Auto-filled empty global symptoms with specific matches: {global_consistent}")
 
         normalized = {
             "agreement": bool(raw_agreement),
@@ -404,11 +293,11 @@ class DiagnosisVerifier:
             "risk_assessment": risk_upper,
             "missed_red_flags": result.get("missed_red_flags", []),
             
-            # Rich Content
+            # --- CRITICAL: Pass rich content ---
             "clinical_summary": result.get("clinical_summary"),
             "care_advice": result.get("care_advice", []),
             "severity_explanation": result.get("severity_explanation"),
-            "symptoms_consistent": global_consistent,  # Now guaranteed to have data if alt_diag has it
+            "symptoms_consistent": global_consistent,
             
             "alternative_diagnosis": {
                 "name": alt_diag_data.get("name"),
