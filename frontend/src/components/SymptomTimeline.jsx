@@ -239,9 +239,410 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
     return dataPoint;
   });
 
-  // Main layout wrapper component - matches PetHealthRecords.jsx structure exactly
-  // Defined before early returns so it can be used in loading/error states
-  const MainLayout = ({ children }) => (
+  // Render the appropriate content based on state
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex-1 flex items-center justify-center h-full min-h-[50vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#815FB3] mx-auto mb-4"></div>
+            <p className="text-gray-600" style={{ fontFamily: 'Raleway' }}>Loading health timeline...</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (error) {
+      const errorText = typeof error === 'string' ? error : (error?.message || error?.toString() || 'An unknown error occurred');
+      return (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h3 className="text-red-800 font-semibold mb-2" style={{ fontFamily: 'Raleway' }}>⚠️ Error Loading Timeline</h3>
+          <p className="text-red-600 mb-4" style={{ fontFamily: 'Raleway' }}>{errorText}</p>
+          <button
+            onClick={loadData}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            style={{ fontFamily: 'Raleway' }}
+          >
+            Try Again
+          </button>
+        </div>
+      );
+    }
+
+    if (!selectedPetId && pets.length > 0) {
+      return (
+        <div className="max-w-2xl mx-auto w-full">
+          <h2 className="text-3xl font-bold text-gray-800 mb-6" style={{ fontFamily: 'Raleway' }}>Select a Pet</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {pets.map(pet => (
+              <button
+                key={pet.id}
+                onClick={() => handlePetSelect(pet.id)}
+                className="p-6 bg-[#FFFFF2] rounded-xl shadow-md hover:shadow-lg transition-shadow text-left"
+                style={{ fontFamily: 'Raleway' }}
+              >
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">{pet.name}</h3>
+                <p className="text-gray-600">{pet.animal_type}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (!logs || logs.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-12 px-6 bg-[#FFFFF2] rounded-xl shadow-sm border border-[#E0E0E0] max-w-2xl mx-auto mt-8">
+          <img 
+            src="/si_ai-note-fill.png" 
+            alt="No Logs" 
+            className="w-20 h-20 mb-6 opacity-90"
+            style={{ clipPath: 'inset(6% 6% 6% 6%)', objectFit: 'cover' }}
+          />
+          <h3 className="text-2xl font-bold text-[#34113F] mb-3 text-center" style={{ fontFamily: 'Raleway' }}>
+            No Symptom Logs Yet
+          </h3>
+          <p className="text-[#555555] mb-8 text-center max-w-md text-lg" style={{ fontFamily: 'Raleway', lineHeight: '1.6' }}>
+            Start tracking {selectedPet?.name || 'your pet'}&apos;s symptoms to see progression over time.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+            {/* Log via Chat Button */}
+            <button
+              onClick={() => navigate('/chat/new')}
+              className="group flex items-center justify-center gap-3 px-8 py-4 bg-[#F5E9B8] rounded-xl hover:bg-[#ebd78c] transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 w-full sm:w-auto"
+            >
+              <img 
+                src="/material-symbols_chat.png" 
+                alt="Chat" 
+                className="w-6 h-6"
+              />
+              <span className="font-bold text-[#34113F] text-lg" style={{ fontFamily: 'Raleway' }}>
+                Log via Chat
+              </span>
+            </button>
+
+            {/* Manual Log Button */}
+            <button
+              onClick={() => setShowLogger(true)}
+              className="group flex items-center justify-center gap-3 px-8 py-4 bg-[#F5E9B8] rounded-xl hover:bg-[#ebd78c] transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 w-full sm:w-auto"
+            >
+              <img 
+                src="/icon-park-solid_notebook-and-pen.png" 
+                alt="Manual" 
+                className="w-6 h-6"
+              />
+              <span className="font-bold text-[#34113F] text-lg" style={{ fontFamily: 'Raleway' }}>
+                Manual Log
+              </span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        {/* Worsening Alert Banner - Prominent at Top */}
+        {latestTrend && latestTrend.alert_needed && (
+          <div className="mb-6 bg-red-50 text-red-900 rounded-xl shadow-md p-6 border border-red-200">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-4 flex-1">
+                <div className="p-2 bg-red-100 rounded-full">
+                  <span className="text-3xl">⚠️</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold mb-2 text-red-800" style={{ fontFamily: 'Raleway' }}>Worsening Trend Detected</h3>
+                  <p className="text-red-700 mb-4 leading-relaxed" style={{ fontFamily: 'Raleway' }}>
+                    Our AI analysis indicates your pet&apos;s symptoms are showing a concerning trend. 
+                    We recommend running a new AI Assessment to get updated insights.
+                  </p>
+                  <button
+                    onClick={handleRunNewAssessment}
+                    className="px-6 py-2.5 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-colors shadow-sm text-sm"
+                    style={{ fontFamily: 'Raleway' }}
+                  >
+                    🔍 Run New Assessment
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Header */}
+        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold text-[#34113F] mb-1" style={{ fontFamily: 'Raleway' }}>
+              📊 Health Timeline
+            </h2>
+            {selectedPet && (
+              <div className="text-gray-600 font-medium text-sm" style={{ fontFamily: 'Raleway' }}>
+                <span className="text-[#815FB3] font-bold text-lg">{selectedPet.name}</span>
+                <span className="mx-2 text-gray-300">|</span>
+                <span>{selectedPet.animal_type}</span>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            {pets.length > 1 && (
+              <select
+                value={selectedPetId}
+                onChange={(e) => handlePetSelect(parseInt(e.target.value))}
+                className="px-4 py-2.5 border-2 border-[#E0E0E0] rounded-lg bg-white text-[#34113F] font-bold focus:outline-none focus:border-[#815FB3] cursor-pointer"
+                style={{ fontFamily: 'Raleway' }}
+              >
+                {pets.map(pet => (
+                  <option key={pet.id} value={pet.id}>
+                    {pet.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            {/* Log Symptoms Button - Primary Action - Navigates to Chat */}
+            <button
+              onClick={() => navigate('/chat/new')}
+              className="flex-1 sm:flex-none px-6 py-2.5 bg-[#815FB3] text-white rounded-lg hover:bg-[#6D4C9A] font-bold transition-all shadow-md active:transform active:scale-95"
+              style={{ fontFamily: 'Raleway' }}
+              title="Log symptoms via chat"
+            >
+              📝 Log Symptoms
+            </button>
+          </div>
+        </div>
+
+        {/* AI Insight Header - Main Focus */}
+        {latestTrend && (
+          <div className="mb-8 bg-[#FFFFF2] rounded-xl shadow-sm p-6 border border-[#E0E0E0]">
+            <div className="flex flex-col sm:flex-row items-start justify-between mb-6 gap-4">
+              <div className="flex items-center gap-5">
+                {/* Risk Score Badge */}
+                <div
+                  className="w-20 h-20 rounded-2xl flex items-center justify-center text-white font-bold text-3xl shadow-md transform rotate-3"
+                  style={{ backgroundColor: getRiskColor(latestTrend.risk_score) }}
+                >
+                  {latestTrend.risk_score}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-[#34113F] mb-1" style={{ fontFamily: 'Raleway' }}>AI Health Analysis</h3>
+                  <p className="text-sm text-gray-500 font-medium" style={{ fontFamily: 'Raleway' }}>
+                    Last updated: {new Date(latestTrend.analysis_date).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+              <span 
+                className={`px-4 py-1.5 rounded-full border-2 font-bold text-sm uppercase tracking-wide ${getUrgencyColor(latestTrend.urgency_level)}`} 
+                style={{ fontFamily: 'Raleway' }}
+              >
+                {latestTrend.urgency_level} Risk
+              </span>
+            </div>
+
+            {/* Alert Indicator (Smaller, since we have prominent banner above) */}
+            {latestTrend.alert_needed && (
+              <div className="mb-5 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🚨</span>
+                  <div>
+                    <strong className="text-red-900 block font-bold" style={{ fontFamily: 'Raleway' }}>Alert Status Active</strong>
+                    <p className="text-red-700 text-sm mt-0.5" style={{ fontFamily: 'Raleway' }}>
+                      See the alert banner above for recommended action.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Trend Analysis */}
+              <div className="bg-white p-4 rounded-xl border border-[#F0F0F0]">
+                <h4 className="font-bold text-[#815FB3] mb-2 flex items-center gap-2" style={{ fontFamily: 'Raleway' }}>
+                  <span className="text-lg">📈</span> Trend Analysis
+                </h4>
+                <p className="text-gray-700 leading-relaxed text-sm" style={{ fontFamily: 'Raleway' }}>{latestTrend.trend_analysis}</p>
+              </div>
+
+              {/* Prediction */}
+              <div className="bg-white p-4 rounded-xl border border-[#F0F0F0]">
+                <h4 className="font-bold text-[#815FB3] mb-2 flex items-center gap-2" style={{ fontFamily: 'Raleway' }}>
+                  <span className="text-lg">🔮</span> 24-Hour Forecast
+                </h4>
+                <p className="text-gray-700 leading-relaxed text-sm" style={{ fontFamily: 'Raleway' }}>{latestTrend.prediction}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Trend Chart - Main Focus */}
+        {chartData.length > 0 && (
+          <div className="mb-8 bg-white rounded-xl shadow-sm p-6 border border-[#E0E0E0]">
+            <h3 className="text-lg font-bold text-[#34113F] mb-6 pl-2 border-l-4 border-[#815FB3]" style={{ fontFamily: 'Raleway' }}>
+              Severity Progression
+            </h3>
+            <ResponsiveContainer width="100%" height={350}>
+              <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 12, fill: '#666' }}
+                  stroke="#ccc"
+                  tickLine={false}
+                  axisLine={false}
+                  dy={10}
+                />
+                <YAxis
+                  domain={[0, 10]}
+                  tick={{ fontSize: 12, fill: '#666' }}
+                  stroke="#ccc"
+                  tickLine={false}
+                  axisLine={false}
+                  label={{ value: 'Severity (1-10)', angle: -90, position: 'insideLeft', fill: '#999', fontSize: 12 }}
+                />
+                <Tooltip
+                  cursor={{ stroke: '#815FB3', strokeWidth: 1, strokeDasharray: '5 5' }}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      return (
+                        <div className="bg-white border-none rounded-xl shadow-xl p-4 ring-1 ring-black/5">
+                          <p className="font-bold text-[#34113F] mb-3 border-b pb-2">{data.fullDate}</p>
+                          <div className="space-y-2">
+                            <p className="text-sm text-gray-600 flex justify-between gap-4">
+                              <span>Max Severity:</span>
+                              <strong className="text-[#815FB3]">{data.maxSeverity}/10</strong>
+                            </p>
+                            {data.symptoms && data.symptoms.length > 0 && (
+                              <div className="text-xs text-gray-500 mt-2 bg-gray-50 p-2 rounded-lg">
+                                <span className="font-semibold block mb-1">Active Symptoms:</span>
+                                {data.symptoms.map(s => formatSymptomName(s)).join(', ')}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                <Line
+                  type="monotone"
+                  dataKey="maxSeverity"
+                  stroke="#815FB3"
+                  strokeWidth={4}
+                  name="Overall Severity"
+                  dot={{ r: 4, fill: '#815FB3', strokeWidth: 2, stroke: '#fff' }}
+                  activeDot={{ r: 6, fill: '#815FB3' }}
+                />
+                {chartData[0]?.symptom_1 && (
+                  <Line
+                    type="monotone"
+                    dataKey="symptom_1"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    name={chartData[0]?.symptom_1_name || 'Top Symptom 1'}
+                    dot={{ r: 3, fill: '#10b981' }}
+                    strokeDasharray="5 5"
+                  />
+                )}
+                {chartData[0]?.symptom_2 && (
+                  <Line
+                    type="monotone"
+                    dataKey="symptom_2"
+                    stroke="#f59e0b"
+                    strokeWidth={2}
+                    name={chartData[0]?.symptom_2_name || 'Top Symptom 2'}
+                    dot={{ r: 3, fill: '#f59e0b' }}
+                    strokeDasharray="5 5"
+                  />
+                )}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {/* Log History */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-[#E0E0E0]">
+          <h3 className="text-lg font-bold text-[#34113F] mb-6 pl-2 border-l-4 border-[#F5E9B8]" style={{ fontFamily: 'Raleway' }}>
+            Detailed Log History
+          </h3>
+          <div className="space-y-4">
+            {logs.map((log, index) => (
+              <div
+                key={log.id}
+                className="border border-[#F0F0F0] rounded-xl p-5 hover:border-[#815FB3]/30 hover:shadow-md transition-all duration-200 bg-[#FAFAFA]"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#EFE9F5] flex items-center justify-center text-lg">
+                      📅
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-[#34113F]" style={{ fontFamily: 'Raleway' }}>
+                        {new Date(log.log_date).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </h4>
+                      <p className="text-xs text-gray-500 font-medium" style={{ fontFamily: 'Raleway' }}>
+                        {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Symptoms */}
+                {log.symptoms && log.symptoms.length > 0 && (
+                  <div className="ml-13 pl-13 mt-2">
+                    <div className="flex flex-wrap gap-2">
+                      {log.symptoms.map((symptom, idx) => {
+                        const severity = log.severity_scores?.[symptom] || 5;
+                        let severityColor = 'bg-gray-100 text-gray-700';
+                        if (severity >= 8) severityColor = 'bg-red-100 text-red-800 border border-red-200';
+                        else if (severity >= 5) severityColor = 'bg-yellow-50 text-yellow-800 border border-yellow-200';
+                        else severityColor = 'bg-green-50 text-green-800 border border-green-200';
+
+                        return (
+                          <span
+                            key={idx}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 ${severityColor}`}
+                            style={{ fontFamily: 'Raleway' }}
+                          >
+                            {formatSymptomName(symptom)}
+                            {log.severity_scores && (
+                              <span className="font-bold px-1.5 py-0.5 bg-white/50 rounded-md">
+                                {severity}/10
+                              </span>
+                            )}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Notes */}
+                {log.notes && (
+                  <div className="mt-4 pt-3 border-t border-gray-200 text-sm">
+                    <div className="flex gap-2">
+                      <span className="font-bold text-[#815FB3]">📝 Note:</span>
+                      <p className="text-gray-600 italic" style={{ fontFamily: 'Raleway' }}>
+                        &quot;{log.notes}&quot;
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  return (
     <div className="min-h-screen bg-[#F0F0F0] flex flex-col md:flex-row overflow-hidden">
       {/* Desktop Sidebar - hidden on mobile */}
       <div className="hidden md:block sticky top-0 h-screen z-30">
@@ -261,7 +662,7 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
         />
       </div>
 
-      {/* Mobile Sidebar Overlay with Transitions - matches PetHealthRecords exactly */}
+      {/* Mobile Sidebar Overlay with Transitions */}
       <div
         className={`
           md:hidden fixed inset-0 z-50 flex
@@ -310,9 +711,9 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
         ></div>
       </div>
 
-      {/* Main Content Area - flex-1 - matches PetHealthRecords */}
+      {/* Main Content Area - flex-1 */}
       <div className="flex-1 flex flex-col bg-white h-screen w-full">
-        {/* Header - Stationary - Responsive - matches PetHealthRecords exactly */}
+        {/* Header - Stationary - Responsive */}
         <div className="border-b p-2 md:p-4 flex flex-row items-center justify-between gap-2 md:gap-0 sticky top-0 z-20 bg-[#DCCEF1] md:bg-[#F0F0F0]">
           {/* Mobile header */}
           <div
@@ -347,17 +748,17 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
             <ProfileButton onLogoutClick={handleLogoutClick} />
           </div>
         </div>
-        {/* Page name below header for mobile - matches PetHealthRecords */}
+        {/* Page name below header for mobile */}
         <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#F0F0F0', paddingTop: '56px' }}>
           <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
             Symptom Tracker
           </h2>
         </div>
 
-        {/* Main Content - Scrollable - matches PetHealthRecords spacing */}
+        {/* Main Content - Scrollable */}
         <div className="flex-1 overflow-y-auto bg-[#F0F0F0] p-2 md:p-6" style={{ paddingTop: '20px' }}>
           <div className="max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl mx-auto w-full">
-            {children}
+            {renderContent()}
           </div>
         </div>
       </div>
@@ -369,441 +770,6 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
         onConfirm={handleLogoutConfirm}
         loading={false}
       />
-    </div>
-  );
-
-  if (loading) {
-    return (
-      <MainLayout>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#815FB3] mx-auto mb-4"></div>
-            <p className="text-gray-600" style={{ fontFamily: 'Raleway' }}>Loading health timeline...</p>
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
-
-  if (error) {
-    // Ensure error is a string for rendering
-    const errorText = typeof error === 'string' ? error : (error?.message || error?.toString() || 'An unknown error occurred');
-    return (
-      <MainLayout>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h3 className="text-red-800 font-semibold mb-2" style={{ fontFamily: 'Raleway' }}>⚠️ Error Loading Timeline</h3>
-          <p className="text-red-600 mb-4" style={{ fontFamily: 'Raleway' }}>{errorText}</p>
-          <button
-            onClick={loadData}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-            style={{ fontFamily: 'Raleway' }}
-          >
-            Try Again
-          </button>
-        </div>
-      </MainLayout>
-    );
-  }
-
-  // Pet selection screen
-  if (!selectedPetId && pets.length > 0) {
-    return (
-      <MainLayout>
-        <div className="max-w-2xl mx-auto w-full">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6" style={{ fontFamily: 'Raleway' }}>Select a Pet</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {pets.map(pet => (
-              <button
-                key={pet.id}
-                onClick={() => handlePetSelect(pet.id)}
-                className="p-6 bg-[#FFFFF2] rounded-xl shadow-md hover:shadow-lg transition-shadow text-left"
-                style={{ fontFamily: 'Raleway' }}
-              >
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">{pet.name}</h3>
-                <p className="text-gray-600">{pet.animal_type}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
-
-  if (!logs || logs.length === 0) {
-    return (
-      <MainLayout>
-        <div className="flex flex-col items-center justify-center py-12 px-6 bg-[#FFFFF2] rounded-xl shadow-sm border border-[#E0E0E0] max-w-2xl mx-auto mt-8">
-          <img 
-            src="/si_ai-note-fill.png" 
-            alt="No Logs" 
-            className="w-20 h-20 mb-6 opacity-90"
-            style={{ clipPath: 'inset(6% 6% 6% 6%)', objectFit: 'cover' }}
-          />
-          <h3 className="text-2xl font-bold text-[#34113F] mb-3 text-center" style={{ fontFamily: 'Raleway' }}>
-            No Symptom Logs Yet
-          </h3>
-          <p className="text-[#555555] mb-8 text-center max-w-md text-lg" style={{ fontFamily: 'Raleway', lineHeight: '1.6' }}>
-            Start tracking {selectedPet?.name || 'your pet'}&apos;s symptoms to see progression over time.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-            {/* Log via Chat Button */}
-            <button
-              onClick={() => navigate('/chat/new')}
-              className="group flex items-center justify-center gap-3 px-8 py-4 bg-[#F5E9B8] rounded-xl hover:bg-[#ebd78c] transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 w-full sm:w-auto"
-            >
-              <img 
-                src="/material-symbols_chat.png" 
-                alt="Chat" 
-                className="w-6 h-6"
-              />
-              <span className="font-bold text-[#34113F] text-lg" style={{ fontFamily: 'Raleway' }}>
-                Log via Chat
-              </span>
-            </button>
-
-            {/* Manual Log Button */}
-            <button
-              onClick={() => setShowLogger(true)}
-              className="group flex items-center justify-center gap-3 px-8 py-4 bg-[#F5E9B8] rounded-xl hover:bg-[#ebd78c] transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 w-full sm:w-auto"
-            >
-              <img 
-                src="/icon-park-solid_notebook-and-pen.png" 
-                alt="Manual" 
-                className="w-6 h-6"
-              />
-              <span className="font-bold text-[#34113F] text-lg" style={{ fontFamily: 'Raleway' }}>
-                Manual Log
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* Manual Log Modal */}
-        {showLogger && selectedPet && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 bg-[#FFFFF2] border-b border-[#E0E0E0] p-5 flex justify-between items-center z-10">
-                <h3 className="text-xl font-bold text-[#34113F]" style={{ fontFamily: 'Raleway' }}>
-                  Manual Symptom Log Entry
-                </h3>
-                <button
-                  onClick={() => setShowLogger(false)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 text-[#34113F] font-bold text-2xl transition-colors"
-                >
-                  ×
-                </button>
-              </div>
-              <div className="p-6 bg-white">
-                <SymptomLogger 
-                  pet={selectedPet} 
-                  onComplete={handleLogComplete}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-      </MainLayout>
-    );
-  }
-
-  return (
-    <MainLayout>
-      {/* Worsening Alert Banner - Prominent at Top */}
-      {latestTrend && latestTrend.alert_needed && (
-        <div className="mb-6 bg-red-50 text-red-900 rounded-xl shadow-md p-6 border border-red-200">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-start gap-4 flex-1">
-              <div className="p-2 bg-red-100 rounded-full">
-                <span className="text-3xl">⚠️</span>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold mb-2 text-red-800" style={{ fontFamily: 'Raleway' }}>Worsening Trend Detected</h3>
-                <p className="text-red-700 mb-4 leading-relaxed" style={{ fontFamily: 'Raleway' }}>
-                  Our AI analysis indicates your pet&apos;s symptoms are showing a concerning trend. 
-                  We recommend running a new AI Assessment to get updated insights.
-                </p>
-                <button
-                  onClick={handleRunNewAssessment}
-                  className="px-6 py-2.5 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-colors shadow-sm text-sm"
-                  style={{ fontFamily: 'Raleway' }}
-                >
-                  🔍 Run New Assessment
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Header */}
-      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-[#34113F] mb-1" style={{ fontFamily: 'Raleway' }}>
-            📊 Health Timeline
-          </h2>
-          {selectedPet && (
-            <div className="text-gray-600 font-medium text-sm" style={{ fontFamily: 'Raleway' }}>
-              <span className="text-[#815FB3] font-bold text-lg">{selectedPet.name}</span>
-              <span className="mx-2 text-gray-300">|</span>
-              <span>{selectedPet.animal_type}</span>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          {pets.length > 1 && (
-            <select
-              value={selectedPetId}
-              onChange={(e) => handlePetSelect(parseInt(e.target.value))}
-              className="px-4 py-2.5 border-2 border-[#E0E0E0] rounded-lg bg-white text-[#34113F] font-bold focus:outline-none focus:border-[#815FB3] cursor-pointer"
-              style={{ fontFamily: 'Raleway' }}
-            >
-              {pets.map(pet => (
-                <option key={pet.id} value={pet.id}>
-                  {pet.name}
-                </option>
-              ))}
-            </select>
-          )}
-          {/* Log Symptoms Button - Primary Action - Navigates to Chat */}
-          <button
-            onClick={() => navigate('/chat/new')}
-            className="flex-1 sm:flex-none px-6 py-2.5 bg-[#815FB3] text-white rounded-lg hover:bg-[#6D4C9A] font-bold transition-all shadow-md active:transform active:scale-95"
-            style={{ fontFamily: 'Raleway' }}
-            title="Log symptoms via chat"
-          >
-            📝 Log Symptoms
-          </button>
-        </div>
-      </div>
-
-      {/* AI Insight Header - Main Focus */}
-      {latestTrend && (
-        <div className="mb-8 bg-[#FFFFF2] rounded-xl shadow-sm p-6 border border-[#E0E0E0]">
-          <div className="flex flex-col sm:flex-row items-start justify-between mb-6 gap-4">
-            <div className="flex items-center gap-5">
-              {/* Risk Score Badge */}
-              <div
-                className="w-20 h-20 rounded-2xl flex items-center justify-center text-white font-bold text-3xl shadow-md transform rotate-3"
-                style={{ backgroundColor: getRiskColor(latestTrend.risk_score) }}
-              >
-                {latestTrend.risk_score}
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-[#34113F] mb-1" style={{ fontFamily: 'Raleway' }}>AI Health Analysis</h3>
-                <p className="text-sm text-gray-500 font-medium" style={{ fontFamily: 'Raleway' }}>
-                  Last updated: {new Date(latestTrend.analysis_date).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-            <span 
-              className={`px-4 py-1.5 rounded-full border-2 font-bold text-sm uppercase tracking-wide ${getUrgencyColor(latestTrend.urgency_level)}`} 
-              style={{ fontFamily: 'Raleway' }}
-            >
-              {latestTrend.urgency_level} Risk
-            </span>
-          </div>
-
-          {/* Alert Indicator (Smaller, since we have prominent banner above) */}
-          {latestTrend.alert_needed && (
-            <div className="mb-5 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🚨</span>
-                <div>
-                  <strong className="text-red-900 block font-bold" style={{ fontFamily: 'Raleway' }}>Alert Status Active</strong>
-                  <p className="text-red-700 text-sm mt-0.5" style={{ fontFamily: 'Raleway' }}>
-                    See the alert banner above for recommended action.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Trend Analysis */}
-            <div className="bg-white p-4 rounded-xl border border-[#F0F0F0]">
-              <h4 className="font-bold text-[#815FB3] mb-2 flex items-center gap-2" style={{ fontFamily: 'Raleway' }}>
-                <span className="text-lg">📈</span> Trend Analysis
-              </h4>
-              <p className="text-gray-700 leading-relaxed text-sm" style={{ fontFamily: 'Raleway' }}>{latestTrend.trend_analysis}</p>
-            </div>
-
-            {/* Prediction */}
-            <div className="bg-white p-4 rounded-xl border border-[#F0F0F0]">
-              <h4 className="font-bold text-[#815FB3] mb-2 flex items-center gap-2" style={{ fontFamily: 'Raleway' }}>
-                <span className="text-lg">🔮</span> 24-Hour Forecast
-              </h4>
-              <p className="text-gray-700 leading-relaxed text-sm" style={{ fontFamily: 'Raleway' }}>{latestTrend.prediction}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Trend Chart - Main Focus */}
-      {chartData.length > 0 && (
-        <div className="mb-8 bg-white rounded-xl shadow-sm p-6 border border-[#E0E0E0]">
-          <h3 className="text-lg font-bold text-[#34113F] mb-6 pl-2 border-l-4 border-[#815FB3]" style={{ fontFamily: 'Raleway' }}>
-            Severity Progression
-          </h3>
-          <ResponsiveContainer width="100%" height={350}>
-            <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 12, fill: '#666' }}
-                stroke="#ccc"
-                tickLine={false}
-                axisLine={false}
-                dy={10}
-              />
-              <YAxis
-                domain={[0, 10]}
-                tick={{ fontSize: 12, fill: '#666' }}
-                stroke="#ccc"
-                tickLine={false}
-                axisLine={false}
-                label={{ value: 'Severity (1-10)', angle: -90, position: 'insideLeft', fill: '#999', fontSize: 12 }}
-              />
-              <Tooltip
-                cursor={{ stroke: '#815FB3', strokeWidth: 1, strokeDasharray: '5 5' }}
-                content={({ active, payload }) => {
-                  if (active && payload && payload.length) {
-                    const data = payload[0].payload;
-                    return (
-                      <div className="bg-white border-none rounded-xl shadow-xl p-4 ring-1 ring-black/5">
-                        <p className="font-bold text-[#34113F] mb-3 border-b pb-2">{data.fullDate}</p>
-                        <div className="space-y-2">
-                          <p className="text-sm text-gray-600 flex justify-between gap-4">
-                            <span>Max Severity:</span>
-                            <strong className="text-[#815FB3]">{data.maxSeverity}/10</strong>
-                          </p>
-                          {data.symptoms && data.symptoms.length > 0 && (
-                            <div className="text-xs text-gray-500 mt-2 bg-gray-50 p-2 rounded-lg">
-                              <span className="font-semibold block mb-1">Active Symptoms:</span>
-                              {data.symptoms.map(s => formatSymptomName(s)).join(', ')}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              <Legend wrapperStyle={{ paddingTop: '20px' }} />
-              <Line
-                type="monotone"
-                dataKey="maxSeverity"
-                stroke="#815FB3"
-                strokeWidth={4}
-                name="Overall Severity"
-                dot={{ r: 4, fill: '#815FB3', strokeWidth: 2, stroke: '#fff' }}
-                activeDot={{ r: 6, fill: '#815FB3' }}
-              />
-              {chartData[0]?.symptom_1 && (
-                <Line
-                  type="monotone"
-                  dataKey="symptom_1"
-                  stroke="#10b981"
-                  strokeWidth={2}
-                  name={chartData[0]?.symptom_1_name || 'Top Symptom 1'}
-                  dot={{ r: 3, fill: '#10b981' }}
-                  strokeDasharray="5 5"
-                />
-              )}
-              {chartData[0]?.symptom_2 && (
-                <Line
-                  type="monotone"
-                  dataKey="symptom_2"
-                  stroke="#f59e0b"
-                  strokeWidth={2}
-                  name={chartData[0]?.symptom_2_name || 'Top Symptom 2'}
-                  dot={{ r: 3, fill: '#f59e0b' }}
-                  strokeDasharray="5 5"
-                />
-              )}
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {/* Log History */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-[#E0E0E0]">
-        <h3 className="text-lg font-bold text-[#34113F] mb-6 pl-2 border-l-4 border-[#F5E9B8]" style={{ fontFamily: 'Raleway' }}>
-          Detailed Log History
-        </h3>
-        <div className="space-y-4">
-          {logs.map((log, index) => (
-            <div
-              key={log.id}
-              className="border border-[#F0F0F0] rounded-xl p-5 hover:border-[#815FB3]/30 hover:shadow-md transition-all duration-200 bg-[#FAFAFA]"
-            >
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#EFE9F5] flex items-center justify-center text-lg">
-                    📅
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-[#34113F]" style={{ fontFamily: 'Raleway' }}>
-                      {new Date(log.log_date).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </h4>
-                    <p className="text-xs text-gray-500 font-medium" style={{ fontFamily: 'Raleway' }}>
-                      {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Symptoms */}
-              {log.symptoms && log.symptoms.length > 0 && (
-                <div className="ml-13 pl-13 mt-2">
-                  <div className="flex flex-wrap gap-2">
-                    {log.symptoms.map((symptom, idx) => {
-                      const severity = log.severity_scores?.[symptom] || 5;
-                      let severityColor = 'bg-gray-100 text-gray-700';
-                      if (severity >= 8) severityColor = 'bg-red-100 text-red-800 border border-red-200';
-                      else if (severity >= 5) severityColor = 'bg-yellow-50 text-yellow-800 border border-yellow-200';
-                      else severityColor = 'bg-green-50 text-green-800 border border-green-200';
-
-                      return (
-                        <span
-                          key={idx}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 ${severityColor}`}
-                          style={{ fontFamily: 'Raleway' }}
-                        >
-                          {formatSymptomName(symptom)}
-                          {log.severity_scores && (
-                            <span className="font-bold px-1.5 py-0.5 bg-white/50 rounded-md">
-                              {severity}/10
-                            </span>
-                          )}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Notes */}
-              {log.notes && (
-                <div className="mt-4 pt-3 border-t border-gray-200 text-sm">
-                  <div className="flex gap-2">
-                    <span className="font-bold text-[#815FB3]">📝 Note:</span>
-                    <p className="text-gray-600 italic" style={{ fontFamily: 'Raleway' }}>
-                      &quot;{log.notes}&quot;
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Manual Log Option - Shown as Modal */}
       {showLogger && selectedPet && (
@@ -839,7 +805,7 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
           </div>
         </div>
       )}
-    </MainLayout>
+    </div>
   );
 };
 
