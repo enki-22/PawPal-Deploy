@@ -399,8 +399,12 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
 
     # 3. BUILD DIAGNOSES
     diagnoses_output = []
-    for pred in candidates[:3]: 
+    top_disease_name = "Undiagnosed Condition"
+    
+    for i, pred in enumerate(candidates[:3]): 
         name = get_val(pred, ['name', 'condition', 'disease', 'condition_name', 'prediction'], "Unknown Condition")
+        if i == 0: top_disease_name = name # Capture top disease for fallback logic
+        
         conf = pred.get('confidence', 0)
         if conf <= 1: conf *= 100
         details = pred.get('details', {})
@@ -431,18 +435,41 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
         if severity_rank.get(override_upper, 0) > severity_rank.get(ai_upper, 0):
             final_severity = override_severity.title()
 
-    # 5. CONSTRUCT REPORT
-    # CRITICAL FIX: Ensure clinical_summary is accessible. 
-    # We return it in top-level for immediate use, but also put it in 'subjective' 
-    # or 'plan' so it saves to the DB if the DB model lacks a 'clinical_summary' column.
+    # 5. CONSTRUCT REPORT CONTENT (SMART FALLBACKS)
     
-    clinical_summary_text = verification_result.get("clinical_summary") or verification_result.get("reasoning") or f"{pet_name} presents with symptoms: {', '.join(ai_extracted_symptoms)}."
+    # -- Clinical Summary Logic --
+    clinical_summary_text = verification_result.get("clinical_summary")
+    # If AI summary is missing or too short, generate one locally
+    if not clinical_summary_text or len(clinical_summary_text) < 10:
+        symptoms_str = ", ".join(ai_extracted_symptoms[:5]) if ai_extracted_symptoms else "clinical signs"
+        duration_str = raw_predictions.get("duration", "an unspecified duration")
+        clinical_summary_text = (
+            f"{pet_name} presents with {symptoms_str} for {duration_str}. "
+            f"Based on the clinical presentation, the primary concern is {top_disease_name}, though other differentials have been identified."
+        )
 
+    # -- Care Advice Logic --
+    care_advice = verification_result.get("care_advice")
+    # If AI advice is missing or empty, generate specific advice locally
+    if not care_advice or not isinstance(care_advice, list) or len(care_advice) == 0:
+        care_advice = [
+            f"Monitor {pet_name} closely for any worsening of {top_disease_name} symptoms.",
+            f"Keep a specific log of {ai_extracted_symptoms[0] if ai_extracted_symptoms else 'symptoms'} frequency.",
+            "Ensure access to fresh water and a quiet resting area.",
+            "If lethargy increases or eating stops, seek veterinary attention immediately."
+        ]
+
+    # -- Severity Explanation Logic --
+    ai_explanation = verification_result.get("severity_explanation")
+    if not ai_explanation:
+        ai_explanation = f"Rated as {final_severity} due to the nature of {top_disease_name} and reported symptoms."
+
+    # 6. ASSEMBLE FINAL OBJECT
     soap_report = {
         "case_id": raw_predictions.get("case_id", "N/A"),
         "date_generated": datetime.datetime.now().isoformat(),
         
-        # KEY FIX: Pass this explicitly
+        # EXPLICIT TOP-LEVEL FIELD FOR FRONTEND
         "clinical_summary": clinical_summary_text,
         
         "subjective": f"Owner reports: {', '.join(ai_extracted_symptoms[:15])}.",
@@ -457,14 +484,9 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
         },
         "plan": {
             "severityLevel": final_severity,
-            # KEY FIX: Ensure aiExplanation is populated from verification result
-            "aiExplanation": verification_result.get("severity_explanation") or verification_result.get("reasoning", ""),
-            "careAdvice": verification_result.get("care_advice") if verification_result.get("care_advice") else [
-                "Monitor appetite and activity levels.", 
-                "Ensure access to fresh water.",
-                "Keep a log of symptom progression."
-            ],
-            # KEY FIX: Store summary here too as a backup for the frontend
+            "aiExplanation": ai_explanation,
+            "careAdvice": care_advice,
+            # BACKUP FIELD FOR DATABASE STORAGE
             "clinical_summary_backup": clinical_summary_text
         }
     }
