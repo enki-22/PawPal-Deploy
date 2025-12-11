@@ -302,7 +302,7 @@ class DiagnosisVerifier:
             "alternative_diagnosis": {
                 "name": alt_diag_data.get("name"),
                 "is_in_database": bool(alt_diag_data.get("is_in_database", False)),
-                "confidence": max(0.0, min(1.0, float(alt_diag_data.get("confidence", 0.0)))),
+                "confidence": max(0.0, min(1.0, float(alt_diag_data.get("confidence") or 0.0))),
                 "matched_symptoms": specific_matched
             }
         }

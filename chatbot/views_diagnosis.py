@@ -11,8 +11,10 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
+import json
 
-from .models import SOAPReport, Conversation
+
+from .models import SOAPReport, Conversation, AIDiagnosis
 from .serializers import (
     SOAPReportSerializer,
     SOAPReportListSerializer,
@@ -238,24 +240,6 @@ def get_soap_report_by_case_id(request, case_id):
     """
     GET /api/diagnosis/soap/:caseId
     (CONSOLIDATED: Replaces both /api/diagnosis/soap/:caseId and /api/admin/reports/:caseId)
-    
-    Retrieve complete SOAP report by case ID
-    Supports both Pet Owners and Admins with role-based access
-    
-    Args:
-        case_id (str): Case ID in format #PDX-YYYY-MMDD-XXX
-    
-    Returns:
-        Complete SOAP report object
-    
-    Status Codes:
-        - 200: Success
-        - 403: Forbidden (pet owner trying to access another's report)
-        - 404: Not found
-    
-    Permissions:
-        - Admins: Can view any SOAP report
-        - Pet Owners: Can only view reports for their own pets
     """
     from utils.unified_permissions import check_user_or_admin
     
@@ -279,7 +263,6 @@ def get_soap_report_by_case_id(request, case_id):
             try:
                 soap_report = SOAPReport.objects.get(case_id=case_id_no_hash)
             except SOAPReport.DoesNotExist:
-                # Return 404 if not found
                 return Response({
                     'success': False,
                     'error': f'SOAP report with case ID {case_id} not found',
@@ -288,10 +271,8 @@ def get_soap_report_by_case_id(request, case_id):
         
         # Role-based access check
         if user_type == 'admin':
-            # Admins can view any report
             pass
         else:  # pet_owner
-            # Pet owners can only view their own reports
             if soap_report.pet.owner != user_obj:
                 return Response({
                     'success': False,
@@ -299,7 +280,36 @@ def get_soap_report_by_case_id(request, case_id):
                     'code': 'FORBIDDEN'
                 }, status=status.HTTP_403_FORBIDDEN)
         
-        # Format response matching CHUNK2 spec format
+        # --- NEW CODE START: FIX CLINICAL SUMMARY AND PLAN ---
+        # 1. Parse Plan (Handle if it's a string vs dict)
+        plan_data = soap_report.plan
+        if isinstance(plan_data, str):
+            try:
+                plan_data = json.loads(plan_data)
+            except:
+                # If parsing fails, keep it as is or empty dict
+                plan_data = {}
+
+        # 2. Extract Clinical Summary (Priority 1: Inside Plan)
+        clinical_summary = ""
+        if isinstance(plan_data, dict):
+            clinical_summary = plan_data.get('clinical_summary_backup') or \
+                               plan_data.get('clinical_summary') or \
+                               plan_data.get('summary') or \
+                               plan_data.get('clinicalSummary')
+
+        # 3. Fallback: Fetch directly from AIDiagnosis Table (Priority 2)
+        if not clinical_summary:
+            try:
+                # Look up the AI Diagnosis record using the clean case ID
+                ai_diag = AIDiagnosis.objects.filter(case_id=soap_report.case_id).first()
+                if ai_diag and ai_diag.ai_explanation:
+                    clinical_summary = ai_diag.ai_explanation
+            except Exception as e:
+                print(f"Error fetching fallback AI diagnosis: {e}")
+        # --- NEW CODE END ---
+
+        # Format response matching CHUNK2 spec format (YOUR EXISTING FORMATTING LOGIC)
         pet = soap_report.pet
         owner = pet.owner
         
@@ -316,15 +326,11 @@ def get_soap_report_by_case_id(request, case_id):
         if hasattr(owner, 'profile'):
             owner_profile = owner.profile
             if owner_profile:
-                # Get city from profile
                 if hasattr(owner_profile, 'city') and owner_profile.city:
                     owner_city = owner_profile.city
-                
-                # Get phone_number from profile
                 if hasattr(owner_profile, 'phone_number') and owner_profile.phone_number:
                     owner_contact = owner_profile.phone_number
         
-        # Crucial Fallback: If owner_contact is still "N/A", use email
         if owner_contact == "N/A" and owner.email:
             owner_contact = owner.email
         
@@ -344,7 +350,7 @@ def get_soap_report_by_case_id(request, case_id):
             except:
                 sex = str(sex)
         
-        # Parse medical_notes to extract blood_type, spayed_neutered, allergies, chronic_disease
+        # Parse medical_notes
         blood_type = None
         spayed_neutered = None
         allergies = None
@@ -354,31 +360,14 @@ def get_soap_report_by_case_id(request, case_id):
             medical_notes_lines = pet.medical_notes.split('\n')
             for line in medical_notes_lines:
                 line = line.strip()
-                if not line:
-                    continue
-                
-                # Check for Blood Type
-                if line.lower().startswith('blood type:'):
-                    blood_type = line.split(':', 1)[1].strip() if ':' in line else None
-                elif 'blood type' in line.lower() and ':' in line:
+                if not line: continue
+                if 'blood type' in line.lower() and ':' in line:
                     blood_type = line.split(':', 1)[1].strip()
-                
-                # Check for Spayed/Neutered
-                if line.lower().startswith('spayed/neutered:') or line.lower().startswith('spayed-neutered:'):
-                    spayed_neutered = line.split(':', 1)[1].strip() if ':' in line else None
-                elif ('spayed' in line.lower() or 'neutered' in line.lower()) and ':' in line:
+                if ('spayed' in line.lower() or 'neutered' in line.lower()) and ':' in line:
                     spayed_neutered = line.split(':', 1)[1].strip()
-                
-                # Check for Allergies
-                if line.lower().startswith('allergies:'):
-                    allergies = line.split(':', 1)[1].strip() if ':' in line else None
-                elif 'allergies' in line.lower() and ':' in line:
+                if 'allergies' in line.lower() and ':' in line:
                     allergies = line.split(':', 1)[1].strip()
-                
-                # Check for Chronic Disease
-                if line.lower().startswith('chronic disease:') or line.lower().startswith('chronic:'):
-                    chronic_disease = line.split(':', 1)[1].strip() if ':' in line else None
-                elif 'chronic' in line.lower() and ':' in line:
+                if 'chronic' in line.lower() and ':' in line:
                     chronic_disease = line.split(':', 1)[1].strip()
         
         return Response({
@@ -409,7 +398,13 @@ def get_soap_report_by_case_id(request, case_id):
                 'subjective': soap_report.subjective,
                 'objective': soap_report.objective,
                 'assessment': soap_report.assessment,
-                'plan': soap_report.plan,
+                
+                'plan': plan_data, # UPDATED: Use the parsed plan_data
+                
+                # --- NEW FIELD ADDED HERE ---
+                'clinical_summary': clinical_summary or "No summary available.",
+                # ----------------------------
+
                 'flag_level': soap_report.flag_level,
                 'date_generated': soap_report.date_generated.isoformat(),
                 'date_flagged': soap_report.date_flagged.isoformat() if soap_report.date_flagged else None,

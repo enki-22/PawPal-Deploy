@@ -368,7 +368,6 @@ def predict_with_vector_similarity(payload):
         logger.error(f"Vector similarity prediction failed: {e}")
         raise
 
-# --- UPDATED FORMATTER WITH SEVERITY OVERRIDE ---
 def _format_symptom(symptom):
     """Helper to format snake_case symptoms to Title Case."""
     if not isinstance(symptom, str): return str(symptom)

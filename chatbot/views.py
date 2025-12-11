@@ -3519,36 +3519,54 @@ def generate_soap_report(request):
         return Response({'success': False, 'error': 'Pet not found'}, status=404)
     except Exception as e:
         return Response({'success': False, 'error': str(e)}, status=500)
-
+#isk
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_soap_report(request, case_id: str):
     try:
+        # 1. Get the Report
         report = SOAPReport.objects.get(case_id=case_id)
-        # permissions: owner can view own pet reports
         if report.pet.owner != request.user:
             return Response({'success': False, 'error': 'Forbidden'}, status=403)
         
-        # FIX: Extract clinical summary
-        clinical_summary = ""
-        if isinstance(report.plan, dict):
-            clinical_summary = report.plan.get('clinical_summary_backup', '')
+        # --- DEBUG PRINTS (Check your terminal after running this!) ---
+        print(f"=== DEBUGGING CASE: {case_id} ===")
+        print(f"Plan Raw Type: {type(report.plan)}")
         
-        if not clinical_summary:
-            # Try to get from AIDiagnosis (handle both with and without # prefix)
-            case_id_clean = case_id.lstrip('#')
+        # 2. Handle Plan (String vs Dict)
+        plan_data = report.plan
+        if isinstance(plan_data, str):
             try:
-                ai_diagnosis = AIDiagnosis.objects.get(case_id=case_id_clean)
-                clinical_summary = ai_diagnosis.ai_explanation
-            except AIDiagnosis.DoesNotExist:
-                try:
-                    # Try with # prefix
-                    ai_diagnosis = AIDiagnosis.objects.get(case_id=f"#{case_id_clean}")
-                    clinical_summary = ai_diagnosis.ai_explanation
-                except AIDiagnosis.DoesNotExist:
-                    pass
+                plan_data = json.loads(plan_data)
+                print("DEBUG: Converted plan string to dict")
+            except:
+                plan_data = {}
+                print("DEBUG: Failed to parse plan string")
         
+        # 3. Extract Clinical Summary (Priority 1: Plan JSON)
+        clinical_summary = ""
+        if isinstance(plan_data, dict):
+            # Try every possible key naming convention
+            clinical_summary = plan_data.get('clinical_summary_backup') or \
+                               plan_data.get('clinical_summary') or \
+                               plan_data.get('summary') or \
+                               plan_data.get('clinicalSummary')
+            
+            print(f"DEBUG: Summary found in Plan JSON? {'Yes' if clinical_summary else 'No'}")
+
+        # 4. Fallback: Fetch directly from AIDiagnosis Table (Priority 2)
+        # We do this manually to ensure we don't rely on potentially broken Foreign Keys
+        if not clinical_summary:
+            try:
+                print("DEBUG: Attempting to fetch from AIDiagnosis table...")
+                ai_diag = AIDiagnosis.objects.get(case_id=case_id)
+                clinical_summary = ai_diag.ai_explanation
+                print(f"DEBUG: Found in AIDiagnosis: {clinical_summary[:50]}...")
+            except AIDiagnosis.DoesNotExist:
+                print("DEBUG: No AIDiagnosis record found for this Case ID.")
+
+        # 5. Build Response
         data = {
             'caseId': report.case_id,
             'petId': str(report.pet.id),
@@ -3559,13 +3577,23 @@ def get_soap_report(request, case_id: str):
             'objective': report.objective,
             'subjective': report.subjective,
             'assessment': report.assessment,
-            'plan': report.plan,
+            'plan': plan_data, # Use the parsed plan_data
             'flagLevel': report.flag_level,
-            # FIX: Return these explicitly
-            'clinical_summary': clinical_summary, 
-            'ai_explanation': report.plan.get('aiExplanation', '') if isinstance(report.plan, dict) else ''
+            
+            # THE KEY FIELD
+            'clinical_summary': clinical_summary or "No summary available.", 
+            
+            'ai_explanation': plan_data.get('aiExplanation', '') if isinstance(plan_data, dict) else ''
         }
-        return Response({'success': True, 'data': data})
+        
+        print(f"=== SENDING CLINICAL SUMMARY: {len(str(clinical_summary))} chars ===")
+        
+        return Response({
+            'success': True, 
+            'soap_report': data,
+            'data': data
+        })
+
     except SOAPReport.DoesNotExist:
         return Response({'success': False, 'error': 'Not found'}, status=404)
 
