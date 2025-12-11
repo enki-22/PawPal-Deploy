@@ -9,6 +9,7 @@ import json
 import os
 import re
 import ast
+import datetime
 from chatbot.utils import get_gemini_client
 from modules.questionnaire.diagnosis_verifier import DiagnosisVerifier
 
@@ -368,15 +369,22 @@ def predict_with_vector_similarity(payload):
         raise
 
 # --- UPDATED FORMATTER WITH SEVERITY OVERRIDE ---
-def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verification_result, override_severity=None):
-    import datetime
+def _format_symptom(symptom):
+    """Helper to format snake_case symptoms to Title Case."""
+    if not isinstance(symptom, str): return str(symptom)
+    # Remove underscores and title case
+    return symptom.replace('_', ' ').title()
 
+# --- FINAL FIXED FORMATTER ---
+def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verification_result, override_severity=None):
+    
     def get_val(data, keys, default=None):
         for k in keys:
             if isinstance(data, dict) and data.get(k): return data[k]
         return default
 
-    # 1. PREPARE SYMPTOMS LIST
+    # 1. PREPARE SYMPTOMS LIST (Aggressive Extraction)
+    # Priority: AI extracted -> Input List -> Input Text Split -> Default
     ai_extracted_symptoms = verification_result.get("symptoms_consistent", [])
     if isinstance(ai_extracted_symptoms, str):
         try: 
@@ -386,7 +394,22 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
             ai_extracted_symptoms = [s.strip() for s in ai_extracted_symptoms.split(',') if s.strip()]
             
     if not ai_extracted_symptoms:
-        ai_extracted_symptoms = get_val(raw_predictions, ['symptoms', 'symptoms_list', 'input_symptoms'], ["Symptoms noted in clinical text"])
+        # Try getting from raw predictions list
+        ai_extracted_symptoms = get_val(raw_predictions, ['symptoms', 'symptoms_list', 'input_symptoms'])
+    
+    if not ai_extracted_symptoms:
+        # Try splitting the text if list is missing
+        s_text = get_val(raw_predictions, ['symptoms_text', 'user_notes'], "")
+        if s_text:
+            ai_extracted_symptoms = [s.strip() for s in s_text.split(',') if s.strip()]
+
+    # Final fallback
+    if not ai_extracted_symptoms:
+        ai_extracted_symptoms = ["Observed clinical signs"]
+
+    # --- FIX 3: FORMAT SYMPTOMS ---
+    # Clean up matched symptoms (snake_case -> Title Case)
+    formatted_symptoms = [_format_symptom(s) for s in ai_extracted_symptoms]
 
     # 2. EXTRACT PREDICTIONS
     candidates = get_val(raw_predictions, ['confidences', 'predictions', 'ranking'], [])
@@ -403,7 +426,7 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
     
     for i, pred in enumerate(candidates[:3]): 
         name = get_val(pred, ['name', 'condition', 'disease', 'condition_name', 'prediction'], "Unknown Condition")
-        if i == 0: top_disease_name = name # Capture top disease for fallback logic
+        if i == 0: top_disease_name = name 
         
         conf = pred.get('confidence', 0)
         if conf <= 1: conf *= 100
@@ -411,16 +434,22 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
         
         # Merge Specific & Global Symptoms
         matched = pred.get('matched_symptoms')
-        if not matched or matched == ["Symptoms noted in clinical text"]:
-            matched = ai_extracted_symptoms
-        if not matched:
-            matched = ["Symptoms noted in clinical text"]
+        
+        # Logic to decide which symptoms to show for this specific disease
+        final_matched = []
+        
+        # If the prediction has specific matched symptoms, use them
+        if matched and isinstance(matched, list) and len(matched) > 0 and matched != ["Symptoms noted in clinical text"]:
+             final_matched = [_format_symptom(s) for s in matched]
+        else:
+            # Fallback to the global formatted list
+            final_matched = formatted_symptoms
 
         diagnoses_output.append({
             "condition": name,
             "likelihood_percentage": float(conf),
             "description": details.get('description', f"Condition consistent with clinical presentation."),
-            "matched_symptoms": matched,
+            "matched_symptoms": final_matched, # FIX 3: Pass the formatted list
             "urgency": details.get('urgency', verification_result.get('risk_assessment', 'Moderate')),
             "contagious": details.get('contagious', False)
         })
@@ -435,47 +464,51 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
         if severity_rank.get(override_upper, 0) > severity_rank.get(ai_upper, 0):
             final_severity = override_severity.title()
 
-    # 5. CONSTRUCT REPORT CONTENT (SMART FALLBACKS)
+    # 5. CONSTRUCT CONTENT (SMART FALLBACKS)
     
-    # -- Clinical Summary Logic --
+    # -- FIX 1: Clinical Summary Logic --
     clinical_summary_text = verification_result.get("clinical_summary")
-    # If AI summary is missing or too short, generate one locally
+    
+    # If AI summary is missing or too short, FORCE generation locally
     if not clinical_summary_text or len(clinical_summary_text) < 10:
-        symptoms_str = ", ".join(ai_extracted_symptoms[:5]) if ai_extracted_symptoms else "clinical signs"
+        symptoms_str = ", ".join(formatted_symptoms[:5]) # Use formatted symptoms
         duration_str = raw_predictions.get("duration", "an unspecified duration")
+        species_str = raw_predictions.get("species", "pet")
+        
+        # Template for professional summary
         clinical_summary_text = (
-            f"{pet_name} presents with {symptoms_str} for {duration_str}. "
-            f"Based on the clinical presentation, the primary concern is {top_disease_name}, though other differentials have been identified."
+            f"{pet_name} is a {species_str} presenting with {symptoms_str}. "
+            f"The symptoms have persisted for {duration_str} days. "
+            f"Based on the clinical signs, {top_disease_name} is the primary differential diagnosis."
         )
 
     # -- Care Advice Logic --
     care_advice = verification_result.get("care_advice")
-    # If AI advice is missing or empty, generate specific advice locally
     if not care_advice or not isinstance(care_advice, list) or len(care_advice) == 0:
         care_advice = [
-            f"Monitor {pet_name} closely for any worsening of {top_disease_name} symptoms.",
-            f"Keep a specific log of {ai_extracted_symptoms[0] if ai_extracted_symptoms else 'symptoms'} frequency.",
-            "Ensure access to fresh water and a quiet resting area.",
-            "If lethargy increases or eating stops, seek veterinary attention immediately."
+            f"Monitor {pet_name} for any changes in appetite or activity levels related to {top_disease_name}.",
+            f"Keep a daily log of symptom frequency.",
+            "Ensure constant access to fresh water and keep the resting area clean.",
+            f"Consult a veterinarian if the condition does not improve within 24-48 hours."
         ]
 
     # -- Severity Explanation Logic --
     ai_explanation = verification_result.get("severity_explanation")
     if not ai_explanation:
-        ai_explanation = f"Rated as {final_severity} due to the nature of {top_disease_name} and reported symptoms."
+        ai_explanation = f"Rated as {final_severity} due to the presentation of {top_disease_name} and reported symptoms."
 
     # 6. ASSEMBLE FINAL OBJECT
     soap_report = {
         "case_id": raw_predictions.get("case_id", "N/A"),
         "date_generated": datetime.datetime.now().isoformat(),
         
-        # EXPLICIT TOP-LEVEL FIELD FOR FRONTEND
+        # EXPLICIT TOP-LEVEL FIELD FOR FRONTEND (Fix 1)
         "clinical_summary": clinical_summary_text,
         
-        "subjective": f"Owner reports: {', '.join(ai_extracted_symptoms[:15])}.",
+        "subjective": f"Owner reports: {', '.join(formatted_symptoms[:15])}.",
         
         "objective": {
-            "symptoms": ai_extracted_symptoms,
+            "symptoms": formatted_symptoms, # Use formatted list
             "duration": raw_predictions.get("duration", "Unspecified"),
             "vitals": {"temperature": "Not Recorded"}
         },
@@ -486,8 +519,7 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
             "severityLevel": final_severity,
             "aiExplanation": ai_explanation,
             "careAdvice": care_advice,
-            # BACKUP FIELD FOR DATABASE STORAGE
-            "clinical_summary_backup": clinical_summary_text
+            "clinical_summary_backup": clinical_summary_text # Backup
         }
     }
     return soap_report

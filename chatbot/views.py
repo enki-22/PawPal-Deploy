@@ -1755,7 +1755,8 @@ def predict_symptoms(request):
             urgency = 'soon'
         else:
             severity = 'low'
-            urgency = 'routine'
+            # FIX 2: Change "routine" to "Mild" to match your system's terminology
+            urgency = 'mild' 
 
         return Response({
             'predictions': predictions,
@@ -2618,21 +2619,32 @@ def create_ai_diagnosis(request):
         print(f"🟢 Step 0: Generated explicit case_id: {explicit_case_id}")
         
         # Use assessment data from symptom checker if available
+# Use assessment data from symptom checker if available
         if assessment_data:
             predictions = assessment_data.get('predictions', [])
             urgency_level = assessment_data.get('urgency_level', 'moderate')
             overall_recommendation = assessment_data.get('overall_recommendation', '')
             triage_assessment = assessment_data.get('triage_assessment', {})
             
-            # Build raw_predictions dict for format_soap_report_with_vector_similarity
-            # This should contain 'confidences' (list of predictions) and other metadata
+            # --- FIX: Ensure symptoms list is populated from multiple possible sources ---
+            input_symptoms = assessment_data.get('symptoms_list', [])
+            if not input_symptoms and symptoms_text:
+                 # Fallback to splitting the symptoms text string if list is empty
+                 input_symptoms = [s.strip() for s in symptoms_text.split(',') if s.strip()]
+
+            # Build raw_predictions dict
             raw_predictions = {
-                'confidences': predictions,  # List of prediction dictionaries
+                'confidences': predictions,
                 'top_prediction': predictions[0].get('disease', predictions[0].get('label', 'Unknown')) if predictions else 'Unknown',
                 'confidence': predictions[0].get('confidence', 0) if predictions else 0,
                 'top_prediction_details': predictions[0] if predictions else {},
-                'symptoms': assessment_data.get('symptoms_list', []),
+                
+                # CRITICAL: Pass the populated list and text here
+                'symptoms': input_symptoms,
+                'symptoms_text': symptoms_text or assessment_data.get('symptoms_text', ''),
+                
                 'duration': assessment_data.get('duration_days', 'Unspecified'),
+                'species': pet.animal_type if pet else 'Dog', # Added species for summary generation
                 'case_id': explicit_case_id
             }
             
