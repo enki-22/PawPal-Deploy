@@ -9,6 +9,8 @@ import ProfileButton from './ProfileButton';
 import LogoutModal from './LogoutModal';
 import SOAPReportViewer from './SOAPReportViewer';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
 const AIDiagnosis = () => {
   const [diagnoses, setDiagnoses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -70,7 +72,7 @@ const AIDiagnosis = () => {
       });
 
       const response = await axios.get(
-        `http://localhost:8000/api/chatbot/diagnoses/?${params}`,
+        `${API_BASE_URL}/api/chatbot/diagnoses/?${params}`,
         {
           headers: {
             'Authorization': token ? `Bearer ${token}` : '',
