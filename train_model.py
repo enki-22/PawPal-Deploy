@@ -41,55 +41,8 @@ TEST_SIZE = 0.2
 MIN_SAMPLES_PER_CLASS = 20  # ← CHANGED (was 8)
 
 # Expanded symptom vocabulary for your dataset
-CANONICAL_SYMPTOMS = [
-    # General
-    "vomiting", "diarrhea", "lethargy", "loss_of_appetite", "weight_loss",
-    "fever", "dehydration", "weakness", "seizures",
-    
-    # Respiratory
-    "coughing", "sneezing", "wheezing", "labored_breathing", "difficulty_breathing",
-    "nasal_discharge", "nasal_congestion", "respiratory_distress",
-    
-    # Skin & Coat
-    "scratching", "itching", "hair_loss", "bald_patches", "red_skin",
-    "irritated_skin", "skin_lesions", "rash", "scabs", "dandruff",
-    
-    # Eyes & Ears
-    "watery_eyes", "eye_discharge", "red_eyes", "squinting",
-    "ear_discharge", "ear_scratching", "head_shaking",
-    
-    # Digestive (removed duplicates: vomiting, diarrhea already in General)
-    "constipation", "bloating", "gas", "not_eating", "excessive_eating",
-    
-    # Urinary
-    "blood_in_urine", "frequent_urination", "straining_to_urinate",
-    "dark_urine", "cloudy_urine",
-    
-    # Oral/Dental
-    "bad_breath", "drooling", "difficulty_eating", "swollen_gums",
-    "red_gums", "mouth_pain",
-    
-    # Behavioral
-    "aggression", "hiding", "restlessness", "confusion", "circling",
-    
-    # Mobility
-    "limping", "lameness", "difficulty_walking", "stiffness",
-    "reluctance_to_move", "paralysis",
-    
-    # Bird-specific (removed duplicate: labored_breathing already in Respiratory)
-    "drooping_wing", "feather_loss", "wing_droop", "fluffed_feathers",
-    "tail_bobbing",
-    
-    # Fish-specific
-    "white_spots", "fin_rot", "swimming_upside_down", "gasping_at_surface",
-    "clamped_fins", "rubbing_against_objects", "cloudy_eyes",
-    
-    # Rabbit-specific
-    "head_tilt", "rolling", "loss_of_balance", "dental_issues",
-    
-    # Small mammal
-    "wet_tail", "lumps", "bumps", "overgrown_teeth",
-]
+# At the top of train_model.py
+from utils.risk_calculator import CANONICAL_SYMPTOMS
 
 SYMPTOM_MAPPINGS = {
     # Your dataset specific mappings
