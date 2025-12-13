@@ -86,7 +86,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'middleware.rate_limit.RateLimitMiddleware',  # Rate limiting for OTP/password reset endpoints
+    'middleware.rate_limit.RateLimitMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  
+
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 ]
 
 ROOT_URLCONF = 'vet_app.urls'

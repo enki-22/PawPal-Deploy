@@ -1,0 +1,1 @@
+web: gunicorn vet_app.wsgi:application --log-file -
