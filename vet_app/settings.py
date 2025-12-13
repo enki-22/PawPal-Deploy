@@ -89,8 +89,9 @@ MIDDLEWARE = [
     'middleware.rate_limit.RateLimitMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  
 
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    
 ]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 ROOT_URLCONF = 'vet_app.urls'
 
