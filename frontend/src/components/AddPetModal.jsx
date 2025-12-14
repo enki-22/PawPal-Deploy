@@ -3,6 +3,8 @@ import axios from 'axios';
 import showToast from '../utils/toast';
 
 const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) => {
+  const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+  const API_BASE_URL = `${API_ROOT}/api`;
   // Blood type options by species
   const bloodTypeOptions = {
     dog: [
@@ -161,7 +163,7 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
       let response;
       if (petToEdit) {
         response = await axios.put(
-          `http://localhost:8000/api/pets/${petToEdit.id}/`,
+          `${API_BASE_URL}/pets/${petToEdit.id}/`,
           formData,
           {
             headers: {
@@ -173,7 +175,7 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
         showToast({ message: 'Pet Updated Successfully!', type: 'success' });
       } else {
         response = await axios.post(
-          'http://localhost:8000/api/pets/create/',
+          `${API_BASE_URL}/pets/create/`,
           formData,
           {
             headers: {
