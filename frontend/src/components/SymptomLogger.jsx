@@ -3,7 +3,9 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './SymptomLogger.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/chatbot';
+//const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/chatbot';
+const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL = `${API_ROOT}/api/chatbot`;
 // EXACT 81 CANONICAL SYMPTOMS from train_model.py
 // Organized by category to match the risk calculator
 const SYMPTOM_CATEGORIES = {

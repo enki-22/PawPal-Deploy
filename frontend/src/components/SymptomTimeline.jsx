@@ -19,7 +19,9 @@ import LogoutModal from './LogoutModal';
 import './SymptomTimeline.css';
 import SymptomLogger from './SymptomLogger';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/chatbot';
+//const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/chatbot';
+const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL = `${API_ROOT}/api/chatbot`;
 
 const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
   const location = useLocation();
