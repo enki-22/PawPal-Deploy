@@ -16,15 +16,17 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
   const { token } = useAuth();
+  const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+  const API_BASE_URL = `${API_ROOT}/api`;
 
   const fetchSOAPReport = React.useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const cleanCaseId = caseId.replace('#', '');
-      const response = await axios.get(`http://localhost:8000/api/chatbot/diagnosis/soap/${cleanCaseId}`, {
+      const response = await axios.get(`${API_BASE_URL}/chatbot/diagnosis/soap/${cleanCaseId}`, {
         headers: { 'Authorization': token ? `Bearer ${token}` : '' }
-      });
+      }); 
       // Handle both response structures: response.data.data OR response.data.soap_report
       const reportData = response.data.data || response.data.soap_report;
       if (response.data.success && reportData) {

@@ -2,8 +2,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
-
+const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL = `${API_ROOT}/api`;
+  
 // Create a single axios instance for admin API
 const adminAxios = axios.create({
   baseURL: API_BASE_URL,

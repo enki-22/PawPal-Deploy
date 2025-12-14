@@ -26,6 +26,9 @@ const PetHealthRecords = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const { token, logout } = useAuth();
   const navigate = useNavigate();
+
+  const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+  const API_BASE_URL = `${API_ROOT}/api`;
   
   // Use conversations hook
   const {
@@ -76,7 +79,7 @@ const PetHealthRecords = () => {
         params.append(key, v);
       });
       const response = await axios.get(
-        `http://localhost:8000/api/pets/?${params}`,
+        `${API_BASE_URL}/pets/?${params}`,
         {
           headers: {
             'Authorization': token ? `Token ${token}` : '',

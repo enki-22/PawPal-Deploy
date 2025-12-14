@@ -1,4 +1,4 @@
-import ExcelJS from 'exceljs';
+  import ExcelJS from 'exceljs';
 import React, { useEffect, useState } from 'react';
 import AddVaccinationRecordModal from './AddVaccinationRecordModal';
 import AddMedicalRecordModal from './AddMedicalRecordModal';
@@ -81,6 +81,8 @@ const PetProfile = () => {
   const { petId } = useParams();
   const { token, logout } = useAuth();
   const navigate = useNavigate();
+  const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+  const API_BASE_URL = `${API_ROOT}/api`;
 
   // Use conversations hook for sidebar chat functionality
   const {
@@ -126,7 +128,7 @@ const PetProfile = () => {
   // Fetch all pets
   const fetchAllPets = React.useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/pets/', {
+      const response = await axios.get(`${API_BASE_URL}/pets/`, {
         headers: {
           'Authorization': token ? `Token ${token}` : '',
         },
@@ -141,7 +143,7 @@ const PetProfile = () => {
   const fetchPetDetails = React.useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:8000/api/pets/${petId}/`, {
+      const response = await axios.get(`${API_BASE_URL}/pets/${petId}/`, {
         headers: {
           'Authorization': token ? `Token ${token}` : '',
         },
@@ -186,7 +188,7 @@ const PetProfile = () => {
   const fetchPetDetailsByIdDirectly = async (petIdToFetch) => {
     try {
       setPetSwitchLoading(true);
-      const response = await axios.get(`http://localhost:8000/api/pets/${petIdToFetch}/`, {
+      const response = await axios.get(`${API_BASE_URL}/pets/${petIdToFetch}/`, {
         headers: {
           'Authorization': token ? `Token ${token}` : '',
         },
