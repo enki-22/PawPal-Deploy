@@ -1772,7 +1772,7 @@ def predict_symptoms(request):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def _build_comprehensive_soap_report(cleaned, emergency_data, progression, severity, predictions, triage_assessment):
+def _build_comprehensive_soap_report(cleaned, emergency_data, progression, severity, predictions, triage_assessment, user_notes=''):
     """
     Build a comprehensive SOAP report including emergency screening results.
     
@@ -1848,6 +1848,9 @@ def _build_comprehensive_soap_report(cleaned, emergency_data, progression, sever
             subjective_lines.append(f"  • {readable_symptom}")
     else:
         subjective_lines.append("  • [No specific symptoms documented]")
+
+    if user_notes:
+        subjective_lines.append(f"\nAdditional Owner Notes:\n\"{user_notes}\"")
     
     subjective_lines.append(f"\nDuration: {duration_str}")
     subjective_lines.append(f"Progression: {progression_text}")
@@ -2429,8 +2432,8 @@ def symptom_checker_predict(request):
                     'contagious': contagious,
                     'matching_symptoms': matching_symptoms,
                     'common_symptoms': matching_symptoms,  # Vector similarity shows matched symptoms
-                    'care_guidelines': match.get('match_explanation', ''),
-                    'when_to_see_vet': dynamic_urgency['recommendation'],
+                    'care_guidelines': match.get('care_guidelines') or match.get('match_explanation', ''),
+                    'when_to_see_vet': match.get('when_to_see_vet') or dynamic_urgency['recommendation'],
                     'match_explanation': match.get('match_explanation', ''),  # NEW: Explainability
                     'user_coverage': match.get('user_coverage', 0),  # NEW: % of user symptoms matched
                 }
@@ -2467,7 +2470,19 @@ def symptom_checker_predict(request):
         )
 
         pet_name = cleaned.get('pet_name')
-        symptoms_text = cleaned.get('symptoms_text')
+        
+        # === FIX START: Handle User Notes and Text ===
+        user_notes = cleaned.get('user_notes', '')
+        symptoms_text = cleaned.get('symptoms_text', '')
+        
+        # Combine into one robust text for downstream use (SOAP generation)
+        full_symptoms_text = symptoms_text
+        if user_notes:
+            if full_symptoms_text:
+                full_symptoms_text = f"{symptoms_text}. Owner Notes: {user_notes}"
+            else:
+                full_symptoms_text = f"Owner Notes: {user_notes}"
+        # === FIX END ===
         duration_days = float(cleaned.get('duration_days') or 0)
         if duration_days <= 0.5:
             duration_str = 'less than 24 hours'
@@ -2512,7 +2527,8 @@ def symptom_checker_predict(request):
             progression=progression,
             severity=severity,
             predictions=predictions,
-            triage_assessment=triage_assessment
+            triage_assessment=triage_assessment,
+            user_notes=user_notes
         )
         
         # === SAFETY OVERRIDE: Use vector_result recommendation if safety override is active ===
@@ -2553,7 +2569,7 @@ def symptom_checker_predict(request):
             'should_see_vet_immediately': triage_assessment.get('requires_immediate_care', should_see_vet_immediately),
             'triage_assessment': triage_assessment,
             'soap_data': soap_data,
-            'symptoms_text': symptoms_text,
+            'symptoms_text': full_symptoms_text,
         }
         
         logger.info(f"Symptom checker predict returning {len(predictions)} predictions: {[p.get('disease') for p in predictions]}")
@@ -2726,7 +2742,20 @@ def create_ai_diagnosis(request):
         print("🔵 Step 4: Building SOAP data...")
         
         # Build SOAP report data
-        subjective_text = soap_data.get('subjective', symptoms_text or 'Symptom assessment completed') if soap_data else (symptoms_text or 'Symptom assessment completed')
+        # Build SOAP report data
+        
+        # === FIX: Ensure Subjective Text in SOAP Report includes notes ===
+        gen_subjective = soap_data.get('subjective', '') if soap_data else ''
+        
+        # Logic: If the generated text is empty, OR if we have specific user text 
+        # that isn't fully inside the generated text, append it.
+        subjective_text = gen_subjective
+        if not subjective_text:
+            subjective_text = symptoms_text or 'Symptom assessment completed'
+        elif symptoms_text and len(symptoms_text) > 5 and symptoms_text not in gen_subjective:
+             # Append owner details safely so we don't lose the structured format
+             subjective_text = f"{gen_subjective}\n\nOwner Reported Details: {symptoms_text}"
+        # ==============================================================
         objective_data = soap_data.get('objective', {
             'symptoms': predictions[0].get('matching_symptoms', []) if predictions else [],
             'duration': assessment_data.get('symptoms_text', ''),

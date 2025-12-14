@@ -191,28 +191,6 @@ class DiagnosisVerifier:
         medical_history = context_data.get('medical_history', '')
         
         prompt = f"""
-        *** MANDATORY OUTPUT FORMAT ***
-        You MUST return your analysis in this EXACT JSON structure. Do not skip any fields.
-        {{
-            "agreement": boolean, 
-            "reasoning": "Explain your logic.", 
-            "risk_assessment": "CRITICAL" | "HIGH" | "MODERATE" | "LOW", 
-            "missed_red_flags": ["list", "of", "danger", "signs"],
-
-            "clinical_summary": "REQUIRED: A professional 3-4 sentence veterinary narrative (e.g. 'Patient is a young dog presenting with...').",
-            "care_advice": ["REQUIRED: Specific Action 1", "Specific Action 2", "Specific Action 3"],
-            "severity_explanation": "REQUIRED: Specific explanation of why this risk level was chosen.",
-            "symptoms_consistent": ["Symptom A", "Symptom B"],  # Extract specific symptoms from user text
-
-            "alternative_diagnosis": {{
-               "name": "Most Accurate Disease Name (if disagreement)",
-               "is_in_database": boolean,
-               "confidence": float (0.90+),
-               "matched_symptoms": ["Specific Symptom 1", "Specific Symptom 2"]
-            }}
-        }}
-        *******************************
-
         Act as a Senior Veterinary Diagnostician. Analyze the Patient Data below.
 
         PATIENT DATA:
@@ -222,10 +200,65 @@ class DiagnosisVerifier:
         - Database Predictions: {preds_str}
         {f"- History: {medical_history}" if medical_history else ""}
 
+        *** CONFIDENCE SCORING RUBRIC (STRICTLY FOLLOW) ***
+        You must calculate the confidence score based on clinical evidence, not guessing:
+        
+        1. SCORE 0.90 - 0.99 (PATHOGNOMONIC / DISTINCT):
+           - The symptoms are a "Signature" of the disease (e.g., "Bloody Diarrhea + Puppy" -> Parvo).
+           - There is almost no other likely explanation.
+           
+        2. SCORE 0.70 - 0.89 (HIGH PROBABILITY):
+           - The patient matches the classic profile (3+ major symptoms match).
+           - Example: "Itching + Red Skin + Hair Loss" -> Dermatitis.
+           
+        3. SCORE 0.50 - 0.69 (SUGGESTIVE):
+           - Symptoms fit, but are generic (e.g., just "Vomiting" or "Lethargy").
+           - Could be many things.
+           
+        4. SCORE < 0.50 (SPECULATIVE):
+           - Not enough information or conflicting signs.
+
         ANALYSIS INSTRUCTIONS:
-        1. **HISTORY & TOXIN CHECK:** Check for toxins (Xylitol, Chocolate).
-        2. **ANATOMICAL CHECK:** Mismatched pain location (Back vs Knee) = DISAGREE.
+        1. **HISTORY & TOXIN CHECK:** Check for toxins (Xylitol, Chocolate) mentioned in notes.
+        2. **ANATOMICAL CHECK:** Mismatched pain location (e.g., Back vs Knee) = DISAGREE.
         3. **GENERATE CONTENT:** You must generate the 'clinical_summary' and 'care_advice' fields. They are NOT optional.
+
+        *** MANDATORY OUTPUT FORMAT (JSON) ***
+        You MUST return your analysis in this EXACT JSON structure. Do not skip any fields.
+        {{
+            "agreement": boolean, 
+            "reasoning": "Explain your logic AND cite the Confidence Rubric score bucket you chose.", 
+            "risk_assessment": "CRITICAL" | "HIGH" | "MODERATE" | "LOW", 
+            "missed_red_flags": ["list", "of", "danger", "signs"],
+
+            "clinical_summary": "REQUIRED: A professional 3-4 sentence veterinary narrative.",
+            "care_advice": ["REQUIRED: Specific Action 1", "Specific Action 2", "Specific Action 3"],
+            "severity_explanation": "REQUIRED: Specific explanation of why this risk level was chosen.",
+            "symptoms_consistent": ["Symptom A", "Symptom B"],
+
+            "what_to_do_specific": "REQUIRED: 2-3 specific immediate steps for THIS condition (e.g. 'Withhold food for 12h', 'Keep cool').",
+            "see_vet_if_specific": "REQUIRED: 2-3 specific worsening signs for THIS condition (e.g. 'If vomiting contains blood', 'If gums turn pale').",
+
+            "secondary_advice": [
+                {{
+                    "disease": "Exact Name of Database Prediction #2",
+                    "what_to_do": "2 detailed sentences specific to this condition.",
+                    "see_vet_if": "2 detailed sentences on worsening signs."
+                }},
+                {{
+                    "disease": "Exact Name of Database Prediction #3",
+                    "what_to_do": "2 detailed sentences specific to this condition.",
+                    "see_vet_if": "2 detailed sentences on worsening signs."
+                }}
+            ],
+
+            "alternative_diagnosis": {{
+               "name": "Most Accurate Disease Name (if disagreement)",
+               "is_in_database": boolean,
+               "confidence": float (0.0 to 1.0),
+               "matched_symptoms": ["Specific Symptom 1", "Specific Symptom 2"]
+            }}
+        }}
         """
         return prompt
     
@@ -299,6 +332,10 @@ class DiagnosisVerifier:
             "severity_explanation": result.get("severity_explanation"),
             "symptoms_consistent": global_consistent,
             
+            "what_to_do_specific": result.get("what_to_do_specific"),
+            "see_vet_if_specific": result.get("see_vet_if_specific"),
+            "secondary_advice": result.get("secondary_advice", []),
+
             "alternative_diagnosis": {
                 "name": alt_diag_data.get("name"),
                 "is_in_database": bool(alt_diag_data.get("is_in_database", False)),

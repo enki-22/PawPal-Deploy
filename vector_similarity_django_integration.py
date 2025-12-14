@@ -263,6 +263,8 @@ def predict_with_vector_similarity(payload):
                                         'probability': 0.95, 'confidence': 95.0,
                                         'urgency': risk_assessment.lower(), 'contagious': False,
                                         'matched_symptoms': matched_symptoms,
+                                        'care_guidelines': verification_result.get('what_to_do_specific', verification_result.get('care_advice', [])[0]),
+                                        'when_to_see_vet': verification_result.get('see_vet_if_specific', "If condition worsens or new symptoms appear."),
                                         'match_explanation': f"Hybrid Analysis: {verification_result['reasoning']}",
                                         'total_symptoms': 0, 'is_external': False,
                                         'verification_reasoning': verification_result['reasoning'],
@@ -277,6 +279,8 @@ def predict_with_vector_similarity(payload):
                                     reranked_pred['disease'] = f"✅ Verified Match: {pred_disease_clean}"
                                     reranked_pred['match_explanation'] = f"AI-Verified Match: {verification_result['reasoning']}"
                                     reranked_pred['verification_reasoning'] = verification_result['reasoning']
+                                    reranked_pred['care_guidelines'] = verification_result.get('what_to_do_specific', "Monitor closely.")
+                                    reranked_pred['when_to_see_vet'] = verification_result.get('see_vet_if_specific', "If symptoms persist.")
                                     predictions.insert(0, reranked_pred)
                                 break
                         
@@ -302,12 +306,55 @@ def predict_with_vector_similarity(payload):
                                     'probability': 0.95, 'confidence': 95.0,
                                     'urgency': risk_assessment.lower(), 'contagious': False,
                                     'matched_symptoms': matched_symptoms,
+                                    'care_guidelines': verification_result.get('what_to_do_specific', verification_result.get('care_advice', [])[0]),
+                                    'when_to_see_vet': verification_result.get('see_vet_if_specific', "If condition worsens."),
                                     'match_explanation': f"AI System Correction: {verification_result['reasoning']}",
                                     'total_symptoms': len(symptoms_list), 'is_external': False,
                                     'verification_reasoning': verification_result['reasoning'],
                                     'risk_assessment': risk_assessment, 'injected': True
                                 }
                                 predictions.insert(0, injection_prediction)
+
+                else:
+                    # === FIX: ENRICH ALL RESULTS ON AGREEMENT ===
+                    if predictions:
+                        # 1. Enrich the Top Result (Index 0)
+                        top_pred = predictions[0]
+                        top_pred['care_guidelines'] = verification_result.get('what_to_do_specific') or verification_result.get('care_advice', [])[0]
+                        top_pred['when_to_see_vet'] = verification_result.get('see_vet_if_specific') or "If symptoms persist or worsen."
+                        
+                        if "Verified" not in top_pred['disease']:
+                             top_pred['disease'] = f"✅ Verified: {top_pred['disease']}"
+                        top_pred['match_explanation'] = f"AI Verified: {verification_result['reasoning']}"
+                        predictions[0] = top_pred
+
+                        # 2. Enrich Secondary Results (Indices 1, 2, etc.)
+                        secondary_advice_list = verification_result.get('secondary_advice', [])
+                        
+                        # Loop through remaining predictions
+                        for i in range(1, len(predictions)):
+                            current_pred = predictions[i]
+                            pred_name = current_pred.get('disease', '').lower()
+                            
+                            # Try to find matching advice in the list returned by AI
+                            matched_advice = None
+                            for advice_item in secondary_advice_list:
+                                advice_name = advice_item.get('disease', '').lower()
+                                # Fuzzy match: if one name contains the other
+                                if advice_name in pred_name or pred_name in advice_name:
+                                    matched_advice = advice_item
+                                    break
+                            
+                            if matched_advice:
+                                current_pred['care_guidelines'] = matched_advice.get('what_to_do', "Monitor closely.")
+                                current_pred['when_to_see_vet'] = matched_advice.get('see_vet_if', "If symptoms persist.")
+                            else:
+                                # Fallback if AI didn't provide specific text for this one
+                                current_pred['care_guidelines'] = "Monitor specific symptoms and keep pet comfortable."
+                                current_pred['when_to_see_vet'] = "If condition does not improve within 24 hours."
+                            
+                            predictions[i] = current_pred
+                    # ==========================================
 
             except Exception as e:
                 logger.error(f"✗ Diagnosis verification failed: {e}")
