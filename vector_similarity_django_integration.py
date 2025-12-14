@@ -276,7 +276,7 @@ def predict_with_vector_similarity(payload):
                                     reranked_pred = predictions.pop(idx)
                                     reranked_pred['confidence'] = 95.0
                                     reranked_pred['probability'] = 0.95
-                                    reranked_pred['disease'] = f"✅ Verified Match: {pred_disease_clean}"
+                                    reranked_pred['disease'] = pred_disease_clean
                                     reranked_pred['match_explanation'] = f"AI-Verified Match: {verification_result['reasoning']}"
                                     reranked_pred['verification_reasoning'] = verification_result['reasoning']
                                     reranked_pred['care_guidelines'] = verification_result.get('what_to_do_specific', "Monitor closely.")
@@ -323,9 +323,8 @@ def predict_with_vector_similarity(payload):
                         top_pred['care_guidelines'] = verification_result.get('what_to_do_specific') or verification_result.get('care_advice', [])[0]
                         top_pred['when_to_see_vet'] = verification_result.get('see_vet_if_specific') or "If symptoms persist or worsen."
                         
-                        if "Verified" not in top_pred['disease']:
-                             top_pred['disease'] = f"✅ Verified: {top_pred['disease']}"
-                        top_pred['match_explanation'] = f"AI Verified: {verification_result['reasoning']}"
+                        
+                        top_pred['match_explanation'] = f"AI Analysis: {verification_result['reasoning']}"
                         predictions[0] = top_pred
 
                         # 2. Enrich Secondary Results (Indices 1, 2, etc.)

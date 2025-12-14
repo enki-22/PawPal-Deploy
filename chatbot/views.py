@@ -1116,6 +1116,15 @@ def get_conversation_messages(request, conversation_id):
                             # Try with # prefix (in case SOAP was created without it but AIDiagnosis has it)
                             case_id_with_hash = f'#{case_id_clean}'
                             ai_diagnosis = AIDiagnosis.objects.get(case_id=case_id_with_hash)
+
+                            # === FIX: Retrieve Triage Assessment ===
+                    # Check if ml_predictions has our new wrapper format
+                    stored_ml = ai_diagnosis.ml_predictions
+                    saved_triage_assessment = {}
+                    
+                    if isinstance(stored_ml, dict) and 'triage_assessment' in stored_ml:
+                        saved_triage_assessment = stored_ml.get('triage_assessment', {})
+                    # =======================================
                     
                     # Transform suggested_diagnoses to predictions format expected by frontend
                     predictions = []
@@ -1123,8 +1132,8 @@ def get_conversation_messages(request, conversation_id):
                         for diag in ai_diagnosis.suggested_diagnoses:
                             # Transform from AIDiagnosis format to frontend format
                             prediction = {
-                                'disease': diag.get('condition_name', diag.get('condition', 'Unknown')),
-                                'label': diag.get('condition_name', diag.get('condition', 'Unknown')),
+                            'disease': diag.get('condition_name', diag.get('condition', 'Unknown')),
+                            'label': diag.get('condition_name', diag.get('condition', 'Unknown')),
                             'confidence': diag.get('likelihood_percentage', 0) / 100.0 if diag.get('likelihood_percentage') else (diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else diag.get('likelihood', 0) / 100.0),
                             'likelihood': diag.get('likelihood_percentage', 0) / 100.0 if diag.get('likelihood_percentage') else (diag.get('likelihood', 0) if isinstance(diag.get('likelihood'), (int, float)) and diag.get('likelihood') <= 1 else diag.get('likelihood', 0) / 100.0),
                             'urgency': diag.get('urgency_level', diag.get('urgency', 'moderate')),
@@ -1132,6 +1141,11 @@ def get_conversation_messages(request, conversation_id):
                             'contagious': diag.get('contagious', False),
                             'red_flags': diag.get('red_flags', []),
                             'timeline': diag.get('timeline', ''),
+
+                            'recommendation': diag.get('recommendation', ''),
+                            'care_guidelines': diag.get('care_guidelines', ''),
+                            'when_to_see_vet': diag.get('when_to_see_vet', ''),
+                            'match_explanation': diag.get('match_explanation', '')
                             }
                             predictions.append(prediction)
                     
@@ -1144,6 +1158,8 @@ def get_conversation_messages(request, conversation_id):
                         'symptoms_text': ai_diagnosis.symptoms_text,
                         'case_id': ai_diagnosis.case_id,
                         'date_generated': soap_report.date_generated.isoformat(),
+
+                        'triage_assessment': saved_triage_assessment
                     }
                     
                     # Add to history
@@ -2690,7 +2706,7 @@ def create_ai_diagnosis(request):
         top_prediction = predictions[0] if predictions else {}
         
         # Build suggested diagnoses from predictions
-        suggested_diagnoses = []
+        suggested_diagnoses = []    
         for pred in predictions:
             suggested_diagnoses.append({
                 'condition_name': pred.get('disease', pred.get('label', 'Unknown')),
@@ -2699,11 +2715,21 @@ def create_ai_diagnosis(request):
                 'urgency_level': pred.get('urgency', urgency_level),
                 'contagious': pred.get('contagious', False),
                 'red_flags': pred.get('red_flags', []),
-                'timeline': pred.get('timeline', '')
+                'timeline': pred.get('timeline', ''),
+
+                'recommendation': pred.get('recommendation', ''),
+                'care_guidelines': pred.get('care_guidelines', ''),
+                'when_to_see_vet': pred.get('when_to_see_vet', ''),
+                'match_explanation': pred.get('match_explanation', ''),
             })
         
         print("🟢 Step 2: About to create AIDiagnosis record")
         print(f"🟢 Step 2a: Generated explicit case_id: {explicit_case_id}")
+
+        ml_predictions_storage = {
+            'predictions': predictions,
+            'triage_assessment': triage_assessment
+        }
         
         # Create AI Diagnosis record with explicit case_id
         ai_diagnosis = AIDiagnosis.objects.create(
@@ -2712,7 +2738,7 @@ def create_ai_diagnosis(request):
             case_id=explicit_case_id,  # Use explicit case_id to prevent collisions
             symptoms_text=symptoms_text or assessment_data.get('symptoms_text', 'Symptom assessment completed'),
             image_analysis=None,  # Not using image analysis from symptom checker
-            ml_predictions=predictions,
+            ml_predictions=ml_predictions_storage,
             ai_explanation=overall_recommendation,
             suggested_diagnoses=suggested_diagnoses,
             overall_severity=triage_assessment.get('overall_urgency', urgency_level),
