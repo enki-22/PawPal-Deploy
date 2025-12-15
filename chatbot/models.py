@@ -149,6 +149,15 @@ class SOAPReport(models.Model):
     date_generated = models.DateTimeField(auto_now_add=True)
     date_flagged = models.DateTimeField(auto_now_add=True)
 
+    VERIFICATION_CHOICES = [
+        ('not_verified', 'Not Verified'),
+        ('verified', 'Verified by Vet'),
+        ('flagged', 'Flagged for Review'),
+    ]
+    verification_status = models.CharField(max_length=20, choices=VERIFICATION_CHOICES, default='pending')
+    verification_notes = models.TextField(blank=True, null=True)
+    verified_at = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         ordering = ['-date_generated']
 

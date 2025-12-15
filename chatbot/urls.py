@@ -2,6 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
 from . import views_symptom_tracker
+from . import views_diagnosis
 from .views_symptom_tracker import SymptomTrackerViewSet
 
 # Create router for symptom tracker
@@ -18,6 +19,8 @@ urlpatterns = [
    #TEST VIEW
 
    path('test-gemini-api-key/', views.test_gemini_api_key, name='test_gemini_api_key'),
+
+   path('diagnosis/verify/<str:case_id>/', views_diagnosis.verify_soap_report, name='verify_soap_report'),
     # Conversation management endpoints
     path('conversations/', views.get_conversations, name='get_conversations'),
     path('conversations/new/', views.create_new_conversation, name='create_conversation'),

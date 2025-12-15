@@ -504,7 +504,12 @@ def get_soap_report_by_case_id(request, case_id):
                 'flag_level': soap_report.flag_level,
                 'date_generated': soap_report.date_generated.isoformat(),
                 'date_flagged': soap_report.date_flagged.isoformat() if soap_report.date_flagged else None,
-                'chat_conversation_id': soap_report.chat_conversation.id if soap_report.chat_conversation else None
+                'chat_conversation_id': soap_report.chat_conversation.id if soap_report.chat_conversation else None,
+                'verification': {
+                    'status': getattr(soap_report, 'verification_status', 'pending'),
+                    'note': getattr(soap_report, 'verification_notes', ''),
+                    'date': soap_report.verified_at.isoformat() if soap_report.verified_at else None
+                }
             },
             'message': f'SOAP report retrieved successfully with case ID: {soap_report.case_id}'
         }, status=status.HTTP_200_OK)
@@ -586,7 +591,15 @@ def get_pet_diagnoses(request, pet_id):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # Get SOAP reports for this pet
-        soap_reports = pet.soap_reports.all().order_by('-date_generated')
+        # Get SOAP reports for this pet
+        soap_reports = pet.soap_reports.all()
+
+        # === SOFT HIDE LOGIC: Hide rejected reports from pet owners ===
+        if request.user_type != 'admin':
+            soap_reports = soap_reports.exclude(verification_status='flagged')
+        # ==============================================================
+
+        soap_reports = soap_reports.order_by('-date_generated')
         
         # Get total count
         total_count = soap_reports.count()
@@ -805,13 +818,17 @@ def get_flagged_cases(request, pet_id=None):
                 }, status=status.HTTP_403_FORBIDDEN)
             
             # Base query - get flagged cases for this pet
+            # === SOFT HIDE LOGIC: Base query excludes rejected reports ===
+            base_query = pet.soap_reports.exclude(verification_status='flagged')
+            # =============================================================
+
             if flag_level_filter and flag_level_filter in ['Emergency', 'Urgent', 'Moderate']:
-                soap_reports = pet.soap_reports.filter(
+                soap_reports = base_query.filter(
                     flag_level=flag_level_filter
                 ).order_by('-date_flagged', '-date_generated')
             else:
                 # Default: Get Emergency and Urgent cases
-                soap_reports = pet.soap_reports.filter(
+                soap_reports = base_query.filter(
                     flag_level__in=['Emergency', 'Urgent']
                 ).order_by('-date_flagged', '-date_generated')
             
@@ -913,12 +930,14 @@ def get_all_reports(request):
                 'pet',
                 'pet__owner'
             ).all()
-        else:  # pet_owner
-            # Pet owners only see their own reports
+        else:  
+            # Pet owners only see their own reports AND not rejected ones
             queryset = SOAPReport.objects.select_related(
                 'pet',
                 'pet__owner'
-            ).filter(pet__owner=request.user)
+            ).filter(
+                pet__owner=request.user
+            ).exclude(verification_status='flagged') 
         
         # Apply filters and pagination
         filtered_queryset, pagination_info, applied_filters = filter_reports(
@@ -959,4 +978,62 @@ def get_all_reports(request):
             'error': 'Failed to fetch reports',
             'details': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@authentication_classes([]) # Disable strict default auth
+@permission_classes([AllowAny]) # Handled manually below
+def verify_soap_report(request, case_id):
+    """
+    POST /api/diagnosis/verify/:caseId/
+    Allows a veterinarian/admin to verify or flag a SOAP report.
+    """
+
+    from utils.unified_permissions import check_user_or_admin
+    # 1. Manual Auth Check (Fixes 401 Error)
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+
+    # Optional: Restrict to Admins or Vets only (if you have a 'role' field)
+    # if user_type == 'pet_owner':
+    #     return Response({'error': 'Only veterinarians can verify reports'}, status=403)
+
+    try:
+        # Clean ID
+        clean_id = case_id.replace('#', '')
+        
+        # Find Report
+        try:
+            report = SOAPReport.objects.get(case_id=clean_id)
+        except SOAPReport.DoesNotExist:
+            # Try with hash if missing
+            report = SOAPReport.objects.get(case_id=f"#{clean_id}")
+
+        # Update Fields
+        status_val = request.data.get('status')
+        notes = request.data.get('notes')
+
+        if status_val not in ['verified', 'flagged', 'pending']:
+            return Response({'error': 'Invalid status'}, status=status.HTTP_400_BAD_REQUEST)
+
+        report.verification_status = status_val
+        report.verification_notes = notes
+        report.verified_at = timezone.now()
+        report.save()
+
+        return Response({
+            'success': True,
+            'message': f'Report marked as {status_val}',
+            'verification': {
+                'status': report.verification_status,
+                'note': report.verification_notes,
+                'date': report.verified_at
+            }
+        }, status=status.HTTP_200_OK)
+
+    except SOAPReport.DoesNotExist:
+        return Response({'error': 'Report not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

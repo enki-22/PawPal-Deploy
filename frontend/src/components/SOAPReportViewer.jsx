@@ -61,7 +61,7 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
   if (!report) return null;
 
   const diagnoses = Array.isArray(report.assessment) ? report.assessment : (report.assessment?.diagnoses || []);
-
+  const verificationStatus = report.verification?.status || 'pending';
   return (
     <div 
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 md:p-4 z-50"
@@ -82,13 +82,33 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
           aria-label="Close"
         >×</button>
 
+
         {/* HEADER */}
-        <div className="relative pt-6 px-8 flex flex-col md:flex-row items-center">
-          <div className="w-[60px] h-[60px] relative">
+        <div className="relative pt-6 px-8 flex flex-col md:flex-row items-center justify-between">
+          <div className="w-[60px] h-[60px] relative z-10">
             <img src="/pawpalicon.png" alt="PawPal" className="w-full h-full object-contain" />
             <span className="absolute left-[50px] top-1/2 -translate-y-1/2 font-black text-[#815FB3] text-[30px] whitespace-nowrap">PAWPAL</span>
           </div>
-          <div className="md:absolute md:top-6 md:right-12 text-right mt-2 md:mt-0">
+
+          {/* === INSERT STAMPS HERE (Middle of Header) === */}
+          {verificationStatus === 'verified' && (
+            <div className="md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 transform -rotate-12 border-4 border-green-600 text-green-600 px-6 py-2 rounded-lg font-black text-2xl tracking-widest opacity-90 select-none z-0 mt-4 md:mt-0">
+              VET VERIFIED
+            </div>
+          )}
+          {verificationStatus === 'flagged' && (
+            <div className="md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 transform -rotate-12 border-4 border-red-600 text-red-600 px-6 py-2 rounded-lg font-black text-2xl tracking-widest opacity-90 select-none z-0 mt-4 md:mt-0">
+              REJECTED / FLAGGED
+            </div>
+          )}
+          {verificationStatus === 'pending' && (
+            <div className="md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 transform -rotate-12 border-4 border-gray-400 text-gray-400 px-6 py-2 rounded-lg font-black text-2xl tracking-widest opacity-30 select-none z-0 mt-4 md:mt-0">
+              PENDING REVIEW
+            </div>
+          )}
+          {/* ============================================= */}
+
+          <div className="md:absolute md:top-6 md:right-12 text-right mt-4 md:mt-0 z-10">
             <p className="text-sm text-gray-500">Date Generated: <span className="text-black">{formatDate(report.date_generated)}</span></p>
             <p className="text-sm text-gray-500">Case ID: <span className="text-black">#{report.case_id}</span></p>
           </div>
