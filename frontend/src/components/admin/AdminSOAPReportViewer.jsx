@@ -40,6 +40,8 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
   const [verificationNote, setVerificationNote] = useState('');
   const [verificationStatus, setVerificationStatus] = useState('pending');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
   // === NEW: MODAL STATE ===
   const [actionModal, setActionModal] = useState({
     show: false,
@@ -87,17 +89,23 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
     };
   }, []);
 
-  const handleVerify = async (status) => {
+  const handleVerify = async (status, noteOverride = null) => {
     try {
       setIsSubmitting(true);
       const cleanId = caseId.replace('#', '');
+      
+      // Use the override (from modal) if provided, otherwise use the main textarea
+      const finalNote = noteOverride !== null ? noteOverride : verificationNote;
+
       await adminAxios.post(`/chatbot/diagnosis/verify/${cleanId}/`, {
         status: status,
-        notes: verificationNote
+        notes: finalNote
       });
       setVerificationStatus(status);
       
-      // === REPLACED ALERT WITH MODAL ===
+      // Close reject modal if it was open
+      setShowRejectModal(false);
+
       const isApproved = status === 'verified';
       setActionModal({
         show: true,
@@ -107,18 +115,12 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
           ? `Case #${report.case_id} has been successfully verified. The pet owner will see the verification stamp.` 
           : `Case #${report.case_id} has been flagged for review. The pet owner will be notified.`
       });
-      // ================================
 
     } catch (err) {
       console.error(err);
-      // === REPLACED ALERT WITH MODAL ===
-      setActionModal({
-        show: true,
-        type: 'error',
-        title: 'Action Failed',
-        message: 'There was an error updating the report status. Please try again.'
-      });
-      // ================================
+      // If the error is specifically about the missing note
+      const errorMsg = err.response?.data?.error || 'There was an error updating the report status.';
+      alert(errorMsg); 
     } finally {
       setIsSubmitting(false);
     }
@@ -420,7 +422,10 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
                         {isSubmitting ? 'Saving...' : '✓ APPROVE'}
                     </button>
                     <button 
-                        onClick={() => handleVerify('flagged')}
+                        onClick={() => {
+                            setRejectReason(verificationNote); // Pre-fill if they typed in the main box
+                            setShowRejectModal(true);
+                        }}
                         disabled={isSubmitting}
                         className={`w-full py-2 rounded font-bold text-white text-sm transition-colors ${
                             verificationStatus === 'flagged' ? 'bg-red-700' : 'bg-red-500 hover:bg-red-600'
@@ -470,6 +475,44 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
       )}
 
       </div>
+      {/* === REJECTION REASON MODAL === */}
+      {showRejectModal && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-60" onClick={() => setShowRejectModal(false)}></div>
+          <div className="bg-white rounded-lg p-6 shadow-xl max-w-md w-full relative z-10 border-t-8 border-red-500">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Reject Assessment</h3>
+            <p className="text-gray-600 mb-4 text-sm">
+              Please provide a reason for rejecting this assessment. This note will be visible to the pet owner.
+            </p>
+            
+            <textarea 
+                className="w-full p-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-red-500 mb-4"
+                rows="4"
+                placeholder="e.g., Image is blurry, Symptoms unclear, Not a medical issue..."
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+            />
+
+            <div className="flex justify-end gap-3">
+                <button 
+                    onClick={() => setShowRejectModal(false)}
+                    className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded"
+                >
+                    Cancel
+                </button>
+                <button 
+                    onClick={() => handleVerify('flagged', rejectReason)}
+                    disabled={!rejectReason.trim()}
+                    className={`px-4 py-2 text-white font-bold rounded transition-colors ${
+                        !rejectReason.trim() ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'
+                    }`}
+                >
+                    Confirm Rejection
+                </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

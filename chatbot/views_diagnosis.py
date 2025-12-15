@@ -995,10 +995,6 @@ def verify_soap_report(request, case_id):
     if error_response:
         return error_response
 
-    # Optional: Restrict to Admins or Vets only (if you have a 'role' field)
-    # if user_type == 'pet_owner':
-    #     return Response({'error': 'Only veterinarians can verify reports'}, status=403)
-
     try:
         # Clean ID
         clean_id = case_id.replace('#', '')
@@ -1016,6 +1012,11 @@ def verify_soap_report(request, case_id):
 
         if status_val not in ['verified', 'flagged', 'pending']:
             return Response({'error': 'Invalid status'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # === NEW: Require notes for rejection ===
+        if status_val == 'flagged' and not notes:
+             return Response({'error': 'Rejection reason is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        # ========================================
 
         report.verification_status = status_val
         report.verification_notes = notes
