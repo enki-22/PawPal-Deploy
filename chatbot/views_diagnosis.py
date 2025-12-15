@@ -14,6 +14,7 @@ from django.utils import timezone
 import json
 
 
+
 from .models import SOAPReport, Conversation, AIDiagnosis
 from .serializers import (
     SOAPReportSerializer,
@@ -242,27 +243,36 @@ def get_soap_report_by_case_id(request, case_id):
     (CONSOLIDATED: Replaces both /api/diagnosis/soap/:caseId and /api/admin/reports/:caseId)
     """
     from utils.unified_permissions import check_user_or_admin
+    import json
+    import ast
     
-    # Check authentication (supports both user types)
+    print(f"\n🔍 [DEBUG] STARTS: Fetching SOAP Report for Case ID: {case_id}")
+    
+    # 1. AUTHENTICATION
     user_type, user_obj, error_response = check_user_or_admin(request)
     if error_response:
+        print(f"❌ [DEBUG] Auth failed: {error_response}")
         return error_response
     
     try:
+        # 2. RETRIEVE REPORT
         # Clean case_id (remove # prefix if missing)
         case_id_clean = case_id.strip()
         if not case_id_clean.startswith('#'):
             case_id_clean = f'#{case_id_clean}'
         
-        # Try to get SOAP report with # prefix first
+        soap_report = None
         try:
             soap_report = SOAPReport.objects.get(case_id=case_id_clean)
+            print(f"✅ [DEBUG] Found SOAPReport with ID: {case_id_clean}")
         except SOAPReport.DoesNotExist:
-            # Try without # prefix (in case it was created without it)
+            print(f"⚠️ [DEBUG] ID {case_id_clean} not found. Trying without '#'")
             case_id_no_hash = case_id_clean.lstrip('#')
             try:
                 soap_report = SOAPReport.objects.get(case_id=case_id_no_hash)
+                print(f"✅ [DEBUG] Found SOAPReport with ID: {case_id_no_hash}")
             except SOAPReport.DoesNotExist:
+                print(f"❌ [DEBUG] SOAPReport definitely not found.")
                 return Response({
                     'success': False,
                     'error': f'SOAP report with case ID {case_id} not found',
@@ -280,36 +290,121 @@ def get_soap_report_by_case_id(request, case_id):
                     'code': 'FORBIDDEN'
                 }, status=status.HTTP_403_FORBIDDEN)
         
-        # --- NEW CODE START: FIX CLINICAL SUMMARY AND PLAN ---
-        # 1. Parse Plan (Handle if it's a string vs dict)
-        plan_data = soap_report.plan
-        if isinstance(plan_data, str):
-            try:
-                plan_data = json.loads(plan_data)
-            except:
-                # If parsing fails, keep it as is or empty dict
-                plan_data = {}
+        # === 3. NORMALIZATION PIPELINE (The Fix) ===
+        
+        # Helper to safely parse strings/dicts
+        def safe_parse(val):
+            if isinstance(val, (dict, list)): return val
+            if not isinstance(val, str): return {}
+            try: return json.loads(val)
+            except: 
+                try: return ast.literal_eval(val)
+                except: return {}
 
-        # 2. Extract Clinical Summary (Priority 1: Inside Plan)
+        # A. Parse Plan
+        plan_data = safe_parse(soap_report.plan)
+        
+        # B. Parse Assessment (Handle List, String of List, List of Strings, or Dict Wrapper)
+        raw_assessment = soap_report.assessment
+        assessment_list = []
+        
+        # Unpack the outer layer
+        if isinstance(raw_assessment, list):
+            assessment_list = raw_assessment
+        elif isinstance(raw_assessment, str):
+            parsed = safe_parse(raw_assessment)
+            if isinstance(parsed, list):
+                assessment_list = parsed
+            elif isinstance(parsed, dict):
+                # Handle vector engine wrapper {'diagnoses': [...]}
+                assessment_list = parsed.get('diagnoses', parsed.get('assessment', []))
+        elif isinstance(raw_assessment, dict):
+             assessment_list = raw_assessment.get('diagnoses', raw_assessment.get('assessment', []))
+        
+        # Unpack the inner layer (Fix Double Serialization)
+        final_assessment = []
+        if isinstance(assessment_list, list):
+            for item in assessment_list:
+                clean_item = safe_parse(item)
+                if isinstance(clean_item, dict):
+                    final_assessment.append(clean_item)
+        
+        print(f"✅ [DEBUG] Normalized Assessment Data: {len(final_assessment)} items")
+
+        # Get initial summary
         clinical_summary = ""
         if isinstance(plan_data, dict):
-            clinical_summary = plan_data.get('clinical_summary_backup') or \
-                               plan_data.get('clinical_summary') or \
+            clinical_summary = plan_data.get('clinical_summary') or \
+                               plan_data.get('clinical_summary_backup') or \
                                plan_data.get('summary') or \
                                plan_data.get('clinicalSummary')
 
-        # 3. Fallback: Fetch directly from AIDiagnosis Table (Priority 2)
-        if not clinical_summary:
-            try:
-                # Look up the AI Diagnosis record using the clean case ID
-                ai_diag = AIDiagnosis.objects.filter(case_id=soap_report.case_id).first()
-                if ai_diag and ai_diag.ai_explanation:
+        # === 4. ENRICHMENT PHASE ===
+        print(f"🔄 [DEBUG] Starting AIDiagnosis Enrichment...")
+        try:
+            # Robust ID Lookup
+            ai_diag = AIDiagnosis.objects.filter(case_id=soap_report.case_id).first()
+            
+            if not ai_diag and soap_report.case_id.startswith('#'):
+                clean_id = soap_report.case_id.lstrip('#')
+                print(f"   [DEBUG] Trying Clean ID: {clean_id}")
+                ai_diag = AIDiagnosis.objects.filter(case_id=clean_id).first()
+            
+            if not ai_diag and not soap_report.case_id.startswith('#'):
+                hash_id = f"#{soap_report.case_id}"
+                print(f"   [DEBUG] Trying Hash ID: {hash_id}")
+                ai_diag = AIDiagnosis.objects.filter(case_id=hash_id).first()
+            
+            if ai_diag:
+                print(f"✅ [DEBUG] Found AIDiagnosis Record (ID: {ai_diag.id})")
+                
+                # A. Update Summary from AI if richer
+                if ai_diag.ai_explanation and len(ai_diag.ai_explanation) > len(str(clinical_summary)):
+                    print("   [DEBUG] Upgrading to Rich Clinical Summary from AI.")
                     clinical_summary = ai_diag.ai_explanation
-            except Exception as e:
-                print(f"Error fetching fallback AI diagnosis: {e}")
-        # --- NEW CODE END ---
+                
+                # B. Enrich Assessment Items
+                if ai_diag.suggested_diagnoses and isinstance(ai_diag.suggested_diagnoses, list):
+                    print(f"   [DEBUG] Found {len(ai_diag.suggested_diagnoses)} suggested diagnoses to merge.")
+                    
+                    # Create lookup map
+                    rich_map = {}
+                    for d in ai_diag.suggested_diagnoses:
+                        if isinstance(d, dict) and d.get('condition_name'):
+                            key = d.get('condition_name').lower()
+                            rich_map[key] = d
+                    
+                    # Iterate through our CLEAN list
+                    for item in final_assessment:
+                        c_name = item.get('condition', item.get('condition_name', '')).lower()
+                        print(f"   [DEBUG] Checking: {c_name}")
+                        
+                        # Find matching rich data
+                        rich_info = rich_map.get(c_name)
+                        if not rich_info:
+                            # Fuzzy match
+                            for name, data in rich_map.items():
+                                if name in c_name or c_name in name:
+                                    rich_info = data
+                                    break
+                        
+                        # Inject fields
+                        if rich_info:
+                            print(f"      -> Injecting Rich Data for {c_name}")
+                            item['care_guidelines'] = rich_info.get('care_guidelines') or item.get('care_guidelines')
+                            item['when_to_see_vet'] = rich_info.get('when_to_see_vet') or item.get('when_to_see_vet')
+                            item['recommendation'] = rich_info.get('recommendation') or item.get('recommendation')
+                            item['match_explanation'] = rich_info.get('match_explanation') or item.get('match_explanation')
+            else:
+                print(f"❌ [DEBUG] No matching AIDiagnosis record found for {soap_report.case_id}")
 
-        # Format response matching CHUNK2 spec format (YOUR EXISTING FORMATTING LOGIC)
+        except Exception as e:
+            print(f"❌ [DEBUG] Enrichment Error: {e}")
+            import traceback
+            print(traceback.format_exc())
+
+        # === 5. RESPONSE BUILDER ===
+        # Format response matching CHUNK2 spec format
         pet = soap_report.pet
         owner = pet.owner
         
@@ -370,6 +465,8 @@ def get_soap_report_by_case_id(request, case_id):
                 if 'chronic' in line.lower() and ':' in line:
                     chronic_disease = line.split(':', 1)[1].strip()
         
+        print(f"✅ [DEBUG] Sending Response. Clinical Summary Length: {len(clinical_summary) if clinical_summary else 0}")
+
         return Response({
             'success': True,
             'case_id': soap_report.case_id,
@@ -397,14 +494,13 @@ def get_soap_report_by_case_id(request, case_id):
                 },
                 'subjective': soap_report.subjective,
                 'objective': soap_report.objective,
-                'assessment': soap_report.assessment,
                 
-                'plan': plan_data, # UPDATED: Use the parsed plan_data
+                # === USE THE CLEAN NORMALIZED LIST ===
+                'assessment': final_assessment,
+                # =====================================
                 
-                # --- NEW FIELD ADDED HERE ---
+                'plan': plan_data,
                 'clinical_summary': clinical_summary or "No summary available.",
-                # ----------------------------
-
                 'flag_level': soap_report.flag_level,
                 'date_generated': soap_report.date_generated.isoformat(),
                 'date_flagged': soap_report.date_flagged.isoformat() if soap_report.date_flagged else None,
@@ -421,7 +517,10 @@ def get_soap_report_by_case_id(request, case_id):
         }, status=status.HTTP_404_NOT_FOUND)
     
     except Exception as e:
+        import traceback
         logger.error(f"Error retrieving SOAP report: {str(e)}", exc_info=True)
+        print(f"❌ [DEBUG] FATAL: {e}")
+        print(traceback.format_exc())
         return Response({
             'success': False,
             'error': 'An error occurred while retrieving the report',

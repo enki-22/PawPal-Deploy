@@ -168,13 +168,46 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
                       Likelihood: {Math.round(score)}%
                     </span>
                   </div>
+                  
+                  {/* Generic Description (Fallback) */}
                   <p className="text-gray-700 text-sm mb-3">{d.description}</p>
-                  <ul className="list-disc ml-5 text-sm space-y-1 text-gray-800">
-                    {/* Render the processed symptoms text */}
+                  
+                  {/* Metadata List */}
+                  <ul className="list-disc ml-5 text-sm space-y-1 text-gray-800 mb-4">
                     <li><span className="font-semibold">Matched Symptoms:</span> {symptomsText}</li>
                     <li><span className="font-semibold">Urgency:</span> {d.urgency}</li>
                     <li><span className="font-semibold">Contagious:</span> {d.contagious ? 'Yes' : 'No'}</li>
                   </ul>
+
+                  {/* === FIX: RENDER THE SPECIFIC ADVICE === */}
+                  
+                  {/* What To Do Section */}
+                  {d.care_guidelines && (
+                    <div className="mt-3 bg-white p-3 rounded-md border border-gray-200 shadow-sm">
+                      <p className="text-sm font-bold text-[#815FB3] mb-1 flex items-center gap-2">
+                        <img src="/f7_lightbulb-fill.png" alt="Tip" className="w-4 h-4" />
+                        What to do:
+                      </p>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        {d.care_guidelines}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* See Vet If Section */}
+                  {d.when_to_see_vet && (
+                    <div className="mt-2 bg-white p-3 rounded-md border border-gray-200 shadow-sm">
+                      <p className="text-sm font-bold text-red-600 mb-1 flex items-center gap-2">
+                        <img src="/mingcute_alert-line.png" alt="Alert" className="w-4 h-4" />
+                        See a vet if:
+                      </p>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        {d.when_to_see_vet}
+                      </p>
+                    </div>
+                  )}
+                  {/* ======================================== */}
+
                 </div>
               );
             })}

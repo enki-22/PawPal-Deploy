@@ -221,7 +221,7 @@ class DiagnosisVerifier:
         ANALYSIS INSTRUCTIONS:
         1. **HISTORY & TOXIN CHECK:** Check for toxins (Xylitol, Chocolate) mentioned in notes.
         2. **ANATOMICAL CHECK:** Mismatched pain location (e.g., Back vs Knee) = DISAGREE.
-        3. **GENERATE CONTENT:** You must generate the 'clinical_summary' and 'care_advice' fields. They are NOT optional.
+        3. **GENERATE CONTENT:** You must generate the 'clinical_summary' and 'care_advice' fields. They are NOT optional. DO NOT use the word "Diagnosis". Use "Assessment", "Potential Condition", or "Clinical Impression" instead. This is a triage tool, not a doctor.
 
         *** MANDATORY OUTPUT FORMAT (JSON) ***
         You MUST return your analysis in this EXACT JSON structure. Do not skip any fields.
@@ -231,8 +231,12 @@ class DiagnosisVerifier:
             "risk_assessment": "CRITICAL" | "HIGH" | "MODERATE" | "LOW", 
             "missed_red_flags": ["list", "of", "danger", "signs"],
 
-            "clinical_summary": "REQUIRED: A professional 3-4 sentence veterinary narrative.",
-            "care_advice": ["REQUIRED: Specific Action 1", "Specific Action 2", "Specific Action 3"],
+            "clinical_summary": "REQUIRED: A rich 3-4 sentence narrative summarizing signalment, user notes, and symptoms. Use the pet's name.",
+            "care_advice": [
+                "Step 1: Specific home care action for this disease.", 
+                "Step 2: Environmental management (e.g. isolation/cleaning).",
+                "Step 3: Comfort measure (e.g. warm food/compress)."
+            ],
             "severity_explanation": "REQUIRED: Specific explanation of why this risk level was chosen.",
             "symptoms_consistent": ["Symptom A", "Symptom B"],
 

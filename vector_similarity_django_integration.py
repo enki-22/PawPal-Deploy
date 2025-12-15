@@ -271,6 +271,27 @@ def predict_with_vector_similarity(payload):
                                         'risk_assessment': risk_assessment, 'injected': True
                                     }
                                     predictions.insert(0, ai_assessment_prediction)
+                                    secondary_advice_list = verification_result.get('secondary_advice', [])
+                                    for i in range(1, len(predictions)):
+                                        current_pred = predictions[i]
+                                        pred_name = current_pred.get('disease', '').lower()
+                                        
+                                        # Find matching advice in the list returned by AI
+                                        matched_advice = None
+                                        for advice_item in secondary_advice_list:
+                                            advice_name = advice_item.get('disease', '').lower()
+                                            if advice_name in pred_name or pred_name in advice_name:
+                                                matched_advice = advice_item
+                                                break
+                                        
+                                        if matched_advice:
+                                            current_pred['care_guidelines'] = matched_advice.get('what_to_do', "Monitor closely.")
+                                            current_pred['when_to_see_vet'] = matched_advice.get('see_vet_if', "If symptoms persist.")
+                                        else:
+                                            current_pred['care_guidelines'] = "Monitor specific symptoms and keep pet comfortable."
+                                            current_pred['when_to_see_vet'] = "If condition does not improve within 24 hours."
+                                        
+                                        predictions[i] = current_pred
                                 else:
                                     # Rerank existing
                                     reranked_pred = predictions.pop(idx)
@@ -524,7 +545,7 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
         clinical_summary_text = (
             f"{pet_name} is a {species_str} presenting with {symptoms_str}. "
             f"The symptoms have persisted for {duration_str} days. "
-            f"Based on the clinical signs, {top_disease_name} is the primary differential diagnosis."
+            f"Based on the clinical signs, {top_disease_name} is the primary preliminary assessment.."
         )
 
     # -- Care Advice Logic --
@@ -542,15 +563,27 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
     if not ai_explanation:
         ai_explanation = f"Rated as {final_severity} due to the presentation of {top_disease_name} and reported symptoms."
 
+
+    user_notes_raw = get_val(raw_predictions, ['symptoms_text', 'user_notes'], "")
+    symptoms_str = ', '.join(formatted_symptoms[:15])
+    
+    if user_notes_raw and len(user_notes_raw) > 3:
+        # If user typed notes, display them prominently
+        final_subjective = f"Chief Complaint: {user_notes_raw}\n\nSymptoms noted: {symptoms_str}."
+    else:
+        final_subjective = f"Owner reports symptoms including: {symptoms_str}."
+
     # 6. ASSEMBLE FINAL OBJECT
     soap_report = {
         "case_id": raw_predictions.get("case_id", "N/A"),
         "date_generated": datetime.datetime.now().isoformat(),
+
+        "subjective": final_subjective,
         
         # EXPLICIT TOP-LEVEL FIELD FOR FRONTEND (Fix 1)
         "clinical_summary": clinical_summary_text,
         
-        "subjective": f"Owner reports: {', '.join(formatted_symptoms[:15])}.",
+
         
         "objective": {
             "symptoms": formatted_symptoms, # Use formatted list
