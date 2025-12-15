@@ -503,6 +503,12 @@ def dashboard_charts(request):
                 # Count symptoms globally
                 for symptom in symptoms:
                     symptom = symptom.strip().title()
+                    
+                    # === OPTIONAL FIX: Hide generic text bucket ===
+                    if "Symptoms Noted In Clinical Text" in symptom:
+                        continue
+                    # ==============================================
+
                     symptom_counts[symptom] = symptom_counts.get(symptom, 0) + 1
                     
                     # Group symptoms by species
