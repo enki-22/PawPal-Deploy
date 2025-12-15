@@ -75,17 +75,14 @@ export default function LandingPage() {
   const [promotions, setPromotions] = React.useState([]);
   React.useEffect(() => {
     const stored = localStorage.getItem('pawpal_promotions');
+    
     if (stored) {
+      // If data exists, use it
       setPromotions(JSON.parse(stored));
-                      <button
-                        type="button"
-                        className="text-[15px] hover:underline hover:text-gray-200 transition-colors bg-transparent p-0 m-0 outline-none border-none cursor-pointer"
-                        onClick={() => setShowPrivacyPolicy(true)}
-                      >
-                        Privacy Policy
-                      </button>
-      localStorage.setItem('pawpal_promotions', JSON.stringify(DEFAULT_PROMOTIONS));
+    } else {
+      // If NO data exists (first visit), use defaults and save them
       setPromotions(DEFAULT_PROMOTIONS);
+      localStorage.setItem('pawpal_promotions', JSON.stringify(DEFAULT_PROMOTIONS));
     }
   }, [DEFAULT_PROMOTIONS]);
 
