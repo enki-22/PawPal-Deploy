@@ -60,7 +60,8 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
 
   useEffect(() => {
     if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+      // FIX: Scroll to TOP (0) for forms, instead of BOTTOM (scrollHeight)
+      containerRef.current.scrollTop = 0;
     }
   }, [currentStep, showEmergencyWarning]);
 
