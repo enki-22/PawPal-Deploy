@@ -23,6 +23,17 @@ const TypingIndicator = () => (
     </div>
   </div>
 );
+// Helper to parse **text** into bold elements
+const renderFormattedText = (text) => {
+  if (!text) return '';
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={index} className="font-bold">{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+};
 
 const Chat = () => {
   // --- STATE ---
@@ -1245,34 +1256,58 @@ const Chat = () => {
               }
               
               if (!message.isUser) {
-                const paragraphs = message.content.split(/\n\n+/);
+                // Split by SINGLE newline to handle headers and lists properly
+                const lines = message.content.split('\n');
+                
                 return (
                   <motion.div key={message.id} variants={messageItemVariants} className="flex justify-start mb-4">
                     <div 
-                      className="max-w-[80vw] md:max-w-xs lg:max-w-md px-3 md:px-4 py-2 rounded-lg text-[#111827] shadow-sm"
+                      className="max-w-[85vw] md:max-w-xl lg:max-w-2xl px-4 py-3 rounded-lg text-[#111827] shadow-sm"
                       style={{ backgroundColor: '#FFFFF2' }}
                     >
-                      {paragraphs.map((para, idx) => {
-                        if (/^(\s*[-*]|\d+\.)/.test(para.trim())) {
-                          const lines = para.split(/\n+/).filter(l => l.trim());
-                          const isNumbered = /^\d+\./.test(lines[0].trim());
-                          return isNumbered ? (
-                            <ol className="list-decimal ml-4 mb-2" key={idx}>
-                              {lines.map((line, i) => (
-                                <li key={i} className="text-[13px] md:text-[14px] leading-relaxed" style={{ fontFamily: 'Raleway' }}>{line.replace(/^\d+\.\s*/, '')}</li>
-                              ))}
-                            </ol>
-                          ) : (
-                            <ul className="list-disc ml-4 mb-2" key={idx}>
-                              {lines.map((line, i) => (
-                                <li key={i} className="text-[13px] md:text-[14px] leading-relaxed" style={{ fontFamily: 'Raleway' }}>{line.replace(/^[-*]\s*/, '')}</li>
-                              ))}
-                            </ul>
+                      {lines.map((line, idx) => {
+                        const trimmed = line.trim();
+                        if (!trimmed) return <div key={idx} className="h-2" />; // Spacer for empty lines
+
+                        // 1. Handle Headers (### Title)
+                        if (trimmed.startsWith('###')) {
+                          return (
+                            <h3 key={idx} className="text-[15px] md:text-[16px] font-bold mt-3 mb-2 text-[#815FB3]" style={{ fontFamily: 'Raleway' }}>
+                              {renderFormattedText(trimmed.replace(/^###\s*/, ''))}
+                            </h3>
                           );
                         }
+
+                        // 2. Handle Bullet Points (* Item or - Item)
+                        if (/^[-*]\s/.test(trimmed)) {
+                          return (
+                            <div key={idx} className="flex items-start ml-2 mb-1">
+                              <span className="mr-2 text-[#815FB3] text-lg leading-none">•</span>
+                              <div className="text-[13px] md:text-[14px] leading-relaxed" style={{ fontFamily: 'Raleway' }}>
+                                {renderFormattedText(trimmed.replace(/^[-*]\s*/, ''))}
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // 3. Handle Numbered Lists (1. Item)
+                        if (/^\d+\.\s/.test(trimmed)) {
+                           const numberMatch = trimmed.match(/^(\d+\.)/);
+                           const number = numberMatch ? numberMatch[0] : '';
+                           return (
+                            <div key={idx} className="flex items-start ml-2 mb-1">
+                              <span className="mr-2 font-bold text-[#815FB3] text-[13px]">{number}</span>
+                              <div className="text-[13px] md:text-[14px] leading-relaxed" style={{ fontFamily: 'Raleway' }}>
+                                {renderFormattedText(trimmed.replace(/^\d+\.\s*/, ''))}
+                              </div>
+                            </div>
+                           );
+                        }
+
+                        // 4. Regular Text (Paragraphs)
                         return (
-                          <p key={idx} className="text-[13px] md:text-[14px] leading-relaxed mb-2" style={{ fontFamily: 'Raleway' }}>
-                            {para}
+                          <p key={idx} className="text-[13px] md:text-[14px] leading-relaxed mb-1" style={{ fontFamily: 'Raleway' }}>
+                            {renderFormattedText(trimmed)}
                           </p>
                         );
                       })}
@@ -1287,7 +1322,7 @@ const Chat = () => {
                     style={{ backgroundColor: '#815FB3' }}
                   >
                     <p className="text-[13px] md:text-[14px] leading-relaxed" style={{ fontFamily: 'Raleway' }}>
-                      {message.content}
+                      {renderFormattedText(message.content)}
                     </p>
                   </div>
                 </motion.div>
