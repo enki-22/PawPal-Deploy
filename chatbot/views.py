@@ -576,24 +576,25 @@ You already know about {pet_context['name']}, so don't ask for basic information
             return f"I'm experiencing technical difficulties: {error_str}. Please try again or consult with a veterinarian for immediate concerns."
 
 
-def generate_conversation_title(first_message, ai_response=None):
+def generate_conversation_title(first_message, ai_response=None, pet_name=None):
     """Generate a conversation title using Gemini"""
     try:
         model = get_gemini_client()
-       
-        prompt = f"""Based on this pet health conversation, generate a short, descriptive title (max 6 words):
+        
+        context_str = f"User: {first_message}\n"
+        if ai_response:
+            context_str += f"AI: {ai_response}\n"
+        if pet_name:
+            context_str += f"Subject: {pet_name}\n"
 
+        prompt = f"""Based on this pet health conversation, generate a short, descriptive title (max 5-6 words).
 
-User: {first_message}
-{f"AI: {ai_response}" if ai_response else ""}
+{context_str}
 
-
-Generate a clear, concise title that describes the main topic. Examples:
-- "Cat Eating Issues"
-- "Dog Vaccination Questions"
-- "Pet Skin Problems"
-- "Puppy Training Help"
-
+Guidelines:
+- If a specific symptom or topic is mentioned, use it (e.g., "{pet_name if pet_name else 'Pet'}'s Itchy Skin", "Vomiting Issues", "Diet Questions").
+- Do NOT use generic titles like "Symptom Checker" or "Pet Care" unless the topic is unclear.
+- Do NOT include dates or IDs.
 
 Title:"""
        
@@ -798,13 +799,21 @@ def chat(request):
         )
        
         # Generate title if this is the first exchange
-        if conversation.messages.count() == 2:
-            mode_prefix = "Symptom Check: " if chat_mode == 'symptom_checker' else "Pet Care: "
+        # Generate title if this is the first exchange
+        if conversation.messages.count() <= 3:
+            # Determine pet name for the prompt
+            pet_name = None
             if pet_context:
-                title = f"{pet_context['name']} - {chat_mode.replace('_', ' ').title()}"
-            else:
-                title = generate_conversation_title(user_message, ai_response)
-            conversation.title = mode_prefix + title
+                pet_name = pet_context.get('name')
+            
+            # Generate dynamic title using AI (Always use AI now)
+            dynamic_title = generate_conversation_title(user_message, ai_response, pet_name)
+            
+            # Add a small prefix for categorization, but keep the rest dynamic
+            # Result: "Symptom Check: Max's Upset Stomach" instead of "Symptom Check: Max"
+            prefix = "Symptom Check: " if chat_mode == 'symptom_checker' else "Pet Care: "
+            
+            conversation.title = f"{prefix}{dynamic_title}"
             conversation.save()
        
         # Update conversation timestamp
@@ -2805,6 +2814,9 @@ def create_ai_diagnosis(request):
         # Preserve clinical_summary_backup if it exists in soap_data
         if soap_data and soap_data.get('clinical_summary'):
             plan_data['clinical_summary_backup'] = soap_data.get('clinical_summary')
+
+        if overall_recommendation:
+            plan_data['aiExplanation'] = overall_recommendation
         
         # Use the explicit case_id we generated, save it cleanly without # prefix
         # The frontend handles the display symbol
