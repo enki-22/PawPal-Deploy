@@ -15,6 +15,7 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
   const [report, setReport] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
+  const [isNotesExpanded, setIsNotesExpanded] = React.useState(false);
   const { token } = useAuth();
   const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
   const API_BASE_URL = `${API_ROOT}/api`;
@@ -84,6 +85,34 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
 
 
         {/* HEADER */}
+        {/* === VET NOTES (With Truncation & Wrapping Fix) === */}
+        {report.verification?.note && (
+            <div className="px-2 md:px-8 mt-4"> {/* Added container for proper alignment */}
+                <div className={`p-4 rounded-md text-sm border break-words whitespace-pre-wrap ${
+                    verificationStatus === 'verified' ? 'bg-green-50 border-green-200 text-green-800' : 
+                    verificationStatus === 'flagged' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-gray-50 border-gray-200 text-gray-800'
+                }`}>
+                    <span className="font-bold">Vet Notes: </span>
+                    <span>
+                        {isNotesExpanded || report.verification.note.length <= 100
+                            ? report.verification.note
+                            : `${report.verification.note.substring(0, 100)}...`
+                        }
+                    </span>
+                    
+                    {/* Only show button if text is long */}
+                    {report.verification.note.length > 100 && (
+                        <button 
+                            onClick={() => setIsNotesExpanded(!isNotesExpanded)}
+                            className="ml-2 underline font-bold cursor-pointer hover:opacity-75 focus:outline-none"
+                        >
+                            {isNotesExpanded ? 'Show Less' : 'Read More'}
+                        </button>
+                    )}
+                </div>
+            </div>
+        )}
+        {/* =================================== */}
         <div className="relative pt-6 px-8 flex flex-col md:flex-row items-center justify-between">
           <div className="w-[60px] h-[60px] relative z-10">
             <img src="/pawpalicon.png" alt="PawPal" className="w-full h-full object-contain" />
