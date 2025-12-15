@@ -337,10 +337,24 @@ def _validate_symptom_checker_payload(data: dict) -> tuple[bool, dict | None, Re
 def get_gemini_response(user_message, conversation_history=None, chat_mode='general'):
     """Generate AI response using Google Gemini with different modes"""
     try:
+
+        CLINIC_CONTEXT = """
+        IMPORTANT CONTEXT:
+        You are the official AI assistant for 'SouthValley Veterinary Clinic'.
+        
+        Clinic Address:
+        A. Gomez, National Highway, Balibago, Sta. Rosa, Laguna, Sta. Rosa, Philippines.
+        
+        If you recommend seeing a vet:
+        1. ALWAYS refer them to SouthValley Veterinary Clinic first.
+        2. Remind them the clinic is OPEN 24/7.
+        3. Contact: 0928 960 7250.
+        """
         # Different system prompts based on mode
         if chat_mode == 'symptom_checker':
-            system_prompt = """You are PawPal's Symptom Checker, an AI veterinary diagnostic assistant.
+            system_prompt = """You are PawPal's Symptom Checker, an AI veterinary diagnostic assistant for SouthValley Veterinary Clinic.
             You help pet owners understand possible causes of their pet's symptoms and guide them on urgency levels.
+            
            
             Guidelines:
             - Focus on symptom analysis and potential conditions
@@ -357,7 +371,7 @@ def get_gemini_response(user_message, conversation_history=None, chat_mode='gene
             4. When to see a vet
             """
         else:  # general mode
-            system_prompt = """You are PawPal, a friendly AI veterinary assistant focused on general pet health education.
+            system_prompt = """You are PawPal, a friendly AI veterinary assistant for SouthValley Veterinary Clinic focused on general pet health education.
             You help pet owners understand normal pet behaviors, proper care, and maintenance.
            
             Guidelines:
@@ -433,9 +447,21 @@ def get_gemini_response(user_message, conversation_history=None, chat_mode='gene
 def get_gemini_response_with_pet_context(user_message, conversation_history=None, chat_mode='general', pet_context=None, assessment_context=None):
     """Generate AI response using Google Gemini with pet context"""
     try:
+        CLINIC_CONTEXT = """
+        IMPORTANT CONTEXT:
+        You are the official AI assistant for 'SouthValley Veterinary Clinic'.
+        
+        Clinic Address:
+        A. Gomez, National Highway, Balibago, Sta. Rosa, Laguna, Sta. Rosa, Philippines.
+        
+        If you recommend seeing a vet:
+        1. ALWAYS refer them to SouthValley Veterinary Clinic first.
+        2. Remind them the clinic is OPEN 24/7.
+        3. Contact: 0928 960 7250.
+        """
         # Different system prompts based on mode
         if chat_mode == 'symptom_checker':
-            system_prompt = """You are PawPal's Symptom Checker, an AI veterinary diagnostic assistant.
+            system_prompt = """You are PawPal's Symptom Checker, an AI veterinary diagnostic assistant for SouthValley Veterinary Clinic.
             You help pet owners understand possible causes of their pet's symptoms and guide them on urgency levels.
             
             You can analyze both text descriptions and image analysis results from our computer vision system.
@@ -463,7 +489,7 @@ def get_gemini_response_with_pet_context(user_message, conversation_history=None
             Instead, respond empathetically and end your message with this exact tag: `[[TRIGGER_LOG_UI]]`.
             """
         else:  # general mode
-            system_prompt = """You are PawPal, a friendly AI veterinary assistant focused on general pet health education.
+            system_prompt = """You are PawPal, a friendly AI veterinary assistant for SouthValley Veterinary Clinic focused on general pet health education.
             You help pet owners understand normal pet behaviors, proper care, and maintenance.
            
             Guidelines:
