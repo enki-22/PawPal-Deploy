@@ -19,12 +19,12 @@ export default function LandingPage() {
   // State for Terms of Service Modal
   const [showTermsOfService, setShowTermsOfService] = React.useState(false);
 
-  // Redirect on mount
-  React.useEffect(() => {
-    if (user) {
-      navigate('/chat/new', { replace: true });
-    }
-  }, [user, navigate]);
+// Redirect on mount - DISABLED TO PREVENT LOGIN LOOPS
+  // React.useEffect(() => {
+  //   if (user) {
+  //     navigate('/chat/new', { replace: true });
+  //   }
+  // }, [user, navigate]);
 
   // --- ANIMATION VARIANTS ---
   const containerVariants = {
