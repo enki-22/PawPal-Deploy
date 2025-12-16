@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
       if (token) {
-        axios.get(`${API_BASE_URL}/users/profile/`, {
+        axios.get(`${API_BASE_URL}/users/account/`, {
           headers: { Authorization: `Bearer ${token}` }
         })
           .then(response => {
@@ -246,7 +246,7 @@ export const AuthProvider = ({ children }) => {
   const refreshUser = async () => {
     if (!token) return null;
     try {
-      const response = await axios.get(`${API_BASE_URL}/users/profile/`, {
+      const response = await axios.get(`${API_BASE_URL}/users/account/`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response?.data) {
