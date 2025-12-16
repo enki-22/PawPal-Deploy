@@ -115,7 +115,7 @@ const ProfileSettings = () => {
   const fetchProfileData = useCallback(async () => {
     try {
       setFetchingData(true);
-      const response = await axios.get(`${API_BASE_URL}/users/profile/`, {
+      const response = await axios.get(`${API_BASE_URL}/users/account/`, {
         headers: { 'Authorization': token ? `Bearer ${token}` : '' }
       });
 
@@ -305,7 +305,7 @@ const ProfileSettings = () => {
         formData.append('profile_picture', selectedFile);
       }
 
-      const response = await axios.patch(`${API_BASE_URL}/users/profile/`, formData, {
+      const response = await axios.patch(`${API_BASE_URL}/users/account/`, formData, {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
           'Content-Type': 'multipart/form-data', // Crucial for image upload
@@ -362,7 +362,7 @@ const ProfileSettings = () => {
         facebook: profileData.facebook
       };
 
-      const response = await axios.patch(`${API_BASE_URL}/users/profile/`, updateData, {
+      const response = await axios.patch(`${API_BASE_URL}/users/account/`, updateData, {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
