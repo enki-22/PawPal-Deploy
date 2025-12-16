@@ -39,7 +39,7 @@ PAWPAL_DISEASE_METADATA = None
 PAWPAL_MODEL_LOADED = False
 PAWPAL_MODEL_ERROR = None
 
-ALLOWED_SPECIES = ["Dog", "Cat", "Rabbit", "Bird", "Fish", "Turtle", "Hamster"]
+ALLOWED_SPECIES = ["Dog", "Cat", "Rabbit", "Bird", "Fish", "Turtle", "Hamster", "Pet", "Unknown"]
 
 # Import shared model utilities for deserialization
 try:
