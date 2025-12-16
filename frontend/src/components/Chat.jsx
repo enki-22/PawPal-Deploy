@@ -67,7 +67,7 @@ const Chat = () => {
   
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, token, logout } = useAuth();
+  const { user, token, logout, loading: authLoading } = useAuth();
   
   //const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
   const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
@@ -84,10 +84,12 @@ const Chat = () => {
   } = useConversations();
 
   useEffect(() => {
-    if (!user) {
+    // Only kick user out if we are done loading AND there is no user
+    // Note: You need to grab 'loading' from useAuth() at the top of this component first!
+    if (!authLoading && !user) {
       window.location.replace('/petowner/login');
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   // Update ref whenever conversationId changes
   useEffect(() => {

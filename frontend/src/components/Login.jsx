@@ -964,7 +964,7 @@ const UnifiedAuth = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const successMessage = location.state?.message;
-  const { user, token } = useAuth();
+  const { user, token, loading: authLoading } = useAuth();
   const { updateStep1, registrationData } = useRegistration();
 
   // Guard against duplicate toasts (React Strict Mode may mount effects twice in dev)
@@ -985,14 +985,16 @@ const UnifiedAuth = () => {
   // Guarantee redirect after login: watch user and token
   useEffect(() => {
     // If authenticated (user or token), always redirect from login page
-    if ((user || token) && location.pathname === '/petowner/login') {
+    // FIX: Use authLoading here to avoid conflict with the form 'loading' state
+    if (!authLoading && (user || token) && location.pathname === '/petowner/login') {
       navigate('/chat/new', { replace: true });
     }
+    
     // If token exists and user is not set, force reload (fixes first login delay)
-    if (token && !user && location.pathname === '/petowner/login') {
+    if (!authLoading && token && !user && location.pathname === '/petowner/login') {
       window.location.reload();
     }
-  }, [user, token, location.pathname, navigate]);
+  }, [user, token, authLoading, location.pathname, navigate]);
   
   // FIXED: Enhanced initial view detection
   const getInitialView = () => {
