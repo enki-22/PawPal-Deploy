@@ -248,6 +248,7 @@ const API_BASE_URL = `${API_ROOT}/api`;
                     <span className="px-2 bg-white text-gray-500">or</span>
                   </div>
                 </div>
+                {/* TEMPORARILY REMOVED: Continue Without Details
                 <button
                   onClick={() => handleStartConversation(null, true)}
                   className="w-full py-3 rounded-lg font-semibold text-base transition-colors hover:brightness-90 hover:shadow-md"
@@ -258,6 +259,7 @@ const API_BASE_URL = `${API_ROOT}/api`;
                     Start chatting now, add details later
                   </div>
                 </button>
+                */}
               </div>
             </div>
             <button
