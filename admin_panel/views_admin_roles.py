@@ -228,24 +228,24 @@ def _create_admin_role(request):
             )
             
             # Send welcome email
-            subject, message = get_admin_welcome_email_template(
-                admin_name=name,
-                email=email,
-                temp_password=generated_password
+        subject, message = get_admin_welcome_email_template(
+            admin_name=name,
+            email=email,
+            temp_password=generated_password
+        )
+        
+        email_sent = False
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                fail_silently=False,
             )
-            
-            email_sent = False
-            try:
-                send_mail(
-                    subject=subject,
-                    message=message,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[email],
-                    fail_silently=False,
-                )
-                email_sent = True
-            except Exception as email_error:
-                logger.error(f"Failed to send welcome email: {str(email_error)}")
+            email_sent = True
+        except Exception as email_error:
+            logger.error(f"Failed to send welcome email: {str(email_error)}")
         
         logger.info(f"Master Admin {request.admin.email} created admin {email} with role {role}")
         
