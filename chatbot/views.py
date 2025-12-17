@@ -231,18 +231,34 @@ def _build_feature_row_from_payload(payload: dict) -> dict:
 
 
 def _validate_symptom_checker_payload(data: dict) -> tuple[bool, dict | None, Response | None]:
-    required_fields = [
-        "pet_name",
-        "pet_id",
-        "species",
-        "urgency",
-        "duration_days",
-        "symptoms_list",
-        "symptoms_text",
-        "symptom_count",
-        "main_concern",
-        "severity",
-    ]
+    # Check if species is exotic (handled dynamically by AI)
+    species_raw = str(data.get("species") or "").strip().capitalize()
+    EXOTIC_SPECIES = ['Bird', 'Fish', 'Reptile', 'Turtle', 'Amphibian']
+    is_exotic = species_raw in EXOTIC_SPECIES
+    
+    # For exotic species, only require minimal fields (AI handles the rest dynamically)
+    if is_exotic:
+        required_fields = [
+            "pet_name",
+            "pet_id",
+            "species",
+            "user_notes",
+        ]
+    else:
+        # Standard species require full questionnaire fields
+        required_fields = [
+            "pet_name",
+            "pet_id",
+            "species",
+            "urgency",
+            "duration_days",
+            "symptoms_list",
+            "symptoms_text",
+            "symptom_count",
+            "main_concern",
+            "severity",
+        ]
+    
     missing = [f for f in required_fields if f not in data]
     if missing:
         logger.error(f"Validation failed - Missing required fields: {missing}. Received data: {data}")
@@ -282,7 +298,7 @@ def _validate_symptom_checker_payload(data: dict) -> tuple[bool, dict | None, Re
     else:
         data['user_notes'] = ''
 
-    species = str(data.get("species") or "").strip().capitalize()
+    species = species_raw  # Use the species we already determined above
     if species not in ALLOWED_SPECIES:
         logger.error(f"Validation failed - Invalid species: {species}. Allowed: {ALLOWED_SPECIES}")
         return False, None, Response(
@@ -293,40 +309,46 @@ def _validate_symptom_checker_payload(data: dict) -> tuple[bool, dict | None, Re
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    urgency = str(data.get("urgency") or "").strip().lower()
-    if urgency not in {"mild", "moderate", "severe"}:
-        logger.error(f"Validation failed - Invalid urgency: {urgency}. Must be one of: mild, moderate, severe")
-        return False, None, Response(
-            {
-                "success": False,
-                "error": "Invalid urgency. Must be one of: mild, moderate, severe.",
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    # Skip urgency, severity, and duration_days validation for exotic species (handled by AI)
+    if not is_exotic:
+        urgency = str(data.get("urgency") or "").strip().lower()
+        if urgency not in {"mild", "moderate", "severe"}:
+            logger.error(f"Validation failed - Invalid urgency: {urgency}. Must be one of: mild, moderate, severe")
+            return False, None, Response(
+                {
+                    "success": False,
+                    "error": "Invalid urgency. Must be one of: mild, moderate, severe.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-    provided_symptoms = list(data.get("symptoms_list") or [])
-    if CANONICAL_SYMPTOMS:
-        invalid_symptoms = [s for s in provided_symptoms if s not in CANONICAL_SYMPTOMS]
-        if invalid_symptoms:
-            logger.warning(f"Some symptoms are not in CANONICAL_SYMPTOMS: {invalid_symptoms}. Filtering them out.")
-            # Filter out invalid symptoms instead of rejecting
-            provided_symptoms = [s for s in provided_symptoms if s in CANONICAL_SYMPTOMS]
-            data["symptoms_list"] = provided_symptoms
-            data["symptoms_text"] = ", ".join(provided_symptoms)
-            data["symptom_count"] = len(provided_symptoms)
+    # Skip symptoms_list validation for exotic species (symptoms extracted from user_notes by AI)
+    if not is_exotic:
+        provided_symptoms = list(data.get("symptoms_list") or [])
+        if CANONICAL_SYMPTOMS:
+            invalid_symptoms = [s for s in provided_symptoms if s not in CANONICAL_SYMPTOMS]
+            if invalid_symptoms:
+                logger.warning(f"Some symptoms are not in CANONICAL_SYMPTOMS: {invalid_symptoms}. Filtering them out.")
+                # Filter out invalid symptoms instead of rejecting
+                provided_symptoms = [s for s in provided_symptoms if s in CANONICAL_SYMPTOMS]
+                data["symptoms_list"] = provided_symptoms
+                data["symptoms_text"] = ", ".join(provided_symptoms)
+                data["symptom_count"] = len(provided_symptoms)
 
-    try:
-        duration_days = data.get("duration_days")
-        if duration_days is not None:
-            duration_days = float(duration_days)
-    except Exception:
-        return False, None, Response(
-            {
-                "success": False,
-                "error": "duration_days must be a number.",
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    # Skip duration_days validation for exotic species (handled by AI)
+    if not is_exotic:
+        try:
+            duration_days = data.get("duration_days")
+            if duration_days is not None:
+                duration_days = float(duration_days)
+        except Exception:
+            return False, None, Response(
+                {
+                    "success": False,
+                    "error": "duration_days must be a number.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     return True, data, None
 

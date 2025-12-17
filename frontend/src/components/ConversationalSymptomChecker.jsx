@@ -6,6 +6,8 @@ import EmergencyScreening from './EmergencyScreening';
 const PRIMARY_COLOR = '#815FB3';
 const ACCENT_COLOR = '#F4D06F';
 
+const EXOTIC_SPECIES = ['Bird', 'Fish', 'Reptile', 'Turtle', 'Amphibian'];
+
 const MAIN_CONCERNS = [
   { id: 'Digestive Issues', label: 'Digestive Issues', icon: '/hugeicons_digestion.png', vtlCategory: 'Gastrointestinal' },
   { id: 'Respiratory Problems', label: 'Respiratory Problems', icon: '/mingcute_lungs-fill.png', vtlCategory: 'Respiratory' },
@@ -231,9 +233,8 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
     isMountedRef.current = true;
 
     // Check if species requires dynamic mode
-    const dynamicSpecies = ['Bird', 'Fish', 'Reptile', 'Turtle', 'Amphibian'];
     const species = selectedPet?.species || '';
-    setIsDynamicMode(dynamicSpecies.includes(species));
+    setIsDynamicMode(EXOTIC_SPECIES.includes(species));
 
     // Initialize conversation when pet changes or component mounts
     setShowEmergencyScreening(true);
@@ -562,8 +563,8 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
   );
 
   const renderStepControls = () => {
-    // Dynamic mode: Show simplified single-step UI for Bird, Fish, Reptile, Turtle, Amphibian
-    if (isDynamicMode) {
+    // Dynamic mode: Show simplified single-step UI for exotic species (bypass all steps)
+    if (isDynamicMode && !showSummary) {
       return (
         <div className="flex justify-start mt-4">
           <div
@@ -591,7 +592,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
                 }`}
                 style={{ backgroundColor: PRIMARY_COLOR }}
               >
-                Submit
+                Submit Assessment
               </button>
             </div>
           </div>
