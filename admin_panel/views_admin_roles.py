@@ -11,6 +11,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 import logging
 import threading
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
 
 from .permissions import require_admin_role
 from .admin_role_filters import filter_admins, validate_admin_filter_params
@@ -27,6 +29,22 @@ from .email_templates import (
 from .models import Admin, AdminAuditLog
 
 logger = logging.getLogger(__name__)
+
+def send_via_brevo(to_email, to_name, subject, html_content):
+    """Helper to send via Brevo API and avoid repeating config code"""
+    try:
+        configuration = sib_api_v3_sdk.Configuration()
+        configuration.api_key['api-key'] = settings.BREVO_API_KEY
+        api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+        
+        sender = {"name": "PawPal Admin", "email": settings.DEFAULT_FROM_EMAIL}
+        to = [{"email": to_email, "name": to_name}]
+        send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(to=to, sender=sender, subject=subject, html_content=html_content)
+        
+        api_instance.send_transac_email(send_smtp_email)
+        logger.info(f"Brevo email sent to {to_email}")
+    except Exception as e:
+        logger.error(f"Brevo failed for {to_email}: {str(e)}")
 
 
 def log_admin_action(admin, action, target_admin_id, target_admin_email=None, details=None):
@@ -187,48 +205,12 @@ def _create_admin_role(request):
         # --- BACKGROUND EMAIL SENDING (PATCHED FOR RAILWAY - SSL VERSION) ---
         # --- BACKGROUND EMAIL SENDING (HARDCODED IP FIX) ---
         def send_email_thread():
-            try:
-                from django.core.mail import get_connection
-
-                # 1. USE A HARDCODED GOOGLE IPv4 ADDRESS
-                # DNS resolution on cloud containers can be flaky or return blocked IPs.
-                # We bypass DNS entirely and use a known stable Google SMTP IP.
-                # Alternates if this fails: '74.125.137.108', '64.233.185.108'
-                google_smtp_ip = "173.194.202.108" 
-                
-                logger.info(f"Attempting email connection to {google_smtp_ip}...")
-
-                # 2. MANUALLY BUILD CONNECTION (SSL ON PORT 465)
-                connection = get_connection(
-                    host=google_smtp_ip,
-                    port=465,
-                    username=settings.EMAIL_HOST_USER,
-                    password=settings.EMAIL_HOST_PASSWORD,
-                    use_ssl=True,   
-                    use_tls=False,
-                    timeout=30      # <--- ADDED TIMEOUT (Default is often too short)
-                )
-
-                subject, message = get_admin_welcome_email_template(
-                    admin_name=name,
-                    email=email,
-                    temp_password=generated_password
-                )
-
-                # 3. SEND
-                send_mail(
-                    subject=subject,
-                    message=message,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[email],
-                    fail_silently=False,
-                    connection=connection
-                )
-                logger.info(f"Email successfully sent to {email} using fixed IP {google_smtp_ip}")
-
-            except Exception as e:
-                # If the hardcoded IP fails, log it clearly
-                logger.error(f"Background email failed for {email} on IP {google_smtp_ip}: {str(e)}")
+            subject, message_html = get_admin_welcome_email_template(
+                admin_name=name,
+                email=email,
+                temp_password=generated_password
+            )
+            send_via_brevo(email, name, subject, message_html)
 
         # Start the thread. The code below this line runs INSTANTLY without waiting.
         email_thread = threading.Thread(target=send_email_thread)
@@ -467,56 +449,28 @@ def _update_admin_role(request, admin_id):
                     }
                 )
                 
+                # --- REPLACE THIS PART IN _update_admin_role ---
+                
                 # Send notification emails if email changed
                 if email_changed:
-                    try:
-                        # Send to old email
-                        subject_old, message_old = get_admin_update_notification_template(
-                            admin_name=admin.name,
-                            changed_fields=updated_fields,
-                            old_email=old_email,
-                            new_email=admin.email
-                        )
-                        send_mail(
-                            subject=subject_old,
-                            message=message_old,
-                            from_email=settings.DEFAULT_FROM_EMAIL,
-                            recipient_list=[old_email],
-                            fail_silently=True
-                        )
-                        
-                        # Send to new email
-                        subject_new, message_new = get_admin_update_notification_template(
-                            admin_name=admin.name,
-                            changed_fields=updated_fields,
-                            old_email=old_email,
-                            new_email=admin.email
-                        )
-                        send_mail(
-                            subject=subject_new,
-                            message=message_new,
-                            from_email=settings.DEFAULT_FROM_EMAIL,
-                            recipient_list=[admin.email],
-                            fail_silently=True
-                        )
-                    except Exception as email_error:
-                        logger.error(f"Failed to send update notification emails: {str(email_error)}")
+                    # Prepare the content
+                    subject, message_html = get_admin_update_notification_template(
+                        admin_name=admin.name,
+                        changed_fields=updated_fields,
+                        old_email=old_email,
+                        new_email=admin.email
+                    )
+                    # Send to both old and new email using Brevo Threads
+                    threading.Thread(target=send_via_brevo, args=(old_email, admin.name, subject, message_html)).start()
+                    threading.Thread(target=send_via_brevo, args=(admin.email, admin.name, subject, message_html)).start()
+
                 elif updated_fields:
-                    # Send notification to admin about changes
-                    try:
-                        subject, message = get_admin_update_notification_template(
-                            admin_name=admin.name,
-                            changed_fields=updated_fields
-                        )
-                        send_mail(
-                            subject=subject,
-                            message=message,
-                            from_email=settings.DEFAULT_FROM_EMAIL,
-                            recipient_list=[admin.email],
-                            fail_silently=True
-                        )
-                    except Exception as email_error:
-                        logger.error(f"Failed to send update notification email: {str(email_error)}")
+                    # Send notification for other changes (role/status)
+                    subject, message_html = get_admin_update_notification_template(
+                        admin_name=admin.name,
+                        changed_fields=updated_fields
+                    )
+                    threading.Thread(target=send_via_brevo, args=(admin.email, admin.name, subject, message_html)).start()
         
         logger.info(
             f"Master Admin {request.admin.email} updated admin {admin_id} "
