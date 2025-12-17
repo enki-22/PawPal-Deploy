@@ -184,24 +184,25 @@ def _create_admin_role(request):
 
         # --- BACKGROUND EMAIL SENDING ---
         # We define a small internal function to run in a separate thread
-       # --- BACKGROUND EMAIL SENDING (PATCHED FOR RAILWAY) ---
+        # --- BACKGROUND EMAIL SENDING (PATCHED FOR RAILWAY - SSL VERSION) ---
         def send_email_thread():
             try:
                 import socket
                 from django.core.mail import get_connection
 
                 # 1. FORCE RESOLVE IPv4 ADDRESS
-                # Railway often fails on IPv6 for Gmail. We force it to find the IPv4 IP.
+                # We still need this to bypass the IPv6 routing issue
                 host_ip = socket.gethostbyname("smtp.gmail.com")
                 
-                # 2. MANUALLY BUILD CONNECTION
-                # We bypass the default settings and use the IP we just found
+                # 2. MANUALLY BUILD CONNECTION (SSL ON PORT 465)
+                # Port 587 timed out, so we are switching to 465 (SSL)
                 connection = get_connection(
                     host=host_ip,
-                    port=587,
+                    port=465,       # <--- CHANGED TO 465
                     username=settings.EMAIL_HOST_USER,
                     password=settings.EMAIL_HOST_PASSWORD,
-                    use_tls=True
+                    use_ssl=True,   # <--- USE SSL (Encrypted from start)
+                    use_tls=False   # <--- DISABLE TLS (STARTTLS)
                 )
 
                 subject, message = get_admin_welcome_email_template(
@@ -217,9 +218,9 @@ def _create_admin_role(request):
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[email],
                     fail_silently=False,
-                    connection=connection  # <--- PASS THE CONNECTION HERE
+                    connection=connection
                 )
-                logger.info(f"Email successfully sent to {email} using IP {host_ip}")
+                logger.info(f"Email successfully sent to {email} using IP {host_ip} on Port 465")
 
             except Exception as e:
                 logger.error(f"Background email failed for {email}: {str(e)}")
