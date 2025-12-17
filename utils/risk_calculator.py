@@ -205,6 +205,57 @@ def get_symptom_risk_weight(symptom):
         return 3  # Default low weight for unmapped symptoms
 
 
+def calculate_exotic_risk_modifier(species, symptoms):
+    """
+    Calculate urgency modifier for exotic species (Bird, Fish) that are 'masters of disguise'.
+    These species typically only show symptoms when very ill, so lethargy or loss_of_appetite
+    should boost urgency by one tier.
+    
+    Args:
+        species (str): Pet species (case-insensitive)
+        symptoms (list): List of symptom codes
+        
+    Returns:
+        dict: {
+            'modifier_applied': bool,
+            'original_level': str or None,
+            'modified_level': str or None,
+            'reason': str or None
+        }
+    """
+    if not species or not symptoms:
+        return {
+            'modifier_applied': False,
+            'original_level': None,
+            'modified_level': None,
+            'reason': None
+        }
+    
+    species_lower = str(species).lower().strip()
+    symptoms_set = set(symptoms) if isinstance(symptoms, list) else set()
+    
+    # Check if species is Bird or Fish
+    is_exotic = species_lower in ['bird', 'fish']
+    
+    # Check if lethargy or loss_of_appetite is present
+    has_warning_symptom = 'lethargy' in symptoms_set or 'loss_of_appetite' in symptoms_set
+    
+    if is_exotic and has_warning_symptom:
+        return {
+            'modifier_applied': True,
+            'original_level': None,  # Will be set by caller
+            'modified_level': None,  # Will be set by caller
+            'reason': f"{species} showing lethargy/loss_of_appetite - exotic species are 'masters of disguise' and typically only show symptoms when very ill"
+        }
+    
+    return {
+        'modifier_applied': False,
+        'original_level': None,
+        'modified_level': None,
+        'reason': None
+    }
+
+
 def calculate_risk_score(symptom_log, previous_logs=None, pet=None):
     """
     Calculate comprehensive risk score using canonical symptoms
@@ -419,13 +470,42 @@ def calculate_risk_score(symptom_log, previous_logs=None, pet=None):
         risk_level = 'low'
         recommendation = "👁️ Continue monitoring. Contact vet if symptoms worsen or persist beyond 3-5 days."
     
+    # 8. EXOTIC RISK MODIFIER (Bird/Fish are 'masters of disguise')
+    # Get species from pet or symptom_log
+    species = None
+    if pet:
+        if hasattr(pet, 'animal_type'):
+            species = pet.animal_type
+        elif hasattr(pet, 'species'):
+            species = pet.species
+    
+    # Apply exotic risk modifier
+    exotic_modifier = calculate_exotic_risk_modifier(species, valid_symptoms)
+    original_risk_level = risk_level
+    
+    if exotic_modifier['modifier_applied']:
+        # Boost urgency by one tier
+        if risk_level == 'low':
+            risk_level = 'moderate'
+            recommendation = "📋 Schedule vet appointment within 24-48 hours. Monitor closely for worsening symptoms."
+        elif risk_level == 'moderate':
+            risk_level = 'high'
+            recommendation = "⚠️ HIGH PRIORITY: Contact your vet today or visit emergency clinic if after hours. These symptoms require prompt attention."
+        elif risk_level == 'high':
+            risk_level = 'critical'
+            recommendation = "🚨 URGENT: Seek emergency veterinary care immediately. Do not wait. This could be life-threatening."
+        # 'critical' stays 'critical' (can't go higher)
+        
+        risk_factors.append(f"Exotic species modifier: {exotic_modifier['reason']} (boosted from {original_risk_level} to {risk_level})")
+    
     return {
         'risk_score': risk_score,
         'risk_level': risk_level,
         'risk_factors': risk_factors,
         'recommendation': recommendation,
         'symptoms_evaluated': len(valid_symptoms),
-        'total_symptoms_reported': len(symptoms)
+        'total_symptoms_reported': len(symptoms),
+        'exotic_modifier_applied': exotic_modifier['modifier_applied']
     }
 
 

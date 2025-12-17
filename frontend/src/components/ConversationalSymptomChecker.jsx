@@ -208,6 +208,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [isDynamicMode, setIsDynamicMode] = useState(false);
 
   const containerRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -228,6 +229,11 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
   useEffect(() => {
     // Mark as mounted
     isMountedRef.current = true;
+
+    // Check if species requires dynamic mode
+    const dynamicSpecies = ['Bird', 'Fish', 'Reptile', 'Turtle', 'Amphibian'];
+    const species = selectedPet?.species || '';
+    setIsDynamicMode(dynamicSpecies.includes(species));
 
     // Initialize conversation when pet changes or component mounts
     setShowEmergencyScreening(true);
@@ -556,6 +562,43 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
   );
 
   const renderStepControls = () => {
+    // Dynamic mode: Show simplified single-step UI for Bird, Fish, Reptile, Turtle, Amphibian
+    if (isDynamicMode) {
+      return (
+        <div className="flex justify-start mt-4">
+          <div
+            className="max-w-xl w-full px-4 py-3 rounded-[10px] shadow-sm"
+            style={{ fontFamily: 'Raleway', backgroundColor: '#FFFFF2' }}
+          >
+            <p className="text-[14px] font-semibold mb-3 text-[#34113F]">Describe symptoms</p>
+            <textarea
+              value={otherSymptomsText}
+              onChange={(e) => setOtherSymptomsText(e.target.value)}
+              placeholder="Please describe your pet's symptoms in detail..."
+              className="w-full px-3 py-3 border border-[#D1D5DB] rounded-lg text-[13px] text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#815FB3] focus:border-transparent resize-none"
+              rows="8"
+              style={{ fontFamily: 'Raleway' }}
+            />
+            <div className="flex justify-end mt-3">
+              <button
+                type="button"
+                onClick={handleSubmitAssessment}
+                disabled={!otherSymptomsText.trim()}
+                className={`px-4 py-2 rounded-[10px] text-[13px] font-semibold text-white transition-opacity shadow-md ${
+                  otherSymptomsText.trim()
+                    ? 'hover:opacity-90'
+                    : 'opacity-40 cursor-not-allowed'
+                }`}
+                style={{ backgroundColor: PRIMARY_COLOR }}
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (showSummary) {
       const symptomsList = buildSymptomsList();
       const symptomLabels = symptomsList.map((code) => formatSymptomLabel(code));

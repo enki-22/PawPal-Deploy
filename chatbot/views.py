@@ -2305,29 +2305,95 @@ def symptom_checker_predict(request):
     try:
         payload = request.data or {}
         logger.info(f"Symptom checker predict received payload: {payload}")
-        is_valid, cleaned, error_response = _validate_symptom_checker_payload(payload)
-        if not is_valid:
-            logger.error(f"Symptom checker payload validation failed. Payload: {payload}")
-            return error_response
-
-        pet_id = cleaned.get('pet_id')
-        pet = None
-        if pet_id:
-            try:
-                pet = Pet.objects.get(id=pet_id, owner=user_obj)
-            except Pet.DoesNotExist:
+        
+        # Check species early to determine if we should bypass question-tree validation
+        species = str(payload.get('species', '')).strip().capitalize()
+        is_standard_species = species in ['Dog', 'Cat', 'Rabbit']
+        vector_result = None  # Will be set in either branch
+        
+        # For non-standard species (Bird, Fish, Reptile, Turtle, Amphibian), bypass validation
+        # and use vector similarity directly with user_notes
+        if not is_standard_species:
+            logger.info(f"🔄 Dynamic mode detected for species: {species}. Bypassing question-tree validation.")
+            
+            # Get minimal required fields
+            pet_id = payload.get('pet_id')
+            pet_name = payload.get('pet_name', 'Unknown Pet')
+            user_notes = payload.get('user_notes', '')
+            
+            if not user_notes or not user_notes.strip():
                 return Response(
                     {
                         'success': False,
-                        'error': 'Pet not found or not owned by the current user.',
+                        'error': 'user_notes is required for dynamic mode species.',
                     },
-                    status=status.HTTP_404_NOT_FOUND,
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
+            
+            # Verify pet ownership if pet_id provided
+            if pet_id:
+                try:
+                    pet = Pet.objects.get(id=pet_id, owner=user_obj)
+                except Pet.DoesNotExist:
+                    return Response(
+                        {
+                            'success': False,
+                            'error': 'Pet not found or not owned by the current user.',
+                        },
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+            
+            # Prepare minimal payload for vector similarity
+            minimal_payload = {
+                'pet_id': pet_id,
+                'pet_name': pet_name,
+                'species': species,
+                'user_notes': user_notes.strip(),
+                'symptoms_list': [],  # Empty - will be extracted from user_notes
+                'urgency': 'moderate',  # Default
+                'duration_days': None,
+            }
+            
+            # Call vector similarity directly
+            from vector_similarity_django_integration import predict_with_vector_similarity
+            
+            logger.info(f"🔍 VECTOR SIMILARITY PREDICTION (Dynamic Mode) FOR {pet_name}")
+            logger.info(f"Species: {species}")
+            logger.info(f"User notes: '{user_notes[:200]}...'")
+            
+            vector_result = predict_with_vector_similarity(minimal_payload)
+            
+            if not vector_result.get('success'):
+                raise Exception(vector_result.get('error', 'Prediction failed'))
+            
+            # Set cleaned for use in rest of processing
+            cleaned = minimal_payload
+            # Skip to processing section - vector_result is already obtained
+        else:
+            # Standard validation for Dog, Cat, Rabbit
+            is_valid, cleaned, error_response = _validate_symptom_checker_payload(payload)
+            if not is_valid:
+                logger.error(f"Symptom checker payload validation failed. Payload: {payload}")
+                return error_response
 
-        # ============================================================
-        # VECTOR SIMILARITY PREDICTION (Replaces LightGBM)
-        # ============================================================
-        from vector_similarity_django_integration import predict_with_vector_similarity
+            pet_id = cleaned.get('pet_id')
+            pet = None
+            if pet_id:
+                try:
+                    pet = Pet.objects.get(id=pet_id, owner=user_obj)
+                except Pet.DoesNotExist:
+                    return Response(
+                        {
+                            'success': False,
+                            'error': 'Pet not found or not owned by the current user.',
+                        },
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+
+            # ============================================================
+            # VECTOR SIMILARITY PREDICTION (Replaces LightGBM)
+            # ============================================================
+            from vector_similarity_django_integration import predict_with_vector_similarity
         
         try:
             # Debug logging
@@ -2346,7 +2412,10 @@ def symptom_checker_predict(request):
                 logger.info(f"🔍 HYBRID TRIAGE: User-typed symptoms: '{user_notes}'")
             
             # Run vector similarity prediction (includes user_notes extraction)
-            vector_result = predict_with_vector_similarity(cleaned)
+            # Note: For dynamic mode, vector_result is already set above
+            if vector_result is None:
+                # Run vector similarity prediction for standard species
+                vector_result = predict_with_vector_similarity(cleaned)
             
             if not vector_result.get('success'):
                 raise Exception(vector_result.get('error', 'Prediction failed'))

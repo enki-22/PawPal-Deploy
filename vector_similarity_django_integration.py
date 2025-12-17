@@ -48,7 +48,7 @@ RED_FLAG_SYMPTOMS = {
     'shock', 'severe_dehydration', 'unresponsive', 'convulsions'
 }
 
-def extract_symptoms_from_text(user_notes, existing_symptoms=None):
+def extract_symptoms_from_text(user_notes, existing_symptoms=None, species='Dog'):
     # (Keep existing implementation - no changes needed here)
     if not user_notes or not user_notes.strip():
         return {
@@ -125,12 +125,19 @@ def extract_symptoms_from_text(user_notes, existing_symptoms=None):
     try:
         model = get_gemini_client()
         if model:
-            prompt = f"""Act as a veterinary terminologist. Analyze this user input: "{user_notes}"
+            prompt = f'''Act as a senior veterinary terminologist with expertise in {species} medicine. 
+
+Analyze this input: "{user_notes}"
+
 1. Translate to English if in Tagalog/Taglish.
-2. Identify specific veterinary symptoms.
+
+2. Identify specific symptoms for a {species}. (Example for exotics: "floating sideways" -> "swimming_sideways", "heavy breathing" -> "tail_bobbing").
+
 3. Convert them to standard medical terms.
-4. Return ONLY a comma-separated list of these terms. If no symptoms, return "None".
-Your response (comma-separated list only):"""
+
+4. Return ONLY a comma-separated list of these terms. If none, return "None".
+
+Your response (comma-separated list only):'''
             response = model.generate_content(prompt)
             if hasattr(response, 'text') and response.text:
                 gemini_output = response.text.strip()
@@ -180,7 +187,7 @@ def predict_with_vector_similarity(payload):
         user_notes = payload.get('user_notes', '')
         
         # === HYBRID TRIAGE ===
-        extraction_result = extract_symptoms_from_text(user_notes, symptoms_list)
+        extraction_result = extract_symptoms_from_text(user_notes, symptoms_list, species)
         
         # === SAFETY INTERCEPTOR ===
         safety_override_active = False
