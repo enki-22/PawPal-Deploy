@@ -109,29 +109,6 @@ def pet_list(request):
     """
     GET /api/pets/
     (CONSOLIDATED: Replaces both /api/pets/ and /api/admin/pets)
-    
-    Get list of pets with filtering
-    Supports both Pet Owners and Admins with role-based access
-    
-    Query Parameters (Pet Owner):
-        - search: Search in pet name, breed
-        - animal_type: Filter by animal type
-        - sex: Filter by sex
-    
-    Query Parameters (Admin - uses admin filter format):
-        - search: Search in pet name, owner name, pet ID
-        - species: all | dogs | cats | birds | rabbits | others
-        - status: all | active | inactive | deceased
-        - page: Page number (default: 1)
-        - limit: Items per page (default: 10, max: 100)
-    
-    Returns:
-        Pet Owner: Array of pet objects
-        Admin: Paginated results with pagination info
-    
-    Permissions:
-        - Admins: Can view all pets with advanced filtering
-        - Pet Owners: Can only view their own pets
     """
     print(f"[PET_LIST] Received request, user_type: {getattr(request, 'user_type', 'NOT SET')}")
     print(f"[PET_LIST] Authorization header: {request.META.get('HTTP_AUTHORIZATION', '')[:50]}...")
@@ -250,6 +227,8 @@ def pet_list(request):
                     'animal_type': pet.animal_type,
                     'breed': pet.breed or 'Mixed Breed',
                     'age': pet.age,
+                    # --- ADDED DATE OF BIRTH HERE ---
+                    'date_of_birth': pet.date_of_birth.strftime('%Y-%m-%d') if hasattr(pet, 'date_of_birth') and pet.date_of_birth else None,
                     'sex': pet.sex,
                     'weight': str(pet.weight) if pet.weight else None,
                     'image': image_url,
@@ -280,19 +259,6 @@ def pet_list(request):
 def pet_detail(request, pet_id):
     """
     GET /api/pets/:petId/
-    (CONSOLIDATED: Replaces both /api/pets/:petId/ and /api/admin/pets/:petId)
-    
-    Get, update, or delete a specific pet
-    Supports both Pet Owners and Admins with role-based access
-    
-    Permissions:
-        - Admins: Can view/update any pet (full detail with owner info)
-        - Pet Owners: Can only view/update their own pets
-    
-    Methods:
-        - GET: Retrieve pet details
-        - PUT: Update pet information
-        - DELETE: Delete pet (pet owners only)
     """
     try:
         # Get pet (no ownership filter yet - we'll check after)
@@ -329,6 +295,8 @@ def pet_detail(request, pet_id):
                 'animal_type': pet.animal_type,
                 'breed': pet.breed or 'Mixed Breed',
                 'age': pet.age,
+                # --- ADDED DATE OF BIRTH HERE ---
+                'date_of_birth': pet.date_of_birth.strftime('%Y-%m-%d') if hasattr(pet, 'date_of_birth') and pet.date_of_birth else None,
                 'sex': pet.sex,
                 'weight': str(pet.weight) if pet.weight else None,
                 'image': image_url,
@@ -350,6 +318,8 @@ def pet_detail(request, pet_id):
                     'breed': pet.breed or 'Unknown',
                     'sex': pet.get_sex_display(),
                     'age': f"{pet.age} years old",
+                    # Add simple date of birth for admin too if needed, or keep tailored format
+                    'date_of_birth': pet.date_of_birth.strftime('%Y-%m-%d') if hasattr(pet, 'date_of_birth') and pet.date_of_birth else None,
                     'blood_type': None,  # Placeholder
                     'spayed_neutered': None,  # Placeholder
                     'allergies': None,  # Placeholder
@@ -373,7 +343,6 @@ def pet_detail(request, pet_id):
 
         elif request.method == 'PUT':
             # Update pet
-            # Additional permission check for pet owners (already checked above, but ensure)
             if request.user_type != 'admin' and pet.owner != request.user:
                 return Response({
                     'success': False,
@@ -405,15 +374,12 @@ def pet_detail(request, pet_id):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         elif request.method == 'DELETE':
-            # Delete pet (pet owners only - admins should use a different mechanism if needed)
             if request.user_type != 'admin' and pet.owner != request.user:
                 return Response({
                     'success': False,
                     'error': 'You do not have permission to delete this pet'
                 }, status=status.HTTP_403_FORBIDDEN)
             
-            # Admins typically shouldn't delete pets via this endpoint
-            # But we'll allow it if they have access
             pet.delete()
             return Response({
                 'success': True,

@@ -21,6 +21,7 @@ class Pet(models.Model):
     name = models.CharField(max_length=100)
     animal_type = models.CharField(max_length=20, choices=ANIMAL_CHOICES)  # This is the correct field name
     breed = models.CharField(max_length=100, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
     age = models.PositiveIntegerField(help_text="Age in years")
     sex = models.CharField(max_length=10, choices=SEX_CHOICES)
     weight = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, help_text="Weight in kg")

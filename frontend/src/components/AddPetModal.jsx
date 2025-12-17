@@ -67,10 +67,11 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
         name: petToEdit.name || '',
         animal_type: petToEdit.animal_type || '',
         breed: petToEdit.breed || '',
-        date_of_birth: '',
+        date_of_birth: petToEdit.date_of_birth || '',
         age: petToEdit.age || '',
         sex: petToEdit.sex || '',
-        weight: petToEdit.weight || '',
+        // FIX: Use parseFloat to strip trailing .00 but keep relevant decimals
+        weight: petToEdit.weight !== null ? parseFloat(petToEdit.weight).toString() : '',
         blood_type: bloodTypeMatch ? bloodTypeMatch[1].trim() : (petToEdit.blood_type || ''),
         allergies: allergiesMatch ? allergiesMatch[1].trim() : (petToEdit.allergies || ''),
         chronic_disease: chronicMatch ? chronicMatch[1].trim() : (petToEdit.chronic_disease || ''),
@@ -140,8 +141,12 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
       formData.append('animal_type', newPet.animal_type);
       formData.append('breed', newPet.breed || '');
       formData.append('age', finalAge);
+      formData.append('date_of_birth', newPet.date_of_birth || '');
       formData.append('sex', newPet.sex);
-      if (newPet.weight) formData.append('weight', newPet.weight);
+      
+      if (newPet.weight !== '') {
+        formData.append('weight', newPet.weight);
+      }
 
       const medicalNotes = `Blood Type: ${newPet.blood_type || 'Unknown'}\n` +
         `Allergies: ${newPet.allergies || 'None'}\n` +
@@ -225,7 +230,6 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
             <div className="flex flex-col md:flex-row gap-6 md:gap-12">
               
               {/* Left Column (Top on Mobile) - Pet Photo */}
-              {/* Added flex justify-center for mobile centering, md:block for desktop alignment */}
               <div className="flex-shrink-0 relative flex justify-center md:block">
                 <div className="w-32 h-32 md:w-48 md:h-48 bg-[#815FB3] rounded-full flex items-center justify-center relative overflow-hidden">
                   {previewImage ? (
@@ -242,7 +246,7 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
                     />
                   )}
                 </div>
-                {/* Camera Icon - Responsive positioning for mobile and desktop */}
+                {/* Camera Icon */}
                 <div className="absolute top-0 right-20 md:top-[-8px] md:right-[-8px] w-10 h-10 md:w-12 md:h-12 bg-black bg-opacity-80 rounded-full flex items-center justify-center cursor-pointer border-2 border-white">
                   <input
                     type="file"
@@ -269,7 +273,6 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
                   </h3>
 
                   {/* First Row - Name and Breed */}
-                  {/* Changed grid-cols-2 to grid-cols-1 md:grid-cols-2 */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Name</label>
@@ -332,15 +335,24 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Weight</label>
+                      {/* FIX: Label now indicates 'kg' explicitly */}
+                      <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Weight (kg)</label>
                       <input
                         type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
+                        // FIX: inputMode="decimal" enables the dot on mobile keyboards
+                        inputMode="decimal"
+                        // FIX: Removed pattern="[0-9]*" so valid decimals aren't flagged as errors
                         value={newPet.weight || ''}
-                        onChange={(e) => handleInputChange('weight', e.target.value.replace(/[^0-9.]/g, ''))}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          // FIX: Allow only numbers and a single decimal point
+                          if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                            handleInputChange('weight', val);
+                          }
+                        }}
                         className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
-                        placeholder="Weight"
+                        // FIX: Placeholder now prompts for 'kg'
+                        placeholder="Weight (kg)"
                         style={{ fontFamily: 'Raleway' }}
                       />
                     </div>
