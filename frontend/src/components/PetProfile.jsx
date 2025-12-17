@@ -1,4 +1,4 @@
-  import ExcelJS from 'exceljs';
+import ExcelJS from 'exceljs';
 import React, { useEffect, useState } from 'react';
 import AddVaccinationRecordModal from './AddVaccinationRecordModal';
 import AddMedicalRecordModal from './AddMedicalRecordModal';
@@ -15,7 +15,6 @@ import VaccinationRecordDetailsModal from './VaccinationRecordDetailsModal';
 import './custom-scrollbar.css';
 
 // --- Helper Component for the Download Card ---
-// We define this here to avoid duplicating the UI code twice in the main render
 const DownloadSection = ({ onDownload, className = "" }) => (
   <div 
     className={`rounded-lg p-4 md:p-6 bg-[#FFFFF2] ${className}`}
@@ -159,32 +158,25 @@ const PetProfile = () => {
   useEffect(() => {
     fetchPetDetails();
     fetchAllPets();
-    // Set initial current pet ID from URL parameter
     setCurrentPetId(parseInt(petId));
   }, [petId, token, fetchAllPets, fetchPetDetails]);
 
   const handlePetSelect = (selectedPetId) => {
     if (selectedPetId !== currentPetId) {
-      // Update URL without page reload
       window.history.pushState(null, '', `/pet-profile/${selectedPetId}`);
-      // Update current pet ID state immediately for instant UI feedback
       setCurrentPetId(selectedPetId);
-      // Find the selected pet data from allPets and set it immediately
       const selectedPet = allPets.find(p => p.id === selectedPetId);
       if (selectedPet) {
         setPet(selectedPet);
-        // Clear records for new pet
         setMedicalRecords([]);
         setVaccinationRecords([]);
         localStorage.setItem('medicalRecords', JSON.stringify([]));
         localStorage.setItem('vaccinationRecords', JSON.stringify([]));
       }
-      // Fetch detailed pet data in background without showing loading state
       fetchPetDetailsByIdDirectly(selectedPetId);
     }
   };
 
-  // Helper function to fetch pet details silently in background
   const fetchPetDetailsByIdDirectly = async (petIdToFetch) => {
     try {
       setPetSwitchLoading(true);
@@ -193,13 +185,11 @@ const PetProfile = () => {
           'Authorization': token ? `Token ${token}` : '',
         },
       });
-      // Only update pet data if this is still the selected pet
       if (petIdToFetch === currentPetId) {
         setPet(response.data);
       }
     } catch (error) {
       console.error('Error fetching detailed pet data:', error);
-      // Don't show error to user, keep the basic pet data from allPets
     } finally {
       setPetSwitchLoading(false);
     }
@@ -214,7 +204,6 @@ const PetProfile = () => {
     const handleDownloadReport = async () => {
       if (!pet) return;
 
-      // PawPal colors
       const pawpalPurple = '815FB3';
       const pawpalBeige = 'FFFFF2';
       const white = 'FFFFFF';
@@ -229,11 +218,14 @@ const PetProfile = () => {
       sheet1.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
       sheet1.getCell('A1').fill = { type: 'gradient', gradient: 'angle', degree: 0, stops: [{ position: 0, color: { argb: pawpalPurple } }, { position: 1, color: { argb: pawpalBeige } }] };
       sheet1.getRow(1).height = 28;
+      
+      // FIX: Added 'Weight' to the Excel export rows
       const petInfoRows = [
         ['Field', 'Value'],
         ['Name', pet.name],
         ['Sex', pet.sex],
         ['Age', typeof pet.age !== 'undefined' ? `${pet.age} years old` : 'N/A'],
+        ['Weight', pet.weight ? `${pet.weight} kg` : 'N/A'], // Added Weight Row
         ['Species', pet.animal_type],
         ['Breed', pet.breed],
         ['Blood Type', pet.blood_type || (pet.medical_notes && pet.medical_notes.match(/Blood Type: ([^\n]+)/)?.[1]) || 'N/A'],
@@ -241,13 +233,12 @@ const PetProfile = () => {
         ['Allergies', pet.allergies || (pet.medical_notes && pet.medical_notes.match(/Allergies: ([^\n]+)/)?.[1]) || 'N/A'],
         ['Chronic Disease', pet.chronic_disease || (pet.medical_notes && pet.medical_notes.match(/Chronic Disease: ([^\n]+)/)?.[1]) || 'N/A'],
       ];
+      
       sheet1.addRows(petInfoRows);
       sheet1.columns = [{ width: 20 }, { width: 40 }];
-      // Style header row
       sheet1.getRow(2).font = { bold: true, color: { argb: white }, size: 13, name: 'Raleway' };
       sheet1.getRow(2).alignment = { horizontal: 'center', vertical: 'middle' };
       sheet1.getRow(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: pawpalPurple } };
-      // Style data rows
       for (let r = 3; r <= petInfoRows.length + 1; ++r) {
         const row = sheet1.getRow(r);
         row.font = { name: 'Raleway', size: 12 };
@@ -261,7 +252,7 @@ const PetProfile = () => {
         };
       }
 
-      // Sheet 2: Medical Records
+      // Sheet 2: Medical Records (kept same)
       const sheet2 = workbook.addWorksheet('Medical Records');
       sheet2.mergeCells('A1:C1');
       sheet2.getCell('A1').value = 'Medical Records';
@@ -290,7 +281,7 @@ const PetProfile = () => {
         };
       }
 
-      // Sheet 3: Vaccination Records
+      // Sheet 3: Vaccination Records (kept same)
       const sheet3 = workbook.addWorksheet('Vaccination Records');
       sheet3.mergeCells('A1:D1');
       sheet3.getCell('A1').value = 'Vaccination Records';
@@ -332,7 +323,6 @@ const PetProfile = () => {
       window.URL.revokeObjectURL(url);
     };
 
-  // Vaccination records search state and filter
   const [vaccinationSearch, setVaccinationSearch] = useState("");
   const filteredVaccinationRecords = vaccinationRecords.filter(record => {
     const query = vaccinationSearch.toLowerCase();
@@ -371,7 +361,6 @@ const PetProfile = () => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#F0F0F0] overflow-hidden">
-      {/* AddPetModal - overlays everything including header */}
       <AddPetModal
         isOpen={showAddPetModal}
         petToEdit={editingPet}
@@ -383,17 +372,21 @@ const PetProfile = () => {
           setShowAddPetModal(false);
           setEditingPet(null);
           fetchAllPets();
-          // Clear records for new pet
           setMedicalRecords([]);
           setVaccinationRecords([]);
           localStorage.setItem('medicalRecords', JSON.stringify([]));
           localStorage.setItem('vaccinationRecords', JSON.stringify([]));
+          // Refresh details to get the new weight
+          if (currentPetId) {
+            fetchPetDetailsByIdDirectly(currentPetId);
+          } else {
+            fetchPetDetails();
+          }
         }}
         token={token}
       />
 
-      {/* --- MODIFIED BLOCK --- */}
-      {/* Mobile Sidebar Overlay with Transitions */}
+      {/* Mobile Sidebar Overlay */}
       <div
         className={`
           md:hidden fixed inset-0 z-[60] flex
@@ -403,7 +396,6 @@ const PetProfile = () => {
         role="dialog"
         aria-modal="true"
       >
-        {/* Sidebar Component (The sliding part) */}
         <div
           className={`
             w-80 h-full
@@ -433,17 +425,13 @@ const PetProfile = () => {
             isMobileOverlay={true}
           />
         </div>
-        
-        {/* Overlay Background (The fading part) */}
         <div 
           className="flex-1 bg-black bg-opacity-50" 
           onClick={() => setIsMobileSidebarOpen(false)}
           aria-label="Close sidebar"
         ></div>
       </div>
-      {/* --- END OF MODIFIED BLOCK --- */}
 
-      {/* Desktop Sidebar - Fixed and stationary */}
       <div
         className="hidden md:block"
         style={{
@@ -471,7 +459,6 @@ const PetProfile = () => {
         />
       </div>
 
-      {/* Main Content - add left/top margin for fixed sidebar/header on desktop */}
       <div
         className="flex-1 flex flex-col"
         style={{
@@ -486,7 +473,6 @@ const PetProfile = () => {
             : {}),
         }}
       >
-        {/* Header - Mobile: logo, sidebar toggle, profile. Desktop: fixed and stationary. */}
         <div
           className="border-b p-4 flex items-center justify-between md:bg-[#F0F0F0]"
           style={{
@@ -501,7 +487,6 @@ const PetProfile = () => {
             transition: 'left 0.3s, width 0.3s',
           }}
         >
-          {/* Mobile header */}
           <div
             className="flex items-center gap-2 md:hidden w-full justify-between"
             style={{
@@ -524,7 +509,6 @@ const PetProfile = () => {
             </div>
             <ProfileButton onLogoutClick={() => setShowLogoutModal(true)} />
           </div>
-          {/* Desktop header */}
           <div className="hidden md:flex items-center space-x-2 md:space-x-4 w-full justify-between">
             <div className="flex items-center space-x-2 md:space-x-4">
               <button 
@@ -543,19 +527,14 @@ const PetProfile = () => {
             <ProfileButton onLogoutClick={() => setShowLogoutModal(true)} />
           </div>
         </div>
-        {/* Page name below header for mobile */}
         <div className="md:hidden px-4 pt-2 pb-1" style={{ background: '#F0F0F0', paddingTop: '56px' }}>
           <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Raleway' }}>
             Pet Health Records
           </h2>
         </div>
 
-        {/* Pet Navigation - Made scrollable on x-axis for small screens */}
-        {/* Pet Navigation - Made scrollable on x-axis for small screens */}
         <div className="pt-6 px-6 pb-6 overflow-x-auto whitespace-nowrap" style={{ paddingTop: '20px' }}>
-          {/* Added space-x-2 for mobile, kept space-x-6 for desktop */}
           <div className="flex items-center space-x-2 md:space-x-6">
-            {/* Add Pet Button - Smaller on mobile (w-10 h-10), larger on desktop (w-20 h-20) */}
             <button
               onClick={() => setShowAddPetModal(true)}
               className="flex-shrink-0 transition-all duration-300 ease-in-out hover:transform hover:scale-105 w-10 h-10 md:w-20 md:h-20 rounded-full flex items-center justify-center bg-[#FFF4C9] border-none cursor-pointer"
@@ -563,9 +542,7 @@ const PetProfile = () => {
             >
               <span className="font-bold text-gray-600 text-xl md:text-4xl">+</span>
             </button>
-            {/* Vertical Separator Line - Shorter on mobile (h-10), tall on desktop (h-20) */}
             <div className="w-px h-10 md:h-20 bg-gray-400"></div>
-            {/* Pet Selection - Tighter spacing on mobile */}
             <div className="flex items-center space-x-2 md:space-x-4">
               {allPets.map((petItem) => {
                 const isSelected = petItem.id === currentPetId; 
@@ -573,7 +550,6 @@ const PetProfile = () => {
                   <div
                     key={petItem.id}
                     onClick={() => handlePetSelect(petItem.id)}
-                    // Converted inline styles to responsive Tailwind classes
                     className={`cursor-pointer transition-all duration-300 ease-in-out hover:transform hover:scale-105 flex items-center overflow-hidden
                       ${isSelected ? 'bg-[#FFF4C9]' : 'bg-transparent'}
                       ${isSelected ? 'rounded-[20px] md:rounded-[40px]' : 'rounded-full'} 
@@ -582,7 +558,6 @@ const PetProfile = () => {
                       h-10 md:h-[80px]
                     `}
                   >
-                    {/* Pet Image Circle - Smaller on mobile (w-8 h-8), original on desktop (w-[56px]) */}
                     <div 
                       className="bg-gray-300 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 w-8 h-8 md:w-[56px] md:h-[56px]"
                     >
@@ -609,7 +584,6 @@ const PetProfile = () => {
                         </span>
                       )}
                     </div>
-                    {/* Pet Name - Only visible when selected, smaller font on mobile */}
                     <span 
                       className={`ml-2 md:ml-4 font-bold text-gray-900 whitespace-nowrap transition-all duration-300 ease-in-out ${
                         isSelected ? 'opacity-100 transform translate-x-0 block' : 'opacity-0 transform translate-x-4 hidden'
@@ -627,34 +601,13 @@ const PetProfile = () => {
           </div>
         </div>
 
-        {/* Main Content Grid */}
         <div className="flex-1 px-4 pb-6 md:px-6">
-          {/* AddPetModal - Centered, overlay, blur */}
-          <AddPetModal
-            isOpen={showAddPetModal}
-            petToEdit={editingPet}
-            onClose={() => {
-              setShowAddPetModal(false);
-              setEditingPet(null);
-            }}
-            onPetAdded={() => {
-              setShowAddPetModal(false);
-              setEditingPet(null);
-              fetchAllPets(); // Refresh pets after adding
-              fetchPetDetails();
-            }}
-            token={token}
-          />
-          {/* Add subtle loading indicator only for the content area during pet switching */}
           <div className={`transition-opacity duration-200 ${petSwitchLoading ? 'opacity-50' : 'opacity-100'}`}> 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-              {/* Left Column - Pet Info */}
               <div className="space-y-4 md:space-y-6">
-              {/* Pet Profile Card */}
               <div 
                 className="rounded-lg mt-4 overflow-hidden shadow-sm bg-[#FFFFF2]"
               >
-                {/* Pet Image with Gradient Overlay and Text */}
                 <div className="relative h-[220px] md:h-[320px]">
                   {pet.image_url || pet.image ? (
                     <img 
@@ -670,7 +623,6 @@ const PetProfile = () => {
                     </div>
                   )}
                   
-                  {/* Dark Gradient Overlay */}
                   <div 
                     className="absolute inset-0"
                     style={{
@@ -678,7 +630,6 @@ const PetProfile = () => {
                     }}
                   ></div>
                   
-                  {/* Pet Name and Breed Text Overlay */}
                   <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6">
                     <div className="flex items-center space-x-2 mb-1 md:mb-2">
                       <h1 
@@ -702,9 +653,9 @@ const PetProfile = () => {
                   </div>
                 </div>
 
-                {/* Pet Basic Info Section - 3 Column Grid */}
                 <div className="p-4 md:p-6">
-                  <div className="grid grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+                  {/* FIX: Changed grid-cols-3 to grid-cols-4 to accommodate Weight */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
                     {/* Species */}
                     <div className="text-center">
                       <div className="flex justify-center mb-2 md:mb-3">
@@ -752,9 +703,24 @@ const PetProfile = () => {
                         {typeof pet.age !== 'undefined' ? `${pet.age} years old` : 'N/A'}
                       </p>
                     </div>
+
+                    {/* FIX: Added Weight Display Block */}
+                    <div className="text-center">
+                      <div className="flex justify-center mb-2 md:mb-3">
+                        <img 
+                          src="/fa7-solid_weight-scale.png" 
+                          alt="Weight" 
+                          className="w-[24px] h-[24px] md:w-[35px] md:h-[35px] text-[#815FB3]"
+                          style={{ filter: 'none' }}
+                        />
+                      </div>
+                      <p className="text-gray-600 mb-1 font-raleway text-[10px] md:text-[12px] font-medium">Weight</p>
+                      <p className="text-gray-900 font-bold font-raleway text-[12px] md:text-[14px]">
+                        {pet.weight ? `${pet.weight} kg` : 'N/A'}
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Medical Information Section */}
                   <div>
                     <h3 className="text-gray-900 mb-4 md:mb-6 font-raleway text-[18px] md:text-[20px] font-semibold">
                       Medical Information
@@ -811,14 +777,11 @@ const PetProfile = () => {
                 className="rounded-lg p-4 md:p-6 flex flex-col bg-[#FFFFF2]"
                 style={{ borderRadius: '10px' }}
               >
-                {/* Responsive height: auto/smaller on mobile, 320px on desktop */}
                 <div className="h-[250px] md:h-[320px] flex flex-col">
-                  {/* Header: Title and Add Button */}
                   <div className="flex items-center mb-3 md:mb-4 justify-between">
                     <h3 className="mb-0 font-raleway text-[18px] md:text-[20px] font-semibold text-[#333333]">
                       Files
                     </h3>
-                    {/* Add File Button */}
                     <label htmlFor="file-upload" className="rounded text-center transition-colors hover:opacity-90 cursor-pointer flex items-center justify-center w-[50px] h-[27px] bg-[#F5E9B8] shadow-sm border-none font-raleway font-extrabold text-[12px] text-[#34113F]">
                       Add
                       <input
@@ -853,7 +816,6 @@ const PetProfile = () => {
                         }}
                       />
                     </label>
-                    {/* File Size Error Modal */}
                     {showFileSizeErrorModal && (
                       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
                         <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 max-w-md w-full relative flex flex-col items-center">
@@ -873,7 +835,6 @@ const PetProfile = () => {
                       </div>
                     )}
                   </div>
-                  {/* Scrollable file list area */}
                   <div className="flex-1 overflow-y-auto custom-scrollbar pr-0">
                     <div className="mr-2 md:mr-10">
                       {files.length > 0 ? (
@@ -931,7 +892,6 @@ const PetProfile = () => {
                                 >
                                   <img src="/delete.png" alt="Delete" className="w-5 h-5 md:w-6 md:h-6" />
                                 </button>
-               {/* Delete File Confirmation Modal */}
                {showDeleteFileModal && fileToDelete && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
                   <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 max-w-md w-full relative flex flex-col items-center">
@@ -983,7 +943,6 @@ const PetProfile = () => {
                           </div>
                           <p className="font-raleway text-[14px] font-medium text-gray-500 mb-3">No files uploaded yet.</p>
                           
-                          {/* New Action Button */}
                           <label 
                             htmlFor="file-upload-empty" 
                             className="px-4 py-2 bg-white border border-[#815FB3] text-[#815FB3] rounded-lg text-xs font-bold cursor-pointer hover:bg-[#F0F0FF] transition-colors shadow-sm"
@@ -997,7 +956,6 @@ const PetProfile = () => {
                               onChange={e => {
                                 const file = e.target.files[0];
                                 if (file) document.getElementById('file-upload').files = e.target.files;
-                                // trigger change on main input so existing handler runs
                                 const main = document.getElementById('file-upload');
                                 if (main) main.dispatchEvent(new Event('change', { bubbles: true }));
                               }}
@@ -1006,7 +964,6 @@ const PetProfile = () => {
                         </div>
                       )}
                     </div>
-                    {/* File Preview Modal */}
                     {showFileModal && selectedFile && (
                       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
                         <div className="bg-white rounded-lg shadow-lg p-4 md:p-8 max-w-5xl w-full relative flex flex-col" style={{ minHeight: '50vh', maxHeight: '90vh' }}>
@@ -1035,25 +992,19 @@ const PetProfile = () => {
               />
             </div>
 
-            {/* Right Column - Records */}
             <div className="space-y-4 md:space-y-6">
-              {/* Medical Records Section */}
               <div>
-                {/* Title, Add Button, and Search Bar */}
                 <div className="flex flex-col md:flex-row md:items-center mb-4 gap-3 md:gap-0">
-                  {/* Left side - Title and Add Button */}
                   <div className="flex items-center space-x-2 justify-between md:justify-start w-full md:w-auto">
                     <h3 className="font-bold flex items-center font-raleway text-[18px] md:text-[20px] leading-tight text-[#815FB3] md:w-[186px]">
                       MEDICAL RECORDS
                     </h3>
-                    {/* Add Button */}
                     <button 
                       onClick={() => setShowMedicalRecordModal(true)}
                       className="rounded text-center transition-colors hover:opacity-90 w-[50px] h-[27px] bg-[#F5E9B8] shadow-sm border-none font-raleway font-extrabold text-[12px] text-[#34113F] flex items-center justify-center"
                     >
                       Add
                     </button>
-                    {/* Add Medical Record Modal */}
                       <AddMedicalRecordModal
                         isOpen={showMedicalRecordModal}
                         onClose={() => setShowMedicalRecordModal(false)}
@@ -1067,7 +1018,6 @@ const PetProfile = () => {
                         }}
                       />
                   </div>
-                  {/* Right side - Search Bar */}
                   <div className="w-full md:ml-auto md:w-[300px] relative">
                     <img src="/Magnifying glass.png" alt="Search" className="absolute left-[10px] top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#666666] pointer-events-none z-[2]" />
                     <input
@@ -1079,7 +1029,6 @@ const PetProfile = () => {
                     />
                   </div>
                 </div>
-                {/* Main Card - Only contains table */}
                 <div className="rounded-lg bg-[#FFFFF2] h-[250px] md:h-[320px] overflow-y-auto" style={{ borderRadius: '10px' }}>
                   <table className="min-w-full divide-y divide-gray-200 font-raleway bg-[#FFFFF2]">
                     <thead className="bg-gray-50">
@@ -1108,24 +1057,19 @@ const PetProfile = () => {
                 </div>
               </div>
 
-              {/* Vaccination Records Section */}
               <div>
-                {/* Title, Add Button, and Search Bar */}
                 <div className="flex flex-col md:flex-row md:items_center mb-4 gap-3 md:gap-0">
-                  {/* Left side - Title and Add Button */}
                   <div className="flex items-center space-x-2 justify-between md:justify-start w-full md:w-auto">
                     <h3 className="font-bold flex items-center font-raleway text-[18px] md:text-[20px] leading-tight text-[#815FB3] md:w-[240px]">
                       VACCINATION RECORDS
                     </h3>
                     
-                    {/* Add Button */}
                     <button 
                       onClick={() => setShowVaccinationRecordModal(true)}
                       className="rounded text-center transition-colors hover:opacity-90 w-[50px] h-[27px] bg-[#F5E9B8] shadow-sm border-none font-raleway font-extrabold text-[12px] text-[#34113F] flex items-center justify-center"
                     >
                       Add
                     </button>
-                    {/* Add Vaccination Record Modal */}
                     <AddVaccinationRecordModal
                       isOpen={showVaccinationRecordModal}
                       onClose={() => setShowVaccinationRecordModal(false)}
@@ -1140,7 +1084,6 @@ const PetProfile = () => {
                     />
                   </div>
                   
-                  {/* Right side - Search Bar */}
                   <div className="w-full md:ml-auto md:w-[250px] relative">
                     <img src="/Magnifying glass.png" alt="Search" className="absolute left-[10px] top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#666666] pointer-events-none z-[2]" />
                     <input
@@ -1152,7 +1095,6 @@ const PetProfile = () => {
                     />
                   </div>
                 </div>
-                {/* Main Card - Table of vaccination records */}
                 <div className="rounded-lg bg-[#FFFFF2] h-[250px] md:h-[320px] overflow-y-auto" style={{ borderRadius: '10px' }}>
                   <table className="min-w-full divide-y divide-gray-200 font-raleway bg-[#FFFFF2]">
                     <thead className="bg-gray-50">
@@ -1192,10 +1134,6 @@ const PetProfile = () => {
             </div>
           </div>
         </div>
-        {/* MOBILE VIEW of Download Section
-          This is hidden on desktop (md:hidden, block).
-          Placed AFTER the grid so it falls to the bottom of the page in normal flow.
-        */}
         <DownloadSection 
           onDownload={handleDownloadReport} 
           className="block md:hidden mt-4" 
@@ -1203,7 +1141,6 @@ const PetProfile = () => {
       </div>
       </div>
 
-      {/* Logout Confirmation Modal */}
       {showLogoutModal && (
         <Modal
           isOpen={showLogoutModal}
@@ -1219,7 +1156,6 @@ const PetProfile = () => {
         />
       )}
 
-      {/* Medical Record Details Modal - Pop-out modal for medical record details */}
       {showDetailsModal && (
         <MedicalRecordDetailsModal
           isOpen={showDetailsModal}
@@ -1250,7 +1186,6 @@ const PetProfile = () => {
         />
       )}
 
-      {/* Vaccination Record Details Modal - Pop-out modal for vaccination record details */}
       {showVaccinationDetailsModal && (
         <VaccinationRecordDetailsModal
           isOpen={showVaccinationDetailsModal}
