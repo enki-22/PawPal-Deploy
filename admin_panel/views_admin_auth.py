@@ -390,6 +390,19 @@ def admin_request_password_reset(request):
         """
         threading.Thread(target=send_via_brevo, args=(email, admin.name, 'PawPal Admin - Password Reset Code', email_content)).start()
 
+        return Response({
+            'success': True,
+            'message': 'If an account exists with this email, a password reset code will be sent.'
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        logger.error(f"Password reset request error: {str(e)}", exc_info=True)
+        return Response({
+            'success': False,
+            'message': 'Password reset request failed',
+            'error': 'An unexpected error occurred'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
