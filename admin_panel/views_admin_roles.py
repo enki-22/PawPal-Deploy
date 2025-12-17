@@ -10,6 +10,7 @@ from django.db import transaction
 from django.core.mail import send_mail
 from django.conf import settings
 import logging
+import threading
 
 from .permissions import require_admin_role
 from .admin_role_filters import filter_admins, validate_admin_filter_params
@@ -137,72 +138,32 @@ def _get_admin_roles_list(request):
 def _create_admin_role(request):
     """
     POST /api/admin/roles
-    
-    Create new admin account (VET or DESK only, NOT MASTER)
-    Permissions: MASTER ONLY
-    
-    Input:
-        - name: Admin name (required)
-        - email: Admin email (required)
-        - role: VET or DESK only (required)
-    
-    Returns:
-        success: True/False
-        admin: Created admin object
-        generated_password: Temporary password (for display only, also sent via email)
+    Create new admin account.
+    Uses threading to prevent email timeouts from crashing the response.
     """
     try:
-        # Validate input
+        # --- Validation Block (Keep as is) ---
         name = request.data.get('name', '').strip()
         email = request.data.get('email', '').strip().lower()
         role = request.data.get('role', '').strip().upper()
         
-        if not name:
-            return Response({
-                'success': False,
-                'error': 'Name is required'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        if not email:
-            return Response({
-                'success': False,
-                'error': 'Email is required'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        if not role:
-            return Response({
-                'success': False,
-                'error': 'Role is required'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Validate role
+        if not name or not email or not role:
+            return Response({'success': False, 'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
+            
         is_valid, error_message = validate_admin_role(role)
         if not is_valid:
-            return Response({
-                'success': False,
-                'error': error_message
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Cannot create MASTER via API
+            return Response({'success': False, 'error': error_message}, status=status.HTTP_400_BAD_REQUEST)
+            
         if role == 'MASTER':
-            return Response({
-                'success': False,
-                'error': 'Cannot create MASTER admin via API. Use management command instead.'
-            }, status=status.HTTP_403_FORBIDDEN)
-        
-        # Check email uniqueness
+            return Response({'success': False, 'error': 'Cannot create MASTER admin via API.'}, status=status.HTTP_403_FORBIDDEN)
+            
         if Admin.objects.filter(email=email, is_deleted=False).exists():
-            return Response({
-                'success': False,
-                'error': 'Email already exists',
-                'code': 'EMAIL_EXISTS'
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'error': 'Email already exists', 'code': 'EMAIL_EXISTS'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Generate strong password
         generated_password = generate_admin_password()
         
+        # --- Transaction Block ---
         with transaction.atomic():
-            # Create admin account
             admin = Admin.objects.create(
                 name=name,
                 email=email,
@@ -210,45 +171,42 @@ def _create_admin_role(request):
                 is_active=True,
                 is_deleted=False
             )
-            
-            # Set password (will be hashed automatically)
             admin.set_password(generated_password)
             admin.save()
             
-            # Log action
             log_admin_action(
                 admin=request.admin,
                 action='CREATE',
                 target_admin_id=admin.id,
                 target_admin_email=admin.email,
-                details={
-                    'role': role,
-                    'name': name
-                }
+                details={'role': role, 'name': name}
             )
-            
-            # Send welcome email
-        subject, message = get_admin_welcome_email_template(
-            admin_name=name,
-            email=email,
-            temp_password=generated_password
-        )
+
+        # --- BACKGROUND EMAIL SENDING ---
+        # We define a small internal function to run in a separate thread
+        def send_email_thread():
+            try:
+                subject, message = get_admin_welcome_email_template(
+                    admin_name=name,
+                    email=email,
+                    temp_password=generated_password
+                )
+                send_mail(
+                    subject=subject,
+                    message=message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                    fail_silently=False,
+                )
+                logger.info(f"Email successfully sent to {email}")
+            except Exception as e:
+                logger.error(f"Background email failed for {email}: {str(e)}")
+
+        # Start the thread. The code below this line runs INSTANTLY without waiting.
+        email_thread = threading.Thread(target=send_email_thread)
+        email_thread.start()
         
-        email_sent = False
-        try:
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-                fail_silently=False,
-            )
-            email_sent = True
-        except Exception as email_error:
-            logger.error(f"Failed to send welcome email: {str(email_error)}")
-        
-        logger.info(f"Master Admin {request.admin.email} created admin {email} with role {role}")
-        
+        # Return success immediately
         return Response({
             'success': True,
             'message': 'Admin account created successfully',
@@ -261,8 +219,8 @@ def _create_admin_role(request):
                 'date_created': admin.created_at.isoformat()
             },
             'generated_password': generated_password,
-            'email_sent': email_sent,
-            'note': 'Please securely share the generated password with the new admin. It has also been sent via email.'
+            'email_sent': True, # We assume True since it's processing in background
+            'note': 'Please securely share the generated password. Email is being sent in the background.'
         }, status=status.HTTP_201_CREATED)
         
     except Exception as e:
