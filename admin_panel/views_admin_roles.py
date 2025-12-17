@@ -185,24 +185,28 @@ def _create_admin_role(request):
         # --- BACKGROUND EMAIL SENDING ---
         # We define a small internal function to run in a separate thread
         # --- BACKGROUND EMAIL SENDING (PATCHED FOR RAILWAY - SSL VERSION) ---
+        # --- BACKGROUND EMAIL SENDING (HARDCODED IP FIX) ---
         def send_email_thread():
             try:
-                import socket
                 from django.core.mail import get_connection
 
-                # 1. FORCE RESOLVE IPv4 ADDRESS
-                # We still need this to bypass the IPv6 routing issue
-                host_ip = socket.gethostbyname("smtp.gmail.com")
+                # 1. USE A HARDCODED GOOGLE IPv4 ADDRESS
+                # DNS resolution on cloud containers can be flaky or return blocked IPs.
+                # We bypass DNS entirely and use a known stable Google SMTP IP.
+                # Alternates if this fails: '74.125.137.108', '64.233.185.108'
+                google_smtp_ip = "173.194.202.108" 
                 
+                logger.info(f"Attempting email connection to {google_smtp_ip}...")
+
                 # 2. MANUALLY BUILD CONNECTION (SSL ON PORT 465)
-                # Port 587 timed out, so we are switching to 465 (SSL)
                 connection = get_connection(
-                    host=host_ip,
-                    port=465,       # <--- CHANGED TO 465
+                    host=google_smtp_ip,
+                    port=465,
                     username=settings.EMAIL_HOST_USER,
                     password=settings.EMAIL_HOST_PASSWORD,
-                    use_ssl=True,   # <--- USE SSL (Encrypted from start)
-                    use_tls=False   # <--- DISABLE TLS (STARTTLS)
+                    use_ssl=True,   
+                    use_tls=False,
+                    timeout=30      # <--- ADDED TIMEOUT (Default is often too short)
                 )
 
                 subject, message = get_admin_welcome_email_template(
@@ -211,7 +215,7 @@ def _create_admin_role(request):
                     temp_password=generated_password
                 )
 
-                # 3. SEND USING THE MANUAL CONNECTION
+                # 3. SEND
                 send_mail(
                     subject=subject,
                     message=message,
@@ -220,10 +224,11 @@ def _create_admin_role(request):
                     fail_silently=False,
                     connection=connection
                 )
-                logger.info(f"Email successfully sent to {email} using IP {host_ip} on Port 465")
+                logger.info(f"Email successfully sent to {email} using fixed IP {google_smtp_ip}")
 
             except Exception as e:
-                logger.error(f"Background email failed for {email}: {str(e)}")
+                # If the hardcoded IP fails, log it clearly
+                logger.error(f"Background email failed for {email} on IP {google_smtp_ip}: {str(e)}")
 
         # Start the thread. The code below this line runs INSTANTLY without waiting.
         email_thread = threading.Thread(target=send_email_thread)
