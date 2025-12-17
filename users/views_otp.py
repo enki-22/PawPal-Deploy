@@ -10,6 +10,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 import secrets
+import sib_api_v3_sdk
+import threading
 
 from .models import OTP
 from .serializers import (
@@ -21,6 +23,20 @@ from .serializers import (
     LoginSerializer,
 )
 from .utils import generate_jwt_token
+
+
+def send_via_brevo(to_email, subject, html_content):
+    """Helper to send via Brevo API"""
+    try:
+        configuration = sib_api_v3_sdk.Configuration()
+        configuration.api_key['api-key'] = settings.BREVO_API_KEY
+        api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+        sender = {"name": "PawPal Support", "email": settings.DEFAULT_FROM_EMAIL}
+        to = [{"email": to_email}]
+        send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(to=to, sender=sender, subject=subject, html_content=html_content)
+        api_instance.send_transac_email(send_smtp_email)
+    except Exception as e:
+        print(f"Brevo API Error: {str(e)}")
 
 
 def _generate_otp_code() -> str:
@@ -117,13 +133,9 @@ def send_otp(request):
     otp.save()
 
     # Send email
-    send_mail(
-        subject='Your PawPal OTP Code',
-        message=f"Your OTP code is {otp.code}. It will expire in 10 minutes.",
-        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
-        recipient_list=[email],
-        fail_silently=True,
-    )
+    # Send email via Brevo
+    email_content = f"<html><body><p>Your PawPal OTP code is <b>{otp.code}</b>. It will expire in 10 minutes.</p></body></html>"
+    threading.Thread(target=send_via_brevo, args=(email, 'Your PawPal OTP Code', email_content)).start()
     
     return Response({
         'success': True, 
@@ -265,13 +277,9 @@ def request_password_reset(request):
             otp.code = _generate_otp_code()
             otp.save()
             
-            send_mail(
-                subject='Reset Your PawPal Password',
-                message=f"Use this code to reset your password: {otp.code}. It expires in 10 minutes.",
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
-                recipient_list=[email],
-                fail_silently=True,
-            )
+            # Send email via Brevo
+            email_content = f"<html><body><p>Use this code to reset your PawPal password: <b>{otp.code}</b>. It expires in 10 minutes.</p></body></html>"
+            threading.Thread(target=send_via_brevo, args=(email, 'Reset Your PawPal Password', email_content)).start()
         except User.DoesNotExist:
             # Don't reveal that user doesn't exist
             pass

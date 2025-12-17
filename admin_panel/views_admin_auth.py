@@ -14,6 +14,8 @@ from django.conf import settings
 import logging
 import random
 import string
+import sib_api_v3_sdk
+import threading
 
 from .models import Admin, AdminPasswordHistory
 from .admin_auth_serializers import (
@@ -34,6 +36,20 @@ from .permissions import require_any_admin
 from users.models import OTP  # Reuse OTP model from users app
 
 logger = logging.getLogger(__name__)
+
+
+def send_via_brevo(to_email, to_name, subject, html_content):
+    """Helper to send via Brevo API"""
+    try:
+        configuration = sib_api_v3_sdk.Configuration()
+        configuration.api_key['api-key'] = settings.BREVO_API_KEY
+        api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+        sender = {"name": "PawPal Admin", "email": settings.DEFAULT_FROM_EMAIL}
+        to = [{"email": to_email, "name": to_name}]
+        send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(to=to, sender=sender, subject=subject, html_content=html_content)
+        api_instance.send_transac_email(send_smtp_email)
+    except Exception as e:
+        print(f"Brevo API Error: {str(e)}")
 
 
 @api_view(['POST'])
@@ -363,46 +379,16 @@ def admin_request_password_reset(request):
         )
         
         # Send email
-        try:
-            send_mail(
-                subject='PawPal Admin - Password Reset Code',
-                message=f'''
-Hello {admin.name},
-
-You requested a password reset for your PawPal admin account.
-
-Your verification code is: {otp_code}
-
-This code will expire in 10 minutes.
-
-If you didn't request this, please ignore this email.
-
-Best regards,
-PawPal Team
-                ''',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-                fail_silently=False,
-            )
-            
-            logger.info(f"Password reset OTP sent to admin: {email} ({admin.role})")
-            
-        except Exception as email_error:
-            logger.error(f"Failed to send password reset email: {str(email_error)}")
-            # Don't fail the request if email fails
-        
-        return Response({
-            'success': True,
-            'message': 'If an account exists with this email, a password reset code will be sent.'
-        }, status=status.HTTP_200_OK)
-        
-    except Exception as e:
-        logger.error(f"Password reset request error: {str(e)}", exc_info=True)
-        return Response({
-            'success': False,
-            'message': 'Password reset request failed',
-            'error': 'An unexpected error occurred'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # Send email via Brevo
+        email_content = f"""
+        <html><body>
+        <p>Hello {admin.name},</p>
+        <p>You requested a password reset for your PawPal admin account.</p>
+        <p>Your verification code is: <b>{otp_code}</b></p>
+        <p>This code will expire in 10 minutes.</p>
+        </body></html>
+        """
+        threading.Thread(target=send_via_brevo, args=(email, admin.name, 'PawPal Admin - Password Reset Code', email_content)).start()
 
 
 @api_view(['POST'])
