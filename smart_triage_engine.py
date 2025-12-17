@@ -153,15 +153,16 @@ class SmartTriageEngine:
         self.disease_matcher = DiseaseMatched()
         
         # === HYBRID EXTRACTION: Sentence Transformer for semantic matching ===
-        #print("🔄 Loading multilingual sentence transformer for semantic symptom matching...")
-        #self.semantic_model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
-        self.semantic_model = None
+        print("🔄 Loading multilingual sentence transformer for semantic symptom matching...")
+        from sentence_transformers import SentenceTransformer
+        self.semantic_model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
+        
         # Cache for symptom embeddings (computed once at startup)
         self.symptom_vectors = None
         self.symptom_names = []
         
         # Load and cache symptom vectors
-        #self.cache_symptom_vectors()
+        self.cache_symptom_vectors()
     
     def diagnose(self, species: str, symptoms: List[str], top_n: int = 5) -> Dict:
         # Step 1: Assess urgency
@@ -269,20 +270,12 @@ class SmartTriageEngine:
         Returns:
             List of tuples: [(symptom_code, similarity_score), ...]
         """
-        #if self.symptom_vectors is None or not text.strip():
-        #    return []
-
-        if not text.strip():
+        if not text.strip() or self.symptom_vectors is None:
             return []
 
-        # If vectors aren't loaded yet, load the model AND the vectors now
-        if self.symptom_vectors is None:
-            self.cache_symptom_vectors()
-            
-        # Double check if it failed
-        if self.symptom_vectors is None: 
-            return []
-        # ==========================
+        
+
+        
         
         try:
             # Encode user text
