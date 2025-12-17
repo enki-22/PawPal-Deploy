@@ -6,7 +6,7 @@ class PetSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Pet
-        fields = ['id', 'name', 'animal_type', 'breed', 'age', 'sex', 'weight', 'image', 'image_url', 'medical_notes', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'animal_type', 'breed', 'date_of_birth', 'age', 'sex', 'weight', 'image', 'image_url', 'medical_notes', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at', 'image_url']
     
     def get_image_url(self, obj):
