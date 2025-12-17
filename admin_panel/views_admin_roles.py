@@ -184,21 +184,43 @@ def _create_admin_role(request):
 
         # --- BACKGROUND EMAIL SENDING ---
         # We define a small internal function to run in a separate thread
+       # --- BACKGROUND EMAIL SENDING (PATCHED FOR RAILWAY) ---
         def send_email_thread():
             try:
+                import socket
+                from django.core.mail import get_connection
+
+                # 1. FORCE RESOLVE IPv4 ADDRESS
+                # Railway often fails on IPv6 for Gmail. We force it to find the IPv4 IP.
+                host_ip = socket.gethostbyname("smtp.gmail.com")
+                
+                # 2. MANUALLY BUILD CONNECTION
+                # We bypass the default settings and use the IP we just found
+                connection = get_connection(
+                    host=host_ip,
+                    port=587,
+                    username=settings.EMAIL_HOST_USER,
+                    password=settings.EMAIL_HOST_PASSWORD,
+                    use_tls=True
+                )
+
                 subject, message = get_admin_welcome_email_template(
                     admin_name=name,
                     email=email,
                     temp_password=generated_password
                 )
+
+                # 3. SEND USING THE MANUAL CONNECTION
                 send_mail(
                     subject=subject,
                     message=message,
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[email],
                     fail_silently=False,
+                    connection=connection  # <--- PASS THE CONNECTION HERE
                 )
-                logger.info(f"Email successfully sent to {email}")
+                logger.info(f"Email successfully sent to {email} using IP {host_ip}")
+
             except Exception as e:
                 logger.error(f"Background email failed for {email}: {str(e)}")
 
