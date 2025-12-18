@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import AdminTopNav from './AdminTopNav';
 
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, X } from 'lucide-react';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -71,6 +71,7 @@ const AdminDashboard = () => {
   // FAQ state
   const [faqs, setFaqs] = useState([]);
   const [openFAQ, setOpenFAQ] = useState(null);
+  const [selectedFaq, setSelectedFaq] = useState(null);
 
   useEffect(() => {
     // Fetch FAQs from correct endpoint
@@ -251,19 +252,29 @@ const AdminDashboard = () => {
                         </button>
                         {openFAQ === index && (
                           <div className="px-[17px] pb-[13px] font-['Poppins:Light',sans-serif] tracking-[0.75px]">
-                            {faq.answer}
+                            <div className="mb-2 text-sm font-semibold text-gray-500">
+                               Asked {faq.count} times
+                            </div>
+                            <div 
+                              className="cursor-pointer bg-gray-50 hover:bg-gray-100 p-3 rounded transition-colors"
+                              onClick={() => setSelectedFaq(faq)}
+                            >
+                              <span className="font-semibold text-[#34113F]">Response Summary:</span>
+                              <p className="mt-1 text-sm">{faq.answer_summary || faq.answer}</p>
+                              <p className="mt-2 text-xs text-[#57166B] font-bold text-right">View Full Response &rarr;</p>
+                            </div>
                           </div>
                         )}
                       </div>
                     ))
                   ) : (
-                    <div className="text-center text-gray-500 py-8">There are no chats yet.</div>
+                    <div className="text-center text-gray-500 py-8">There are no frequently asked questions yet.</div>
                   )}
                 </div>
               </div>
-              {/* Recently Added Pets */}
-              <div className="bg-white rounded-lg p-4 md:p-[28px] max-h-[350px] overflow-y-auto">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0 mb-4 md:mb-[28px]">
+              {/* Recently Added Pets - Fixed Header */}
+              <div className="bg-white rounded-lg p-4 md:p-[28px] max-h-[350px] flex flex-col">
+                <div className="flex-none flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0 mb-4 md:mb-[28px]">
                   <h2 className="font-raleway font-bold tracking-wide">Recently Added Pets</h2>
                   <button 
                     onClick={() => navigate('/admin/pets')}
@@ -272,44 +283,46 @@ const AdminDashboard = () => {
                     Show All Pets
                   </button>
                 </div>
-                <div className="space-y-3 md:space-y-[18px]">
-                  {pets.length > 0 ? (
-                    pets.map((pet, index) => (
-                      <div key={index} className="bg-[#ebe2f7] rounded-md p-3 md:p-[12px_18px]">
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-4">
-                          <div>
-                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Name</div>
-                            <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.pet_name || pet.name}</div>
-                          </div>
-                          <div>
-                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Species</div>
-                            <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.species}</div>
-                          </div>
-                          <div>
-                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Breed</div>
-                            <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.breed}</div>
-                          </div>
-                          <div>
-                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Owner</div>
-                            <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.owner_name || pet.owner}</div>
-                          </div>
-                          <div>
-                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Registered On</div>
-                            <div className="font-['Raleway:Regular',sans-serif] text-black">
-                              {pet.registration_date ? new Date(pet.registration_date).toLocaleDateString() : pet.registeredOn}
+                <div className="flex-1 overflow-y-auto min-h-0">
+                  <div className="space-y-3 md:space-y-[18px]">
+                    {pets.length > 0 ? (
+                      pets.map((pet, index) => (
+                        <div key={index} className="bg-[#ebe2f7] rounded-md p-3 md:p-[12px_18px]">
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-4">
+                            <div>
+                              <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Name</div>
+                              <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.pet_name || pet.name}</div>
+                            </div>
+                            <div>
+                              <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Species</div>
+                              <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.species}</div>
+                            </div>
+                            <div>
+                              <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Breed</div>
+                              <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.breed}</div>
+                            </div>
+                            <div>
+                              <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Owner</div>
+                              <div className="font-['Raleway:Regular',sans-serif] text-black">{pet.owner_name || pet.owner}</div>
+                            </div>
+                            <div>
+                              <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Registered On</div>
+                              <div className="font-['Raleway:Regular',sans-serif] text-black">
+                                {pet.registration_date ? new Date(pet.registration_date).toLocaleDateString() : pet.registeredOn}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center text-gray-500 py-8">There are no pets yet.</div>
-                  )}
+                      ))
+                    ) : (
+                      <div className="text-center text-gray-500 py-8">There are no pets yet.</div>
+                    )}
+                  </div>
                 </div>
               </div>
-              {/* Flagged Cases */}
-              <div className="bg-white rounded-lg p-4 md:p-[28px] max-h-[350px] overflow-y-auto">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0 mb-4 md:mb-[28px]">
+              {/* Flagged Cases - Fixed Header */}
+              <div className="bg-white rounded-lg p-4 md:p-[28px] max-h-[350px] flex flex-col">
+                <div className="flex-none flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0 mb-4 md:mb-[28px]">
                   <h2 className="font-raleway font-bold tracking-wide">Flagged Cases</h2>
                   <button 
                     onClick={() => navigate('/admin/reports')}
@@ -318,45 +331,47 @@ const AdminDashboard = () => {
                     View All Flagged SOAP Reports
                   </button>
                 </div>
-                <div className="space-y-3 md:space-y-[18px]">
-                  {cases.map((caseItem, index) => (
-                    <div key={index} className="bg-[#ebe2f7] rounded-md p-3 md:p-[12px_18px]">
-                      <div className="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-4 items-center">
-                        <div>
-                          <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Name</div>
-                          <div className="font-['Raleway:SemiBold',sans-serif] text-black">{caseItem.pet_name}</div>
-                        </div>
-                        <div>
-                          <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Species</div>
-                          <div className="font-['Raleway:Regular',sans-serif]">{caseItem.species}</div>
-                        </div>
-                        <div>
-                          <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Condition</div>
-                          <div className="font-['Raleway:Regular',sans-serif]">{caseItem.condition || 'Under Review'}</div>
-                        </div>
-                        <div>
-                          <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Likelihood</div>
-                          <div className="font-['Raleway:Regular',sans-serif]">{caseItem.likelihood || 'N/A'}</div>
-                        </div>
-                        <div>
-                          <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Urgency</div>
-                          <div className="bg-[#ffd2a8] rounded-[5px] px-2 py-1 inline-block">
-                            <span className="font-['Raleway:Regular',sans-serif]">{caseItem.urgency || caseItem.flag_level}</span>
+                <div className="flex-1 overflow-y-auto min-h-0">
+                  <div className="space-y-3 md:space-y-[18px]">
+                    {cases.map((caseItem, index) => (
+                      <div key={index} className="bg-[#ebe2f7] rounded-md p-3 md:p-[12px_18px]">
+                        <div className="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-4 items-center">
+                          <div>
+                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Name</div>
+                            <div className="font-['Raleway:SemiBold',sans-serif] text-black">{caseItem.pet_name}</div>
+                          </div>
+                          <div>
+                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Species</div>
+                            <div className="font-['Raleway:Regular',sans-serif]">{caseItem.species}</div>
+                          </div>
+                          <div>
+                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Condition</div>
+                            <div className="font-['Raleway:Regular',sans-serif]">{caseItem.condition || 'Under Review'}</div>
+                          </div>
+                          <div>
+                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Likelihood</div>
+                            <div className="font-['Raleway:Regular',sans-serif]">{caseItem.likelihood || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Urgency</div>
+                            <div className="bg-[#ffd2a8] rounded-[5px] px-2 py-1 inline-block">
+                              <span className="font-['Raleway:Regular',sans-serif]">{caseItem.urgency || caseItem.flag_level}</span>
+                            </div>
+                          </div>
+                          <div>
+                            <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Owner</div>
+                            <div className="font-['Raleway:Regular',sans-serif]">{caseItem.owner_name}</div>
                           </div>
                         </div>
-                        <div>
-                          <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666] mb-2">Pet Owner</div>
-                          <div className="font-['Raleway:Regular',sans-serif]">{caseItem.owner_name}</div>
+                        <div className="mt-3 pt-3 border-t border-[#666666]/50">
+                          <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666]">Date Flagged</div>
+                          <div className="font-['Raleway:Regular',sans-serif]">
+                            {caseItem.date_flagged || (caseItem.date_created ? new Date(caseItem.date_created).toLocaleDateString() : 'Recent')}
+                          </div>
                         </div>
                       </div>
-                      <div className="mt-3 pt-3 border-t border-[#666666]/50">
-                        <div className="font-['Raleway:SemiBold',sans-serif] text-[#666666]">Date Flagged</div>
-                        <div className="font-['Raleway:Regular',sans-serif]">
-                          {caseItem.date_flagged || (caseItem.date_created ? new Date(caseItem.date_created).toLocaleDateString() : 'Recent')}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -462,11 +477,16 @@ const AdminDashboard = () => {
               {/* Latest SOAP Report Generated */}
               <div className="bg-white rounded-lg p-3 md:p-[18px]">
                 <div className="font-raleway font-bold mb-1 md:mb-2">Latest SOAP Report Generated</div>
-                <ul className="space-y-1 text-xs">
+                <ul className="space-y-2 text-xs">
                   {latestSoapReports.length > 0 ? (
                     latestSoapReports.map((report, i) => (
-                      <li key={i}>
-                        {report.pet_name || report.pet?.name || 'Unknown Pet'} <span className="ml-2 text-[#57166B]">{report.report_id || report.id || ''}</span>
+                      <li key={i} className="flex justify-between items-center bg-gray-50 rounded p-2">
+                        <span className="font-bold text-gray-700 truncate pr-2">
+                            {report.pet_name || report.pet?.name || 'Unknown Pet'}
+                        </span>
+                        <span className="text-[#57166B] font-mono font-bold whitespace-nowrap">
+                            {report.case_id || report.report_id || report.id || ''}
+                        </span>
                       </li>
                     ))
                   ) : (
@@ -484,7 +504,41 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
-  {/* ...existing code... */}
+        
+        {/* Full Response Modal */}
+        {selectedFaq && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col relative overflow-hidden">
+              <div className="bg-[#f0e4b3] p-4 flex justify-between items-center sticky top-0 z-10">
+                <h3 className="font-raleway font-bold text-lg text-[#34113F] pr-8 truncate">
+                  {selectedFaq.question}
+                </h3>
+                <button 
+                  onClick={() => setSelectedFaq(null)}
+                  className="text-[#34113F] hover:text-black transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto custom-scrollbar">
+                <div className="mb-4 inline-block bg-gray-100 rounded-full px-3 py-1 text-xs font-bold text-gray-600">
+                  Asked {selectedFaq.count} times
+                </div>
+                <div className="prose max-w-none font-inter text-gray-800 whitespace-pre-wrap leading-relaxed">
+                  {selectedFaq.full_answer || "No response content available."}
+                </div>
+              </div>
+              <div className="p-4 border-t bg-gray-50 text-right">
+                <button
+                  onClick={() => setSelectedFaq(null)}
+                  className="px-4 py-2 bg-[#34113F] text-white rounded hover:bg-[#57166B] transition-colors font-semibold text-sm"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 }

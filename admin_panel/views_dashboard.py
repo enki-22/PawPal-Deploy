@@ -8,13 +8,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
 from django.db.models import Count, Q
+from django.db.models.functions import Lower, Length
 from datetime import timedelta
 import logging
 
 from .permissions import require_any_admin
 from .jwt_utils import verify_admin_jwt, extract_token_from_header
 from .models import Admin, Announcement
-from chatbot.models import User, Conversation, SOAPReport
+from chatbot.models import User, Conversation, SOAPReport, Message
 from pets.models import Pet
 
 logger = logging.getLogger(__name__)
@@ -474,12 +475,15 @@ def dashboard_charts(request):
             else:
                 species_breakdown['Others'] += count
         
-        # Common Symptoms (from SOAP reports) with date filter
+        # Common Symptoms (from Chatbot Symptom Checker only)
         symptom_counts = {}
         symptoms_by_species = {}
         
-        # Get SOAP reports with date filter
-        soap_reports_queryset = SOAPReport.objects.select_related('pet').all()
+        # KEY CHANGE: Filter for SOAP Reports that have a linked chat_conversation
+        # This ensures we are getting data from the "Symptom Checker" flow
+        soap_reports_queryset = SOAPReport.objects.filter(
+            chat_conversation__isnull=False
+        ).select_related('pet')
         
         if date_filter == 'last_24_hours':
             filter_datetime = timezone.now() - timedelta(hours=24)
@@ -492,22 +496,18 @@ def dashboard_charts(request):
             soap_reports_queryset = soap_reports_queryset.filter(date_generated__date__gte=filter_date)
         # else: all_time (no filter)
         
-        soap_reports = soap_reports_queryset
-        
-        for report in soap_reports:
-            # Extract symptoms from objective field
+        for report in soap_reports_queryset:
+            # Extract symptoms from objective field (populated by symptom checker)
             if report.objective and isinstance(report.objective, dict):
                 symptoms = report.objective.get('symptoms', [])
                 species = report.pet.get_animal_type_display()
                 
-                # Count symptoms globally
                 for symptom in symptoms:
                     symptom = symptom.strip().title()
                     
-                    # === OPTIONAL FIX: Hide generic text bucket ===
+                    # Skip generic placeholder text if present
                     if "Symptoms Noted In Clinical Text" in symptom:
                         continue
-                    # ==============================================
 
                     symptom_counts[symptom] = symptom_counts.get(symptom, 0) + 1
                     
@@ -517,17 +517,24 @@ def dashboard_charts(request):
                     
                     symptoms_by_species[species][symptom] = symptoms_by_species[species].get(symptom, 0) + 1
         
-        # Get top 10 common symptoms
+        # APPLY THRESHOLD: Only show symptoms clicked/selected >= 5 times
+        final_symptom_counts = {k: v for k, v in symptom_counts.items() if v >= 5}
+        
+        # Top 10 common symptoms (filtered)
         common_symptoms = [
             {'symptom': symptom, 'count': count}
-            for symptom, count in sorted(symptom_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+            for symptom, count in sorted(final_symptom_counts.items(), key=lambda x: x[1], reverse=True)[:10]
         ]
         
-        # Get top 5 symptoms per species
+        # Top 5 per species (also applying threshold for consistency)
         symptoms_by_species_formatted = {}
-        for species, symptoms in symptoms_by_species.items():
-            top_symptoms = sorted(symptoms.items(), key=lambda x: x[1], reverse=True)[:5]
-            symptoms_by_species_formatted[species] = [symptom for symptom, count in top_symptoms]
+        for species, s_counts in symptoms_by_species.items():
+            # Apply same threshold to species-specific views to ensure "common" definition is consistent
+            filtered_species_counts = {k: v for k, v in s_counts.items() if v >= 5}
+            
+            if filtered_species_counts:
+                top_symptoms = sorted(filtered_species_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+                symptoms_by_species_formatted[species] = [symptom for symptom, count in top_symptoms]
         
         data = {
             'species_breakdown': species_breakdown,
@@ -557,14 +564,18 @@ def dashboard_faqs(request):
     """
     GET /api/admin/dashboard/faqs
     
-    Return FAQ list for dashboard
+    Return FAQ list generated from real chatbot interactions
+    Only includes questions asked >= 5 times.
+    
     Permissions: MASTER, VET, DESK
     
     Returns:
         success: True/False
-        data: Array of FAQ objects with question and answer
-    
-    Note: Currently hardcoded, can be moved to database later
+        data: Array of FAQ objects with:
+            - question
+            - count
+            - answer_summary
+            - full_answer
     """
     try:
         # Manual authentication check
@@ -593,55 +604,76 @@ def dashboard_faqs(request):
                 'error': 'Admin not found'
             }, status=status.HTTP_401_UNAUTHORIZED)
         
-        faqs = [
-            {
-                "question": "What services do you offer?",
-                "answer": "PawPal offers AI-powered pet symptom analysis, virtual health consultations, and comprehensive SOAP reports to help you understand your pet's health conditions better."
-            },
-            {
-                "question": "How often should I bring my pet for check-ups?",
-                "answer": "For healthy adult pets, annual check-ups are recommended. Puppies, kittens, and senior pets may need more frequent visits (every 6 months). Always consult your veterinarian for personalized advice."
-            },
-            {
-                "question": "Is the AI diagnosis as accurate as a veterinarian?",
-                "answer": "Our AI provides preliminary analysis based on symptoms, but it should NOT replace professional veterinary care. Always consult a licensed veterinarian for definitive diagnosis and treatment."
-            },
-            {
-                "question": "What information do I need to provide for an accurate diagnosis?",
-                "answer": "Provide detailed symptom descriptions, duration, severity, any changes in behavior, eating/drinking habits, and clear photos if visible symptoms exist. More details lead to better analysis."
-            },
-            {
-                "question": "How quickly can I get a diagnosis?",
-                "answer": "Our AI analyzes symptoms in real-time, typically within seconds. However, for emergency situations, please contact your veterinarian or emergency pet clinic immediately."
-            },
-            {
-                "question": "Can I use PawPal for emergency situations?",
-                "answer": "PawPal is designed for preliminary assessment. For emergencies (difficulty breathing, severe bleeding, seizures, unconsciousness), contact your veterinarian or emergency clinic immediately."
-            },
-            {
-                "question": "How do I read a SOAP report?",
-                "answer": "SOAP reports contain 4 sections: Subjective (your description), Objective (measured data), Assessment (AI diagnosis), and Plan (recommended actions). Each flagged case indicates urgency level."
-            },
-            {
-                "question": "What should I do if my pet is flagged as 'Emergency'?",
-                "answer": "Emergency flags indicate potentially life-threatening conditions. Seek immediate veterinary care. Do not delay - go to the nearest emergency animal hospital."
-            },
-            {
-                "question": "Can I share SOAP reports with my veterinarian?",
-                "answer": "Yes! SOAP reports are designed to be shared with veterinarians. You can download or email them directly from your dashboard for professional review."
-            },
-            {
-                "question": "How is my pet's data protected?",
-                "answer": "We use industry-standard encryption and security measures. Your pet's health data is confidential and never shared without your explicit consent. See our Privacy Policy for details."
-            }
-        ]
+        # 1. Fetch user messages that are reasonably long (> 4 chars) to avoid garbage
+        user_msgs = Message.objects.filter(is_user=True).annotate(
+            text_len=Length('content')
+        ).filter(text_len__gt=4)
+
+        # 2. Group by case-insensitive content
+        stats = user_msgs.annotate(
+            lower_content=Lower('content')
+        ).values('lower_content').annotate(
+            frequency=Count('id')
+        ).filter(
+            frequency__gte=5
+        ).order_by('-frequency')
+
+        faqs_data = []
+        
+        # Heuristic keywords to identify questions if no '?' is present
+        q_words = ('what', 'how', 'why', 'can', 'does', 'do', 'is', 'are', 'where', 'when', 'who', 'help', 'my dog', 'my cat')
+        
+        for item in stats:
+            text = item['lower_content']
+            count = item['frequency']
+            
+            # 3. Filter: Must look like a question or pet query
+            if '?' not in text and not text.strip().startswith(q_words):
+                continue
+            
+            # Exclude obvious testing/greetings
+            if 'test' in text or text.strip() in ['hello', 'hi', 'hey']:
+                continue
+
+            # 4. Get the latest instance of this question to preserve original casing/context
+            latest_instance = Message.objects.filter(
+                content__iexact=text, 
+                is_user=True
+            ).order_by('-created_at').first()
+            
+            if not latest_instance:
+                continue
+                
+            # 5. Find the immediate AI response (next message in conversation)
+            ai_response = Message.objects.filter(
+                conversation=latest_instance.conversation,
+                id__gt=latest_instance.id,
+                is_user=False
+            ).order_by('id').first()
+            
+            full_ans = ai_response.content if ai_response else "No response recorded."
+            summary = full_ans[:150] + "..." if len(full_ans) > 150 else full_ans
+            
+            # Use original casing for display
+            display_question = latest_instance.content
+            
+            faqs_data.append({
+                "question": display_question,
+                "count": count,
+                "answer_summary": summary,
+                "full_answer": full_ans
+            })
+            
+            # Limit to top 10 FAQs to prevent overload
+            if len(faqs_data) >= 10:
+                break
         
         logger.info(f"Admin {request.admin.email} accessed FAQs")
         
         return Response({
             'success': True,
-            'count': len(faqs),
-            'data': faqs
+            'count': len(faqs_data),
+            'data': faqs_data
         }, status=status.HTTP_200_OK)
         
     except Exception as e:
