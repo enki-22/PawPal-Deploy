@@ -122,7 +122,7 @@ export default function CreateNewPassword() {
         <div className="bg-[#FFFFF2] w-full max-w-md rounded-[30px] shadow-2xl p-12 text-center">
             {/* Header Logo */}
             <div className="flex items-center justify-center gap-3 mb-6 transform scale-125">
-                <img src="/pat-removebg-preview 2.png" alt="Paw Icon" className="w-12 h-12 object-contain"/>
+                <img src="/pat-removebg-preview 1.png" alt="Paw Icon" className="w-12 h-12 object-contain"/>
                 <h1 className="text-[#815FB3] font-museo font-black text-2xl tracking-wide leading-none mt-1">PAWPAL</h1>
             </div>
             <p className="text-[#6B6B6B] mb-8 font-raleway font-light">Session expired or invalid. Please verify your code again.</p>
@@ -303,7 +303,7 @@ export default function CreateNewPassword() {
             {/* Header: Logo and Name - Absolute Upper Left */}
             <div className="absolute top-6 left-6 flex items-center gap-3">
               <img 
-                src="/pat-removebg-preview 2.png" 
+                src="/pat-removebg-preview 1.png" 
                 alt="Paw Icon" 
                 className="w-12 h-12 object-contain"
               />

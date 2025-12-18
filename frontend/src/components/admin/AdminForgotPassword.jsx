@@ -52,7 +52,7 @@ export default function AdminForgotPassword() {
         {/* Header: Logo and Name (matched to SignupConfirmationModal) */}
         <div className="absolute top-6 left-6 flex items-center gap-3" style={{ transform: 'scale(1.4)', transformOrigin: 'left top' }}>
           <img 
-            src="/pat-removebg-preview 2.png" 
+            src="/pat-removebg-preview 1.png" 
             alt="Paw Icon" 
             className="w-12 h-12 object-contain"
           />

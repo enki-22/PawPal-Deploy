@@ -436,7 +436,7 @@ export default function LandingPage() {
                <div className="flex flex-row md:flex-col w-full h-full gap-4 md:gap-4 items-center md:items-start">
                   {/* Icon */}
                   <div className="flex-shrink-0">
-                     <img src="/pat-removebg-preview 2.png" alt="PawPal Icon" className="w-16 h-16 object-contain" />
+                     <img src="/pat-removebg-preview 1.png" alt="PawPal Icon" className="w-16 h-16 object-contain" />
                   </div>
 
                   {/* Chat Bubbles Container */}
