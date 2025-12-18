@@ -46,8 +46,9 @@ const CRITICAL_SYMPTOMS = [
 ];
 
 const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) => {
-  const [currentStep, setCurrentStep] = useState('0A'); // 0A (chief complaint) -> 0B (emergency indicators)
-  const [chiefComplaint, setChiefComplaint] = useState('');
+  // MODIFIED: Start directly at 0B
+  const [currentStep] = useState('0B'); 
+  const [chiefComplaint] = useState(''); // Initialized as empty string
   const [respiration, setRespiration] = useState(null);
   const [alertness, setAlertness] = useState(null);
   const [perfusion, setPerfusion] = useState(null);
@@ -60,16 +61,9 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
 
   useEffect(() => {
     if (containerRef.current) {
-      // FIX: Scroll to TOP (0) for forms, instead of BOTTOM (scrollHeight)
       containerRef.current.scrollTop = 0;
     }
   }, [currentStep, showEmergencyWarning]);
-
-  const handleChiefComplaintContinue = () => {
-    if (chiefComplaint.trim()) {
-      setCurrentStep('0B');
-    }
-  };
 
   const toggleCriticalSymptom = (key) => {
     setCriticalSymptoms((prev) => {
@@ -81,7 +75,6 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
   };
 
   const checkForEmergency = () => {
-    // Check if any emergency conditions are met
     const hasRespirationEmergency = RESPIRATION_OPTIONS.find(
       (opt) => opt.key === respiration && opt.isEmergency
     );
@@ -111,7 +104,6 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
         });
       }
     } else {
-      // No emergency, complete the screening
       completeScreening(false);
     }
   };
@@ -267,7 +259,7 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
     <div className="w-full">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[13px] text-gray-500" style={{ fontFamily: 'Raleway' }}>
-          Emergency Screening - Step {currentStep === '0A' ? '1' : '2'} of 2
+          Emergency Screening
         </span>
       </div>
 
@@ -275,287 +267,191 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
         ref={containerRef}
         className="max-h-[600px] overflow-y-auto pr-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400"
       >
-        {currentStep === '0A' && (
-          <div
-            className="rounded-[10px] p-6 shadow-sm"
-            style={{ 
-              fontFamily: 'Raleway', 
-              backgroundColor: '#FFFFF2',
-              boxShadow: '0 2px 16px rgba(0,0,0,0.04)'
-            }}
-          >
-            <div className="mb-4">
-              <h3 className="text-[16px] font-bold text-[#34113F] mb-3">
-                Hi! I&apos;m here to help assess {petName}&apos;s symptoms. Before we start, I need to understand what&apos;s happening.
-              </h3>
-              <p className="text-[14px] font-semibold text-gray-800 mb-2">
-                <strong>What made you concerned about {petName} today?</strong>
-              </p>
-              <p className="text-[13px] text-gray-600 mb-3">
-                Describe in your own words what you&apos;ve noticed.
-              </p>
+        <div
+          className="rounded-[10px] p-6 shadow-sm space-y-5"
+          style={{ 
+            fontFamily: 'Raleway', 
+            backgroundColor: '#FFFFF2',
+            boxShadow: '0 2px 16px rgba(0,0,0,0.04)'
+          }}
+        >
+          <div>
+            <h3 className="text-[16px] font-bold text-[#34113F] mb-2">
+              Hi! I need to check if {petName} needs immediate emergency care before we proceed.
+            </h3>
+            <p className="text-[13px] text-gray-600">
+              Please answer these questions carefully:
+            </p>
+          </div>
+
+          {/* SECTION 1: RESPIRATION */}
+          <div className="border-l-4 border-purple-400 pl-4">
+            <h4 className="text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <img 
+                src="/mingcute_lungs-fill.png" 
+                alt="Respiration" 
+                className="w-5 h-5 object-contain" 
+              />
+              SECTION 1: RESPIRATION
+            </h4>
+            <p className="text-[14px] text-gray-800 mb-3 font-semibold">
+              How is {petName}&apos;s breathing right now?
+            </p>
+            <div className="space-y-2">
+              {RESPIRATION_OPTIONS.map((option) => {
+                const isSelected = respiration === option.key;
+                return (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => setRespiration(option.key)}
+                    className={`w-full text-left px-4 py-2.5 rounded-[8px] border text-[13px] transition-all ${
+                      isSelected
+                        ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
+                        : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{option.label}</span>
+                      <span className="text-lg text-[#815FB3]">{isSelected ? '●' : '○'}</span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
+          </div>
 
-            <textarea
-              value={chiefComplaint}
-              onChange={(e) => setChiefComplaint(e.target.value)}
-              placeholder="e.g., He's been vomiting since this morning and seems very lethargic..."
-              className="w-full h-32 px-4 py-3 border border-[#D1D5DB] rounded-lg text-[14px] resize-none focus:outline-none focus:ring-2 focus:ring-[#815FB3] transition-colors bg-white"
-              style={{ fontFamily: 'Raleway' }}
-            />
+          {/* SECTION 2: ALERTNESS */}
+          <div className="border-l-4 border-purple-400 pl-4">
+            <h4 className="text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <img 
+                src="/mdi_brain.png" 
+                alt="Alertness" 
+                className="w-5 h-5 object-contain" 
+              />
+              SECTION 2: ALERTNESS (Level of Consciousness)
+            </h4>
+            <p className="text-[14px] text-gray-800 mb-3 font-semibold">
+              How responsive is {petName} right now?
+            </p>
+            <div className="space-y-2">
+              {ALERTNESS_OPTIONS.map((option) => {
+                const isSelected = alertness === option.key;
+                return (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => setAlertness(option.key)}
+                    className={`w-full text-left px-4 py-2.5 rounded-[8px] border text-[13px] transition-all ${
+                      isSelected
+                        ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
+                        : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{option.label}</span>
+                      <span className="text-lg text-[#815FB3]">{isSelected ? '●' : '○'}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-            <div className="mt-4 flex justify-end">
+          {/* SECTION 3: PERFUSION */}
+          <div className="border-l-4 border-purple-400 pl-4">
+            <h4 className="text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <img 
+                src="/streamline-ultimate_blood-drop-bold.png" 
+                alt="Circulation" 
+                className="w-5 h-5 object-contain" 
+              />
+              SECTION 3: PERFUSION (Circulation)
+            </h4>
+            <p className="text-[14px] text-gray-800 mb-2 font-semibold">
+              If you can safely check, what color are {petName}&apos;s gums?
+            </p>
+            <div className="space-y-2">
+              {PERFUSION_OPTIONS.map((option) => {
+                const isSelected = perfusion === option.key;
+                return (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => setPerfusion(option.key)}
+                    className={`w-full text-left px-4 py-2.5 rounded-[8px] border text-[13px] transition-all ${
+                      isSelected
+                        ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
+                        : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{option.label}</span>
+                      <span className="text-lg text-[#815FB3]">{isSelected ? '●' : '○'}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* SECTION 4: CRITICAL SYMPTOMS CHECK */}
+          <div className="border-l-4 border-red-400 pl-4">
+            <h4 className="text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <img 
+                src="/solar_danger-bold.png" 
+                alt="Danger" 
+                className="w-5 h-5 object-contain" 
+              />
+              SECTION 4: CRITICAL SYMPTOMS CHECK
+            </h4>
+            <p className="text-[14px] text-gray-800 mb-3 font-semibold">
+              Is {petName} experiencing ANY of these symptoms right now?
+            </p>
+            <div className="space-y-2">
+              {CRITICAL_SYMPTOMS.map((symptom) => {
+                const isChecked = criticalSymptoms.includes(symptom.key);
+                return (
+                  <button
+                    key={symptom.key}
+                    type="button"
+                    onClick={() => toggleCriticalSymptom(symptom.key)}
+                    className={`w-full text-left px-4 py-2.5 rounded-[8px] border text-[13px] transition-all ${
+                      isChecked
+                        ? 'bg-red-50 border-red-400 text-gray-900 shadow-sm font-medium'
+                        : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg flex-shrink-0">{isChecked ? '☑' : '☐'}</span>
+                      <span className="flex-1">{symptom.label}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <p className="text-[12px] text-gray-600">
+                {!canCompleteScreening && 'Answer all required questions to proceed.'}
+              </p>
               <button
                 type="button"
-                onClick={handleChiefComplaintContinue}
-                disabled={!chiefComplaint.trim()}
+                onClick={handleCompleteScreening}
+                disabled={!canCompleteScreening}
                 className={`px-5 py-2.5 rounded-[10px] text-[14px] font-semibold text-white transition-opacity shadow-md ${
-                  chiefComplaint.trim() ? 'hover:opacity-90' : 'opacity-40 cursor-not-allowed'
+                  canCompleteScreening ? 'hover:opacity-90' : 'opacity-40 cursor-not-allowed'
                 }`}
                 style={{ backgroundColor: PRIMARY_COLOR }}
               >
-                Continue
+                Complete Screening
               </button>
             </div>
-
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-[11px] text-gray-500 italic flex items-start gap-1.5">
-                <img 
-                  src="/f7_lightbulb-fill.png" 
-                  alt="Tip" 
-                  className="w-3 h-3 mt-0.5 object-contain" 
-                />
-                <span>
-                  This follows veterinary telephone triage best practices where asking &quot;What changed that prompted you to contact us today?&quot; helps owners identify their pet&apos;s primary concern.
-                </span>
-              </p>
-            </div>
           </div>
-        )}
-
-        {currentStep === '0B' && (
-          <div
-            className="rounded-[10px] p-6 shadow-sm space-y-5"
-            style={{ 
-              fontFamily: 'Raleway', 
-              backgroundColor: '#FFFFF2',
-              boxShadow: '0 2px 16px rgba(0,0,0,0.04)'
-            }}
-          >
-            <div>
-              <h3 className="text-[16px] font-bold text-[#34113F] mb-2">
-                Thank you. Now I need to check if {petName} needs immediate emergency care.
-              </h3>
-              <p className="text-[13px] text-gray-600">
-                Please answer these questions carefully:
-              </p>
-            </div>
-
-            {/* SECTION 1: RESPIRATION */}
-            <div className="border-l-4 border-purple-400 pl-4">
-              <h4 className="text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
-                <img 
-                  src="/mingcute_lungs-fill.png" 
-                  alt="Respiration" 
-                  className="w-5 h-5 object-contain" 
-                />
-                SECTION 1: RESPIRATION
-              </h4>
-              <p className="text-[14px] text-gray-800 mb-3 font-semibold">
-                How is {petName}&apos;s breathing right now?
-              </p>
-              <div className="space-y-2">
-                {RESPIRATION_OPTIONS.map((option) => {
-                  const isSelected = respiration === option.key;
-                  return (
-                    <button
-                      key={option.key}
-                      type="button"
-                      onClick={() => setRespiration(option.key)}
-                      className={`w-full text-left px-4 py-2.5 rounded-[8px] border text-[13px] transition-all ${
-                        isSelected
-                          ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
-                          : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>{option.label}</span>
-                        <span className="text-lg text-[#815FB3]">{isSelected ? '●' : '○'}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="text-[11px] text-gray-500 italic mt-2">
-                Part of RAP (Respiration, Alertness, Perfusion) veterinary triage system
-              </p>
-            </div>
-
-            {/* SECTION 2: ALERTNESS */}
-            <div className="border-l-4 border-purple-400 pl-4">
-              <h4 className="text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
-                <img 
-                  src="/mdi_brain.png" 
-                  alt="Alertness" 
-                  className="w-5 h-5 object-contain" 
-                />
-                SECTION 2: ALERTNESS (Level of Consciousness)
-              </h4>
-              <p className="text-[14px] text-gray-800 mb-3 font-semibold">
-                How responsive is {petName} right now?
-              </p>
-              <div className="space-y-2">
-                {ALERTNESS_OPTIONS.map((option) => {
-                  const isSelected = alertness === option.key;
-                  return (
-                    <button
-                      key={option.key}
-                      type="button"
-                      onClick={() => setAlertness(option.key)}
-                      className={`w-full text-left px-4 py-2.5 rounded-[8px] border text-[13px] transition-all ${
-                        isSelected
-                          ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
-                          : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>{option.label}</span>
-                        <span className="text-lg text-[#815FB3]">{isSelected ? '●' : '○'}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="text-[11px] text-gray-500 italic mt-2">
-                Alertness assessment from RAP triage system
-              </p>
-            </div>
-
-            {/* SECTION 3: PERFUSION */}
-            <div className="border-l-4 border-purple-400 pl-4">
-              <h4 className="text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
-                <img 
-                  src="/streamline-ultimate_blood-drop-bold.png" 
-                  alt="Circulation" 
-                  className="w-5 h-5 object-contain" 
-                />
-                SECTION 3: PERFUSION (Circulation)
-              </h4>
-              <p className="text-[14px] text-gray-800 mb-2 font-semibold">
-                If you can safely check, what color are {petName}&apos;s gums?
-              </p>
-              <p className="text-[12px] text-gray-600 mb-3 bg-blue-50 p-2 rounded border border-blue-100 flex items-start gap-1.5">
-                <img 
-                  src="/f7_lightbulb-fill.png" 
-                  alt="Tip" 
-                  className="w-3 h-3 mt-0.5 object-contain" 
-                />
-                <span>
-                  <strong>Helper:</strong> Gently lift {petName}&apos;s lip to see gum color. If you can&apos;t check safely, select &quot;Not sure&quot;.
-                </span>
-              </p>
-              <div className="space-y-2">
-                {PERFUSION_OPTIONS.map((option) => {
-                  const isSelected = perfusion === option.key;
-                  return (
-                    <button
-                      key={option.key}
-                      type="button"
-                      onClick={() => setPerfusion(option.key)}
-                      className={`w-full text-left px-4 py-2.5 rounded-[8px] border text-[13px] transition-all ${
-                        isSelected
-                          ? 'bg-[#E4DEED] border-[#815FB3] text-[#34113F] shadow-sm font-medium'
-                          : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>{option.label}</span>
-                        <span className="text-lg text-[#815FB3]">{isSelected ? '●' : '○'}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="text-[11px] text-gray-500 italic mt-2">
-                Perfusion assessment from RAP triage system
-              </p>
-            </div>
-
-            {/* SECTION 4: CRITICAL SYMPTOMS CHECK */}
-            <div className="border-l-4 border-red-400 pl-4">
-              <h4 className="text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
-                <img 
-                  src="/solar_danger-bold.png" 
-                  alt="Danger" 
-                  className="w-5 h-5 object-contain" 
-                />
-                SECTION 4: CRITICAL SYMPTOMS CHECK
-              </h4>
-              <p className="text-[14px] text-gray-800 mb-3 font-semibold">
-                Is {petName} experiencing ANY of these symptoms right now?
-              </p>
-              <p className="text-[12px] text-gray-600 mb-3">
-                Check all that apply:
-              </p>
-              <div className="space-y-2">
-                {CRITICAL_SYMPTOMS.map((symptom) => {
-                  const isChecked = criticalSymptoms.includes(symptom.key);
-                  return (
-                    <button
-                      key={symptom.key}
-                      type="button"
-                      onClick={() => toggleCriticalSymptom(symptom.key)}
-                      className={`w-full text-left px-4 py-2.5 rounded-[8px] border text-[13px] transition-all ${
-                        isChecked
-                          ? 'bg-red-50 border-red-400 text-gray-900 shadow-sm font-medium'
-                          : 'bg-white border-[#E5E7EB] text-gray-800 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-lg flex-shrink-0">{isChecked ? '☑' : '☐'}</span>
-                        <span className="flex-1">{symptom.label}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="text-[11px] text-gray-500 italic mt-2">
-                Standard veterinary emergency indicators
-              </p>
-            </div>
-
-            {/* Complete Button */}
-            <div className="pt-4 border-t border-gray-200">
-              <div className="flex items-center justify-between">
-                <p className="text-[12px] text-gray-600">
-                  {canCompleteScreening
-                    ? 'Please complete all sections above to continue.'
-                    : 'Answer all required questions to proceed.'}
-                </p>
-                <button
-                  type="button"
-                  onClick={handleCompleteScreening}
-                  disabled={!canCompleteScreening}
-                  className={`px-5 py-2.5 rounded-[10px] text-[14px] font-semibold text-white transition-opacity shadow-md ${
-                    canCompleteScreening ? 'hover:opacity-90' : 'opacity-40 cursor-not-allowed'
-                  }`}
-                  style={{ backgroundColor: PRIMARY_COLOR }}
-                >
-                  Complete Screening
-                </button>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-[11px] text-gray-500 italic">
-                This screening uses the veterinary RAP (Respiration, Alertness, Perfusion) triage system and standard emergency indicators recommended by veterinary professionals.
-              </p>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
-
-      {/* Assessment Methodology Section */}
       <AssessmentMethodology />
     </div>
   );
