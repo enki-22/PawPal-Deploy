@@ -241,7 +241,7 @@ const PetHealthRecords = () => {
             }}
           >
             <div className="flex items-center gap-2">
-              <img src="/pat-removebg-preview 2.png" alt="PawPal Logo" className="w-8 h-8" />
+              <img src="/pat-removebg-preview 1.png" alt="PawPal Logo" className="w-8 h-8" />
               <span className="font-bold text-lg text-[#815FB3]" style={{ fontFamily: 'Raleway' }}>PAWPAL</span>
               <button onClick={() => setIsMobileSidebarOpen(true)} className="p-2 ml-2" aria-label="Open sidebar">
                 <img src="/sidebar-expand-icon.png" alt="Sidebar Toggle" className="w-6 h-6" style={{ transform: 'scaleX(-1)' }} />

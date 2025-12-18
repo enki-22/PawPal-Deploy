@@ -27,7 +27,7 @@ export default function AdminTopNav({ activePage = '' }) {
 
   // If backend returns a relative path (starting with '/'), prefix with origin so image loads across pages
   const profileImage = (() => {
-    if (!_rawAvatar) return '/pat-removebg-preview 2.png';
+    if (!_rawAvatar) return '/pat-removebg-preview 1.png';
     try {
       if (_rawAvatar.startsWith('//')) return window.location.protocol + _rawAvatar; // protocol-relative
       if (_rawAvatar.startsWith('/')) {
@@ -42,7 +42,7 @@ export default function AdminTopNav({ activePage = '' }) {
       }
       return _rawAvatar; // assume absolute URL
     } catch (e) {
-      return '/pat-removebg-preview 2.png';
+      return '/pat-removebg-preview 1.png';
     }
   })();
 

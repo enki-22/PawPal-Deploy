@@ -26,7 +26,7 @@ const SignupConfirmationModal = ({ show, onClose }) => {
         {/* Header: Logo and Name - Absolute Upper Left */}
         <div className="absolute top-6 left-6 flex items-center gap-3">
           <img 
-            src="/pat-removebg-preview 2.png" 
+            src="/pat-removebg-preview 1.png" 
             alt="Paw Icon" 
             className="w-12 h-12 object-contain" // Smaller logo
           />

@@ -37,7 +37,7 @@ const PurpleCarousel = () => {
       <div className="mb-8" style={{ flexShrink: 0 }}>
         {/* Mobile: custom logo and font, purple color */}
         <div className="inline-flex items-center justify-center w-full md:hidden">
-          <img src="/pat-removebg-preview 2.png" alt="PawPal Logo" className="w-20 h-20 mr-2" />
+          <img src="/pat-removebg-preview 1.png" alt="PawPal Logo" className="w-20 h-20 mr-2" />
           <h1 className="font-museomoderno font-black text-[49px] leading-[100%] tracking-[0%]" style={{ color: '#815FB3' }}>
             PAWPAL
           </h1>
@@ -302,15 +302,26 @@ const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) =>
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      // Removed timer from here, useEffect now handles it
       return;
     }
     setErrors({});
     try {
       await onSubmit(formData);
     } catch (err) {
-      setError(err.message || 'Login failed. Please try again.');
-      // Removed timer from here, useEffect now handles it
+      const msg = err.message || '';
+      // Check if error is credential-related and split them per user request
+      if (msg.toLowerCase().includes('email')) {
+        setErrors({ email: msg });
+      } else if (msg.toLowerCase().includes('password')) {
+        setErrors({ password: msg });
+      } else if (msg.toLowerCase().includes('invalid') || msg.toLowerCase().includes('fail')) {
+        setErrors({ 
+          email: 'Invalid email address provided', 
+          password: 'The password entered is incorrect' 
+        });
+      } else {
+        setError(msg || 'Login failed. Please try again.');
+      }
     }
   };
 
@@ -1175,7 +1186,7 @@ const UnifiedAuth = () => {
             <div className="bg-white rounded-2xl shadow-lg px-4 py-6 flex flex-col items-center w-full">
               {/* Shared logo/header for both login and register step 1 */}
               <div className="inline-flex items-center justify-center w-full mb-6">
-                <img src="/pat-removebg-preview 2.png" alt="PawPal Logo" className="w-20 h-20 mr-2" />
+                <img src="/pat-removebg-preview 1.png" alt="PawPal Logo" className="w-20 h-20 mr-2" />
                 <h1 className="font-museomoderno font-black text-[32px] leading-[100%] tracking-[0%]" style={{ color: '#815FB3' }}>
                   PAWPAL
                 </h1>

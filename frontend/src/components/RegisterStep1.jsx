@@ -1,23 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import pawIcon from '../Assets/Images/paw-icon.png';
 import pawBullet from '../Assets/Images/paw.png';
 import { useRegistration } from '../context/RegistrationContext';
 import Alert from './Alert';
 
 const RegisterStep1 = () => {
-  // Redirect to landing if all fields are empty (prevents browser back from step 2)
-  useEffect(() => {
-    if (!formData.username && !formData.email && !formData.password1 && !formData.password2) {
-      navigate('/', { replace: true });
-    }
-  }, [formData, navigate]);
   const { registrationData, updateStep1 } = useRegistration();
   const [formData, setFormData] = useState(registrationData.step1);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showClinicInfo, setShowClinicInfo] = useState(false);
+  const [isFading, setIsFading] = useState(false);
   const navigate = useNavigate();
+
+  // Handle auto-fade for error bubbles (3-second duration)
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      setIsFading(false);
+      const fadeTimer = setTimeout(() => setIsFading(true), 2700);
+      const clearTimer = setTimeout(() => {
+        setErrors({});
+        setIsFading(false);
+      }, 3000);
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(clearTimer);
+      };
+    }
+  }, [errors]);
 
   const handleChange = (e) => {
     setFormData({
@@ -46,11 +58,11 @@ const RegisterStep1 = () => {
     if (!formData.password1) {
       newErrors.password1 = 'Password is required';
     } else if (formData.password1.length < 8) {
-      newErrors.password1 = 'Password must be at least 8 characters';
+      newErrors.password1 = 'Must be at least 8 characters';
     }
 
     if (!formData.password2) {
-      newErrors.password2 = 'Please confirm your password';
+      newErrors.password2 = 'Please confirm password';
     } else if (formData.password1 !== formData.password2) {
       newErrors.password2 = 'Passwords do not match';
     }
@@ -70,8 +82,46 @@ const RegisterStep1 = () => {
     }
   };
 
+  // Reusable error bubble component for consistency
+  const ErrorBubble = ({ message }) => (
+    <div style={{
+      position: 'absolute',
+      right: '0',
+      bottom: '-44px',
+      background: '#ef4444',
+      color: 'white',
+      padding: '8px 12px',
+      borderRadius: '12px',
+      fontSize: '12px',
+      fontFamily: 'Raleway',
+      fontWeight: '500',
+      whiteSpace: 'nowrap',
+      boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+      zIndex: 1000,
+      animation: isFading ? 'errorFadeOut 0.3s ease-out forwards' : 'errorPop 0.3s ease-out'
+    }}>
+      {message}
+      <div style={{
+        position: 'absolute',
+        right: '16px',
+        top: '-8px',
+        width: '0',
+        height: '0',
+        borderLeft: '8px solid transparent',
+        borderRight: '8px solid transparent',
+        borderBottom: '8px solid #ef4444'
+      }}></div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-[#D8CAED] flex items-center justify-center p-2 md:p-4">
+      {/* Animation Styles */}
+      <style>{`
+        @keyframes errorPop { 0% { opacity: 0; transform: translateY(-10px) scale(0.8); } 50% { transform: translateY(2px) scale(1.05); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes errorFadeOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-10px) scale(0.8); } }
+      `}</style>
+      
       <div className="max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl w-full bg-[#FFFFF2] rounded-lg shadow-xl overflow-hidden">
         <div className="p-2 md:p-4 lg:p-8">
           <div className="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-4 lg:gap-8">
@@ -197,89 +247,63 @@ const RegisterStep1 = () => {
 
                 {/* Section 2: Fields (flex-grow: 1) */}
                 <div className="flex flex-col justify-center flex-grow">
-                  {Object.keys(errors).length > 0 && (
-                    <div className="mb-4">
-                      <Alert type="error">
-                        <ul className="list-disc list-inside">
-                          {Object.values(errors).map((error, index) => (
-                            <li key={index}>{error}</li>
-                          ))}
-                        </ul>
-                      </Alert>
-                    </div>
-                  )}
 
-                    <form onSubmit={handleSubmit} className="space-y-2 md:space-y-4">
-                    <div className="mb-2 md:mb-4">
-       <label htmlFor="username" className="block text-sm md:text-[16px] font-light leading-[100%] tracking-[0%] mb-1 md:mb-2" 
-         style={{ fontFamily: 'Raleway', color: '#666666' }}>
-                        Name
-                      </label>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Name Field */}
+                    <div className="relative">
+                      <label className="block text-sm font-light text-[#666666]">Name</label>
                       <input
                         type="text"
-                        id="username"
                         name="username"
                         value={formData.username}
                         onChange={handleChange}
-                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F] focus:border-[#815FB3] transition-colors duration-300"
-                        style={{ fontFamily: 'Raleway', color: '#333333' }}
-                        required
+                        className="w-full border-0 border-b-2 border-[#34113F] bg-transparent py-2 outline-none"
                       />
-                      {errors.username && <span className="text-red-600 text-sm mt-1 block">{errors.username}</span>}
+                      {errors.username && <ErrorBubble message={errors.username} />}
                     </div>
 
-                    <div className="mb-2 md:mb-4">
-       <label htmlFor="email" className="block text-sm md:text-[16px] font-light leading-[100%] tracking-[0%] mb-1 md:mb-2" 
-         style={{ fontFamily: 'Raleway', color: '#666666' }}>
-                        Email
-                      </label>
+                    {/* Email Field */}
+                    <div className="relative">
+                      <label className="block text-sm font-light text-[#666666]">Email</label>
                       <input
                         type="email"
-                        id="email"
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F] focus:border-[#815FB3] transition-colors duration-300"
-                        style={{ fontFamily: 'Raleway', color: '#333333' }}
-                        required
+                        className="w-full border-0 border-b-2 border-[#34113F] bg-transparent py-2 outline-none"
                       />
-                      {errors.email && <span className="text-red-600 text-sm mt-1 block">{errors.email}</span>}
+                      {errors.email && <ErrorBubble message={errors.email} />}
                     </div>
 
-                    <div className="mb-2 md:mb-4">
-       <label htmlFor="password1" className="block text-sm md:text-[16px] font-light leading-[100%] tracking-[0%] mb-1 md:mb-2" 
-         style={{ fontFamily: 'Raleway', color: '#666666' }}>
-                        Password
-                      </label>
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        id="password1"
-                        name="password1"
-                        value={formData.password1}
-                        onChange={handleChange}
-                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F] focus:border-[#815FB3] transition-colors duration-300"
-                        style={{ fontFamily: 'Raleway', color: '#333333' }}
-                        required
-                      />
-                      {errors.password1 && <span className="text-red-600 text-sm mt-1 block">{errors.password1}</span>}
+                    {/* Password Field */}
+                    <div className="relative">
+                      <label className="block text-sm font-light text-[#666666]">Password</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          name="password1"
+                          value={formData.password1}
+                          onChange={handleChange}
+                          className="w-full border-0 border-b-2 border-[#34113F] bg-transparent py-2 pr-10 outline-none"
+                        />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-2">
+                          {showPassword ? <FiEyeOff /> : <FiEye />}
+                        </button>
+                      </div>
+                      {errors.password1 && <ErrorBubble message={errors.password1} />}
                     </div>
 
-                    <div className="mb-2 md:mb-4">
-       <label htmlFor="password2" className="block text-sm md:text-[16px] font-light leading-[100%] tracking-[0%] mb-1 md:mb-2" 
-         style={{ fontFamily: 'Raleway', color: '#666666' }}>
-                        Confirm Password
-                      </label>
+                    {/* Confirm Password Field */}
+                    <div className="relative">
+                      <label className="block text-sm font-light text-[#666666]">Confirm Password</label>
                       <input
                         type={showPassword ? "text" : "password"}
-                        id="password2"
                         name="password2"
                         value={formData.password2}
                         onChange={handleChange}
-                        className="w-full px-0 py-1 md:py-2 border-0 bg-transparent focus:outline-none text-xs md:text-[15px] font-semibold leading-[100%] tracking-[0%] border-b-2 border-[#34113F] focus:border-[#815FB3] transition-colors duration-300"
-                        style={{ fontFamily: 'Raleway', color: '#333333' }}
-                        required
+                        className="w-full border-0 border-b-2 border-[#34113F] bg-transparent py-2 outline-none"
                       />
-                      {errors.password2 && <span className="text-red-600 text-sm mt-1 block">{errors.password2}</span>}
+                      {errors.password2 && <ErrorBubble message={errors.password2} />}
                     </div>
 
                     <div className="mb-2 md:mb-4 flex items-center">
