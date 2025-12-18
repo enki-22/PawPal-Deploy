@@ -220,8 +220,9 @@ class DiagnosisVerifier:
 
         ANALYSIS INSTRUCTIONS:
         1. **HISTORY & TOXIN CHECK:** Check for toxins (Xylitol, Chocolate) mentioned in notes.
-        2. **ANATOMICAL CHECK:** Mismatched pain location (e.g., Back vs Knee) = DISAGREE.
-        3. **GENERATE CONTENT:** You must generate the 'clinical_summary' and 'care_advice' fields. They are NOT optional. DO NOT use the word "Diagnosis". Use "Assessment", "Potential Condition", or "Clinical Impression" instead. This is a triage tool, not a doctor.
+        2. **DATABASE CHECK:** If the Database Predictions are empty or missing a likely condition you identified, you MUST set `agreement` to false and provide the correct name in `alternative_diagnosis`.
+        3. **ANATOMICAL CHECK:** Mismatched pain location (e.g., Back vs Knee) = DISAGREE.
+        4. **GENERATE CONTENT:** You must generate the 'clinical_summary' and 'care_advice' fields. They are NOT optional. DO NOT use the word "Diagnosis". Use "Assessment", "Potential Condition", or "Clinical Impression" instead. This is a triage tool, not a doctor.
 
         *** MANDATORY OUTPUT FORMAT (JSON) ***
         You MUST return your analysis in this EXACT JSON structure. Do not skip any fields.

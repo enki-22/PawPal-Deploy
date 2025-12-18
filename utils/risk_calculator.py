@@ -207,53 +207,31 @@ def get_symptom_risk_weight(symptom):
 
 def calculate_exotic_risk_modifier(species, symptoms):
     """
-    Calculate urgency modifier for exotic species (Bird, Fish) that are 'masters of disguise'.
-    These species typically only show symptoms when very ill, so lethargy or loss_of_appetite
-    should boost urgency by one tier.
-    
-    Args:
-        species (str): Pet species (case-insensitive)
-        symptoms (list): List of symptom codes
-        
-    Returns:
-        dict: {
-            'modifier_applied': bool,
-            'original_level': str or None,
-            'modified_level': str or None,
-            'reason': str or None
-        }
+    Calculate urgency modifier for exotic species (Bird, Fish, Reptile, etc.) 
+    that are 'masters of disguise'.
     """
     if not species or not symptoms:
-        return {
-            'modifier_applied': False,
-            'original_level': None,
-            'modified_level': None,
-            'reason': None
-        }
+        return {'modifier_applied': False, 'reason': None}
     
     species_lower = str(species).lower().strip()
-    symptoms_set = set(symptoms) if isinstance(symptoms, list) else set()
+    symptoms_set = set(s.lower() for s in symptoms) if isinstance(symptoms, list) else set()
     
-    # Check if species is Bird or Fish
-    is_exotic = species_lower in ['bird', 'fish']
+    # Expanded list of exotic species
+    exotic_species = ['bird', 'fish', 'reptile', 'turtle', 'amphibian']
+    # Expanded list of critical indicators
+    critical_indicators = {'lethargy', 'loss_of_appetite', 'anorexia', 'weakness'}
     
-    # Check if lethargy or loss_of_appetite is present
-    has_warning_symptom = 'lethargy' in symptoms_set or 'loss_of_appetite' in symptoms_set
+    is_exotic = species_lower in exotic_species
+    has_warning_symptom = any(indicator in symptoms_set for indicator in critical_indicators)
     
     if is_exotic and has_warning_symptom:
+        found = symptoms_set.intersection(critical_indicators)
         return {
             'modifier_applied': True,
-            'original_level': None,  # Will be set by caller
-            'modified_level': None,  # Will be set by caller
-            'reason': f"{species} showing lethargy/loss_of_appetite - exotic species are 'masters of disguise' and typically only show symptoms when very ill"
+            'reason': f"{species} showing {', '.join(found)} - exotic species hide illness until it is severe."
         }
     
-    return {
-        'modifier_applied': False,
-        'original_level': None,
-        'modified_level': None,
-        'reason': None
-    }
+    return {'modifier_applied': False, 'reason': None}
 
 
 def calculate_risk_score(symptom_log, previous_logs=None, pet=None):

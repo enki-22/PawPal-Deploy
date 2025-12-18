@@ -234,7 +234,9 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
 
     // Check if species requires dynamic mode
     const species = selectedPet?.species || '';
-    setIsDynamicMode(EXOTIC_SPECIES.includes(species));
+    // Make the check case-insensitive so "fish" matches "Fish"
+    const isExotic = EXOTIC_SPECIES.some(s => s.toLowerCase() === species.toLowerCase());
+    setIsDynamicMode(isExotic);
 
     // Initialize conversation when pet changes or component mounts
     setShowEmergencyScreening(true);
@@ -304,12 +306,16 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
     setShowEmergencyScreening(false);
 
     // Start main questionnaire with intro message
+    const introText = data.emergencyScreen.isEmergency
+      ? `Thank you for completing the emergency screening. While you arrange veterinary care, let's gather more details about ${petName}'s condition.`
+      : isDynamicMode 
+        ? `Good news - based on your answers, ${petName}'s condition doesn't appear to be an immediate emergency. Please describe the symptoms in detail below so I can analyze them.`
+        : `Good news - based on your answers, ${petName}'s condition doesn't appear to be an immediate emergency. However, let's do a thorough assessment.\n\nWhat's your main concern?`;
+
     const introMessage = {
       id: 'intro',
       from: 'bot',
-      text: data.emergencyScreen.isEmergency
-        ? `Thank you for completing the emergency screening. While you arrange veterinary care, let's gather more details about ${petName}'s condition.`
-        : `Good news - based on your answers, ${petName}'s condition doesn't appear to be an immediate emergency. However, let's do a thorough assessment to understand what's going on.\n\nWhat's your main concern?`,
+      text: introText,
     };
     setMessages([introMessage]);
   };

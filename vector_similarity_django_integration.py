@@ -159,6 +159,9 @@ Your response (comma-separated list only):'''
                                     if symptom_code not in regex_extracted:
                                         semantic_extracted.add(symptom_code)
                                         semantic_matches[symptom_code] = score
+                            else:
+                                # If no match in DB, keep the raw symptom so the verifier can see it
+                                semantic_extracted.add(symptom_lower)
     except Exception as e:
         logger.warning(f"⚠️  LLM-assisted extraction failed: {e}")
 
@@ -199,9 +202,16 @@ def predict_with_vector_similarity(payload):
         
         symptoms_list = extraction_result['combined_symptoms']
         result = engine.diagnose(species=species, symptoms=symptoms_list, top_n=5)
+
+        if not result.get('top_matches'):
+            logger.info(f"No specific matches found for {species}. Falling back to general matching.")
+            all_diseases = engine.knowledge_base.diseases 
+            result['top_matches'] = engine.disease_matcher.match_diseases(symptoms_list, all_diseases)
         
         predictions = []
         for match in result['top_matches']:
+            if match['match_percentage'] < 50:
+                continue
             predictions.append({
                 'disease': match['disease'],
                 'probability': match['match_percentage'] / 100,
@@ -270,9 +280,15 @@ def predict_with_vector_similarity(payload):
                         preds[i] = curr
                 # ===============================================
 
+                
                 # Reranking Logic
-                if not verification_result['agreement']:
-                    alt_diag = verification_result['alternative_diagnosis']
+                alt_diag = verification_result.get('alternative_diagnosis')
+                
+                # Force "Disagreement" logic if database is empty but AI found a specific disease
+                is_db_empty = not predictions
+                ai_found_something = alt_diag and alt_diag.get('name')
+                
+                if not verification_result['agreement'] or (is_db_empty and ai_found_something):
                     found_match = False
                     
                     if alt_diag and alt_diag.get('name'):
@@ -289,8 +305,8 @@ def predict_with_vector_similarity(payload):
                                 if original_probability < 0.50:
                                     # Retrieval Miss - Create new synthetic prediction
                                     predictions.pop(idx)
-                                    risk_assessment = verification_result.get('risk_assessment', 'HIGH')
-                                    matched_symptoms = alt_diag.get('matched_symptoms') or symptoms_list[:5]
+                                    risk_assessment = verification_result.get('risk') or verification_result.get('risk_assessment') or 'HIGH'
+                                    matched_symptoms = alt_diag.get('matched_symptoms') or []
                                     
                                     ai_assessment_prediction = {
                                         'disease': f"⚠️ AI Assessment: {alt_disease_name}",
@@ -326,15 +342,21 @@ def predict_with_vector_similarity(payload):
                             
                             if not alt_diag.get('is_in_database', False):
                                 ood_detected = True
+                                # Calculate value OUTSIDE the dictionary
+                                conf_val = alt_diag.get('confidence', alt_diag.get('conffidence', 0.5))
+                                
                                 ood_prediction = {
                                     'disease':  alt_diag['name'],
-                                    'probability': alt_diag['confidence'], 'confidence': alt_diag['confidence'] * 100,
-                                    'urgency': risk_assessment.lower(), 'contagious': False,
+                                    'probability': float(conf_val),
+                                    'confidence': float(conf_val) * 100,
+                                    'urgency': risk_assessment.lower(), 
+                                    'contagious': False,
                                     'matched_symptoms': matched_symptoms,
                                     'match_explanation': f"AI Warning: {verification_result['reasoning']}",
-                                    'total_symptoms': len(symptoms_list), 'is_external': True,
-                                    'verification_reasoning': verification_result['reasoning'], 'risk_assessment': risk_assessment,
-                                    # FIX: Use specific advice
+                                    'total_symptoms': len(symptoms_list), 
+                                    'is_external': True,
+                                    'verification_reasoning': verification_result['reasoning'], 
+                                    'risk_assessment': risk_assessment,
                                     'care_guidelines': verification_result.get('what_to_do_specific') or "Seek veterinary attention.",
                                     'when_to_see_vet': verification_result.get('see_vet_if_specific') or "If condition deteriorates."
                                 }
@@ -385,35 +407,38 @@ def predict_with_vector_similarity(payload):
             symptom_list_str = ', '.join(safety_override_reason)
             dynamic_critical_message = f"🚨 CRITICAL ALERT: You reported '{symptom_list_str}'. Immediate veterinary care required."
             
-            triage_assessment = {
-                'overall_urgency': 'critical',
-                'emergency_indicators': True,
-                'requires_immediate_care': True,
-                'requires_care_within': 'IMMEDIATELY - Emergency Care',
-                'urgency_reasoning': [dynamic_critical_message, result['urgency_reason']],
-                'red_flags': [f"🚨 SAFETY INTERCEPTOR: {symptom_list_str}"] + (result.get('red_flags') or []),
-                'engine_type': 'Vector Similarity Search + Safety Interceptor',
-                'safety_override_applied': True,
-                'original_urgency': result['urgency'].lower()
-            }
+            
             result['recommendation'] = dynamic_critical_message
             result['urgency'] = 'CRITICAL'
         else:
             emergency_indicators = result['urgency'] in ['CRITICAL', 'HIGH']
             care_within = "IMMEDIATELY" if result['urgency'] == 'CRITICAL' else "24-48 hours"
             
-            triage_assessment = {
-                'overall_urgency': result['urgency'].lower(),
-                'emergency_indicators': emergency_indicators,
-                'requires_immediate_care': result['urgency'] == 'CRITICAL',
-                'requires_care_within': care_within,
-                'urgency_reasoning': [result['urgency_reason']],
-                'red_flags': result.get('red_flags') or [],
-                'engine_type': 'Vector Similarity Search',
-                'verification_result': verification_result,
-                'ood_detected': ood_detected
+            
+        
+        # === VET-SAFE SYNC: Force overall result to match the #1 prediction ===
+        if predictions:
+            top_pred = predictions[0]
+            # Force top-level urgency to match the #1 disease
+            result['urgency'] = top_pred['urgency'].upper()
+            
+            # Re-map the recommendation based on the top disease
+            rec_map = {
+                'CRITICAL': "Seek immediate emergency veterinary care",
+                'HIGH': "Contact your veterinarian urgently - same day appointment recommended",
+                'MODERATE': "Schedule veterinary appointment within 1-2 days",
+                'LOW': "Monitor symptoms and consult vet if condition worsens"
             }
-
+            result['recommendation'] = rec_map.get(result['urgency'], result['recommendation'])
+        
+        triage_assessment = {
+            'overall_urgency': result['urgency'].lower(),
+            'requires_immediate_care': result['urgency'] == 'CRITICAL',
+            'requires_care_within': "IMMEDIATELY" if result['urgency'] == 'CRITICAL' else "24-48 hours",
+            'urgency_reasoning': [result.get('urgency_reason', ''), result['recommendation']],
+            'red_flags': result.get('red_flags') or [],
+            'safety_override_applied': (result['urgency'] == 'CRITICAL')
+        }
         return {
             'success': True,
             'predictions': predictions,
@@ -500,31 +525,46 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
         # Logic to decide which symptoms to show for this specific disease
         final_matched = []
         
-        # If the prediction has specific matched symptoms, use them
         if matched and isinstance(matched, list) and len(matched) > 0 and matched != ["Symptoms noted in clinical text"]:
              final_matched = [_format_symptom(s) for s in matched]
         else:
-            # Fallback to the global formatted list
-            final_matched = formatted_symptoms
+             # Only show symptoms if they actually match this disease code
+             final_matched = []
+
+        diag_urgency = (
+            pred.get('urgency') or 
+            details.get('urgency') or 
+            verification_result.get('risk_assessment') or 
+            verification_result.get('risk') or 
+            'Moderate'
+        )
 
         diagnoses_output.append({
             "condition": name,
             "likelihood_percentage": float(conf),
             "description": details.get('description', f"Condition consistent with clinical presentation."),
             "matched_symptoms": final_matched, # FIX 3: Pass the formatted list
-            "urgency": details.get('urgency', verification_result.get('risk_assessment', 'Moderate')),
+            "urgency": diag_urgency,
             "contagious": details.get('contagious', False)
         })
 
-    # 4. DETERMINE SEVERITY
-    ai_risk = verification_result.get("risk_assessment", "Moderate")
-    final_severity = ai_risk
-    if override_severity:
-        severity_rank = {"CRITICAL": 4, "EMERGENCY": 4, "HIGH": 3, "URGENT": 3, "MODERATE": 2, "LOW": 1}
-        override_upper = override_severity.upper()
-        ai_upper = ai_risk.upper()
-        if severity_rank.get(override_upper, 0) > severity_rank.get(ai_upper, 0):
-            final_severity = override_severity.title()
+    # 4. DETERMINE SEVERITY (Strict Anchor to Top Match)
+    if diagnoses_output:
+        # ALWAYS follow the #1 disease's urgency for the report header
+        final_severity = diagnoses_output[0]['urgency'].upper()
+    else:
+        # Fallback if list is empty
+        final_severity = (verification_result.get('risk') or verification_result.get('risk_assessment') or "MODERATE").upper()
+
+    # Define the Timeline map
+    timeline_map = {
+        "CRITICAL": "IMMEDIATELY - Emergency Care",
+        "HIGH": "Within 12-24 hours",
+        "MODERATE": "Within 24-48 hours",
+        "LOW": "Monitor closely (3-5 days)"
+    }
+    
+    final_timeline = timeline_map.get(final_severity, "24-48 hours")
 
     # 5. CONSTRUCT CONTENT (SMART FALLBACKS)
     
@@ -593,7 +633,8 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
             "severityLevel": final_severity,
             "aiExplanation": ai_explanation,
             "careAdvice": care_advice,
-            "clinical_summary_backup": clinical_summary_text # Backup
+            "clinical_summary_backup": clinical_summary_text, # Backup
+            "action_timeline": final_timeline # Uses the synced timeline
         }
     }
     return soap_report
