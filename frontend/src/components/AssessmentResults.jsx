@@ -379,18 +379,7 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
               />
               New Assessment
             </button>
-            <button
-              onClick={onAskFollowUp}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300 transition-colors flex items-center gap-2"
-            >
-              <img 
-                src="/wpf_ask-question.png" 
-                alt="Ask" 
-                className="w-4 h-4 object-contain" 
-                style={{ filter: 'brightness(0) saturate(100%) invert(98%) sepia(14%) saturate(865%) hue-rotate(314deg) brightness(105%) contrast(100%)' }}
-              />
-              Ask Follow-up
-            </button>
+            
           </div>
         </div>
       </div>
