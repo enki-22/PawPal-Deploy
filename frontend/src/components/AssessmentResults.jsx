@@ -174,7 +174,7 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
             <div key={index} className="border border-gray-200 rounded-lg p-3 mb-3 bg-gray-50">
               <div className="mb-2">
                 <h4 className="font-bold text-gray-800 text-base">
-                  {index + 1}. {prediction.disease || prediction.label}
+                  {index + 1}. {prediction.condition || prediction.disease || prediction.label || prediction.condition_name}
                 </h4>
                 <div className="text-sm text-gray-600 mt-1 space-y-1">
                   <div>
@@ -190,6 +190,15 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
                   )}
                   <div>
                     <span className="font-semibold">Contagious:</span> {prediction.contagious ? 'Yes' : 'No'}
+                  </div>
+                  <div className="mt-1">
+                    <span className="font-semibold">Matched Symptoms:</span> {
+                      (Array.isArray(prediction.matched_symptoms) && prediction.matched_symptoms.length > 0)
+                        ? prediction.matched_symptoms.join(', ')
+                        : (Array.isArray(prediction.symptoms) && prediction.symptoms.length > 0)
+                          ? prediction.symptoms.join(', ')
+                          : 'None specified'
+                    }
                   </div>
                 </div>
               </div>

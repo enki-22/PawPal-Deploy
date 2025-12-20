@@ -105,8 +105,10 @@ def generate_diagnosis(request):
         
         # If no subjective text provided, generate from symptoms
         if not subjective_text:
-            subjective_text = f"Owner reports the following symptoms: {', '.join(symptoms)}."
-            if duration:
+            subjective_text = ml_data.get('ai_explanation') or \
+                             ml_data.get('clinical_summary') or \
+                             f"Owner reports: {', '.join(symptoms)}."
+            if duration and "duration" not in subjective_text.lower():
                 subjective_text += f" Duration: {duration}."
         
         # Call ML prediction endpoint (reuse existing predict_symptoms logic)
@@ -137,19 +139,23 @@ def generate_diagnosis(request):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         ml_data = ml_response.data
+        case_id = generate_case_id()
         
-        # Build assessment from ML predictions
+        # Build assessment from ML predictions with RICH DATA
         assessment = []
-        for pred in ml_data.get('predictions', [])[:3]:  # Top 3 predictions
+        for pred in ml_data.get('predictions', [])[:3]:
+            matched = pred.get('matched_symptoms') or pred.get('symptoms') or symptoms
             assessment.append({
-                'condition': pred.get('label', 'Unknown'),
-                'likelihood': float(pred.get('confidence', 0.0)),
-                'description': f"AI-predicted condition based on reported symptoms: {', '.join(symptoms)}",
-                'matched_symptoms': symptoms,
-                'urgency': determine_severity_level_from_urgency(
-                    ml_data.get('urgency', 'routine')
-                ),
-                'contagious': False,  # Could be enhanced with a knowledge base
+                'condition': pred.get('label', pred.get('condition', 'Unknown')),
+                'likelihood': float(pred.get('confidence', pred.get('probability', 0.0))),
+                'description': pred.get('description', f"AI-predicted condition based on reported symptoms: {', '.join(symptoms)}"),
+                'matched_symptoms': matched,
+                'urgency': determine_severity_level_from_urgency(pred.get('urgency', ml_data.get('urgency', 'routine'))),
+                'contagious': pred.get('contagious', False),
+                # NEW: Supply these fields directly so they aren't generic
+                'care_guidelines': pred.get('care_guidelines', ''),
+                'when_to_see_vet': pred.get('when_to_see_vet', ''),
+                'recommendation': pred.get('recommendation', '')
             })
         
         # Calculate flag level
@@ -189,10 +195,21 @@ def generate_diagnosis(request):
             ]
         }
         
-        # Create SOAP report with transaction
         with transaction.atomic():
-            # Generate unique case ID
-            case_id = generate_case_id()
+            # 1. Create the AIDiagnosis (The "Source of Truth")
+            ai_diagnosis = AIDiagnosis.objects.create(
+                user=request.user,
+                pet=pet,
+                case_id=case_id,
+                symptoms_text=', '.join(symptoms),
+                ml_predictions=ml_data.get('predictions', []),
+                ai_explanation=ml_data.get('ai_explanation', ''),
+                suggested_diagnoses=assessment,
+                overall_severity=determine_severity_level_from_urgency(ml_data.get('urgency', 'routine')).lower(),
+                urgency_level=ml_data.get('urgency', 'routine'),
+                pet_context={'name': pet.name, 'type': pet.animal_type},
+                confidence_score=float(ml_data.get('confidence_score', 0))
+            )
             
             # Create SOAP report
             soap_report = SOAPReport.objects.create(

@@ -199,9 +199,11 @@ const SOAPReportViewer = ({ caseId, onClose }) => {
           <div className="px-2 md:px-8 mt-6 space-y-4">
             {diagnoses.map((d, i) => {
               // Handle matched_symptoms being an array or string
-              const symptomsText = Array.isArray(d.matched_symptoms) 
+              const symptomsText = (Array.isArray(d.matched_symptoms) && d.matched_symptoms.length > 0) 
                 ? d.matched_symptoms.join(', ') 
-                : (d.matched_symptoms || 'None specified');
+                : (typeof d.matched_symptoms === 'string' && d.matched_symptoms.length > 0)
+                  ? d.matched_symptoms
+                  : 'None specified';
 
               // Determine Color
               const score = d.likelihood_percentage || 0;

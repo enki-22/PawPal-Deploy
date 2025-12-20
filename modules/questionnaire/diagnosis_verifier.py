@@ -249,11 +249,13 @@ class DiagnosisVerifier:
                     "disease": "Exact Name of Database Prediction #2",
                     "what_to_do": "2 detailed sentences specific to this condition.",
                     "see_vet_if": "2 detailed sentences on worsening signs."
+                    "matched_symptoms": ["Symptom A", "Symptom B"]
                 }},
                 {{
                     "disease": "Exact Name of Database Prediction #3",
                     "what_to_do": "2 detailed sentences specific to this condition.",
                     "see_vet_if": "2 detailed sentences on worsening signs."
+                    "matched_symptoms": ["Symptom A", "Symptom B"]
                 }}
             ],
 

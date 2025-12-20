@@ -91,6 +91,7 @@ class SOAPReportListSerializer(serializers.ModelSerializer):
             'top_condition',
             'likelihood',
             'severity',
+            'verification_status',
         ]
     
     def get_owner_name(self, obj):

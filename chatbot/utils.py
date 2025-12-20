@@ -164,30 +164,15 @@ def calculate_flag_level(assessment: List[Dict[str, Any]], symptoms: List[str]) 
 
 def generate_case_id() -> str:
     """
-    Generate unique case ID in format: #PDX-YYYY-MMDD-XXX
-    
-    Returns:
-        str: Unique case ID
-    
-    Example:
-        #PDX-2025-1101-001
+    Generate unique case ID in format: PDX-YYYY-MMDD-XXXXXX
+    Removed the '#' prefix here to match AIDiagnosis model and prevent lookup misses.
     """
-    from chatbot.models import SOAPReport
-    
+    import uuid
     # Get current date in format YYYY-MMDD
-    today = datetime.now().strftime('%Y-%m%d')
-    
-    # Count existing cases for today
-    today_prefix = f'#PDX-{today}'
-    count = SOAPReport.objects.filter(
-        case_id__startswith=today_prefix
-    ).count()
-    
-    # Generate case ID with zero-padded sequence number
-    sequence = str(count + 1).zfill(3)
-    case_id = f'{today_prefix}-{sequence}'
-    
-    return case_id
+    date_str = timezone.now().strftime('%Y-%m%d')
+    # Generate a short unique suffix
+    suffix = str(uuid.uuid4())[:8].upper()
+    return f"PDX-{date_str}-{suffix}"
 
 
 def parse_duration_to_days(duration_str: str) -> Optional[int]:
