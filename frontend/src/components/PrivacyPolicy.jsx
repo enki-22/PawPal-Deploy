@@ -1,7 +1,7 @@
 import React from "react";
 
 // NOTE: Ensure this path is correct based on your project structure
-const logoSrc = "/pat-removebg-preview 2.png";
+const logoSrc = "/pat-removebg-preview 1.png";
 
 function Group() {
   return (
@@ -118,7 +118,7 @@ function PrivacyPolicyContent() {
             <li className="font-normal leading-relaxed">Withdraw consent anytime.</li>
           </ul>
           <p className="font-normal leading-relaxed">
-            Contact us at <span className="underline break-all">southvalleyvc20@gmail.com</span> for assistance.
+            Contact us at <span className="font-bold break-all">southvalleyvc20@gmail.com</span> for assistance.
           </p>
         </div>
 
@@ -134,7 +134,7 @@ function PrivacyPolicyContent() {
         <div>
           <p className="text-lg md:text-xl font-bold mb-2">7. Contact</p>
           <p className="font-normal leading-relaxed">
-            For questions or concerns, email <span className="underline break-all">southvalleyvc20@gmail.com</span>
+            For questions or concerns, email <span className="font-bold break-all">southvalleyvc20@gmail.com</span>
           </p>
         </div>
 

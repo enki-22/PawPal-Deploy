@@ -310,14 +310,15 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
                         className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
                         style={{ fontFamily: 'Raleway' }}
                       >
-                        <option value="">Species</option>
+                        {/* Placeholder is now disabled and hidden so it's not clickable in the list */}
+                        <option value="" disabled hidden>Species</option>
                         <option value="cat">Cat</option>
                         <option value="dog">Dog</option>
                         <option value="hamster">Hamster</option>
                         <option value="bird">Bird</option>
                         <option value="rabbit">Rabbit</option>
                         <option value="fish">Fish</option>
-                        <option value="other">Other</option>
+                        {/* The "Other" option has been removed per your request */}
                       </select>
                     </div>
                   </div>

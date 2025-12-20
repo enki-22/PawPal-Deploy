@@ -46,7 +46,7 @@ const AdminLogin = () => {
       {/* Custom Logo */}
       <div className="mb-8">
         <img 
-          src="/pat-removebg-preview 2.png" 
+          src="/pat-removebg-preview 1.png" 
           alt="PawPal Logo" 
           className="w-16 h-16 mx-auto object-contain"
         />

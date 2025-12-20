@@ -1,7 +1,7 @@
 import React from "react";
 
-// NOTE: This path assumes "pat-removebg-preview 2.png" is in your "public" folder.
-const logoSrc = "/pat-removebg-preview 2.png";
+// NOTE: This path assumes "pat-removebg-preview 1.png" is in your "public" folder.
+const logoSrc = "/pat-removebg-preview 1.png";
 
 function Group() {
   return (
@@ -118,7 +118,7 @@ function RegisterFormPage() {
         <div>
           <p className="text-lg md:text-xl font-bold mb-2">8. Contact Information</p>
           <p className="font-normal leading-relaxed">
-            For questions, feedback, or concerns about these Terms, please contact: <span className="font-bold underline break-all">southvalleyvc20@gmail.com</span>
+            For questions, feedback, or concerns about these Terms, please contact: <span className="font-bold break-all">southvalleyvc20@gmail.com</span>
           </p>
         </div>
 

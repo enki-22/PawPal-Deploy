@@ -272,7 +272,7 @@ const AdminPets = () => {
                   <div className="w-[216px] flex items-center gap-3">
                     <div className="w-[35px] h-[35px] rounded-full overflow-hidden">
                       <img 
-                        src={pet.pet_image || "/pat-removebg-preview 2.png"} 
+                        src={pet.pet_image || "/pat-removebg-preview 1.png"} 
                         alt={pet.pet_name} 
                         className="w-full h-full object-cover" 
                       />
