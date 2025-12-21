@@ -80,16 +80,17 @@ export default function LandingPage() {
   React.useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        // Calls your backend instead of the local browser storage
         const response = await api.get('/api/announcements/active');
         
-        // Assuming your backend returns { success: true, announcements: [...] }
         if (response.data.success) {
           const absolutePromotions = response.data.announcements.map(promo => ({
             ...promo,
-            image: promo.image.startsWith('http') 
-              ? promo.image 
-              : `${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}${promo.image}`
+            // SAFETY FIX: If image is null/undefined, use a default placeholder
+            image: promo.image 
+              ? (promo.image.startsWith('http') 
+                  ? promo.image 
+                  : `${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}${promo.image}`)
+              : '/Frame 56.png' // Use one of your existing local placeholders here
           }));
           
           setPromotions(absolutePromotions);

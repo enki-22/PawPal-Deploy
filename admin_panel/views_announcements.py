@@ -114,6 +114,8 @@ def _get_announcements(request):
                 'announcement_id': str(announcement.id),
                 'title': announcement.title,
                 'description': announcement.description,
+                'image': announcement.image.url if announcement.image else None,
+                'style': announcement.style if hasattr(announcement, 'style') else {},
                 'valid_until': announcement.valid_until.isoformat() if announcement.valid_until else None,
                 'icon_type': announcement.icon_type,
                 'is_active': announcement.is_active,
@@ -157,6 +159,7 @@ def _create_announcement(request):
             announcement = Announcement.objects.create(
                 title=validated_data['title'],
                 description=validated_data['description'],
+                image=request.FILES.get('image'),
                 valid_until=validated_data.get('valid_until'),
                 icon_type=validated_data.get('icon_type', 'general'),
                 is_active=True,
