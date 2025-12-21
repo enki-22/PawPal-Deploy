@@ -9,6 +9,8 @@ import api from "../services/api";
 
 export default function LandingPage() {
   const navigate = useNavigate();
+
+  const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
   // Auth redirect logic
   // Note: Ensure this path is correct for your file structure
   // eslint-disable-next-line
@@ -83,7 +85,14 @@ export default function LandingPage() {
         
         // Assuming your backend returns { success: true, announcements: [...] }
         if (response.data.success) {
-          setPromotions(response.data.announcements);
+          const absolutePromotions = response.data.announcements.map(promo => ({
+            ...promo,
+            image: promo.image.startsWith('http') 
+              ? promo.image 
+              : `${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}${promo.image}`
+          }));
+          
+          setPromotions(absolutePromotions);
         }
       } catch (error) {
         console.error("Failed to fetch promotions from server:", error);

@@ -360,6 +360,7 @@ def _delete_announcement(request, announcement_id):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def get_active_announcements(request):
     """
     GET /api/announcements/active
