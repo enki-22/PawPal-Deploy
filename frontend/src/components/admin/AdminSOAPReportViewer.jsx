@@ -126,6 +126,22 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
     }
   };
 
+  const handleDownload = () => {
+    // 1. Save the original page title
+    const originalTitle = document.title;
+    
+    // 2. Temporarily change the title to the Case ID (becomes the PDF filename)
+    document.title = `PawPal_Admin_Report_${report.case_id}`;
+    
+    // 3. Trigger the print dialog
+    window.print();
+    
+    // 4. Restore the original title after the dialog opens
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1000);
+  };
+
   const closeActionModal = () => {
     setActionModal({ ...actionModal, show: false });
   };
@@ -156,17 +172,32 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
     /* FIX: Changed items-center to items-start and added padding-top.
        This prevents the top of the modal from being cut off on scroll.
     */
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto flex justify-center items-start pt-10 pb-10">
+       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 md:p-4 z-50 print-wrapper">
       
-      <div className="bg-white w-full max-w-5xl shadow-2xl rounded-sm flex flex-col font-sans relative mx-4 mb-10">
+      <div className="bg-white rounded-[10px] w-full max-w-5xl my-4 md:my-8 relative max-h-[95vh] overflow-y-auto font-sans shadow-2xl">
         
-        {/* CLOSE BUTTON */}
-        <button 
-            onClick={onClose} 
-            className="absolute top-4 right-4 text-3xl font-bold text-gray-400 hover:text-gray-600 z-10"
-        >
-            &times;
-        </button>
+        {/* === TOP ACTION BAR (Download & Close) === */}
+        <div className="sticky top-0 right-0 p-4 flex justify-end items-center gap-4 z-50 no-print bg-white bg-opacity-95 border-b border-gray-100 rounded-t-sm">
+            <button 
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownload();
+                }}
+                className="bg-[#815fb3] text-white px-4 py-1.5 rounded-md text-sm font-bold flex items-center gap-2 hover:bg-[#6b4fa3] transition-all shadow-md active:scale-95 cursor-pointer"
+            >
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                </svg>
+                Download PDF
+            </button>
+
+            <button 
+                onClick={onClose} 
+                className="text-3xl font-bold text-gray-400 hover:text-gray-700 cursor-pointer flex items-center leading-none h-8"
+                aria-label="Close"
+            >&times;</button>
+        </div>
 
         {/* === 1. HEADER (PAWPAL BRANDING & INFO) === */}
         <div className="p-8 border-b-2 border-black bg-white rounded-t-sm">
@@ -308,7 +339,7 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
                     <div className="space-y-6">
                         {diagnoses.length > 0 ? (
                             diagnoses.map((diag, i) => (
-                                <div key={i} className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                              <div key={i} className="bg-gray-50 p-4 rounded-lg border border-gray-100 diagnoses-item">
                                     <div className="flex justify-between items-start mb-2">
                                         <p className="font-bold text-lg text-black">{i + 1}. {diag.condition || diag.name}</p>
                                         <span className={`px-3 py-1 rounded text-xs font-bold ${getLikelihoodColor(diag.likelihood_percentage || diag.confidence * 100)}`}>
@@ -401,7 +432,7 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
         </div>
 
         {/* === VET VERIFICATION FOOTER === */}
-        <div className="bg-[#f8f9fa] p-6 border-t-2 border-gray-200 rounded-b-sm">
+        <div className="bg-[#f8f9fa] p-6 border-t-2 border-gray-200 rounded-b-sm no-print">
             <h3 className="font-bold text-[#815FB3] mb-3 text-sm uppercase tracking-wide">Veterinarian Review</h3>
             <div className="flex flex-col md:flex-row gap-4">
                 <textarea 
