@@ -13,7 +13,7 @@ const api = axios.create({
 
 // Add token to requests if available
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
   if (token) {
     // Use Bearer format for JWT tokens (backend supports both Bearer and Token formats)
     config.headers.Authorization = `Bearer ${token}`;
