@@ -245,6 +245,9 @@ class Announcement(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    image = models.ImageField(upload_to='announcements/', null=True, blank=True)
+    style = models.JSONField(default=dict, blank=True) # To store zoom/posX/posY
     
     @property
     def is_expired(self):

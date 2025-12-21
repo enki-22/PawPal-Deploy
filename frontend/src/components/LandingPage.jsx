@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import PromotionCarousel from "./PromotionCarousel";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
+import api from "../services/api";
+
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -74,16 +76,23 @@ export default function LandingPage() {
   // --- PROMOTIONS STATE ---
   const [promotions, setPromotions] = React.useState([]);
   React.useEffect(() => {
-    const stored = localStorage.getItem('pawpal_promotions');
-    
-    if (stored) {
-      // If data exists, use it
-      setPromotions(JSON.parse(stored));
-    } else {
-      // If NO data exists (first visit), use defaults and save them
-      setPromotions(DEFAULT_PROMOTIONS);
-      localStorage.setItem('pawpal_promotions', JSON.stringify(DEFAULT_PROMOTIONS));
-    }
+    const fetchPromotions = async () => {
+      try {
+        // Calls your backend instead of the local browser storage
+        const response = await api.get('/api/announcements/active');
+        
+        // Assuming your backend returns { success: true, announcements: [...] }
+        if (response.data.success) {
+          setPromotions(response.data.announcements);
+        }
+      } catch (error) {
+        console.error("Failed to fetch promotions from server:", error);
+        // Fallback to local defaults only if the server is down
+        setPromotions(DEFAULT_PROMOTIONS); 
+      }
+    };
+  
+    fetchPromotions();
   }, [DEFAULT_PROMOTIONS]);
 
   // --- HELPER: SCROLL TO SECTION ---

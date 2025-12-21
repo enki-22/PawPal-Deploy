@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import AdminTopNav from './AdminTopNav';
 import { Trash2, Image as ImageIcon } from 'lucide-react';
 import AddAnnouncementModal from './AddAnnouncementModal';
+import api from "../../services/api";
 
 export default function AdminAnnouncements() {
   const [announcements, setAnnouncements] = useState([]);
@@ -12,10 +13,15 @@ export default function AdminAnnouncements() {
 
   // Load from the shared Landing Page storage
   useEffect(() => {
-    const stored = localStorage.getItem('pawpal_promotions');
-    if (stored) {
-      setAnnouncements(JSON.parse(stored));
-    }
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await api.get('/api/admin/announcements');
+        setAnnouncements(response.data.announcements);
+      } catch (error) {
+        console.error("Error fetching admin announcements:", error);
+      }
+    };
+    fetchAnnouncements();
   }, []);
 
   // Save to storage whenever announcements change
@@ -24,17 +30,17 @@ export default function AdminAnnouncements() {
     localStorage.setItem('pawpal_promotions', JSON.stringify(newData));
   };
 
-  const handleAddAnnouncement = (newAnnouncement) => {
-    const newData = [
-      {
-        ...newAnnouncement,
-        id: Date.now(),
-      },
-      ...announcements,
-    ];
-    updateStorage(newData);
-    setModalOpen(false);
-    setEditAnnouncement(null);
+  const handleAddAnnouncement = async (newAnnouncement) => {
+    try {
+      // This sends the data (including the image file) to the central database
+      const response = await api.post('/api/admin/announcements', newAnnouncement);
+      if (response.data.success) {
+        setAnnouncements([response.data.announcement, ...announcements]);
+        setModalOpen(false);
+      }
+    } catch (error) {
+      alert("Error saving announcement: " + error.message);
+    }
   };
 
   const handleEditAnnouncement = (updatedAnnouncement) => {
