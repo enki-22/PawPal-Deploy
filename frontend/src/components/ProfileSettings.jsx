@@ -115,7 +115,7 @@ const ProfileSettings = () => {
   const fetchProfileData = useCallback(async () => {
     try {
       setFetchingData(true);
-      const response = await axios.get(`${API_BASE_URL}/users/account/`, {
+      const response = await axios.get(`${API_BASE_URL}/users/settings-data/`, {
         headers: { 'Authorization': token ? `Bearer ${token}` : '' }
       });
 
