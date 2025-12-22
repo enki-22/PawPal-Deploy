@@ -207,16 +207,24 @@
           {/* --- CHANGE: Add this Hero Banner above the diagnoses loop --- */}
           <div className={`${getUrgencyBadgeColor(report.plan?.severityLevel)} p-6 rounded-xl mb-8 flex justify-between items-center shadow-lg border-b-4 border-black/10`}>
               <div>
-                  <p className="text-xs font-black uppercase tracking-[0.2em] opacity-70">Overall Triage Status</p>
+                  <p className="text-xs font-black uppercase tracking-[0.2em] opacity-70">Triage Priority</p>
                   <h2 className="text-3xl font-black tracking-tight">{report.plan?.severityLevel?.toUpperCase()}</h2>
               </div>
               <div className="text-right border-l border-white/20 pl-6">
-                  <p className="text-xs font-bold opacity-70 italic uppercase">Recommended Action</p>
+                  <p className="text-xs font-bold opacity-70 italic uppercase">Care Timeline</p>
                   <p className="text-sm font-black">{report.plan?.action_timeline || "Consult Veterinarian"}</p>
               </div>
           </div>
 
-          <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-6 uppercase">Preliminary Triage Assessment (Differentials)</h3>
+          {/* Rule #2: Severity Justification - NEW section */}
+          {report.plan?.aiExplanation && (
+              <div className="bg-white border-2 border-gray-100 p-4 rounded-lg mb-6">
+                  <p className="text-xs font-bold text-gray-400 uppercase mb-1">Triage Rationale:</p>
+                  <p className="text-sm text-gray-700 italic">{report.plan.aiExplanation}</p>
+              </div>
+          )}
+
+          <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-6 uppercase">Potential Considrations (Differentials)</h3>
           {/* --- END HERO BANNER --- */}
 
           {/* DIAGNOSES SECTION */}
@@ -238,7 +246,7 @@
                   <div key={i} className="bg-[#f4f4f4] rounded-lg p-5">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="text-[#815FB3] font-bold text-lg">{d.condition || d.name}</h3>
-                      <span className="text-[10px] font-black text-gray-500 border border-gray-300 px-2 py-1 rounded uppercase tracking-tighter">
+                      <span className="text-[10px] font-black text-gray-500 border border-gray-300 px-2 py-1 rounded uppercase  ">
                           {d.match_level || "Clinical Consideration"}
                       </span>
                     </div>
@@ -252,7 +260,6 @@
                     {/* Metadata List */}
                     <ul className="list-disc ml-5 text-sm space-y-1 text-gray-800 mb-4">
                       <li><span className="font-semibold">Matched Symptoms:</span> {symptomsText}</li>
-                      <li><span className="font-semibold">Urgency:</span> {d.urgency}</li>
                       <li><span className="font-semibold">Contagious:</span> {d.contagious ? 'Yes' : 'No'}</li>
                     </ul>
 

@@ -576,56 +576,60 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
     else:
         # Fallback if list is empty
         final_severity = (verification_result.get('risk') or verification_result.get('risk_assessment') or "MODERATE").upper()
+    
+
+
+    has_boring_cause = any(word in str(diagnoses_output).lower() for word in ['dietary', 'upset', 'stress', 'irritation'])
+    
+    if not has_boring_cause and len(diagnoses_output) < 4:
+        diagnoses_output.append({
+            "condition": "Non-Specific Gastrointestinal Upset",
+            "match_level": "Possible Consideration",
+            "description": "Commonly caused by dietary indiscretion (eating something unusual), minor stress, or sudden food changes. Often self-limiting.",
+            "matched_symptoms": formatted_symptoms[:2],
+            "urgency": "Low",
+            "contagious": False
+        })
 
     # Define the Timeline map
-    timeline_map = {
-        "CRITICAL": "IMMEDIATELY - Emergency Care",
-        "HIGH": "Within 12-24 hours",
-        "MODERATE": "Within 24-48 hours",
-        "LOW": "Monitor closely (3-5 days)"
+    # RULE #5: Define strict Doctrine Timelines
+    DOCTRINE_MAP = {
+        "CRITICAL": "IMMEDIATE - Seek emergency care now.",
+        "HIGH": "URGENT - Veterinary evaluation within 12-24 hours.",
+        "MODERATE": "STABLE - Schedule vet appointment within 24-48 hours.",
+        "LOW": "MONITOR - Routine check-up if signs persist."
     }
-    
-    final_timeline = timeline_map.get(final_severity, "24-48 hours")
+    final_timeline = DOCTRINE_MAP.get(final_severity, "24-48 hours")
 
-    # 5. CONSTRUCT CONTENT (SMART FALLBACKS)
+    # 5. CONSTRUCT CONTENT (Rule-Based Filtering)
     
-    # -- FIX 1: Clinical Summary Logic --
-    clinical_summary_text = verification_result.get("clinical_summary")
+    # FETCH FIRST: Get the text before trying to replace words
+    clinical_summary_text = verification_result.get("clinical_summary") or verification_result.get("clinicalSummary") or ""
     
-    # If AI summary is missing or too short, FORCE generation locally
-    if not clinical_summary_text or len(clinical_summary_text) < 10:
-        symptoms_str = ", ".join(formatted_symptoms[:5]) # Use formatted symptoms
-        duration_str = raw_predictions.get("duration", "an unspecified duration")
-        species_str = raw_predictions.get("species", "pet")
-        
-        # Template for professional summary
-        clinical_summary_text = (
-            f"{pet_name} is a {species_str} presenting with {symptoms_str}. "
-            f"The symptoms have persisted for {duration_str} days. "
-            f"Based on the clinical signs, {top_disease_name} is the primary preliminary assessment.."
-        )
+    # RULE #1: Terminology Scrub (The Purge)
+    if clinical_summary_text:
+        clinical_summary_text = clinical_summary_text.replace("Primary preliminary assessment", "primary triage concern")
+        clinical_summary_text = clinical_summary_text.replace("preliminary assessment", "triage concern")
+        clinical_summary_text = clinical_summary_text.replace("diagnosis", "clinical differential")
+        clinical_summary_text = clinical_summary_text.replace("Diagnosis", "Clinical Differential")
+    else:
+        # Fallback if AI fails
+        clinical_summary_text = f"Triage assessment for {pet_name}. Current signs are being monitored as a {final_severity.lower()} priority concern."
 
-    # -- Care Advice Logic --
-    care_advice = verification_result.get("care_advice")
+    # RULE #5: FIX STUBBORN CARE ADVICE
+    # We force the advice to match the actual severity timeline
+    care_advice = verification_result.get("care_advice") or verification_result.get("careAdvice")
     if not care_advice or not isinstance(care_advice, list) or len(care_advice) == 0:
         care_advice = [
-            f"Monitor {pet_name} for any changes in appetite or activity levels related to {top_disease_name}.",
-            f"Keep a daily log of symptom frequency.",
-            "Ensure constant access to fresh water and keep the resting area clean.",
-            f"Consult a veterinarian if the condition does not improve within 24-48 hours."
+            f"Monitor {pet_name} for any changes in appetite or behavior.",
+            f"Keep a daily log of symptom frequency to help your veterinarian.",
+            f"Recommended Action: Seek professional evaluation {final_timeline.lower()}"
         ]
 
-    # -- Severity Explanation Logic --
-    ai_explanation = verification_result.get("severity_explanation")
-    if not ai_explanation:
-        ai_explanation = f"Rated as {final_severity} due to the presentation of {top_disease_name} and reported symptoms."
-
-
+    # FIX: Define final_subjective clearly to prevent NameError
     user_notes_raw = get_val(raw_predictions, ['symptoms_text', 'user_notes'], "")
-    symptoms_str = ', '.join(formatted_symptoms[:15])
-    
-    if user_notes_raw and len(user_notes_raw) > 3:
-        # If user typed notes, display them prominently
+    symptoms_str = ', '.join(formatted_symptoms)
+    if user_notes_raw:
         final_subjective = f"Chief Complaint: {user_notes_raw}\n\nSymptoms noted: {symptoms_str}."
     else:
         final_subjective = f"Owner reports symptoms including: {symptoms_str}."
@@ -634,16 +638,10 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
     soap_report = {
         "case_id": raw_predictions.get("case_id", "N/A"),
         "date_generated": datetime.datetime.now().isoformat(),
-
         "subjective": final_subjective,
-        
-        # EXPLICIT TOP-LEVEL FIELD FOR FRONTEND (Fix 1)
         "clinical_summary": clinical_summary_text,
-        
-
-        
         "objective": {
-            "symptoms": formatted_symptoms, # Use formatted list
+            "symptoms": formatted_symptoms,
             "duration": raw_predictions.get("duration", "Unspecified"),
             "vitals": {"temperature": "Not Recorded"}
         },
@@ -652,10 +650,9 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
         },
         "plan": {
             "severityLevel": final_severity,
-            "aiExplanation": ai_explanation,
+            "aiExplanation": verification_result.get("severity_explanation", f"Classified as {final_severity}"),
             "careAdvice": care_advice,
-            "clinical_summary_backup": clinical_summary_text, # Backup
-            "action_timeline": final_timeline # Uses the synced timeline
+            "action_timeline": final_timeline
         }
     }
     return soap_report

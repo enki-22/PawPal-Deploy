@@ -128,7 +128,7 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
                 className="w-5 h-5 object-contain" 
               />
             )} 
-            Assessment Results for {pet_name}
+            Triage Assessment for {pet_name}
           </h3>
           {isCritical && (
             <div className="mt-2 text-sm font-bold text-red-700">
@@ -174,15 +174,20 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
             <div key={index} className="border border-gray-200 rounded-lg p-3 mb-3 bg-gray-50">
               <div className="mb-2">
                 <h4 className="font-bold text-gray-800 text-base">
-                  {index + 1}. {prediction.disease || prediction.label}
+                  {index + 1}. Potential Concern: {prediction.disease || prediction.label}
                 </h4>
                 <div className="text-sm text-gray-600 mt-1 space-y-1">
                   <div>
-                    <span className="font-semibold">Assessment Finding:</span> {prediction.match_level || "Triage consideration"}
+                    <span className="font-semibold">Clinical Alignment: </span> {prediction.match_level || "Triage consideration"}
                   </div>
                   <div>
                     <span className="font-semibold">Urgency:</span> {getUrgencyColor(prediction.urgency)} {getUrgencyText(prediction.urgency)}
                   </div>
+                  {triage_assessment?.urgency_reasoning && (
+                      <p className="text-xs text-gray-500 mt-1 italic">
+                          Rationale: {triage_assessment.urgency_reasoning[0]}
+                      </p>
+                  )}
                   {prediction.timeline && (
                     <div>
                       <span className="font-semibold">Timeline:</span> {prediction.timeline}

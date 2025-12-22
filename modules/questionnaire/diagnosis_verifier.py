@@ -229,10 +229,19 @@ class DiagnosisVerifier:
                - Conflicting signs or insufficient data to draw a strong parallel.
 
             ANALYSIS INSTRUCTIONS:
-            1. **HISTORY & TOXIN CHECK:** Check for toxins (Xylitol, Chocolate) mentioned in notes.
-            2. **DATABASE CHECK:** If the Database Predictions are empty or missing a likely condition you identified, you MUST set `agreement` to false and provide the correct name in `alternative_diagnosis`.
-            3. **ANATOMICAL CHECK:** Mismatched pain location (e.g., Back vs Knee) = DISAGREE.
-            4. **GENERATE CONTENT:** You must generate the 'clinical_summary' and 'care_advice' fields. They are NOT optional. DO NOT use the word "Diagnosis". Use "Assessment", "Potential Condition", or "Clinical Impression" instead. This is a triage tool, not a doctor.
+            1. **REPLACE DIAGNOSTIC LANGUAGE:** Use "Clinical Impression" or "Differential" instead of "Diagnosis". Use "May be associated with" instead of "Indicates."
+            2. **JUSTIFY SEVERITY (Rule #2):** Your 'severity_explanation' MUST start with "Based on [age/symptom frequency/risk]..." and justify why the risk is Low, Moderate, or High.
+            3. **THE "BORING" RULE (Rule #4):** You MUST include one common, non-pathologic cause based on the symptom category. 
+               - For Digestive: "Mild Dietary Indiscretion" (eating something unusual).
+               - For Skin/Eyes/Ears: "Environmental Irritation" (dust, pollen, or seasonal change).
+               - For Behavior/Respiratory: "Temporary Stress or Overexertion."
+               - Label these as: "Non-specific / Mild Irritation."
+            4. **SIGNAL UNCERTAINTY (Rule #7):** Use phrases like "May be associated with" or "Consideration for." Never say "This is [Disease]."
+            5. **AGE-BASED FILTER:** Prioritize risks common to a {context_data.get('age')} pet.
+            6. **HISTORY & TOXIN CHECK:** Scan user notes for ingested toxins (Xylitol, Chocolate, Grapes, etc). If found, force Risk to CRITICAL.
+            7. **DATABASE CHECK:** If the Database Predictions are missing a likely condition for this signalment, set `agreement` to false and provide it in `alternative_diagnosis`.
+            8. **ANATOMICAL CHECK:** If the Database Prediction suggests a condition in the wrong body location (e.g., Back pain vs. Knee pain), set `agreement` to false.
+            9. **GENERATE CONTENT:** 'clinical_summary', 'care_advice', and 'severity_explanation' are MANDATORY. Do not skip them.
 
             *** MANDATORY OUTPUT FORMAT (JSON) ***
             You MUST return your analysis in this EXACT JSON structure. Do not skip any fields.

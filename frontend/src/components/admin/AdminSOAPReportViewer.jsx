@@ -319,16 +319,16 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
                       {/* --- CHANGE: Add Hero Banner here too --- */}
                         <div className={`${getUrgencyBadgeColor(report.plan?.severityLevel)} p-6 rounded-sm mb-8 flex justify-between items-center shadow-md`}>
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest opacity-80">AI Triage Classification</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest opacity-80">AI Risk Classification</p>
                                 <h2 className="text-2xl font-black">{report.plan?.severityLevel?.toUpperCase()}</h2>
                             </div>
                             <div className="text-right">
-                                <p className="text-[10px] font-bold opacity-80 italic uppercase underline">Suggested Timeline</p>
+                                <p className="text-[10px] font-bold opacity-80 italic uppercase underline">Suggested Action</p>
                                 <p className="text-sm font-bold">{report.plan?.action_timeline || "Urgent Review"}</p>
                             </div>
                         </div>
 
-                        <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-4 uppercase">Assessment (Differentials)</h3>
+                        <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-4 uppercase">Potential Considerations (Differentials)</h3>
                         {/* --- END HERO BANNER --- */}
                         {diagnoses.length > 0 ? (
                           
@@ -346,14 +346,14 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
                                     
                                     <ul className="list-none space-y-1 text-sm text-gray-700">
                                         
-                                        <li><span className="font-semibold text-gray-900">Matched Symptoms:</span> {Array.isArray(diag.matched_symptoms) ? diag.matched_symptoms.join(', ') : diag.matched_symptoms}</li>
+                                        <li><span className="font-semibold text-gray-900">Symptoms Found:</span> {Array.isArray(diag.matched_symptoms) ? diag.matched_symptoms.join(', ') : diag.matched_symptoms}</li>
                                         
                                         <li><span className="font-semibold text-gray-900">Contagious:</span> {diag.contagious ? 'Yes' : 'No'}</li>
                                     </ul>
                                 </div>
                             ))
                         ) : (
-                            <p>No assessment data available.</p>
+                            <p>No clinical differentials identified.</p>
                         )}
                     </div>
                 </div>
