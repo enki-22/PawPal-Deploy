@@ -1003,7 +1003,7 @@ const UnifiedAuth = () => {
     
     // If token exists and user is not set, force reload (fixes first login delay)
     if (!authLoading && token && !user && location.pathname === '/petowner/login') {
-      window.location.reload();
+      //window.location.reload();
     }
   }, [user, token, authLoading, location.pathname, navigate]);
   

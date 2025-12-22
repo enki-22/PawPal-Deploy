@@ -30,34 +30,31 @@ export const AuthProvider = ({ children }) => {
   console.log('Is authenticated:', !!token);
 
   useEffect(() => {
-      if (token) {
-        axios.get(`${API_BASE_URL}/users/account/`, {
+    const verifyToken = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Updated URL to settings-data to match backend
+        const response = await axios.get(`${API_BASE_URL}/users/settings-data/`, {
           headers: { Authorization: `Bearer ${token}` }
-        })
-          .then(response => {
-            setUser(response.data);
-          })
-          .catch((error) => {
-            console.log('Backend connection error or invalid token:', error.message);
-            console.log('Error response:', error.response?.data);
-            
-            // === FIX STARTS HERE ===
-            // Clear token on 401 (Unauthorized) or 403 (Forbidden)
-            if (error.response?.status === 401 || error.response?.status === 403 || error.code === 'ERR_NETWORK') {
-              console.log('Token invalid or expired. Logging out.');
-              localStorage.removeItem('token');
-              setToken(null);
-              setUser(null);
-            }
-            // === FIX ENDS HERE ===
-          })
-          .finally(() => {
-            setLoading(false);
-          });
-      } else {
+        });
+        setUser(response.data);
+      } catch (error) {
+        console.error('Auth verification failed. Breaking loop:', error.message);
+        // Clear everything to stop the ping-pong redirect storm
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+      } finally {
         setLoading(false);
       }
-    }, [token]);
+    };
+
+    verifyToken();
+  }, [token]);
 
   const login = async (credentials) => {
   try {
