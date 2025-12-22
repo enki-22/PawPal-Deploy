@@ -8,7 +8,7 @@ export const ConversationsProvider = ({ children }) => {
   const [conversations, setConversations] = useState([]);
   const [loadingConversations, setLoadingConversations] = useState(false);
   const [conversationsLoaded, setConversationsLoaded] = useState(false);
-  const { token, loading: authLoading } = useAuth();
+  const { token } = useAuth();
 
   // API Base URL
 const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
@@ -19,7 +19,7 @@ const API_BASE_URL = `${API_ROOT}/api`;
       setLoadingConversations(true);
       const response = await axios.get(`${API_BASE_URL}/chatbot/conversations/`, {
         headers: {
-          'Authorization': token ? `Token ${token}` : '',
+          'Authorization': token ? `Bearer ${token}` : '',
         }
       });
       // Ensure we always set an array
@@ -130,17 +130,14 @@ const API_BASE_URL = `${API_ROOT}/api`;
 
   // Reset conversations when token changes (login/logout)
   useEffect(() => {
-    // Only run if auth is finished
-    if (!authLoading) {
-        if (token) {
-          fetchConversations();
-        } else {
-          setConversations([]);
-          setConversationsLoaded(false);
-          setLoadingConversations(false);
-        }
+    if (token) {
+      fetchConversations();
+    } else {
+      setConversations([]);
+      setConversationsLoaded(false);
+      setLoadingConversations(false);
     }
-  }, [token, authLoading, fetchConversations]);
+  }, [token, fetchConversations]);
 
   const value = {
     conversations,
