@@ -467,7 +467,7 @@ const AdminPetProfile = () => {
             {/* AI Diagnosis Section - Admin Format, filtered by petId */}
             <div className="rounded-lg p-6" style={{ background: '#FFFFF2', borderRadius: '10px' }}>
               <h3 className="mb-4" style={{ fontFamily: 'Raleway', fontSize: '20px', fontWeight: 600, color: '#333333' }}>
-                AI Diagnosis
+                AI Assessments
               </h3>
               {(() => {
                 // Normalize petId for comparison

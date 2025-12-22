@@ -4,7 +4,7 @@ import { Settings, LogOut } from 'lucide-react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 
 export default function AdminTopNav({ activePage = '' }) {
-  const { admin, adminLogout, isMaster, adminAxios } = useAdminAuth();
+  const { admin, adminLogout, isMaster, isFrontDesk, adminAxios } = useAdminAuth();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
@@ -12,7 +12,7 @@ export default function AdminTopNav({ activePage = '' }) {
   // Base navigation links visible to all admin roles
   const navLinks = [
     { href: '/admin/dashboard', label: 'Dashboard' },
-    { href: '/admin/reports', label: 'Reports' },
+    ...(!isFrontDesk ? [{ href: '/admin/reports', label: 'Reports' }] : []),
     { href: '/admin/clients', label: 'Clients' },
     { href: '/admin/pets', label: 'Pets' },
     // Admin Roles link only visible to MASTER admins

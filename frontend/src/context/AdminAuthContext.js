@@ -210,6 +210,21 @@ export const AdminAuthProvider = ({ children }) => {
             return false;
           }
         })(),
+        isFrontDesk: (() => {
+          try {
+            if (!admin) return false;
+            const roleCandidates = [admin.role, admin.role_display, admin.role_name, admin.roleTitle, admin.roles];
+            for (const r of roleCandidates) {
+              if (!r) continue;
+              const s = String(r).toUpperCase();
+              // Check for "FRONT DESK" or "FRONTDESK"
+              if (s.includes('FRONT DESK') || s.includes('FRONTDESK')) return true;
+            }
+            return false;
+          } catch (e) {
+            return false;
+          }
+        })(),
       adminAxios,
     };
 
