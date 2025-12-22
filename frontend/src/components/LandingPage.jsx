@@ -80,24 +80,34 @@ export default function LandingPage() {
   React.useEffect(() => {
     const fetchPromotions = async () => {
       try {
+        // Note: Make sure this URL matches  public Django route
         const response = await api.get('/api/announcements/active');
+        console.log("Landing Page Data:", response.data);
         
-        if (response.data.success) {
-          const absolutePromotions = response.data.announcements.map(promo => ({
-            ...promo,
-            // SAFETY FIX: If image is null/undefined, use a default placeholder
-            image: promo.image 
-              ? (promo.image.startsWith('http') 
-                  ? promo.image 
-                  : `${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}${promo.image}`)
-              : '/Frame 56.png' // Use one of your existing local placeholders here
-          }));
+        if (response.data.success && response.data.announcements.length > 0) {
+          const absolutePromotions = response.data.announcements.map(promo => {
+            // SAFE IMAGE CHECK:
+            let finalImage = "/path-to-default-placeholder.png"; // Fallback
+            
+            if (promo.image) {
+              finalImage = promo.image.startsWith('http') 
+                ? promo.image 
+                : `${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}${promo.image}`;
+            }
+
+            return {
+              ...promo,
+              id: promo.announcement_id, // Map database ID to 'id' for the carousel
+              image: finalImage
+            };
+          });
           
           setPromotions(absolutePromotions);
+        } else {
+          setPromotions(DEFAULT_PROMOTIONS);
         }
       } catch (error) {
-        console.error("Failed to fetch promotions from server:", error);
-        // Fallback to local defaults only if the server is down
+        console.error("Failed to fetch promotions:", error);
         setPromotions(DEFAULT_PROMOTIONS); 
       }
     };

@@ -16,6 +16,7 @@ export default function AdminAnnouncements() {
     const fetchAnnouncements = async () => {
       try {
         const response = await api.get('/api/admin/announcements');
+        console.log("Fetched Announcements:", response.data.announcements);
         setAnnouncements(response.data.announcements);
       } catch (error) {
         console.error("Error fetching admin announcements:", error);
@@ -43,23 +44,60 @@ export default function AdminAnnouncements() {
     }
   };
 
-  const handleEditAnnouncement = (updatedAnnouncement) => {
-    const newData = announcements.map(a => a.id === updatedAnnouncement.id ? updatedAnnouncement : a);
-    updateStorage(newData);
-    setModalOpen(false);
-    setEditAnnouncement(null);
+  const handleEditAnnouncement = async (updatedAnnouncement) => {
+    try {
+      // 1. Send the PUT request to the backend using the announcement's ID
+      // We send the updatedAnnouncement object as the request body
+      const response = await api.put(`/api/admin/announcements/${updatedAnnouncement.announcement_id}`, updatedAnnouncement);
+
+      if (response.data.success) {
+        // 2. Map through the current state and replace the old version with the updated one
+        // Using response.data.announcement ensures we have the latest data from the DB
+        const newData = announcements.map(a => 
+          a.announcement_id === updatedAnnouncement.announcement_id ? response.data.announcement : a
+        );
+
+        // 3. Update local state and sync localStorage
+        setAnnouncements(newData);
+        localStorage.setItem('pawpal_promotions', JSON.stringify(newData));
+
+        // 4. Close modal and reset edit state
+        setModalOpen(false);
+        setEditAnnouncement(null);
+      }
+    } catch (error) {
+      console.error("Error updating announcement:", error);
+      alert("Failed to update announcement: " + (error.response?.data?.message || error.message));
+    }
   };
 
   const handleDeleteAnnouncement = (id) => {
+    console.log("Setting Delete ID to:", id); // Verify this isn't 'undefined'
+    if (!id) {
+      console.error("Attempted to delete with an undefined ID!");
+      return;
+    }
     setDeleteId(id);
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    const newData = announcements.filter(a => a.id !== deleteId);
-    updateStorage(newData);
-    setShowDeleteModal(false);
-    setDeleteId(null);
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+  
+    try {
+      // This matches: path('announcements/<int:announcement_id>', ...)
+      const response = await api.delete(`/api/admin/announcements/${deleteId}`);
+  
+      if (response.status === 200 || response.status === 204) {
+        const newData = announcements.filter(a => a.announcement_id !== deleteId);  
+        setAnnouncements(newData);
+        setShowDeleteModal(false);
+        setDeleteId(null);
+      }
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Could not delete. Check terminal for backend errors.");
+    }
   };
 
   const cancelDelete = () => {
@@ -87,7 +125,7 @@ export default function AdminAnnouncements() {
           <div className="flex flex-col gap-4">
             {announcements.length > 0 ? (
               announcements.map((card) => (
-                <div key={card.id} className="bg-white rounded-[20px] p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex gap-6 items-center">
+                <div key={card.announcement_id} className="bg-white rounded-[20px] p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex gap-6 items-center">
                     {/* Thumbnail - UPDATED to respect aspect ratio and fit */}
                     <div className="w-[140px] aspect-[4/3] bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
                     {card.image ? (
@@ -116,7 +154,7 @@ export default function AdminAnnouncements() {
                     <button className="p-2 hover:bg-purple-50 rounded-lg text-[#815FB3] transition-colors" title="Edit" onClick={() => { setEditAnnouncement(card); setModalOpen(true); }}>
                         <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
                     </button>
-                    <button className="p-2 hover:bg-purple-50 rounded-lg text-[#815FB3] transition-colors" title="Delete" onClick={() => handleDeleteAnnouncement(card.id)}>
+                    <button className="p-2 hover:bg-purple-50 rounded-lg text-[#815FB3] transition-colors" title="Delete" onClick={() => handleDeleteAnnouncement(card.announcement_id)}>
                         <Trash2 size={20} />
                     </button>
                   </div>
