@@ -139,10 +139,20 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
     });
   };
 
-  const getLikelihoodColor = (likelihood) => {
-    if (likelihood >= 70) return 'bg-[rgba(231,90,90,0.77)]';
-    if (likelihood >= 40) return 'bg-[#fff07b]';
-    return 'bg-[rgba(137,254,114,0.56)]';
+  const getUrgencyBadgeColor = (urgency) => {
+    switch (urgency?.toLowerCase()) {
+      case 'critical':
+      case 'immediate':
+      case 'emergency':
+        return 'bg-red-600 text-white'; 
+      case 'high':
+      case 'urgent':
+        return 'bg-orange-500 text-white'; 
+      case 'moderate':
+        return 'bg-yellow-400 text-black'; 
+      default:
+        return 'bg-green-500 text-white'; 
+    }
   };
 
   if (loading) return <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"><div className="bg-white rounded p-8">Loading...</div></div>;
@@ -306,25 +316,44 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
                 <div className="flex-1">
                     <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-4">SSESSMENT</h3>
                     <div className="space-y-6">
+                      {/* --- CHANGE: Add Hero Banner here too --- */}
+                        <div className={`${getUrgencyBadgeColor(report.plan?.severityLevel)} p-6 rounded-sm mb-8 flex justify-between items-center shadow-md`}>
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest opacity-80">AI Risk Classification</p>
+                                <h2 className="text-2xl font-black">{report.plan?.severityLevel?.toUpperCase()}</h2>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-[10px] font-bold opacity-80 italic uppercase underline">Suggested Action</p>
+                                <p className="text-sm font-bold">{report.plan?.action_timeline || "Urgent Review"}</p>
+                            </div>
+                        </div>
+
+                        <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-4 uppercase">Potential Considerations (Differentials)</h3>
+                        {/* --- END HERO BANNER --- */}
                         {diagnoses.length > 0 ? (
+                          
                             diagnoses.map((diag, i) => (
                                 <div key={i} className="bg-gray-50 p-4 rounded-lg border border-gray-100">
                                     <div className="flex justify-between items-start mb-2">
                                         <p className="font-bold text-lg text-black">{i + 1}. {diag.condition || diag.name}</p>
-                                        <span className={`px-3 py-1 rounded text-xs font-bold ${getLikelihoodColor(diag.likelihood_percentage || diag.confidence * 100)}`}>
-                                            {Math.round(diag.likelihood_percentage || (diag.confidence * 100) || 0)}%
+                                        <span className="text-[10px] font-black text-[#815FB3] uppercase tracking-widest">
+                                            {diag.match_level || "Impression"}
                                         </span>
                                     </div>
+                                    <p className="text-gray-700 text-sm mb-4 italic leading-relaxed">
+                                        {diag.description}
+                                    </p>
+                                    
                                     <ul className="list-none space-y-1 text-sm text-gray-700">
-                                        <li><span className="font-semibold text-gray-900">Description:</span> {diag.description}</li>
-                                        <li><span className="font-semibold text-gray-900">Matched Symptoms:</span> {Array.isArray(diag.matched_symptoms) ? diag.matched_symptoms.join(', ') : diag.matched_symptoms}</li>
-                                        <li><span className="font-semibold text-gray-900">Urgency:</span> {diag.urgency}</li>
+                                        
+                                        <li><span className="font-semibold text-gray-900">Symptoms Found:</span> {Array.isArray(diag.matched_symptoms) ? diag.matched_symptoms.join(', ') : diag.matched_symptoms}</li>
+                                        
                                         <li><span className="font-semibold text-gray-900">Contagious:</span> {diag.contagious ? 'Yes' : 'No'}</li>
                                     </ul>
                                 </div>
                             ))
                         ) : (
-                            <p>No assessment data available.</p>
+                            <p>No clinical differentials identified.</p>
                         )}
                     </div>
                 </div>
@@ -336,7 +365,7 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
                     <div className="w-12 h-12 bg-[#815FB3] text-white font-black text-3xl flex items-center justify-center rounded">P</div>
                 </div>
                 <div className="flex-1">
-                    <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-3">LAN</h3>
+                    <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-3 uppercase">Plan & Advice</h3>
                     
                     {/* 1. SEVERITY & AI EXPLANATION */}
                     <div className="mb-6 p-4 bg-gray-50 rounded border-l-4 border-[#815FB3]">

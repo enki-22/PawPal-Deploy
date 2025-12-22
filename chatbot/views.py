@@ -2126,13 +2126,16 @@ def _calculate_triage_assessment(emergency_data, severity, progression, predicti
     
     # 5. Default urgency calculation
     if severity == 'severe' or highest_disease_urgency == 'high':
-        overall_urgency = 'urgent'
+        overall_urgency = 'high'
         requires_care_within = '12-24 hours'
     elif severity == 'moderate' or progression == 'getting_worse':
         overall_urgency = 'moderate'
         requires_care_within = '24-48 hours'
+    elif severity == 'low' or severity == 'mild':
+        overall_urgency = 'low'
+        requires_care_within = 'Schedule regular appointment within 3-7 days'
     else:
-        overall_urgency = 'routine'
+        overall_urgency = 'moderate'
         requires_care_within = 'Schedule regular appointment within a few days'
     
     return {
@@ -2353,9 +2356,24 @@ def symptom_checker_predict(request):
                 )
             
             # Verify pet ownership if pet_id provided
+            pet_id = cleaned.get('pet_id')
+            pet = None
             if pet_id:
                 try:
                     pet = Pet.objects.get(id=pet_id, owner=user_obj)
+                    
+                    # Rule #3 & #8: Age-Aware Framing & Data Realism
+                    # Convert 0 to a clinical label so the AI understands it's a kitten/puppy
+                    cleaned['age'] = "Kitten/Puppy (Under 1 year)" if pet.age == 0 else f"{pet.age} years"
+                    
+                    # Rule #8: Sanitize Breed (Avoid "Breed: Cat")
+                    cleaned['breed'] = pet.breed if (pet.breed and pet.breed.lower() != 'cat') else "Mixed Breed"
+                    
+                    cleaned['pet_name'] = pet.name
+                    
+                    # Rule #8: Omit Blood Type unless it's specifically known (Owners usually don't know it)
+                    if pet.blood_type and pet.blood_type.lower() not in ['unknown', 'n/a', '']:
+                        cleaned['blood_type'] = pet.blood_type
                 except Pet.DoesNotExist:
                     return Response(
                         {
@@ -2370,6 +2388,8 @@ def symptom_checker_predict(request):
                 'pet_id': pet_id,
                 'pet_name': pet_name,
                 'species': species,
+                'breed': getattr(pet, 'breed', 'Unknown'), 
+                'age': getattr(pet, 'age', 'Unknown'),
                 'user_notes': user_notes.strip(),
                 'symptoms_list': [],  # Empty - will be extracted from user_notes
                 'urgency': 'moderate',  # Default
@@ -2403,6 +2423,10 @@ def symptom_checker_predict(request):
             if pet_id:
                 try:
                     pet = Pet.objects.get(id=pet_id, owner=user_obj)
+                    cleaned['age'] = pet.age
+                    cleaned['breed'] = pet.breed
+                    cleaned['sex'] = pet.sex    
+                    cleaned['pet_name'] = pet.name
                 except Pet.DoesNotExist:
                     return Response(
                         {
@@ -2448,9 +2472,12 @@ def symptom_checker_predict(request):
             
             for match in vector_result['predictions']:
                 disease_name = match['disease']
-                conf = match['probability']  # Already 0-1 range
+                conf = match.get('internal_probability', match.get('probability', 0.0))
+    
+                # Also capture our new match label for the UI
+                match_level = match.get('match_level', 'Possible consideration')
                 
-                logger.info(f"Processing disease {disease_name} with match: {match['confidence']:.1f}%")
+                logger.info(f"Processing disease {disease_name} with finding: {match_level}")
                 
                 # Build prediction object in existing format
                 matching_symptoms = match.get('matched_symptoms', [])
@@ -2887,10 +2914,10 @@ def create_ai_diagnosis(request):
         flag_level_map = {
             'critical': 'critical',
             'immediate': 'critical',
-            'high': 'urgent',
-            'urgent': 'urgent',
+            'high': 'high',
+            'urgent': 'high',
             'moderate': 'moderate',
-            'low': 'routine'
+            'low': 'low'
         }
         flag_level = flag_level_map.get(urgency_level, 'moderate')
         print("🔵 Step 4: Building SOAP data...")
@@ -3230,9 +3257,12 @@ def start_conversation_with_pet(request):
         
         # === FIX: Logic updated to handle optional pet_id ===
         if pet_id:
-            # Check if pet exists and belongs to user
             try:
                 pet = Pet.objects.get(id=pet_id, owner=user_obj)
+                # We don't need 'cleaned' here. We just need the pet object.
+                logger.info(f"Starting conversation for pet: {pet.name}")
+            except Pet.DoesNotExist:
+                pass
             except Pet.DoesNotExist:
                 return Response({
                     'success': False,
