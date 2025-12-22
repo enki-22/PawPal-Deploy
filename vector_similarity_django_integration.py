@@ -273,16 +273,25 @@ def predict_with_vector_similarity(payload):
                 # We define this helper locally to reuse it in both branches (Agreement AND Disagreement)
                 def enrich_secondary_predictions(preds, ai_result):
                     secondary_list = ai_result.get('secondary_advice', [])
+
+                    def clean_name(name):
+                        """Normalize name by removing emojis, prefixes, and extra whitespace."""
+                        if not name: return ""
+                        # Remove "⚠️ AI Assessment:", "⚠️ Potential Match:", etc.
+                        n = re.sub(r'⚠️\s*(AI Assessment|AI Corrected|Potential Match):\s*', '', name, flags=re.IGNORECASE)
+                        # Remove common punctuation and lowercase
+                        n = re.sub(r'[^\w\s]', '', n).lower().strip()
+                        return n
                     # Start from index 1 (since index 0 is the primary diagnosis)
                     for i in range(1, len(preds)):
                         curr = preds[i]
-                        p_name = curr.get('disease', '').lower()
+                        p_name_clean = clean_name(curr.get('disease', ''))
                         
                         matched_advice = None
                         # Fuzzy match advice to disease name
                         for item in secondary_list:
-                            adv_name = item.get('disease', '').lower()
-                            if adv_name in p_name or p_name in adv_name:
+                            adv_name_clean = clean_name(item.get('disease', ''))
+                            if adv_name_clean and (adv_name_clean in p_name_clean or p_name_clean in adv_name_clean):
                                 matched_advice = item
                                 break
                         
@@ -304,8 +313,31 @@ def predict_with_vector_similarity(payload):
                 is_db_empty = not predictions
                 ai_found_something = alt_diag and alt_diag.get('name')
                 
-                if not verification_result['agreement'] or (is_db_empty and ai_found_something):
-                    found_match = False
+                if not verification_result.get('agreement') or (is_db_empty and ai_found_something):
+    
+                    # 1. Handle Empty DB Case: Inject AI diagnosis into predictions
+                    if is_db_empty and ai_found_something:  
+                        predictions.append({
+                            'disease': f"⚠️ AI Suggested: {alt_diag.get('name')}",
+                            'confidence': 0.5, # Default confidence for AI-only leads
+                            'care_guidelines': alt_diag.get('what_to_do'),
+                            'when_to_see_vet': alt_diag.get('see_vet_if')
+                        })
+                    
+                    # 2. Handle Disagreement Case (DB had results, but AI thinks they are wrong)
+                    elif not is_db_empty:
+                        # Now it's safe to access predictions[0]
+                        new_top_name = clean_name_for_matching(predictions[0]['disease'])
+                        
+                        # Try to find the specific advice for the top disease from the secondary_advice
+                        for advice_item in verification_result.get('secondary_advice', []):
+                            if clean_name_for_matching(advice_item.get('disease')) in new_top_name:
+                                predictions[0]['care_guidelines'] = advice_item.get('what_to_do')
+                                predictions[0]['when_to_see_vet'] = advice_item.get('see_vet_if')
+                                break
+                    
+                    # 3. Enrich other predictions (Change B standard)
+                    enrich_secondary_predictions(predictions, verification_result)
                     
                     if alt_diag and alt_diag.get('name'):
                         alt_disease_name = alt_diag['name']
@@ -650,7 +682,7 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
         },
         "plan": {
             "severityLevel": final_severity,
-            "aiExplanation": verification_result.get("severity_explanation", f"Classified as {final_severity}"),
+            "aiExplanation": verification_result.get("severity_explanation") or verification_result.get("reasoning") or f"Classified as {final_severity}",
             "careAdvice": care_advice,
             "action_timeline": final_timeline
         }

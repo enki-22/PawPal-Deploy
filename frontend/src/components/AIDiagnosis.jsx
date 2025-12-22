@@ -44,10 +44,17 @@ const AIDiagnosis = () => {
   } = useConversations();
 
   const severityColors = {
+    // Existing
     low: 'bg-green-100 text-green-800',
     moderate: 'bg-yellow-100 text-yellow-800',
     high: 'bg-orange-100 text-orange-800',
-    critical: 'bg-red-100 text-red-800'
+    critical: 'bg-red-100 text-red-800',
+    
+    // Add these missing mappings
+    routine: 'bg-green-100 text-green-800',     // Map routine to low (green)
+    urgent: 'bg-orange-100 text-orange-800',    // Map urgent to high (orange)
+    immediate: 'bg-red-100 text-red-800',       // Map immediate to critical (red)
+    emergency: 'bg-red-100 text-red-800',       // Map emergency to critical (red)
   };
 
   const fetchDiagnoses = useCallback(async (page = 1) => {

@@ -247,9 +247,10 @@ class DiagnosisVerifier:
             You MUST return your analysis in this EXACT JSON structure. Do not skip any fields.
             {{
                 "agreement": boolean, 
-                "reasoning": "Explain your clinical logic AND cite the Alignment Rubric level you chose.", 
+                "reasoning": "Explain your clinical logic AND cite the Alignment Rubric level you chose.Cite Rule #2 here.", 
                 "risk_assessment": "CRITICAL" | "HIGH" | "MODERATE" | "LOW", 
                 "missed_red_flags": ["list", "of", "danger", "signs"],
+                "severity_explanation": "REQUIRED: JUSTIFY risk based on signalment (e.g., 'HIGH risk due to kitten age').",
 
                 "clinical_summary": "REQUIRED: A rich 3-4 sentence narrative summarizing signalment, user notes, and symptoms. Use the pet's name.",
                 "care_advice": [

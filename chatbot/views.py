@@ -2126,13 +2126,16 @@ def _calculate_triage_assessment(emergency_data, severity, progression, predicti
     
     # 5. Default urgency calculation
     if severity == 'severe' or highest_disease_urgency == 'high':
-        overall_urgency = 'urgent'
+        overall_urgency = 'high'
         requires_care_within = '12-24 hours'
     elif severity == 'moderate' or progression == 'getting_worse':
         overall_urgency = 'moderate'
         requires_care_within = '24-48 hours'
+    elif severity == 'low' or severity == 'mild':
+        overall_urgency = 'low'
+        requires_care_within = 'Schedule regular appointment within 3-7 days'
     else:
-        overall_urgency = 'routine'
+        overall_urgency = 'moderate'
         requires_care_within = 'Schedule regular appointment within a few days'
     
     return {
@@ -2911,10 +2914,10 @@ def create_ai_diagnosis(request):
         flag_level_map = {
             'critical': 'critical',
             'immediate': 'critical',
-            'high': 'urgent',
-            'urgent': 'urgent',
+            'high': 'high',
+            'urgent': 'high',
             'moderate': 'moderate',
-            'low': 'routine'
+            'low': 'low'
         }
         flag_level = flag_level_map.get(urgency_level, 'moderate')
         print("🔵 Step 4: Building SOAP data...")
