@@ -321,21 +321,21 @@ const Chat = () => {
   }, [location.state]);
 
   // Main Effect to handle URL changes
+  // Main Effect to handle URL changes
   useEffect(() => {
-      fetchConversations();
+    if (!authLoading && token) {
+      // fetchConversations(); <--- REMOVE THIS LINE
       
-      // Always reset state and start new session when URL changes
-      // BUT: Don't reset if we're coming from symptom tracker with state
       if (!location.state || location.state.mode !== 'symptom_checker') {
         startNewSession();
       }
       
       if (conversationId && conversationId !== 'new') {
-        // If it's a real ID, load it
         loadConversation(conversationId);
       } 
-      // If 'new', startNewSession already cleared everything (unless we have location state).
-    }, [fetchConversations, conversationId, loadConversation, startNewSession, location.state]);
+    }
+  }, [conversationId, loadConversation, startNewSession, location.state, authLoading, token]); 
+  // removed fetchConversations from dependencies above
 
   // --- HANDLERS ---
 
