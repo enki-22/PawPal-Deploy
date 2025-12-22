@@ -178,7 +178,7 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
                 </h4>
                 <div className="text-sm text-gray-600 mt-1 space-y-1">
                   <div>
-                    <span className="font-semibold">Confidence:</span> {Math.round((prediction.confidence || prediction.likelihood || 0) * 100)}% match
+                    <span className="font-semibold">Assessment Finding:</span> {prediction.match_level || "Triage consideration"}
                   </div>
                   <div>
                     <span className="font-semibold">Urgency:</span> {getUrgencyColor(prediction.urgency)} {getUrgencyText(prediction.urgency)}

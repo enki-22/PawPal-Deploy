@@ -2370,6 +2370,8 @@ def symptom_checker_predict(request):
                 'pet_id': pet_id,
                 'pet_name': pet_name,
                 'species': species,
+                'breed': getattr(pet, 'breed', 'Unknown'), 
+                'age': getattr(pet, 'age', 'Unknown'),
                 'user_notes': user_notes.strip(),
                 'symptoms_list': [],  # Empty - will be extracted from user_notes
                 'urgency': 'moderate',  # Default
@@ -2403,6 +2405,10 @@ def symptom_checker_predict(request):
             if pet_id:
                 try:
                     pet = Pet.objects.get(id=pet_id, owner=user_obj)
+                    cleaned['age'] = pet.age
+                    cleaned['breed'] = pet.breed
+                    cleaned['sex'] = pet.sex    
+                    cleaned['pet_name'] = pet.name
                 except Pet.DoesNotExist:
                     return Response(
                         {
@@ -2448,9 +2454,12 @@ def symptom_checker_predict(request):
             
             for match in vector_result['predictions']:
                 disease_name = match['disease']
-                conf = match['probability']  # Already 0-1 range
+                conf = match.get('internal_probability', match.get('probability', 0.0))
+    
+                # Also capture our new match label for the UI
+                match_level = match.get('match_level', 'Possible consideration')
                 
-                logger.info(f"Processing disease {disease_name} with match: {match['confidence']:.1f}%")
+                logger.info(f"Processing disease {disease_name} with finding: {match_level}")
                 
                 # Build prediction object in existing format
                 matching_symptoms = match.get('matched_symptoms', [])

@@ -212,20 +212,36 @@ def predict_with_vector_similarity(payload):
         for match in result['top_matches']:
             if match['match_percentage'] < 50:
                 continue
+            score = match['match_percentage']
+            if score >= 90:
+                match_label = "Strong triage alignment"
+            elif score >= 70:
+                match_label = "Consistent with presentation"
+            else:
+                match_label = "Possible consideration"
             predictions.append({
                 'disease': match['disease'],
-                'probability': match['match_percentage'] / 100,
-                'confidence': match['match_percentage'],
+                'match_level': match_label,
                 'urgency': match['base_urgency'],
                 'contagious': match['contagious'],
                 'matched_symptoms': match['matched_symptoms'],
                 'match_explanation': f"Matched {len(match['matched_symptoms'])} symptoms",
+                
+                
+
+                # Keep these for INTERNAL backend logic only (like sorting or flag triggers)
+                'internal_probability': match['match_percentage'] / 100, 
                 'total_symptoms': match['total_disease_symptoms'],
                 'is_external': False
             })
         
         # === MEMORY UPGRADE ===
-        context_data = {}
+        context_data = {
+            'age': payload.get('age', 'Unknown'),    
+            'breed': payload.get('breed', 'Unknown'), 
+            'sex': payload.get('sex', 'Unknown'),
+
+        }
         pet_id = payload.get('pet_id')
         if pet_id:
             try:
@@ -538,11 +554,16 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
             verification_result.get('risk') or 
             'Moderate'
         )
+        clinical_description = details.get('description')
+        if not clinical_description or "consistent with" in clinical_description.lower():
+            # Dynamically use the first symptom or a generic fallback
+            primary_sign = formatted_symptoms[0] if formatted_symptoms else 'the reported signs'
+            clinical_description = f"This condition may cause {primary_sign}, but cannot be confirmed without veterinary evaluation."
 
         diagnoses_output.append({
             "condition": name,
-            "likelihood_percentage": float(conf),
-            "description": details.get('description', f"Condition consistent with clinical presentation."),
+            "match_level": pred.get('match_level', "Clinical Consideration"),
+            "description": clinical_description,
             "matched_symptoms": final_matched, # FIX 3: Pass the formatted list
             "urgency": diag_urgency,
             "contagious": details.get('contagious', False)
