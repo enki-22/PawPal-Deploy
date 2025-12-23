@@ -307,7 +307,7 @@ const ProfileSettings = () => {
         formData.append('profile_picture', selectedFile);
       }
 
-      const response = await axios.patch(`${API_BASE_URL}/users/account/`, formData, {
+      const response = await axios.patch(`${API_BASE_URL}/users/settings-data/`, formData, {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
           'Content-Type': 'multipart/form-data', // Crucial for image upload
@@ -328,9 +328,14 @@ const ProfileSettings = () => {
         try {
           const picPath = response.data.profile?.profile_picture || null;
           const returnedUsername = response.data.username || profileData.username || null;
+          // Send the full URL in the event so it works immediately without a refresh
           const detail = {};
           if (picPath) {
-            detail.profile_picture = picPath.startsWith('http') ? picPath : `${API_BASE_URL.replace('/api', '')}${picPath}`;
+            // Use getImageUrl to construct the full URL
+            const fullUrl = picPath.startsWith('http') 
+              ? picPath 
+              : `${API_BASE_URL.replace('/api', '')}${picPath.startsWith('/') ? picPath : `/${picPath}`}`;
+            detail.profile_picture = fullUrl;
           }
           if (returnedUsername) {
             detail.username = returnedUsername;
