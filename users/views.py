@@ -209,7 +209,12 @@ def user_profile_api(request):
         serializer = UserProfileSerializer(profile, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response({
+                'success': True,
+                'username': user.username,
+                'profile': serializer.data
+            }, status=status.HTTP_200_OK)
+            
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
