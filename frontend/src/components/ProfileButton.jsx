@@ -4,9 +4,13 @@ import { useNavigate } from 'react-router-dom';
 
 const ProfileButton = ({ onLogoutClick }) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  // Remove local showLegalModal state
   const { user } = useAuth();
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
+  
+  // FIX: Use a dedicated base URL logic consistent with AuthContext
+  // If REACT_APP_API_URL is set (e.g. http://127.0.0.1:8000), use it directly.
+  // Otherwise, default to the backend root.
+  const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+  
   const [profileImg, setProfileImg] = useState(null);
   const [usernameDisplay, setUsernameDisplay] = useState(user?.username || 'User');
   const navigate = useNavigate();
@@ -24,16 +28,23 @@ const ProfileButton = ({ onLogoutClick }) => {
     };
   }, [dropdownVisible]);
 
-  // Keep local profile image in sync with auth user and custom events
+  // Helper function to construct image URL
+  const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http') || path.startsWith('blob:') || path.startsWith('data:')) {
+      return path;
+    }
+    // Ensure path starts with / if API_ROOT doesn't end with /
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    return `${API_ROOT}${normalizedPath}`;
+  };
+
   useEffect(() => {
     if (user) {
       setUsernameDisplay(user.username || 'User');
     }
     if (user && user.profile && user.profile.profile_picture) {
-      const pic = user.profile.profile_picture.startsWith('http')
-        ? user.profile.profile_picture
-        : `${API_BASE_URL.replace('/api', '')}${user.profile.profile_picture}`;
-      setProfileImg(pic);
+      setProfileImg(getImageUrl(user.profile.profile_picture));
     } else {
       setProfileImg(null);
     }
@@ -41,11 +52,7 @@ const ProfileButton = ({ onLogoutClick }) => {
     const handler = (e) => {
       const detail = e.detail || {};
       if (detail.profile_picture) {
-        const val = detail.profile_picture;
-        // Accept absolute http/https, blob: and data: URLs as-is; otherwise prefix API base
-        const isAbsolute = /^(https?:|blob:|data:)/.test(val);
-        const pic = isAbsolute ? val : `${API_BASE_URL.replace('/api', '')}${val}`;
-        setProfileImg(pic);
+        setProfileImg(getImageUrl(detail.profile_picture));
       }
       if (detail.username) {
         setUsernameDisplay(detail.username);
@@ -54,7 +61,7 @@ const ProfileButton = ({ onLogoutClick }) => {
 
     window.addEventListener('profileUpdated', handler);
     return () => window.removeEventListener('profileUpdated', handler);
-  }, [user, API_BASE_URL]);
+  }, [user, API_ROOT]); // Dependency updated to API_ROOT
 
   const handleLogout = () => {
     if (onLogoutClick) {
@@ -85,7 +92,6 @@ const ProfileButton = ({ onLogoutClick }) => {
           {usernameDisplay}
         </span>
         <div className="w-6 h-6 md:w-8 md:h-8 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
-          {/* Show profile image if available, else placeholder */}
           {profileImg ? (
             <img src={profileImg} alt="avatar" className="w-full h-full object-cover" />
           ) : (
@@ -129,7 +135,6 @@ const ProfileButton = ({ onLogoutClick }) => {
           </button>
         </div>
       )}
-        {/* LegalModal is now rendered globally in App.js */}
     </div>
   );
 };
