@@ -2,7 +2,7 @@ import axios from 'axios';
 
 //const API_BASE_URL = 'http://localhost:8000';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -29,7 +29,7 @@ export const authService = {
     localStorage.removeItem('token');
     return api.post('/api/users/logout/');
   },
-  getProfile: () => api.get('/api/users/profile/'),
+  getProfile: () => api.get('/api/users/settings-data/'),
   // New OTP-based auth endpoints (spec)
   registerWithOtp: (userData) => api.post('/api/auth/register', userData),
   sendOtp: (payload) => api.post('/api/auth/send-otp', payload),
