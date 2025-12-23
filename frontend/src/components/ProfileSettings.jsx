@@ -99,7 +99,9 @@ const ProfileSettings = () => {
     handleDeleteConversation
   } = useConversations();
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api';
+  //const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api';
+  const rawUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api';
+  const API_BASE_URL = rawUrl.endsWith('/api') ? rawUrl : `${rawUrl}/api`;
 
   // Shared input class for typing fields to match requested underline style
   // Use smaller vertical padding and base text size so the input doesn't enlarge the row
