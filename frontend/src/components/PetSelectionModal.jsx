@@ -11,10 +11,19 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
   const { token } = useAuth();
   const navigate = useNavigate();
 
-  // API Base URL
-  //const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api';
-const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
-const API_BASE_URL = `${API_ROOT}/api`;
+  // Environment-aware API roots
+  const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+  const API_BASE_URL = `${API_ROOT}/api`;
+
+  // Helper to ensure we have an absolute URL for images
+  const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http') || path.startsWith('blob:') || path.startsWith('data:')) {
+      return path;
+    }
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    return `${API_ROOT}${normalizedPath}`;
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -168,30 +177,16 @@ const API_BASE_URL = `${API_ROOT}/api`;
                     <div className="w-14 h-14 rounded-lg overflow-hidden border border-gray-300 mr-3 flex items-center justify-center bg-gray-100" style={{ minWidth: '56px', minHeight: '56px' }}>
                       {pet.photo ? (
                         <img
-                          src={pet.photo}
+                          src={getImageUrl(pet.photo)}
                           alt={pet.name}
                           className="w-full h-full object-cover"
-                          style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
-                          onError={e => {
-                            e.target.style.display = 'none';
-                            if (e.target.nextSibling) {
-                              e.target.nextSibling.style.display = 'flex';
-                            }
-                          }}
+                          onError={(e) => { e.target.src = '/pawpalicon.png'; }}
                         />
-                      ) : null}
-                      <span
-                        className="w-full h-full text-3xl letter-fallback flex items-center justify-center"
-                        style={{
-                          display: pet.photo ? 'none' : 'flex',
-                          background: '#E9E6F2',
-                          color: '#815FB3',
-                          fontWeight: 700,
-                          fontFamily: 'Raleway'
-                        }}
-                      >
-                        {pet.name && typeof pet.name === 'string' ? pet.name.charAt(0).toUpperCase() : '?'}
-                      </span>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-[#E9E6F2] text-[#815FB3] font-bold text-xl">
+                          {pet.name?.charAt(0).toUpperCase()}
+                        </div>
+                      )}
                     </div>
                     <div className="flex flex-col justify-center" style={{ textAlign: 'left' }}>
                       <div className="font-medium text-[#34113F] text-left" style={{ textAlign: 'left' }}>{pet.name}</div>
