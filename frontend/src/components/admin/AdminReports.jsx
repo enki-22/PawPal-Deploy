@@ -154,7 +154,7 @@ const AdminReports = () => {
       {/* Controls Bar - Title, Search centered, Filters right */}
       <div className="px-[129px] pt-[28px] pb-0 bg-transparent">
         <div className="flex items-center justify-between w-full mb-2">
-          <h1 className="font-['Raleway:Bold',sans-serif] font-bold text-[20px] text-black tracking-[1px]">AI Diagnosis</h1>
+          <h1 className="font-['Raleway:Bold',sans-serif] font-bold text-[20px] text-black tracking-[1px]">AI Triage Summaries</h1>
           <div className="flex items-center gap-4">
             {/* Search Bar */}
             <div className="relative">

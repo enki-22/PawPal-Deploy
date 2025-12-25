@@ -610,12 +610,11 @@ export default function LandingPage() {
                 className="w-8 h-8 md:w-10 md:h-10 object-contain" 
               />
               <h3 className="text-lg md:text-xl font-bold text-[#181818]">
-                Pet Health Records
+                Pet Profiles
               </h3>
               <p className="text-sm md:text-[15px] text-[#444] leading-relaxed">
                 Keep track of vaccinations, medications, vet visits, and
-                health milestones all in one place. Set reminders for upcoming
-                appointments and medication schedules.
+                health milestones all in one place. Use your pet’s profile to provide context and improve the chatbot’s guidance.
               </p>
             </motion.div>
           </div>

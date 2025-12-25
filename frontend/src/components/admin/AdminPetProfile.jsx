@@ -467,7 +467,7 @@ const AdminPetProfile = () => {
             {/* AI Diagnosis Section - Admin Format, filtered by petId */}
             <div className="rounded-lg p-6" style={{ background: '#FFFFF2', borderRadius: '10px' }}>
               <h3 className="mb-4" style={{ fontFamily: 'Raleway', fontSize: '20px', fontWeight: 600, color: '#333333' }}>
-                AI Assessments
+                AI Triage Assessments
               </h3>
               {(() => {
                 // Normalize petId for comparison
@@ -508,7 +508,7 @@ const AdminPetProfile = () => {
                 ) : (
                   <div className="text-center py-8">
                     <p style={{ fontFamily: 'Raleway', fontSize: '14px', fontWeight: 400, color: '#999999' }}>
-                      No AI diagnosis found for this pet.
+                      No Triage Summaries found for this pet.
                     </p>
                   </div>
                 );

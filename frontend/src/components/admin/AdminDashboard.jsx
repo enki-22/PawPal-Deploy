@@ -24,7 +24,7 @@ const AdminDashboard = () => {
   const stats = [
   { label: 'Users', value: userCount, icon: '/Group 129.png' },
   { label: 'Pets', value: petCount, icon: '/pets logo.png' },
-  { label: 'SOAP Reports', value: soapCount, icon: '/soap reports.png' },
+  { label: 'Triage Summaries', value: soapCount, icon: '/soap reports.png' },
   { label: 'Conversations', value: conversationCount, icon: '/conversations.png' },
   ];
 
@@ -208,11 +208,11 @@ const AdminDashboard = () => {
               <div className="absolute left-4 top-4 w-16 h-16 bg-[#EFE8BE] rounded-full shadow flex items-center justify-center">
                 <img src={stat.icon} alt={stat.label} className="w-12 h-12 object-contain" />
               </div>
-              {(stat.label === 'SOAP Reports' || stat.label === 'Conversations') && (
+              {(stat.label === 'Triage Summaries' || stat.label === 'Conversations') && (
                 <div className="absolute right-4 top-4 bg-[#EFE8BE] rounded px-2 py-1 flex items-center justify-center cursor-pointer">
                   <select
-                    value={stat.label === 'SOAP Reports' ? soapFilter : conversationFilter}
-                    onChange={stat.label === 'SOAP Reports'
+                    value={stat.label === 'Triage Summaries' ? soapFilter : conversationFilter}
+                    onChange={stat.label === 'Triage Summaries'
                       ? (e) => setSoapFilter(e.target.value)
                       : (e) => setConversationFilter(e.target.value)
                     }
@@ -328,7 +328,7 @@ const AdminDashboard = () => {
                     onClick={() => navigate('/admin/reports')}
                     className="bg-[#f0e4b3] rounded-lg px-6 py-2 shadow font-raleway font-extrabold text-[#34113f] tracking-wide cursor-pointer hover:bg-[#e8d9a0] transition-colors"
                   >
-                    View All Flagged SOAP Reports
+                    View All Triage Summaries
                   </button>
                 </div>
                 <div className="flex-1 overflow-y-auto min-h-0">
@@ -497,7 +497,7 @@ const AdminDashboard = () => {
                   onClick={() => navigate('/admin/reports')}
                   className="mt-2 w-full bg-[#efe8be] rounded py-1 text-xs font-bold text-[#57166B] cursor-pointer hover:bg-[#e5dba8] transition-colors"
                 >
-                  View All SOAP Reports
+                  View All Triage Summaries
                 </button>
               </div>
               {/* Announcement Management */}

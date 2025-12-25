@@ -65,7 +65,7 @@ const Sidebar = ({
   const menuItems = [
     {
       id: 'ai-assessments',
-      label: 'AI Assessments',
+      label: 'Triage Summary',
       path: '/ai-assessments',
       icon: (
         <img 
@@ -98,7 +98,7 @@ const Sidebar = ({
     },
     {
       id: 'pet-health-records',
-      label: 'Pet Health Records',
+      label: 'Pet Profiles',
       path: '/pet-health-records',
       icon: (
         <img 

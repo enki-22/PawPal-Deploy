@@ -247,7 +247,7 @@
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="text-[#815FB3] font-bold text-lg">{d.condition || d.name}</h3>
                       <span className="text-[10px] font-black text-gray-500 border border-gray-300 px-2 py-1 rounded uppercase  ">
-                          {d.match_level || "Clinical Consideration"}
+                          {d.match_level || "Potential Consideration"}
                       </span>
                     </div>
                     <p className="text-gray-700 text-sm mb-4 leading-relaxed italic border-l-4 border-[#815FB3]/20 pl-4">

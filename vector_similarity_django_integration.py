@@ -19,6 +19,19 @@ logger = logging.getLogger(__name__)
 _triage_engine = None
 _diagnosis_verifier = None
 
+
+def clean_name_for_matching(name):
+    """
+    Normalizes condition names for comparison.
+    Removes prefixes like '⚠️ AI Assessment:' and special characters.
+    """
+    if not name:
+        return ""
+    # Remove AI prefixes
+    n = re.sub(r'⚠️\s*(AI Assessment|AI Corrected|Potential Match|AI Suggested):\s*', '', str(name), flags=re.IGNORECASE)
+    # Remove everything except alphanumeric and lowercase
+    return re.sub(r'[^a-zA-Z0-9]', '', n).lower().strip()
+
 def get_triage_engine():
     global _triage_engine
     if _triage_engine is None:
@@ -274,14 +287,8 @@ def predict_with_vector_similarity(payload):
                 def enrich_secondary_predictions(preds, ai_result):
                     secondary_list = ai_result.get('secondary_advice', [])
 
-                    def clean_name(name):
-                        """Normalize name by removing emojis, prefixes, and extra whitespace."""
-                        if not name: return ""
-                        # Remove "⚠️ AI Assessment:", "⚠️ Potential Match:", etc.
-                        n = re.sub(r'⚠️\s*(AI Assessment|AI Corrected|Potential Match):\s*', '', name, flags=re.IGNORECASE)
-                        # Remove common punctuation and lowercase
-                        n = re.sub(r'[^\w\s]', '', n).lower().strip()
-                        return n
+                    def clean_name(name): 
+                        return clean_name_for_matching(name)
                     # Start from index 1 (since index 0 is the primary diagnosis)
                     for i in range(1, len(preds)):
                         curr = preds[i]
@@ -341,6 +348,8 @@ def predict_with_vector_similarity(payload):
                     
                     if alt_diag and alt_diag.get('name'):
                         alt_disease_name = alt_diag['name']
+
+                        found_match = False
                         for idx, pred in enumerate(predictions):
                             pred_disease_clean = pred.get('disease', '').replace('⚠️ Potential Match: ', '').replace('⚠️ AI Corrected: ', '').strip()
                             
@@ -594,7 +603,7 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
 
         diagnoses_output.append({
             "condition": name,
-            "match_level": pred.get('match_level', "Clinical Consideration"),
+            "match_level": pred.get('match_level', "Potential Consideration"),
             "description": clinical_description,
             "matched_symptoms": final_matched, # FIX 3: Pass the formatted list
             "urgency": diag_urgency,
