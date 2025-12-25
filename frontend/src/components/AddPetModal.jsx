@@ -23,10 +23,11 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
     other: [
       { value: 'Unknown', label: 'Unknown' },
     ],
-    hamster: [ { value: 'Unknown', label: 'Unknown' } ],
+    /* hamster: [ { value: 'Unknown', label: 'Unknown' } ],
     bird: [ { value: 'Unknown', label: 'Unknown' } ],
     rabbit: [ { value: 'Unknown', label: 'Unknown' } ],
     fish: [ { value: 'Unknown', label: 'Unknown' } ],
+    */
   };
   const initialPetState = {
     name: '',
@@ -314,10 +315,12 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
                         <option value="" disabled hidden>Species</option>
                         <option value="cat">Cat</option>
                         <option value="dog">Dog</option>
+                        {/* Commented out for Capstone Scope
                         <option value="hamster">Hamster</option>
                         <option value="bird">Bird</option>
                         <option value="rabbit">Rabbit</option>
                         <option value="fish">Fish</option>
+                        */}
                         {/* The "Other" option has been removed per your request */}
                       </select>
                     </div>

@@ -314,10 +314,12 @@ const PetHealthRecords = () => {
                 <option value="">All Animals</option>
                 <option value="cat">Cat</option>
                 <option value="dog">Dog</option>
+                {/* Commented out for now
                 <option value="hamster">Hamster</option>
                 <option value="bird">Bird</option>
                 <option value="rabbit">Rabbit</option>
                 <option value="fish">Fish</option>
+                */}
               </select>
 
               {/* Sex Filter */}
