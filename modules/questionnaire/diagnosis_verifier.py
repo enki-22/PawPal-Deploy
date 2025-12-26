@@ -191,7 +191,7 @@ class DiagnosisVerifier:
             medical_history = context_data.get('medical_history', '')
             
             prompt = f"""
-            Act as a Senior Veterinary Diagnostician. Analyze the Patient Data below.
+            Act as a Clinical Decision Support Tool. Analyze the Patient Data below.
 
             PATIENT DATA:
             - Species: {species}
@@ -208,6 +208,8 @@ class DiagnosisVerifier:
             2. **CLINICAL DISCLAIMER:** For every condition, DO NOT say "Consistent with presentation." 
             Instead use: "This condition may cause [symptom], but cannot be confirmed without veterinary evaluation."
             3. **RE-RANKING:** If the Database Predictions are logically poorly ordered for this pet's age/breed, set `agreement` to false and provide a logically re-ordered list in `alternative_diagnosis`.
+            4. **MANDATORY** The 'name' provided in 'alternative_diagnosis' MUST match the primary condition you argued for in your 'reasoning' and 'clinical_summary'.
+            5. **CLINICAL AUTONOMY:** If the Database Predictions are missing the most clinically likely condition for this pet's age/breed/symptoms, set `agreement` to false. In `alternative_diagnosis`, provide the name of the disease you believe is MOST accurate (e.g., "Fleas"), even if it is not in the provided database list.
             
 
             *** CLINICAL ALIGNMENT RUBRIC (STRICTLY FOLLOW) ***
@@ -261,8 +263,8 @@ class DiagnosisVerifier:
                 "severity_explanation": "REQUIRED: Specific explanation of why this risk level was chosen.",
                 "symptoms_consistent": ["Symptom A", "Symptom B"],
 
-                "what_to_do_specific": "REQUIRED: 2-3 specific immediate steps for THIS condition",
-                "see_vet_if_specific": "REQUIRED: 2-3 specific worsening signs for THIS condition",
+                "what_to_do_specific": "MANDATORY: 2-3 specific immediate steps for THIS condition",
+                "see_vet_if_specific": "MANDATORY: 2-3 specific worsening signs for THIS condition",
 
                 "secondary_advice": [
                     {{
@@ -280,13 +282,13 @@ class DiagnosisVerifier:
                 ],
 
                 "alternative_diagnosis": {{
-                "name": "Most Accurate Disease Name (if disagreement)",
-                "is_in_database": boolean,
-                "match_level": "Strong clinical alignment" | "Consistent with presentation" | "Possible consideration",
+                "name": "Most probable condition you considered. (if disagreement)",
+                "is_in_database": boolean, (Set to false if this name wasn't in the provided list)
+                "match_level":  "Possible consideration",
                 "matched_symptoms": ["Specific Symptom 1", "Specific Symptom 2"]
                 }}
             }}
-            """
+            """ 
             return prompt
         
         def _extract_json_from_response(self, response_text: str) -> str:

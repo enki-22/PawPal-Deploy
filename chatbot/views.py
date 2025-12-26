@@ -2611,7 +2611,7 @@ def symptom_checker_predict(request):
                 
                 predictions.append(prediction_obj)
 
-            predictions.sort(key=lambda x: x['confidence'], reverse=True)
+            #predictions.sort(key=lambda x: x['confidence'], reverse=True)
             
             logger.info(f"Vector similarity returned {len(predictions)} predictions")
             
@@ -2866,7 +2866,7 @@ def create_ai_diagnosis(request):
             suggested_diagnoses.append({
                 'condition_name': pred.get('disease', pred.get('label', 'Unknown')),
                 'likelihood_percentage': pred.get('confidence', 0) * 100,
-                'description': pred.get('recommendation', f"AI-suggested condition based on symptoms"),
+                'description': pred.get('description', f"AI-suggested condition based on symptoms"),
                 'urgency_level': pred.get('urgency', urgency_level),
                 'contagious': pred.get('contagious', False),
                 'red_flags': pred.get('red_flags', []),

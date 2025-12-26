@@ -286,15 +286,24 @@ def predict_with_vector_similarity(payload):
                 # We define this helper locally to reuse it in both branches (Agreement AND Disagreement)
                 def enrich_secondary_predictions(preds, ai_result):
                     secondary_list = ai_result.get('secondary_advice', [])
+                    alt_diag = ai_result.get('alternative_diagnosis') or {}
+                    alt_name = clean_name_for_matching(alt_diag.get('name', ''))
 
                     def clean_name(name): 
                         return clean_name_for_matching(name)
                     # Start from index 1 (since index 0 is the primary diagnosis)
-                    for i in range(1, len(preds)):
+                    for i in range(len(preds)):
                         curr = preds[i]
                         p_name_clean = clean_name(curr.get('disease', ''))
                         
                         matched_advice = None
+
+                        # Check 1: Is this the AI's primary correction?
+                        if alt_name and (alt_name in p_name_clean or p_name_clean in alt_name):
+                            curr['care_guidelines'] = ai_result.get('what_to_do_specific') or curr.get('care_guidelines')
+                            curr['when_to_see_vet'] = ai_result.get('see_vet_if_specific') or curr.get('when_to_see_vet')
+                            preds[i] = curr
+                            continue
                         # Fuzzy match advice to disease name
                         for item in secondary_list:
                             adv_name_clean = clean_name(item.get('disease', ''))
@@ -321,119 +330,41 @@ def predict_with_vector_similarity(payload):
                 ai_found_something = alt_diag and alt_diag.get('name')
                 
                 if not verification_result.get('agreement') or (is_db_empty and ai_found_something):
-    
-                    # 1. Handle Empty DB Case: Inject AI diagnosis into predictions
-                    if is_db_empty and ai_found_something:  
-                        predictions.append({
-                            'disease': f"⚠️ AI Suggested: {alt_diag.get('name')}",
-                            'confidence': 0.5, # Default confidence for AI-only leads
-                            'care_guidelines': alt_diag.get('what_to_do'),
-                            'when_to_see_vet': alt_diag.get('see_vet_if')
-                        })
-                    
-                    # 2. Handle Disagreement Case (DB had results, but AI thinks they are wrong)
-                    elif not is_db_empty:
-                        # Now it's safe to access predictions[0]
-                        new_top_name = clean_name_for_matching(predictions[0]['disease'])
-                        
-                        # Try to find the specific advice for the top disease from the secondary_advice
-                        for advice_item in verification_result.get('secondary_advice', []):
-                            if clean_name_for_matching(advice_item.get('disease')) in new_top_name:
-                                predictions[0]['care_guidelines'] = advice_item.get('what_to_do')
-                                predictions[0]['when_to_see_vet'] = advice_item.get('see_vet_if')
-                                break
-                    
-                    # 3. Enrich other predictions (Change B standard)
-                    enrich_secondary_predictions(predictions, verification_result)
-                    
                     if alt_diag and alt_diag.get('name'):
                         alt_disease_name = alt_diag['name']
-
                         found_match = False
+                        
+                        # 1. Try to find and re-rank an existing database match
                         for idx, pred in enumerate(predictions):
-                            pred_disease_clean = pred.get('disease', '').replace('⚠️ Potential Match: ', '').replace('⚠️ AI Corrected: ', '').strip()
+                            p_name = clean_name_for_matching(pred.get('disease', ''))
+                            a_name = clean_name_for_matching(alt_disease_name)
                             
-                            if (pred_disease_clean.lower() == alt_disease_name.lower() or 
-                                alt_disease_name.lower() in pred_disease_clean.lower() or 
-                                pred_disease_clean.lower() in alt_disease_name.lower()):
-                                
+                            if a_name in p_name or p_name in a_name:
                                 found_match = True
-                                original_probability = pred.get('probability', 0.0)
-                                if original_probability < 0.50:
-                                    # Retrieval Miss - Create new synthetic prediction
-                                    predictions.pop(idx)
-                                    risk_assessment = verification_result.get('risk') or verification_result.get('risk_assessment') or 'HIGH'
-                                    matched_symptoms = alt_diag.get('matched_symptoms') or []
-                                    
-                                    ai_assessment_prediction = {
-                                        'disease': f"⚠️ AI Assessment: {alt_disease_name}",
-                                        'probability': 0.95, 'confidence': 95.0,
-                                        'urgency': risk_assessment.lower(), 'contagious': False,
-                                        'matched_symptoms': matched_symptoms,
-                                        # FIX: Use specific advice, not generic reasoning
-                                        'care_guidelines': verification_result.get('what_to_do_specific') or "Schedule a veterinary exam.",
-                                        'when_to_see_vet': verification_result.get('see_vet_if_specific') or "If symptoms worsen.",
-                                        'match_explanation': f"Hybrid Analysis: {verification_result['reasoning']}",
-                                        'total_symptoms': 0, 'is_external': False,
-                                        'verification_reasoning': verification_result['reasoning'],
-                                        'risk_assessment': risk_assessment, 'injected': True
-                                    }
-                                    predictions.insert(0, ai_assessment_prediction)
-                                else:
-                                    # Rerank existing
-                                    reranked_pred = predictions.pop(idx)
-                                    reranked_pred['confidence'] = 95.0
-                                    reranked_pred['probability'] = 0.95
-                                    reranked_pred['disease'] = pred_disease_clean
-                                    reranked_pred['match_explanation'] = f"AI Analysis: {verification_result['reasoning']}"
-                                    reranked_pred['verification_reasoning'] = verification_result['reasoning']
-                                    # FIX: Use specific advice
-                                    reranked_pred['care_guidelines'] = verification_result.get('what_to_do_specific') or "Monitor closely."
-                                    reranked_pred['when_to_see_vet'] = verification_result.get('see_vet_if_specific') or "If symptoms persist."
-                                    predictions.insert(0, reranked_pred)
+                                reranked = predictions.pop(idx)
+                                reranked['disease'] = f"⚠️ AI Assessment: {alt_disease_name}"
+                                reranked['care_guidelines'] = verification_result.get('what_to_do_specific')
+                                reranked['when_to_see_vet'] = verification_result.get('see_vet_if_specific')
+                                reranked['match_level'] = alt_diag.get('match_level') or alt_diag.get('matcch_level')
+                                predictions.insert(0, reranked)
                                 break
                         
+                        # 2. CRITICAL: If no match found (like Mange), INJECT IT AT INDEX 0
                         if not found_match:
-                            matched_symptoms = alt_diag.get('matched_symptoms') or symptoms_list[:5]
-                            risk_assessment = verification_result.get('risk_assessment', 'HIGH')
-                            
-                            if not alt_diag.get('is_in_database', False):
-                                ood_detected = True
-                                # Calculate value OUTSIDE the dictionary
-                                conf_val = alt_diag.get('confidence', alt_diag.get('conffidence', 0.5))
-                                
-                                ood_prediction = {
-                                    'disease':  alt_diag['name'],
-                                    'probability': float(conf_val),
-                                    'confidence': float(conf_val) * 100,
-                                    'urgency': risk_assessment.lower(), 
-                                    'contagious': False,
-                                    'matched_symptoms': matched_symptoms,
-                                    'match_explanation': f"AI Warning: {verification_result['reasoning']}",
-                                    'total_symptoms': len(symptoms_list), 
-                                    'is_external': True,
-                                    'verification_reasoning': verification_result['reasoning'], 
-                                    'risk_assessment': risk_assessment,
-                                    'care_guidelines': verification_result.get('what_to_do_specific') or "Seek veterinary attention.",
-                                    'when_to_see_vet': verification_result.get('see_vet_if_specific') or "If condition deteriorates."
-                                }
-                                predictions.insert(0, ood_prediction)
-                            elif alt_diag.get('is_in_database', False):
-                                injection_prediction = {
-                                    'disease': f"⚠️ AI Corrected: {alt_diag['name']}",
-                                    'probability': 0.95, 'confidence': 95.0,
-                                    'urgency': risk_assessment.lower(), 'contagious': False,
-                                    'matched_symptoms': matched_symptoms,
-                                    'care_guidelines': verification_result.get('what_to_do_specific', verification_result.get('care_advice', [])[0]),
-                                    'when_to_see_vet': verification_result.get('see_vet_if_specific', "If condition worsens."),
-                                    'match_explanation': f"AI System Correction: {verification_result['reasoning']}",
-                                    'total_symptoms': len(symptoms_list), 'is_external': False,
-                                    'verification_reasoning': verification_result['reasoning'],
-                                    'risk_assessment': risk_assessment, 'injected': True
-                                }
-                                predictions.insert(0, injection_prediction)
-                    
-                    # === FIX: Run Secondary Enrichment Loop Here Too ===
+                            ood_pred = {
+                                'disease': f"⚠️ AI Potential Consideration: {alt_disease_name}",
+                                'confidence': 0.95,
+                                'match_level': alt_diag.get('match_level') or alt_diag.get('match_level') or 'Possible consideration',
+                                'urgency': verification_result.get('risk_assessment', 'MODERATE').lower(),
+                                'matched_symptoms': alt_diag.get('matched_symptoms', symptoms_list),
+                                'care_guidelines': verification_result.get('what_to_do_specific'),
+                                'when_to_see_vet': verification_result.get('see_vet_if_specific'),
+                                'match_explanation': f"AI Analysis: {verification_result['reasoning']}",
+                                'is_external': True
+                            }
+                            predictions.insert(0, ood_pred)
+
+                    # 3. Always run secondary enrichment to fix the other items in the list
                     enrich_secondary_predictions(predictions, verification_result)
                     # ===================================================
 
