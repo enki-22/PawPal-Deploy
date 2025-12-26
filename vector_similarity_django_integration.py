@@ -620,17 +620,17 @@ def format_soap_report_with_vector_similarity(pet_name, raw_predictions, verific
     
 
 
-    has_boring_cause = any(word in str(diagnoses_output).lower() for word in ['dietary', 'upset', 'stress', 'irritation'])
+#    has_boring_cause = any(word in str(diagnoses_output).lower() for word in ['dietary', 'upset', 'stress', 'irritation'])
     
-    if not has_boring_cause and len(diagnoses_output) < 4:
-        diagnoses_output.append({
-            "condition": "Non-Specific Gastrointestinal Upset",
-            "match_level": "Possible Consideration",
-            "description": "Commonly caused by dietary indiscretion (eating something unusual), minor stress, or sudden food changes. Often self-limiting.",
-            "matched_symptoms": formatted_symptoms[:2],
-            "urgency": "Low",
-            "contagious": False
-        })
+#    if not has_boring_cause and len(diagnoses_output) < 4:
+#        diagnoses_output.append({
+#            "condition": "Non-Specific Gastrointestinal Upset",
+#            "match_level": "Possible Consideration",
+#            "description": "Commonly caused by dietary indiscretion (eating something unusual), minor stress, or sudden food changes. Often self-limiting.",
+#            "matched_symptoms": formatted_symptoms[:2],
+#            "urgency": "Low",
+#           "contagious": False
+#        })
 
     # Define the Timeline map
     # RULE #5: Define strict Doctrine Timelines
