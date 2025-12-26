@@ -36,19 +36,8 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Vet Verification State
-  const [verificationNote, setVerificationNote] = useState('');
-  const [verificationStatus, setVerificationStatus] = useState('pending');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
-  // === NEW: MODAL STATE ===
-  const [actionModal, setActionModal] = useState({
-    show: false,
-    type: 'success', // 'success' or 'error'
-    title: '',
-    message: ''
-  });
+
+
 
   const fetchReport = useCallback(async () => {
     try {
@@ -62,10 +51,7 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
         const data = response.data.soap_report || response.data.data;
         setReport(data);
         console.log("Backend Verification Data:", data.verification);
-        if (data.verification) {
-            setVerificationStatus(data.verification.status || 'pending');
-            setVerificationNote(data.verification.note || '');
-        }
+
       } else {
         setError('Failed to load SOAP report');
       }
@@ -89,46 +75,9 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
     };
   }, []);
 
-  const handleVerify = async (status, noteOverride = null) => {
-    try {
-      setIsSubmitting(true);
-      const cleanId = caseId.replace('#', '');
-      
-      // Use the override (from modal) if provided, otherwise use the main textarea
-      const finalNote = noteOverride !== null ? noteOverride : verificationNote;
 
-      await adminAxios.post(`/chatbot/diagnosis/verify/${cleanId}/`, {
-        status: status,
-        notes: finalNote
-      });
-      setVerificationStatus(status);
-      
-      // Close reject modal if it was open
-      setShowRejectModal(false);
 
-      const isApproved = status === 'verified';
-      setActionModal({
-        show: true,
-        type: isApproved ? 'success' : 'error', 
-        title: isApproved ? 'Assessment Verified' : 'Assessment Flagged',
-        message: isApproved 
-          ? `Case #${report.case_id} has been successfully verified. The pet owner will see the verification stamp.` 
-          : `Case #${report.case_id} has been flagged for review. The pet owner will be notified.`
-      });
 
-    } catch (err) {
-      console.error(err);
-      // If the error is specifically about the missing note
-      const errorMsg = err.response?.data?.error || 'There was an error updating the report status.';
-      alert(errorMsg); 
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const closeActionModal = () => {
-    setActionModal({ ...actionModal, show: false });
-  };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -192,25 +141,7 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
                         <p className="text-sm text-gray-500 mt-2">Case ID: <span className="text-black font-normal block">#{report.case_id}</span></p>
                     </div>
                     
-                    {/* === INSERT STAMPS HERE (Below Date/ID) === */}
-                    <div className="mt-4 flex justify-end"> 
-                        {verificationStatus === 'verified' && (
-                            <div className="border-4 border-green-600 text-green-600 font-black text-xl px-4 py-2 transform -rotate-12 opacity-80 uppercase tracking-widest inline-block">
-                                VERIFIED
-                            </div>
-                        )}
-                        {verificationStatus === 'flagged' && (
-                            <div className="border-4 border-red-600 text-red-600 font-black text-xl px-4 py-2 transform -rotate-12 opacity-80 uppercase tracking-widest inline-block">
-                                REJECTED
-                            </div>
-                        )}
-                        {verificationStatus === 'pending' && (
-                            <div className="border-4 border-gray-400 text-gray-400 font-black text-xl px-4 py-2 transform -rotate-12 opacity-50 uppercase tracking-widest inline-block">
-                                PENDING
-                            </div>
-                        )}
-                    </div>
-                    {/* ========================================== */}
+                    
                 </div>
             </div>
 
@@ -429,119 +360,11 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
 
         </div>
 
-        {/* === VET VERIFICATION FOOTER === */}
-        <div className="bg-[#f8f9fa] p-6 border-t-2 border-gray-200 rounded-b-sm">
-            <h3 className="font-bold text-[#815FB3] mb-3 text-sm uppercase tracking-wide">Veterinarian Review</h3>
-            <div className="flex flex-col md:flex-row gap-4">
-                <textarea 
-                    className="flex-1 p-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#815FB3]"
-                    rows="3"
-                    placeholder="Add professional notes, corrections, or approval remarks here..."
-                    value={verificationNote}
-                    onChange={(e) => setVerificationNote(e.target.value)}
-                />
-                <div className="flex flex-col gap-2 justify-center w-full md:w-48">
-                    <button 
-                        onClick={() => handleVerify('verified')}
-                        disabled={isSubmitting}
-                        className={`w-full py-2 rounded font-bold text-white text-sm transition-colors ${
-                            verificationStatus === 'verified' ? 'bg-green-700' : 'bg-green-500 hover:bg-green-600'
-                        }`}
-                    >
-                        {isSubmitting ? 'Saving...' : '✓ APPROVE'}
-                    </button>
-                    <button 
-                        onClick={() => {
-                            setRejectReason(verificationNote); // Pre-fill if they typed in the main box
-                            setShowRejectModal(true);
-                        }}
-                        disabled={isSubmitting}
-                        className={`w-full py-2 rounded font-bold text-white text-sm transition-colors ${
-                            verificationStatus === 'flagged' ? 'bg-red-700' : 'bg-red-500 hover:bg-red-600'
-                        }`}
-                    >
-                        {isSubmitting ? 'Saving...' : '✕ FLAG / REJECT'}
-                    </button>
-                </div>
-            </div>
-        </div>
-        {/* === ACTION STATUS MODAL === */}
-      {actionModal.show && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div className="fixed inset-0 bg-black bg-opacity-60 transition-opacity" onClick={closeActionModal}></div>
-          
-          {/* Modal Content */}
-          <div className="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full text-center relative z-10 animate-in fade-in zoom-in duration-200 border-t-8 border-[#815FB3]">
-            <div className="flex justify-center mb-4">
-              {actionModal.type === 'success' ? (
-                <div className="p-3 bg-green-100 rounded-full">
-                  <CheckCircleIcon className="w-10 h-10 text-green-600" />
-                </div>
-              ) : (
-                <div className="p-3 bg-red-100 rounded-full">
-                  <AlertCircleIcon className="w-10 h-10 text-red-600" />
-                </div>
-              )}
-            </div>
-            
-            <h3 className="text-xl font-black text-gray-900 mb-2 font-['Inter']">
-              {actionModal.title}
-            </h3>
-            
-            <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-              {actionModal.message}
-            </p>
-            
-            <button
-              onClick={closeActionModal}
-              className="w-full py-2.5 bg-[#815FB3] text-white rounded-lg font-bold hover:bg-[#6d4c96] transition-colors shadow-md"
-            >
-              OKAY
-            </button>
-          </div>
-        </div>
-      )}
+        
+      
 
       </div>
-      {/* === REJECTION REASON MODAL === */}
-      {showRejectModal && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-black bg-opacity-60" onClick={() => setShowRejectModal(false)}></div>
-          <div className="bg-white rounded-lg p-6 shadow-xl max-w-md w-full relative z-10 border-t-8 border-red-500">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Reject Assessment</h3>
-            <p className="text-gray-600 mb-4 text-sm">
-              Please provide a reason for rejecting this assessment. This note will be visible to the pet owner.
-            </p>
-            
-            <textarea 
-                className="w-full p-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-red-500 mb-4"
-                rows="4"
-                placeholder="e.g., Image is blurry, Symptoms unclear, Not a medical issue..."
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-            />
-
-            <div className="flex justify-end gap-3">
-                <button 
-                    onClick={() => setShowRejectModal(false)}
-                    className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded"
-                >
-                    Cancel
-                </button>
-                <button 
-                    onClick={() => handleVerify('flagged', rejectReason)}
-                    disabled={!rejectReason.trim()}
-                    className={`px-4 py-2 text-white font-bold rounded transition-colors ${
-                        !rejectReason.trim() ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'
-                    }`}
-                >
-                    Confirm Rejection
-                </button>
-            </div>
-          </div>
-        </div>
-      )}
+      
     </div>
   );
 };

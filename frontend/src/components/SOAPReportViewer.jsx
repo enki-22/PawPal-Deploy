@@ -15,7 +15,6 @@
     const [report, setReport] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
-    const [isNotesExpanded, setIsNotesExpanded] = React.useState(false);
     const { token } = useAuth();
     const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
     const API_BASE_URL = `${API_ROOT}/api`;
@@ -72,7 +71,7 @@
     if (!report) return null;
 
     const diagnoses = Array.isArray(report.assessment) ? report.assessment : (report.assessment?.diagnoses || []);
-    const verificationStatus = report.verification?.status || 'pending';
+    
     return (
       <div 
         className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 md:p-4 z-50"
@@ -95,57 +94,14 @@
 
 
           {/* HEADER */}
-          {/* === VET NOTES (With Truncation & Wrapping Fix) === */}
-          {report.verification?.note && (
-              <div className="px-2 md:px-8 mt-4"> {/* Added container for proper alignment */}
-                  <div className={`p-4 rounded-md text-sm border break-words whitespace-pre-wrap ${
-                      verificationStatus === 'verified' ? 'bg-green-50 border-green-200 text-green-800' : 
-                      verificationStatus === 'flagged' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-gray-50 border-gray-200 text-gray-800'
-                  }`}>
-                      <span className="font-bold">Vet Notes: </span>
-                      <span>
-                          {isNotesExpanded || report.verification.note.length <= 100
-                              ? report.verification.note
-                              : `${report.verification.note.substring(0, 100)}...`
-                          }
-                      </span>
-                      
-                      {/* Only show button if text is long */}
-                      {report.verification.note.length > 100 && (
-                          <button 
-                              onClick={() => setIsNotesExpanded(!isNotesExpanded)}
-                              className="ml-2 underline font-bold cursor-pointer hover:opacity-75 focus:outline-none"
-                          >
-                              {isNotesExpanded ? 'Show Less' : 'Read More'}
-                          </button>
-                      )}
-                  </div>
-              </div>
-          )}
-          {/* =================================== */}
+          
           <div className="relative pt-6 px-8 flex flex-col md:flex-row items-center justify-between">
             <div className="w-[60px] h-[60px] relative z-10">
               <img src="/pawpalicon.png" alt="PawPal" className="w-full h-full object-contain" />
               <span className="absolute left-[50px] top-1/2 -translate-y-1/2 font-black text-[#815FB3] text-[30px] whitespace-nowrap">PAWPAL</span>
             </div>
 
-            {/* === INSERT STAMPS HERE (Middle of Header) === */}
-            {verificationStatus === 'verified' && (
-              <div className="md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 transform -rotate-12 border-4 border-green-600 text-green-600 px-6 py-2 rounded-lg font-black text-2xl tracking-widest opacity-90 select-none z-0 mt-4 md:mt-0">
-                VET VERIFIED
-              </div>
-            )}
-            {verificationStatus === 'flagged' && (
-              <div className="md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 transform -rotate-12 border-4 border-red-600 text-red-600 px-6 py-2 rounded-lg font-black text-2xl tracking-widest opacity-90 select-none z-0 mt-4 md:mt-0">
-                REJECTED / FLAGGED
-              </div>
-            )}
-            {verificationStatus === 'pending' && (
-              <div className="md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 transform -rotate-12 border-4 border-gray-400 text-gray-400 px-6 py-2 rounded-lg font-black text-2xl tracking-widest opacity-30 select-none z-0 mt-4 md:mt-0">
-                PENDING REVIEW
-              </div>
-            )}
-            {/* ============================================= */}
+            
 
             <div className="md:absolute md:top-6 md:right-12 text-right mt-4 md:mt-0 z-10">
               <p className="text-sm text-gray-500">Date Generated: <span className="text-black">{formatDate(report.date_generated)}</span></p>
