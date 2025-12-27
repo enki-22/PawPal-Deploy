@@ -1977,7 +1977,8 @@ def _build_comprehensive_soap_report(cleaned, emergency_data, progression, sever
     assessment_lines = []
     
     # Differential diagnoses
-    top_names = [p['disease'] for p in predictions[:3]] if predictions else []
+    # Take all predictions that passed the AI filter
+    top_names = [p['disease'] for p in predictions] if predictions else []
     if top_names:
         assessment_lines.append("Differential Diagnoses:")
         for i, disease in enumerate(top_names, 1):

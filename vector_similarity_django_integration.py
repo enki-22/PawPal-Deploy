@@ -289,8 +289,17 @@ def predict_with_vector_similarity(payload):
                     alt_diag = ai_result.get('alternative_diagnosis') or {}
                     alt_name = clean_name_for_matching(alt_diag.get('name', ''))
 
+                    # This will hold only the diseases the AI actually verified
+                    filtered_preds = []
+
+                    # 1. ALWAYS Keep the Top AI Correction (Index 0)
+                    if preds:
+                        filtered_preds.append(preds[0])
+
                     def clean_name(name): 
                         return clean_name_for_matching(name)
+
+                    
                     # Start from index 1 (since index 0 is the primary diagnosis)
                     for i in range(len(preds)):
                         curr = preds[i]
@@ -314,11 +323,13 @@ def predict_with_vector_similarity(payload):
                         if matched_advice:
                             curr['care_guidelines'] = matched_advice.get('what_to_do', "Monitor specific symptoms.")
                             curr['when_to_see_vet'] = matched_advice.get('see_vet_if', "If symptoms persist.")
+                            filtered_preds.append(curr)
                         else:
-                            curr['care_guidelines'] = "Monitor specific symptoms and keep pet comfortable."
-                            curr['when_to_see_vet'] = "If condition does not improve within 24 hours."
+                            #curr['care_guidelines'] = "Monitor specific symptoms and keep pet comfortable."
+                            #curr['when_to_see_vet'] = "If condition does not improve within 24 hours."
+                            logger.info(f"🗑️ AI excluded irrelevant condition: {curr.get('disease')}")
                         
-                        preds[i] = curr
+                        preds[:] = filtered_preds
                 # ===============================================
 
                 

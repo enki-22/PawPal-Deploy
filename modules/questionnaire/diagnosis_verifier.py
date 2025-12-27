@@ -244,6 +244,7 @@ class DiagnosisVerifier:
             7. **DATABASE CHECK:** If the Database Predictions are missing a likely condition for this signalment, set `agreement` to false and provide it in `alternative_diagnosis`.
             8. **ANATOMICAL CHECK:** If the Database Prediction suggests a condition in the wrong body location (e.g., Back pain vs. Knee pain), set `agreement` to false.
             9. **GENERATE CONTENT:** 'clinical_summary', 'care_advice', and 'severity_explanation' are MANDATORY. Do not skip them.
+            10. **CLINICAL FILTERING:** If a Database Prediction is logically impossible or highly unlikely given the pet's age/breed (e.g., 'Arthritis' in a 0-year-old), OMIT it from the 'secondary_advice' list. Only provide advice for conditions you consider valid differentials.
 
             *** MANDATORY OUTPUT FORMAT (JSON) ***
             You MUST return your analysis in this EXACT JSON structure. Do not skip any fields.
