@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 // NOTE: Ensure this path is correct based on your project structure
-const logoSrc = "/pat-removebg-preview 2.png";
+const logoSrc = "/pat-logo.png";
 
 function Group() {
   return (

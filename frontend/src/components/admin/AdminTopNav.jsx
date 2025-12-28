@@ -27,7 +27,7 @@ export default function AdminTopNav({ activePage = '' }) {
 
   // If backend returns a relative path (starting with '/'), prefix with origin so image loads across pages
   const profileImage = (() => {
-    if (!_rawAvatar) return '/pat-removebg-preview 2.png';
+    if (!_rawAvatar) return '/pat-logo.png';
     try {
       if (_rawAvatar.startsWith('//')) return window.location.protocol + _rawAvatar; // protocol-relative
       if (_rawAvatar.startsWith('/')) {
@@ -42,7 +42,7 @@ export default function AdminTopNav({ activePage = '' }) {
       }
       return _rawAvatar; // assume absolute URL
     } catch (e) {
-      return '/pat-removebg-preview 2.png';
+      return '/pat-logo.png';
     }
   })();
 
@@ -55,9 +55,9 @@ export default function AdminTopNav({ activePage = '' }) {
       <div className="flex items-center">
         <div className="flex items-center gap-2">
           <div className="w-[40px] h-[40px] relative">
-            <img src="/pat__1_-removebg-preview 3.png" alt="PAWPAL Logo" className="w-full h-full object-contain" />
+            <img src="/pat-logo-alt.png" alt="PAWPAL Logo" className="w-full h-full object-contain" />
           </div>
-          <img src="/PAWPAL.png" alt="PAWPAL" className="h-[26.25px] ml-4 object-contain" />
+          <img src="/pawpal.png" alt="PAWPAL" className="h-[26.25px] ml-4 object-contain" />
         </div>
         <nav className="flex items-center gap-x-10 ml-20">
           {navLinks.map(link => (

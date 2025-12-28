@@ -501,7 +501,7 @@ const PetProfile = () => {
             }}
           >
             <div className="flex items-center gap-2">
-              <img src="/pat-removebg-preview 2.png" alt="PawPal Logo" className="w-8 h-8" />
+              <img src="/pat-logo.png" alt="PawPal Logo" className="w-8 h-8" />
               <span className="font-bold text-lg text-[#815FB3]" style={{ fontFamily: 'Raleway' }}>PAWPAL</span>
               <button onClick={() => setIsMobileSidebarOpen(true)} className="p-2 ml-2" aria-label="Open sidebar">
                 <img src="/sidebar-expand-icon.png" alt="Sidebar Toggle" className="w-6 h-6" style={{ transform: 'scaleX(-1)' }} />
@@ -1019,7 +1019,7 @@ const PetProfile = () => {
                       />
                   </div>
                   <div className="w-full md:ml-auto md:w-[300px] relative">
-                    <img src="/Magnifying glass.png" alt="Search" className="absolute left-[10px] top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#666666] pointer-events-none z-[2]" />
+                    <img src="/magnifying-glass.png" alt="Search" className="absolute left-[10px] top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#666666] pointer-events-none z-[2]" />
                     <input
                       type="text"
                       placeholder="Search"
@@ -1085,7 +1085,7 @@ const PetProfile = () => {
                   </div>
                   
                   <div className="w-full md:ml-auto md:w-[250px] relative">
-                    <img src="/Magnifying glass.png" alt="Search" className="absolute left-[10px] top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#666666] pointer-events-none z-[2]" />
+                    <img src="/magnifying-glass.png" alt="Search" className="absolute left-[10px] top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#666666] pointer-events-none z-[2]" />
                     <input
                       type="text"
                       placeholder="Search"

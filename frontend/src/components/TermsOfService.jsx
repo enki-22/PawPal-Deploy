@@ -1,7 +1,7 @@
 import React from "react";
 
-// NOTE: This path assumes "pat-removebg-preview 2.png" is in your "public" folder.
-const logoSrc = "/pat-removebg-preview 2.png";
+// NOTE: This path assumes "pat-logo.png" is in your "public" folder.
+const logoSrc = "/pat-logo.png";
 
 function Group() {
   return (

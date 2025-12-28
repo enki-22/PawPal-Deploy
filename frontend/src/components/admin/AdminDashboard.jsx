@@ -22,8 +22,8 @@ const AdminDashboard = () => {
   
   // Stat cards in correct order with imported SVGs
   const stats = [
-  { label: 'Users', value: userCount, icon: '/Group 129.png' },
-  { label: 'Pets', value: petCount, icon: '/pets logo.png' },
+  { label: 'Users', value: userCount, icon: '/group-129.png' },
+  { label: 'Pets', value: petCount, icon: '/pets-logo.png' },
   { label: 'SOAP Reports', value: soapCount, icon: '/soap reports.png' },
   { label: 'Conversations', value: conversationCount, icon: '/conversations.png' },
   ];

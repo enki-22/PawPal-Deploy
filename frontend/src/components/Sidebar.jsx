@@ -102,7 +102,7 @@ const Sidebar = ({
       path: '/pet-health-records',
       icon: (
         <img 
-          src="/Group 111.png" 
+          src="/group-111.png" 
           alt="Pet Health Records" 
           className="w-6 h-6" 
         />

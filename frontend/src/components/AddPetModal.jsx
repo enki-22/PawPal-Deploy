@@ -240,7 +240,7 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
                     />
                   ) : (
                     <img 
-                      src="/Group 60.png" 
+                      src="/group-60.png" 
                       alt="Pet placeholder"
                       className="w-full h-full object-cover"
                     />

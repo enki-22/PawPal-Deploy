@@ -285,7 +285,7 @@ const AdminReports = () => {
                   <div className="flex items-center gap-3">
                     <div className="w-[35px] h-[35px] rounded-full overflow-hidden">
                       <img 
-                        src={report.pet_image || "/pat-removebg-preview 2.png"} 
+                        src={report.pet_image || "/pat-logo.png"} 
                         alt={report.pet_name} 
                         className="w-full h-full object-cover" 
                       />
