@@ -353,7 +353,7 @@ def predict_with_vector_similarity(payload):
                             if a_name in p_name or p_name in a_name:
                                 found_match = True
                                 reranked = predictions.pop(idx)
-                                reranked['disease'] = f"⚠️ AI Assessment: {alt_disease_name}"
+                                reranked['disease'] = f"⚠️ AI Potential Concern: {alt_disease_name}"
                                 reranked['care_guidelines'] = verification_result.get('what_to_do_specific')
                                 reranked['when_to_see_vet'] = verification_result.get('see_vet_if_specific')
                                 reranked['match_level'] = alt_diag.get('match_level') or alt_diag.get('matcch_level')
@@ -363,7 +363,7 @@ def predict_with_vector_similarity(payload):
                         # 2. CRITICAL: If no match found (like Mange), INJECT IT AT INDEX 0
                         if not found_match:
                             ood_pred = {
-                                'disease': f"⚠️ AI Potential Consideration: {alt_disease_name}",
+                                'disease': f"⚠️ AI Potential Concern: {alt_disease_name}",
                                 'confidence': 0.95,
                                 'match_level': alt_diag.get('match_level') or alt_diag.get('match_level') or 'Possible consideration',
                                 'urgency': verification_result.get('risk_assessment', 'MODERATE').lower(),

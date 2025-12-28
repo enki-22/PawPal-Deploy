@@ -166,7 +166,7 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
         {/* Content */}
         <div className="space-y-4">
           <p className="text-sm text-gray-700">
-            Based on the symptoms you described, here are the most likely conditions:
+            Based on the symptoms you described, the system identified the following potential concern(s):
           </p>
 
           {/* Predictions - Top 3 */}
@@ -178,7 +178,7 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
                 </h4>
                 <div className="text-sm text-gray-600 mt-1 space-y-1">
                   <div>
-                    <span className="font-semibold">Clinical Alignment: </span> {prediction.match_level || "Triage consideration"}
+                    <span className="font-semibold">Decision Support: </span> {prediction.match_level || "AI Guided Triage Context"}
                   </div>
                   <div>
                     <span className="font-semibold">Urgency:</span> {getUrgencyColor(prediction.urgency)} {getUrgencyText(prediction.urgency)}
@@ -358,7 +358,7 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
                 className="w-4 h-4 object-contain" 
                 style={{ filter: 'brightness(0) saturate(100%) invert(98%) sepia(14%) saturate(865%) hue-rotate(314deg) brightness(105%) contrast(100%)' }}
               />
-              Save to AI Diagnosis
+              Save to Triage Summary
             </button>
             <button
               onClick={onLogSymptoms}

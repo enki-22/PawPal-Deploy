@@ -756,7 +756,7 @@ const Chat = () => {
     if (assessmentDataToSave.case_id) {
       const alreadySavedMessage = {
         id: Date.now() + Math.random(),
-        content: `✅ This assessment is already saved to AI Diagnosis records. Case ID: ${assessmentDataToSave.case_id}`,
+        content: `✅ This assessment is already saved to Triage Summary records. Case ID: ${assessmentDataToSave.case_id}`,
         isUser: false,
         sender: 'PawPal',
         timestamp: new Date().toISOString(),
