@@ -55,35 +55,72 @@ export default function LandingPage() {
       id: 1,
       title: "Low Cost Bakuna",
       description: "Affordable care, peace of mind, protection that's easy to find. Safe, simple, and budget-wise, Your pet's health matters—immunize!",
-      image: "/frame-56.png"
+      image: process.env.PUBLIC_URL + "/frame-56.png"
     },
     {
       id: 2,
       title: "Low Cost Kapon",
       description: "Affordable spay and neuter services now available in Southvalley! Prevent unwanted litters and improve your pet's health.",
-      image: "/low cost kapon.png"
+      image: process.env.PUBLIC_URL + "/low-cost-kapon.png"
     },
     {
       id: 3,
       title: "Holy Week Advisory",
       description: "In observance of Holy Week, please take note of our adjusted clinic hours. Kindly plan your visits ahead of time.",
-      image: "/holy week advisory.png"
+      image: process.env.PUBLIC_URL + "/holy-week-advisory.png"
     }
   ], []);
 
   // --- PROMOTIONS STATE ---
   const [promotions, setPromotions] = React.useState([]);
+  
   React.useEffect(() => {
-    const stored = localStorage.getItem('pawpal_promotions');
+    const fetchPromotions = async () => {
+      try {
+        const axios = require('axios');
+        const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+        const response = await axios.get(`${API_URL}/api/announcements/`);
+        
+        if (response.data && response.data.announcements && response.data.announcements.length > 0) {
+          // Process announcements with proper image paths
+          const absolutePromotions = response.data.announcements.map(promo => {
+            let finalImage = process.env.PUBLIC_URL + "/frame-56.png"; // Default fallback
+            
+            if (promo.image) {
+              // If it's a relative path from Django (e.g., /media/...)
+              finalImage = promo.image.startsWith('http') 
+                ? promo.image 
+                : `${API_URL}${promo.image}`;
+            }
+
+            return {
+              ...promo,
+              id: promo.announcement_id,
+              image: finalImage
+            };
+          });
+          
+          setPromotions(absolutePromotions);
+          localStorage.setItem('pawpal_promotions', JSON.stringify(absolutePromotions));
+        } else {
+          // No announcements from API, use defaults
+          setPromotions(DEFAULT_PROMOTIONS);
+          localStorage.setItem('pawpal_promotions', JSON.stringify(DEFAULT_PROMOTIONS));
+        }
+      } catch (error) {
+        console.error('Failed to fetch promotions:', error);
+        // On error, try localStorage first, then defaults
+        const stored = localStorage.getItem('pawpal_promotions');
+        if (stored) {
+          setPromotions(JSON.parse(stored));
+        } else {
+          setPromotions(DEFAULT_PROMOTIONS);
+          localStorage.setItem('pawpal_promotions', JSON.stringify(DEFAULT_PROMOTIONS));
+        }
+      }
+    };
     
-    if (stored) {
-      // If data exists, use it
-      setPromotions(JSON.parse(stored));
-    } else {
-      // If NO data exists (first visit), use defaults and save them
-      setPromotions(DEFAULT_PROMOTIONS);
-      localStorage.setItem('pawpal_promotions', JSON.stringify(DEFAULT_PROMOTIONS));
-    }
+    fetchPromotions();
   }, [DEFAULT_PROMOTIONS]);
 
   // --- HELPER: SCROLL TO SECTION ---

@@ -4,16 +4,19 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 export default function PromotionCarousel({ promotions }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0); // -1 for left, 1 for right
   const [selectedPromo, setSelectedPromo] = useState(null);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
 
   // --- NAVIGATION HANDLERS ---
   const handleNext = useCallback(() => {
+    setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % promotions.length);
   }, [promotions.length]);
 
   const handlePrev = useCallback(() => {
+    setDirection(-1);
     setCurrentIndex((prev) => (prev - 1 + promotions.length) % promotions.length);
   }, [promotions.length]);
 
@@ -52,31 +55,56 @@ export default function PromotionCarousel({ promotions }) {
     }
   }, [handleNext, selectedPromo]);
 
+  // Early return if no promotions
+  if (!promotions || promotions.length === 0) return null;
+
   // Calculate indices
   const getIndex = (offset) => {
     return (currentIndex + offset + promotions.length) % promotions.length;
   };
 
-  const visiblePromos = [
-    { ...promotions[getIndex(-1)], position: 'left' },
-    { ...promotions[getIndex(0)], position: 'center' },
-    { ...promotions[getIndex(1)], position: 'right' },
-  ];
+  // Determine which items to show based on length
+  const visiblePromos = [];
+  if (promotions.length === 1) {
+    visiblePromos.push({ ...promotions[0], position: 'center' });
+  } else if (promotions.length === 2) {
+    // Show both items: center and right
+    visiblePromos.push({ ...promotions[getIndex(0)], position: 'center' });
+    visiblePromos.push({ ...promotions[getIndex(1)], position: 'right' });
+  } else {
+    // Show 3 items: left, center, right
+    visiblePromos.push({ ...promotions[getIndex(-1)], position: 'left' });
+    visiblePromos.push({ ...promotions[getIndex(0)], position: 'center' });
+    visiblePromos.push({ ...promotions[getIndex(1)], position: 'right' });
+  }
 
-  // ANIMATION VARIANTS
+  // ANIMATION VARIANTS with enter/exit states
   const variants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 500 : -500,
+      opacity: 0,
+      scale: 0.5,
+      zIndex: 0
+    }),
     center: { 
       x: 0, scale: 1.1, opacity: 1, zIndex: 10, filter: "blur(0px)",
       transition: { type: "spring", stiffness: 300, damping: 30 }
     },
     left: { 
       x: -300, scale: 0.85, opacity: 0.6, zIndex: 5, filter: "blur(1px)", 
-      transition: { type: "spring", stiffness: 300, damping: 30 } // Mobile x offset handled via responsive check if needed, but -300 usually pushes it off screen correctly or behind
+      transition: { type: "spring", stiffness: 300, damping: 30 }
     },
     right: { 
       x: 300, scale: 0.85, opacity: 0.6, zIndex: 5, filter: "blur(1px)", 
       transition: { type: "spring", stiffness: 300, damping: 30 }
-    }
+    },
+    exit: (direction) => ({
+      x: direction > 0 ? -500 : 500,
+      opacity: 0,
+      scale: 0.5,
+      zIndex: 0,
+      transition: { duration: 0.3 }
+    })
   };
 
   // Responsive variants override for mobile if necessary
@@ -100,8 +128,8 @@ export default function PromotionCarousel({ promotions }) {
       </button>
 
       {/* Carousel Area */}
-      <div className="relative w-full h-full flex items-center justify-center perspective-1000">
-        <AnimatePresence initial={false} mode='popLayout'>
+      <div className="relative w-full h-full flex items-center justify-center perspective-1000 overflow-hidden">
+        <AnimatePresence initial={false} custom={direction} mode='popLayout'>
           {visiblePromos.map((promo) => {
             const zoom = promo.style?.zoom || 1;
             const posX = promo.style?.posX ?? 50;
@@ -110,13 +138,16 @@ export default function PromotionCarousel({ promotions }) {
 
             return (
               <motion.div
-                key={promo.id}
-                layout
-                initial={promo.position}
-                animate={promo.position}
+                key={promo.announcement_id || promo.id}
+                custom={direction}
                 variants={variants}
-                className="absolute bg-white rounded-[18px] shadow-2xl flex flex-col overflow-hidden border border-[#e0d7f7]
-                           w-[260px] min-h-[360px] md:w-[320px] md:min-h-[440px]" // UPDATED SIZE
+                initial="enter"
+                animate={promo.position}
+                exit="exit"
+                className={`absolute bg-white rounded-[18px] shadow-2xl flex flex-col overflow-hidden border border-[#e0d7f7]
+                           w-[260px] min-h-[360px] md:w-[320px] md:min-h-[440px] ${
+                             promotions.length === 2 && promo.position === 'center' ? 'md:-translate-x-1/2' : ''
+                           }`}
                 style={{ 
                   transformOrigin: "center center",
                   cursor: isSide ? 'pointer' : 'default'
@@ -135,6 +166,10 @@ export default function PromotionCarousel({ promotions }) {
                     style={{
                       transform: `scale(${zoom})`,
                       objectPosition: `${posX}% ${posY}%`
+                    }}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = process.env.PUBLIC_URL + '/frame-56.png';
                     }}
                   />
                 </div>
