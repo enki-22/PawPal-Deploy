@@ -4,16 +4,19 @@
 
           export default function PromotionCarousel({ promotions }) {
             const [currentIndex, setCurrentIndex] = useState(0);
+            const [direction, setDirection] = useState(0); // -1 for left, 1 for right
             const [selectedPromo, setSelectedPromo] = useState(null);
             const [touchStart, setTouchStart] = useState(null);
             const [touchEnd, setTouchEnd] = useState(null);
 
             // --- NAVIGATION HANDLERS ---
             const handleNext = useCallback(() => {
+              setDirection(1);
               setCurrentIndex((prev) => (prev + 1) % promotions.length);
             }, [promotions.length]);
 
             const handlePrev = useCallback(() => {
+              setDirection(-1);
               setCurrentIndex((prev) => (prev - 1 + promotions.length) % promotions.length);
             }, [promotions.length]);
 
@@ -71,26 +74,34 @@
               visiblePromos.push({ ...promotions[getIndex(1)], position: 'right' });
             }
 
-            // ANIMATION VARIANTS
+            // UPDATED ANIMATION VARIANTS: Added 'enter' and 'exit' states for smooth sliding
             const variants = {
+              enter: (direction) => ({
+                x: direction > 0 ? 500 : -500,
+                opacity: 0,
+                scale: 0.5,
+                zIndex: 0
+              }),
               center: { 
                 x: 0, scale: 1.1, opacity: 1, zIndex: 10, filter: "blur(0px)",
                 transition: { type: "spring", stiffness: 300, damping: 30 }
               },
               left: { 
                 x: -300, scale: 0.85, opacity: 0.6, zIndex: 5, filter: "blur(1px)", 
-                transition: { type: "spring", stiffness: 300, damping: 30 } // Mobile x offset handled via responsive check if needed, but -300 usually pushes it off screen correctly or behind
+                transition: { type: "spring", stiffness: 300, damping: 30 }
               },
               right: { 
                 x: 300, scale: 0.85, opacity: 0.6, zIndex: 5, filter: "blur(1px)", 
                 transition: { type: "spring", stiffness: 300, damping: 30 }
-              }
+              },
+              exit: (direction) => ({
+                x: direction > 0 ? -500 : 500,
+                opacity: 0,
+                scale: 0.5,
+                zIndex: 0,
+                transition: { duration: 0.3 }
+              })
             };
-
-            // Responsive variants override for mobile if necessary
-            // (Framer motion doesn't support media queries directly in variants easily, 
-            // but -300/300 works fine to hide/show side cards. 
-            // We mainly resize the cards themselves via Tailwind classes below).
 
             return (
               <div 
@@ -108,8 +119,8 @@
                 </button>
 
                 {/* Carousel Area */}
-                <div className="relative w-full h-full flex items-center justify-center perspective-1000">
-                  <AnimatePresence initial={false} mode='popLayout'>
+                <div className="relative w-full h-full flex items-center justify-center perspective-1000 overflow-hidden">
+                  <AnimatePresence initial={false} custom={direction} mode='popLayout'>
                     {visiblePromos.map((promo) => {
                       const zoom = promo.style?.zoom || 1;
                       const posX = promo.style?.posX ?? 50;
@@ -120,12 +131,16 @@
                       return (
                         <motion.div
                           key={uniqueKey}
+                          custom={direction}
                           layout
-                          initial={promo.position}
+                          initial="enter"
                           animate={promo.position}
+                          exit="exit"
                           variants={variants}
-                          className="absolute bg-white rounded-[18px] shadow-2xl flex flex-col overflow-hidden border border-[#e0d7f7]
-                                    w-[260px] min-h-[360px] md:w-[320px] md:min-h-[440px]" // UPDATED SIZE
+                          className={`absolute bg-white rounded-[18px] shadow-2xl flex flex-col overflow-hidden border border-[#e0d7f7]
+                                    w-[260px] min-h-[360px] md:w-[320px] md:min-h-[440px] ${
+                                      promotions.length === 2 && promo.position === 'center' ? 'md:-translate-x-1/4' : ''
+                                    }`}
                           style={{ 
                             transformOrigin: "center center",
                             cursor: isSide ? 'pointer' : 'default'

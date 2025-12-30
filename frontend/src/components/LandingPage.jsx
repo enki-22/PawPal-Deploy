@@ -59,7 +59,7 @@ export default function LandingPage() {
       id: 1,
       title: "Low Cost Bakuna",
       description: "Affordable care, peace of mind, protection that's easy to find. Safe, simple, and budget-wise, Your pet's health matters—immunize!",
-      image: "/Frame 56.png"
+      image: "/frame-56.png"
     },
     {
       id: 2,
@@ -86,8 +86,8 @@ export default function LandingPage() {
         
         if (response.data.success && response.data.announcements.length > 0) {
           const absolutePromotions = response.data.announcements.map(promo => {
-            // SAFE IMAGE CHECK:
-            let finalImage = "/path-to-default-placeholder.png"; // Fallback
+            // SAFE IMAGE CHECK with PUBLIC_URL fallback:
+            let finalImage = process.env.PUBLIC_URL + "/frame-56.png"; // Fallback to default promotion image
             
             if (promo.image) {
               finalImage = promo.image.startsWith('http') 

@@ -1019,7 +1019,7 @@ const PetProfile = () => {
                       />
                   </div>
                   <div className="w-full md:ml-auto md:w-[300px] relative">
-                    <img src="/Magnifying glass.png" alt="Search" className="absolute left-[10px] top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#666666] pointer-events-none z-[2]" />
+                    <img src="/magnifying-glass.png" alt="Search" className="absolute left-[10px] top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#666666] pointer-events-none z-[2]" />
                     <input
                       type="text"
                       placeholder="Search"
@@ -1085,7 +1085,7 @@ const PetProfile = () => {
                   </div>
                   
                   <div className="w-full md:ml-auto md:w-[250px] relative">
-                    <img src="/Magnifying glass.png" alt="Search" className="absolute left-[10px] top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#666666] pointer-events-none z-[2]" />
+                    <img src="/magnifying-glass.png" alt="Search" className="absolute left-[10px] top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#666666] pointer-events-none z-[2]" />
                     <input
                       type="text"
                       placeholder="Search"
