@@ -57,7 +57,7 @@ export default function AdminTopNav({ activePage = '' }) {
           <div className="w-[40px] h-[40px] relative">
             <img src="/pat__1_-removebg-preview 3.png" alt="PAWPAL Logo" className="w-full h-full object-contain" />
           </div>
-          <img src="/PAWPAL.png" alt="PAWPAL" className="h-[26.25px] ml-4 object-contain" />
+          <img src="/pawpal-main.png" alt="PAWPAL" className="h-[26.25px] ml-4 object-contain" />
         </div>
         <nav className="flex items-center gap-x-10 ml-20">
           {navLinks.map(link => (

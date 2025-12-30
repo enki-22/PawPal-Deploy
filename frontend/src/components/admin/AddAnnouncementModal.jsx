@@ -54,7 +54,7 @@ export default function AddAnnouncementModal({ isOpen, onClose, onAdd, onEdit, e
 
     const handleSave = async () => {
         setLoading(true);
-        const finalImage = imagePreview || "/Frame 56.png";
+        const finalImage = imagePreview || "/frame-56.png";
         const payload = {
             title,
             description,
