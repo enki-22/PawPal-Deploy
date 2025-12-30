@@ -275,12 +275,7 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
                                         {diag.description}
                                     </p>
                                     
-                                    <ul className="list-none space-y-1 text-sm text-gray-700">
-                                        
-                                        <li><span className="font-semibold text-gray-900">Symptoms Found:</span> {Array.isArray(diag.matched_symptoms) ? diag.matched_symptoms.join(', ') : diag.matched_symptoms}</li>
-                                        
-                                        <li><span className="font-semibold text-gray-900">Contagious:</span> {diag.contagious ? 'Yes' : 'No'}</li>
-                                    </ul>
+                                    
                                 </div>
                             ))
                         ) : (
