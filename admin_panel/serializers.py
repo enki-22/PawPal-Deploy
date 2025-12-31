@@ -97,17 +97,17 @@ class PetProfileSerializer(serializers.ModelSerializer):
 
 class AnnouncementSerializer(serializers.ModelSerializer):
     """Announcement serializer"""
-    created_by_name = serializers.SerializerMethodField()
+    created_by_name = serializers.ReadOnlyField(source='created_by.name')
+    is_expired = serializers.ReadOnlyField()
     
     class Meta:
         model = Announcement
-        fields = ['id', 'title', 'content', 'announcement_type', 'target_audience',
-                 'is_active', 'start_date', 'end_date', 'created_by', 'created_by_name',
-                 'created_at', 'updated_at']
+        fields = [
+            'id', 'title', 'description', 'valid_until', 'icon_type',
+            'is_active', 'is_expired', 'image', 'style',
+            'created_by', 'created_by_name', 'created_at', 'updated_at'
+        ]
         read_only_fields = ['id', 'created_at', 'updated_at']
-    
-    def get_created_by_name(self, obj):
-        return f"{obj.created_by.first_name} {obj.created_by.last_name}".strip()
 
 # TEMPORARILY COMMENTED OUT - SOAPReportSerializer will be added after AIDiagnosis is created
 """

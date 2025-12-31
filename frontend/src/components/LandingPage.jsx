@@ -86,13 +86,17 @@ export default function LandingPage() {
         
         if (response.data.success && response.data.announcements.length > 0) {
           const absolutePromotions = response.data.announcements.map(promo => {
-            // SAFE IMAGE CHECK with PUBLIC_URL fallback:
-            let finalImage = process.env.PUBLIC_URL + "/frame-56.png"; // Fallback to default promotion image
+            // Use the image from DB if it exists, otherwise use a specific default image
+            let finalImage = promo.image;
             
-            if (promo.image) {
-              finalImage = promo.image.startsWith('http') 
-                ? promo.image 
-                : `${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}${promo.image}`;
+            if (finalImage) {
+              // Ensure the URL is absolute for the deployed environment
+              if (!finalImage.startsWith('http')) {
+                finalImage = `${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}${finalImage}`;
+              }
+            } else {
+              // Specific fallback if a dynamic announcement has no image
+              finalImage = process.env.PUBLIC_URL + "/frame-56.png";
             }
 
             return {
@@ -102,6 +106,8 @@ export default function LandingPage() {
             };
           });
           
+          // Logical check: If we got any announcements from the DB, use them.
+          // Otherwise, fall back to the hardcoded landing page defaults.
           setPromotions(absolutePromotions);
         } else {
           setPromotions(DEFAULT_PROMOTIONS);
