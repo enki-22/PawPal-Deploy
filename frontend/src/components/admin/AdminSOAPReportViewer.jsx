@@ -37,7 +37,14 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
   const [error, setError] = useState(null);
 
   const handlePrint = () => {
+    // Dynamic Filename: Admin_[CaseID]_[PetName]_SOAP_Report
+    const originalTitle = document.title;
+    const petName = report?.pet?.name?.replace(/[^a-z0-9]/gi, '_') || 'Pet';
+    const cleanCaseId = report?.case_id || 'Case';
+    
+    document.title = `Admin_${cleanCaseId}_${petName}_SOAP_Report`;
     window.print();
+    document.title = originalTitle;
   };
 
 
@@ -116,53 +123,98 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
   const topDiagnosis = diagnoses.length > 0 ? diagnoses[0] : null;
 
   return (
-    /* FIX: Changed items-center to items-start and added padding-top.
-       This prevents the top of the modal from being cut off on scroll.
-    */
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto flex justify-center items-start pt-10 pb-10 no-print-overlay">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 md:p-4 z-50 no-print-overlay"
+      onClick={(e) => {
+        // Close when clicking on the overlay (not the content)
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       
-      {/* ADD PRINT STYLES */}
+      {/* FINALIZED PRINT CSS FOR UNIFORM MARGINS */}
       <style>{`
         @media print {
-          body * { visibility: hidden; }
-          .admin-soap-content, .admin-soap-content * { visibility: visible; }
-          .admin-soap-content { 
-            position: absolute; 
-            left: 0; 
-            top: 0; 
-            width: 100% !important; 
+          @page { margin: 0mm; size: auto; }
+          html, body { 
+            height: auto !important; 
+            overflow: visible !important; 
+            background: white !important; 
             margin: 0 !important;
             padding: 0 !important;
-            max-width: none !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
+          body * { visibility: hidden; }
+          .no-print-overlay { 
+            position: static !important; 
+            display: block !important; 
+            background: none !important; 
+            padding: 0 !important; 
+            margin: 0 !important;
+            overflow: visible !important;
+            height: auto !important;
+            width: 100% !important;
+          }
+          .admin-soap-content { 
+            visibility: visible !important; 
+            position: absolute !important; 
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important; 
+            max-height: none !important;
+            overflow: visible !important;
+            box-shadow: none !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: block !important;
+            background-color: #fffff2 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .admin-soap-content * { visibility: visible !important; }
           .no-print { display: none !important; }
-          .no-print-overlay { background: none !important; }
+
+          /* Table-based Page Spacing Logic */
+          .print-table { width: 100%; border-collapse: collapse; }
+          .print-spacer-header { height: 20mm; display: table-header-group; }
+          .print-spacer-footer { height: 20mm; display: table-footer-group; }
+
+          .admin-header-group, .triage-banner, .differential-card { 
+            break-inside: avoid !important; 
+            page-break-inside: avoid !important;
+            display: block !important;
+          }
         }
       `}</style>
 
-      <div className="admin-soap-content bg-white w-full max-w-5xl shadow-2xl rounded-sm flex flex-col font-sans relative mx-4 mb-10">
-        
+      <div className="admin-soap-content bg-[#fffff2] rounded-[10px] w-full max-w-5xl my-4 md:my-8 relative max-h-[95vh] overflow-y-auto px-2 md:px-0 shadow-2xl">
+        <table className="print-table">
+          <thead className="print-spacer-header"><tr><td></td></tr></thead>
+          <tbody>
+            <tr>
+              <td>
+                <div className="px-4 md:px-8">
+                  <div className="admin-header-group">
 
         {/* === 1. HEADER (PAWPAL BRANDING & INFO) === */}
-        <div className="p-8 border-b-2 border-black bg-white rounded-t-sm">
-            <div className="flex justify-between items-start mb-6">
-                <div className="flex items-center gap-4">
-                    <img src="/pawpalicon.png" alt="PawPal" className="w-[60px] h-[60px] object-contain" />
-                    <h1 className="text-5xl font-black text-[#815FB3] tracking-widest">PAWPAL</h1>
+        <div className="p-4 md:p-8 bg-[#fffff2]">
+            <div className="flex flex-col md:flex-row justify-between items-center md:items-start mb-6">
+                <div className="flex items-center space-x-1">
+                    <img src="/pawpalicon.png" alt="PawPal" className="w-[60px] h-[60px] object-contain" style={{imageRendering: 'crisp-edges'}} />
+                    <span className="font-black text-[#815FB3] text-[30px] whitespace-nowrap">PAWPAL</span>
                 </div>
                 
-                <div className="text-right">
-                    <div className="text-gray-800 font-bold space-y-1">
-                        <p className="text-sm text-gray-500">Date Generated: <span className="text-black font-normal block">{formatDate(report.date_generated)}</span></p>
-                        <p className="text-sm text-gray-500 mt-2">Case ID: <span className="text-black font-normal block">#{report.case_id}</span></p>
-                    </div>
-                    
-                    
+                <div className="text-center md:text-right mt-4 md:mt-0">
+                    <p className="text-sm text-gray-500">Date Generated: <span className="text-black font-normal">{formatDate(report.date_generated)}</span></p>
+                    <p className="text-sm text-gray-500 mt-2">Case ID: <span className="text-black font-normal">#{report.case_id}</span></p>
                 </div>
             </div>
 
             {/* INFO GRID */}
-            <div className="bg-[rgba(187,159,228,0.15)] rounded-lg p-6 border border-[#815FB3]/20">
+            <div className="info-block bg-[rgba(187,159,228,0.15)] rounded-lg p-6 border border-[#815FB3]/20">
                 <div className="grid grid-cols-2 gap-x-16 gap-y-4 text-sm text-gray-900">
                     {/* Left Column */}
                     <div className="space-y-3">
@@ -222,6 +274,7 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
                 </div>
             </div>
         </div>
+        </div>
 
         {/* === S.O.A.P CONTENT === */}
         <div className="p-8 space-y-10 bg-white">
@@ -264,14 +317,14 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
                     <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-4">ONSIDERATIONS</h3>
                     <div className="space-y-6">
                       {/* --- CHANGE: Add Hero Banner here too --- */}
-                        <div className={`${getUrgencyBadgeColor(report.plan?.severityLevel)} p-6 rounded-sm mb-8 flex justify-between items-center shadow-md`}>
-                            <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest opacity-80">AI Risk Classification</p>
-                                <h2 className="text-2xl font-black">{report.plan?.severityLevel?.toUpperCase()}</h2>
+                        <div className={`triage-banner ${getUrgencyBadgeColor(report.plan?.severityLevel)} p-4 md:p-6 rounded-xl mb-8 flex flex-col md:flex-row justify-between items-center md:items-center shadow-lg border-b-4 border-black/10 gap-4 md:gap-0`}>
+                            <div className="text-center md:text-left">
+                                <p className="text-xs font-black uppercase tracking-[0.2em] opacity-70">Triage Priority</p>
+                                <h2 className="text-3xl font-black tracking-tight">{report.plan?.severityLevel?.toUpperCase()}</h2>
                             </div>
-                            <div className="text-right">
-                                <p className="text-[10px] font-bold opacity-80 italic uppercase underline">Suggested Action</p>
-                                <p className="text-sm font-bold">{report.plan?.action_timeline || "Urgent Review"}</p>
+                            <div className="text-center md:text-right md:border-l border-white/20 md:pl-6">
+                                <p className="text-xs font-bold opacity-70 italic uppercase">Care Timeline</p>
+                                <p className="text-sm font-black">{report.plan?.action_timeline || "Consult Veterinarian"}</p>
                             </div>
                         </div>
 
@@ -280,7 +333,7 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
                         {diagnoses.length > 0 ? (
                           
                             diagnoses.map((diag, i) => (
-                                <div key={i} className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                <div key={i} className="differential-card bg-gray-50 p-4 rounded-lg border border-gray-100">
                                     <div className="flex justify-between items-start mb-2">
                                         <p className="font-bold text-lg text-black">{i + 1}. {diag.condition || diag.name}</p>
                                         <span className="text-[10px] font-black text-[#815FB3] uppercase tracking-widest">
@@ -370,9 +423,15 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
             </div>
 
         </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot className="print-spacer-footer"><tr><td></td></tr></tfoot>
+        </table>
 
         {/* BUTTONS CONTAINER - BOTTOM RIGHT */}
-        <div className="sticky bottom-0 right-0 flex justify-end items-center gap-4 no-print p-4 bg-white border-t border-gray-200">
+        <div className="sticky bottom-0 right-0 flex justify-end items-center gap-4 no-print p-4">
           <button 
             onClick={handlePrint}
             className="flex items-center gap-2 px-4 py-2 bg-[#815FB3] text-white rounded-md text-sm font-bold hover:bg-[#6b4e96] transition-colors shadow-lg"
