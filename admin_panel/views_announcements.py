@@ -114,6 +114,8 @@ def _get_announcements(request):
                 'announcement_id': str(announcement.id),
                 'title': announcement.title,
                 'description': announcement.description,
+                'image': request.build_absolute_uri(announcement.image.url) if announcement.image else None,
+                'style': announcement.style if announcement.style else {},
                 'valid_until': announcement.valid_until.isoformat() if announcement.valid_until else None,
                 'icon_type': announcement.icon_type,
                 'is_active': announcement.is_active,
@@ -162,6 +164,20 @@ def _create_announcement(request):
                 is_active=True,
                 created_by=request.admin
             )
+            
+            # Handle image upload
+            if 'image' in request.FILES:
+                announcement.image = request.FILES['image']
+                announcement.save()
+            
+            # Handle style data (zoom, posX, posY)
+            if 'style' in request.data:
+                import json
+                try:
+                    announcement.style = json.loads(request.data['style']) if isinstance(request.data['style'], str) else request.data['style']
+                    announcement.save()
+                except (json.JSONDecodeError, ValueError):
+                    pass
         
         logger.info(f"Admin {request.admin.email} created announcement: {announcement.title}")
         
@@ -172,6 +188,8 @@ def _create_announcement(request):
                 'announcement_id': str(announcement.id),
                 'title': announcement.title,
                 'description': announcement.description,
+                'image': request.build_absolute_uri(announcement.image.url) if announcement.image else None,
+                'style': announcement.style if announcement.style else {},
                 'valid_until': announcement.valid_until.isoformat() if announcement.valid_until else None,
                 'icon_type': announcement.icon_type,
                 'is_active': announcement.is_active,
@@ -226,6 +244,8 @@ def _get_announcement_detail(request, announcement_id):
                 'announcement_id': str(announcement.id),
                 'title': announcement.title,
                 'description': announcement.description,
+                'image': request.build_absolute_uri(announcement.image.url) if announcement.image else None,
+                'style': announcement.style if announcement.style else {},
                 'valid_until': announcement.valid_until.isoformat() if announcement.valid_until else None,
                 'icon_type': announcement.icon_type,
                 'is_active': announcement.is_active,
@@ -287,6 +307,20 @@ def _update_announcement(request, announcement_id):
                 announcement.icon_type = validated_data['icon_type']
                 updated_fields.append('icon_type')
             
+            # Handle image update
+            if 'image' in request.FILES:
+                announcement.image = request.FILES['image']
+                updated_fields.append('image')
+            
+            # Handle style update
+            if 'style' in request.data:
+                import json
+                try:
+                    announcement.style = json.loads(request.data['style']) if isinstance(request.data['style'], str) else request.data['style']
+                    updated_fields.append('style')
+                except (json.JSONDecodeError, ValueError):
+                    pass
+            
             if updated_fields:
                 announcement.save()
             else:
@@ -308,6 +342,8 @@ def _update_announcement(request, announcement_id):
                 'announcement_id': str(announcement.id),
                 'title': announcement.title,
                 'description': announcement.description,
+                'image': request.build_absolute_uri(announcement.image.url) if announcement.image else None,
+                'style': announcement.style if announcement.style else {},
                 'valid_until': announcement.valid_until.isoformat() if announcement.valid_until else None,
                 'icon_type': announcement.icon_type,
                 'is_active': announcement.is_active,
@@ -390,6 +426,8 @@ def get_active_announcements(request):
                 'announcement_id': str(announcement.id),
                 'title': announcement.title,
                 'description': announcement.description,
+                'image': request.build_absolute_uri(announcement.image.url) if announcement.image else None,
+                'style': announcement.style if announcement.style else {},
                 'valid_until': announcement.valid_until.isoformat() if announcement.valid_until else None,
                 'icon_type': announcement.icon_type,
                 'created_at': announcement.created_at.isoformat()
