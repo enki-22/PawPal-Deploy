@@ -8,7 +8,6 @@ export default function AddAnnouncementModal({ isOpen, onClose, onAdd, onEdit, e
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [imagePreview, setImagePreview] = useState(null);
-    const [imageFile, setImageFile] = useState(null); // NEW: Store the actual file
     // Image Adjustment State
     const [zoom, setZoom] = useState(1); // Scale 1 to 3
     const [posX, setPosX] = useState(50); // 0% to 100%
@@ -22,7 +21,6 @@ export default function AddAnnouncementModal({ isOpen, onClose, onAdd, onEdit, e
                 setTitle(editData.title || '');
                 setDescription(editData.description || '');
                 setImagePreview(editData.image || null);
-                setImageFile(null); // Reset file on edit
                 // Load existing styles or defaults
                 setZoom(editData.style?.zoom || 1);
                 setPosX(editData.style?.posX ?? 50);
@@ -32,7 +30,6 @@ export default function AddAnnouncementModal({ isOpen, onClose, onAdd, onEdit, e
                 setTitle('');
                 setDescription('');
                 setImagePreview(null);
-                setImageFile(null);
                 setZoom(1);
                 setPosX(50);
                 setPosY(50);
@@ -43,7 +40,6 @@ export default function AddAnnouncementModal({ isOpen, onClose, onAdd, onEdit, e
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setImageFile(file); // Store the actual file
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result);
@@ -58,29 +54,21 @@ export default function AddAnnouncementModal({ isOpen, onClose, onAdd, onEdit, e
 
     const handleSave = async () => {
         setLoading(true);
-        
-        // Create FormData to handle file upload
-        const formData = new FormData();
-        formData.append('title', title);
-        formData.append('description', description);
-        formData.append('icon_type', 'general');
-        
-        // Add style as JSON string
-        formData.append('style', JSON.stringify({
-            zoom,
-            posX,
-            posY
-        }));
-        
-        // Add image file if present
-        if (imageFile) {
-            formData.append('image', imageFile);
-        }
-        
+        const finalImage = imagePreview || "/frame-56.png";
+        const payload = {
+            title,
+            description,
+            image: finalImage,
+            style: {
+                zoom,
+                posX,
+                posY
+            }
+        };
         if (isEdit) {
-            await onEdit({ ...editData, formData, announcement_id: editData.announcement_id });
+            await onEdit({ ...editData, ...payload });
         } else {
-            await onAdd(formData);
+            await onAdd(payload);
         }
         setLoading(false);
         onClose();
