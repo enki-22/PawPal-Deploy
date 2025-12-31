@@ -31,14 +31,10 @@ export default function AdminAnnouncements() {
     localStorage.setItem('pawpal_promotions', JSON.stringify(newData));
   };
 
-  const handleAddAnnouncement = async (formData) => {
+  const handleAddAnnouncement = async (newAnnouncement) => {
     try {
-      // Send FormData (multipart/form-data) instead of JSON
-      const response = await api.post('/api/admin/announcements', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // This sends the data (including the image file) to the central database
+      const response = await api.post('/api/admin/announcements', newAnnouncement);
       if (response.data.success) {
         setAnnouncements([response.data.announcement, ...announcements]);
         setModalOpen(false);
@@ -48,29 +44,24 @@ export default function AdminAnnouncements() {
     }
   };
 
-  const handleEditAnnouncement = async (updatedData) => {
+  const handleEditAnnouncement = async (updatedAnnouncement) => {
     try {
-      // Extract FormData and announcement_id from the updatedData object
-      const { formData, announcement_id } = updatedData;
-      
-      // Send FormData with PUT request
-      const response = await api.put(`/api/admin/announcements/${announcement_id}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // 1. Send the PUT request to the backend using the announcement's ID
+      // We send the updatedAnnouncement object as the request body
+      const response = await api.put(`/api/admin/announcements/${updatedAnnouncement.announcement_id}`, updatedAnnouncement);
 
       if (response.data.success) {
-        // Map through the current state and replace the old version with the updated one
+        // 2. Map through the current state and replace the old version with the updated one
+        // Using response.data.announcement ensures we have the latest data from the DB
         const newData = announcements.map(a => 
-          a.announcement_id === announcement_id ? response.data.announcement : a
+          a.announcement_id === updatedAnnouncement.announcement_id ? response.data.announcement : a
         );
 
-        // Update local state and sync localStorage
+        // 3. Update local state and sync localStorage
         setAnnouncements(newData);
         localStorage.setItem('pawpal_promotions', JSON.stringify(newData));
 
-        // Close modal and reset edit state
+        // 4. Close modal and reset edit state
         setModalOpen(false);
         setEditAnnouncement(null);
       }
