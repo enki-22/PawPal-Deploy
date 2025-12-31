@@ -19,6 +19,10 @@
     const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
     const API_BASE_URL = `${API_ROOT}/api`;
 
+    const handlePrint = () => {
+      window.print();
+    };
+
     const fetchSOAPReport = React.useCallback(async () => {
       try {
         setLoading(true);
@@ -74,7 +78,7 @@
     
     return (
       <div 
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 md:p-4 z-50"
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 md:p-4 z-50 no-print-overlay"
         onClick={(e) => {
           // Close when clicking on the overlay (not the content)
           if (e.target === e.currentTarget) {
@@ -82,16 +86,27 @@
           }
         }}
       >
-        <div className="bg-[#fffff2] rounded-[10px] w-full max-w-5xl my-4 md:my-8 relative max-h-[95vh] overflow-y-auto px-2 md:px-0">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onClose();
-            }} 
-            className="absolute right-4 top-4 text-3xl font-bold text-gray-600 hover:text-gray-800 z-10 cursor-pointer"
-            aria-label="Close"
-          >×</button>
+        {/* ADD PRINT STYLES */}
+        <style>{`
+          @media print {
+            body * { visibility: hidden; }
+            .soap-report-content, .soap-report-content * { visibility: visible; }
+            .soap-report-content { 
+              position: absolute; 
+              left: 0; 
+              top: 0; 
+              width: 100%; 
+              max-height: none !important; 
+              overflow: visible !important;
+              background: white !important;
+            }
+            .no-print { display: none !important; }
+            .no-print-overlay { background: none !important; }
+          }
+        `}</style>
 
+        <div className="soap-report-content bg-[#fffff2] rounded-[10px] w-full max-w-5xl my-4 md:my-8 relative max-h-[95vh] overflow-y-auto px-2 md:px-0 shadow-2xl">
+          
 
           {/* HEADER */}
           
@@ -277,6 +292,22 @@
               </div>
             </div>
           )}
+
+          {/* BUTTONS CONTAINER - BOTTOM RIGHT */}
+          <div className="sticky bottom-4 right-4 flex justify-end items-center gap-4 no-print px-2 md:px-8 pb-4">
+            <button 
+              onClick={handlePrint}
+              className="flex items-center gap-2 px-3 py-1 bg-white border border-gray-300 rounded-md text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-lg"
+            >
+              <img src="/download.png" alt="" className="w-4 h-4" />
+              Download PDF
+            </button>
+            <button 
+              onClick={onClose} 
+              className="text-3xl font-bold text-gray-600 hover:text-gray-800 cursor-pointer bg-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:bg-gray-50"
+              aria-label="Close"
+            >×</button>
+          </div>
         </div>
       </div>
     );
