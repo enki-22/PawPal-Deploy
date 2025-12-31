@@ -17,7 +17,22 @@ export default function AdminAnnouncements() {
       try {
         const response = await api.get('/api/admin/announcements');
         console.log("Fetched Announcements:", response.data.announcements);
-        setAnnouncements(response.data.announcements);
+        
+        // Ensure absolute URLs for images
+        const processedAnnouncements = response.data.announcements.map(announcement => {
+          let imageUrl = announcement.image;
+          if (imageUrl && !imageUrl.startsWith('http')) {
+            // Prepend API URL if the image path is relative
+            const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+            imageUrl = `${apiUrl}${imageUrl}`;
+          }
+          return {
+            ...announcement,
+            image: imageUrl
+          };
+        });
+        
+        setAnnouncements(processedAnnouncements);
       } catch (error) {
         console.error("Error fetching admin announcements:", error);
       }
@@ -31,43 +46,69 @@ export default function AdminAnnouncements() {
     localStorage.setItem('pawpal_promotions', JSON.stringify(newData));
   };
 
-  const handleAddAnnouncement = async (newAnnouncement) => {
+  const handleAddAnnouncement = async (formData) => {
     try {
-      // This sends the data (including the image file) to the central database
-      const response = await api.post('/api/admin/announcements', newAnnouncement);
+      // Send FormData (including the image file) to the backend
+      const response = await api.post('/api/admin/announcements', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       if (response.data.success) {
-        setAnnouncements([response.data.announcement, ...announcements]);
+        // Process the image URL to ensure it's absolute
+        const announcement = response.data.announcement;
+        let imageUrl = announcement.image;
+        if (imageUrl && !imageUrl.startsWith('http')) {
+          const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+          imageUrl = `${apiUrl}${imageUrl}`;
+        }
+        
+        setAnnouncements([{ ...announcement, image: imageUrl }, ...announcements]);
         setModalOpen(false);
       }
     } catch (error) {
-      alert("Error saving announcement: " + error.message);
+      console.error("Error saving announcement:", error);
+      alert("Error saving announcement: " + (error.response?.data?.details || error.message));
     }
   };
 
-  const handleEditAnnouncement = async (updatedAnnouncement) => {
+  const handleEditAnnouncement = async (formData) => {
     try {
-      // 1. Send the PUT request to the backend using the announcement's ID
-      // We send the updatedAnnouncement object as the request body
-      const response = await api.put(`/api/admin/announcements/${updatedAnnouncement.announcement_id}`, updatedAnnouncement);
+      // Extract the announcement_id from formData
+      const announcementId = formData.get('announcement_id');
+      
+      // Send the PUT request with FormData
+      const response = await api.put(`/api/admin/announcements/${announcementId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       if (response.data.success) {
-        // 2. Map through the current state and replace the old version with the updated one
-        // Using response.data.announcement ensures we have the latest data from the DB
+        // Process the image URL to ensure it's absolute
+        const announcement = response.data.announcement;
+        let imageUrl = announcement.image;
+        if (imageUrl && !imageUrl.startsWith('http')) {
+          const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+          imageUrl = `${apiUrl}${imageUrl}`;
+        }
+        
+        // Update local state with the response from the backend
         const newData = announcements.map(a => 
-          a.announcement_id === updatedAnnouncement.announcement_id ? response.data.announcement : a
+          a.announcement_id === announcementId ? { ...announcement, image: imageUrl } : a
         );
 
-        // 3. Update local state and sync localStorage
+        // Update local state and sync localStorage
         setAnnouncements(newData);
         localStorage.setItem('pawpal_promotions', JSON.stringify(newData));
 
-        // 4. Close modal and reset edit state
+        // Close modal and reset edit state
         setModalOpen(false);
         setEditAnnouncement(null);
       }
     } catch (error) {
       console.error("Error updating announcement:", error);
-      alert("Failed to update announcement: " + (error.response?.data?.message || error.message));
+      alert("Failed to update announcement: " + (error.response?.data?.details || error.message));
     }
   };
 
