@@ -180,7 +180,7 @@
               </div>
           )}
 
-          <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-6 uppercase">Potential Considrations (Differentials)</h3>
+          <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-6 uppercase">Potential Considerations (Differentials)</h3>
           {/* --- END HERO BANNER --- */}
 
           {/* DIAGNOSES SECTION */}
@@ -213,11 +213,7 @@
                     {/* Generic Description (Fallback) */}
                     
                     
-                    {/* Metadata List */}
-                    <ul className="list-disc ml-5 text-sm space-y-1 text-gray-800 mb-4">
-                      <li><span className="font-semibold">Matched Symptoms:</span> {symptomsText}</li>
-                      <li><span className="font-semibold">Contagious:</span> {d.contagious ? 'Yes' : 'No'}</li>
-                    </ul>
+                    
 
                     {/* === FIX: RENDER THE SPECIFIC ADVICE === */}
                     
