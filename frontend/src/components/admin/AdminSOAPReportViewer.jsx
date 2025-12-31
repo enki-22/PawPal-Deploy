@@ -36,6 +36,10 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const handlePrint = () => {
+    window.print();
+  };
+
 
 
 
@@ -115,17 +119,29 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
     /* FIX: Changed items-center to items-start and added padding-top.
        This prevents the top of the modal from being cut off on scroll.
     */
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto flex justify-center items-start pt-10 pb-10">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto flex justify-center items-start pt-10 pb-10 no-print-overlay">
       
-      <div className="bg-white w-full max-w-5xl shadow-2xl rounded-sm flex flex-col font-sans relative mx-4 mb-10">
+      {/* ADD PRINT STYLES */}
+      <style>{`
+        @media print {
+          body * { visibility: hidden; }
+          .admin-soap-content, .admin-soap-content * { visibility: visible; }
+          .admin-soap-content { 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 100% !important; 
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: none !important;
+          }
+          .no-print { display: none !important; }
+          .no-print-overlay { background: none !important; }
+        }
+      `}</style>
+
+      <div className="admin-soap-content bg-white w-full max-w-5xl shadow-2xl rounded-sm flex flex-col font-sans relative mx-4 mb-10">
         
-        {/* CLOSE BUTTON */}
-        <button 
-            onClick={onClose} 
-            className="absolute top-4 right-4 text-3xl font-bold text-gray-400 hover:text-gray-600 z-10"
-        >
-            &times;
-        </button>
 
         {/* === 1. HEADER (PAWPAL BRANDING & INFO) === */}
         <div className="p-8 border-b-2 border-black bg-white rounded-t-sm">
@@ -355,8 +371,22 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
 
         </div>
 
-        
-      
+        {/* BUTTONS CONTAINER - BOTTOM RIGHT */}
+        <div className="sticky bottom-0 right-0 flex justify-end items-center gap-4 no-print p-4 bg-white border-t border-gray-200">
+          <button 
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-4 py-2 bg-[#815FB3] text-white rounded-md text-sm font-bold hover:bg-[#6b4e96] transition-colors shadow-lg"
+          >
+            <img src="/download.png" alt="" className="w-4 h-4 brightness-0 invert" />
+            Download PDF
+          </button>
+          <button 
+            onClick={onClose} 
+            className="text-3xl font-bold text-gray-400 hover:text-gray-600 bg-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:bg-gray-100 border border-gray-300"
+          >
+            &times;
+          </button>
+        </div>
 
       </div>
       
