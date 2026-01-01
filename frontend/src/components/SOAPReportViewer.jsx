@@ -268,15 +268,7 @@
             )}
           </div>
 
-          {/* Rule #2: Severity Justification - NEW section */}
-          {report.plan?.aiExplanation && (
-            <div className="mb-6">
-              <div className="bg-white border-2 border-gray-100 p-4 rounded-lg mb-6">
-                  <p className="text-xs font-bold text-gray-400 uppercase mb-1">Triage Rationale:</p>
-                  <p className="text-sm text-gray-700 italic">{report.plan.aiExplanation}</p>
-              </div>
-            </div>
-          )}
+          
 
           {/* DIFFERENTIALS */}
           <div className="mt-8 space-y-4 pb-12">

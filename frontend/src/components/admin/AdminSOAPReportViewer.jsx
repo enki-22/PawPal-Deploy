@@ -282,10 +282,10 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
             {/* SUBJECTIVE */}
             <div className="flex gap-6">
                 <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-[#815FB3] text-white font-black text-3xl flex items-center justify-center rounded">U</div>
+                    <div className="w-12 h-12 bg-[#815FB3] text-white font-black text-3xl flex items-center justify-center rounded">A</div>
                 </div>
                 <div className="flex-1">
-                    <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-3">SER REPORTED SYMPTOMS</h3>
+                    <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-3">DVISE</h3>
                     <div className="text-gray-900 leading-relaxed whitespace-pre-wrap font-medium">
                         {report.clinical_summary || report.subjective || 'No subjective information available.'}
                     </div>
@@ -295,10 +295,10 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
             {/* OBJECTIVE */}
             <div className="flex gap-6">
                 <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-[#815FB3] text-white font-black text-3xl flex items-center justify-center rounded">P</div>
+                    <div className="w-12 h-12 bg-[#815FB3] text-white font-black text-3xl flex items-center justify-center rounded">R</div>
                 </div>
                 <div className="flex-1">
-                    <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-3">ET INFORMATION</h3>
+                    <h3 className="text-gray-400 font-bold tracking-[0.2em] text-sm mb-3">EPORTED SYMPTOMS</h3>
                     <p className="text-[#815FB3] font-bold mb-2">See Medical Information</p>
                     <div className="space-y-1 text-gray-800">
                         <p><strong>Symptoms Entered:</strong> {Array.isArray(report.objective?.symptoms) ? report.objective.symptoms.join(', ') : report.objective?.symptoms || 'N/A'}</p>
