@@ -148,7 +148,7 @@ const SEVERITY_OPTIONS = [
   },
   {
     key: 'severe',
-    label: '� Severe (constant, pet is very weak/distressed)',
+    label: '🔴 Severe (constant, pet is very weak/distressed)',
   },
 ];
 
