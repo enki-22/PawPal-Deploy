@@ -20,7 +20,8 @@ const API_BASE_URL = `${API_ROOT}/api`;
       const response = await axios.get(`${API_BASE_URL}/chatbot/conversations/`, {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
-        }
+        },
+        timeout: 30000,
       });
       // Ensure we always set an array
       const conversationsData = response.data?.conversations || response.data || [];
