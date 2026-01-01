@@ -237,20 +237,6 @@
               </div>
             </div>
           </div>
-
-          {/* SYMPTOMS SUMMARY (MOVED ABOVE TRIAGE) */}
-          <div className="mt-8 border-l-4 border-[#815FB3] pl-4">
-            {(report.clinical_summary || report.ai_explanation) && (
-              <p className="text-sm md:text-base text-black leading-relaxed italic mb-2">
-                {report.clinical_summary || report.ai_explanation}
-              </p>
-            )}
-            {report.objective?.symptoms && (
-              <p className="text-sm text-gray-700 font-medium">
-                The symptoms noted include: <span className="text-black font-bold">{Array.isArray(report.objective.symptoms) ? report.objective.symptoms.join(', ') : report.objective.symptoms}</span>.
-              </p>
-            )}
-          </div>
                     </div>
 
           {/* TRIAGE */}
@@ -268,11 +254,16 @@
             </div>
           </div>
 
-          {/* CLINICAL SUMMARY */}
-          <div className="mt-6">
+          {/* SYMPTOMS SUMMARY */}
+          <div className="mt-6 border-l-4 border-[#815FB3] pl-4">
             {(report.clinical_summary || report.ai_explanation) && (
-              <p className="text-sm md:text-base text-black leading-relaxed">
+              <p className="text-sm md:text-base text-black leading-relaxed italic mb-2">
                 {report.clinical_summary || report.ai_explanation}
+              </p>
+            )}
+            {report.objective?.symptoms && (
+              <p className="text-sm text-gray-700 font-medium">
+                The symptoms noted include: <span className="text-black font-bold">{Array.isArray(report.objective.symptoms) ? report.objective.symptoms.join(', ') : report.objective.symptoms}</span>.
               </p>
             )}
           </div>

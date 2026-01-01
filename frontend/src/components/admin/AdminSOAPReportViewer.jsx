@@ -274,17 +274,6 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
                 </div>
             </div>
         </div>
-
-        {/* SYMPTOMS SUMMARY (MOVED ABOVE TRIAGE) */}
-        <div className="px-4 md:px-8 mt-6">
-          <div className="bg-white border-2 border-gray-100 p-4 md:p-6 rounded-lg mb-6">
-            <p className="text-xs font-bold text-gray-400 uppercase mb-1 tracking-widest">Clinical Presentation</p>
-            <p className="text-sm md:text-base text-gray-800 leading-relaxed italic mb-4">&quot;{report.clinical_summary || report.ai_explanation || report.subjective}&quot;</p>
-            {report.objective?.symptoms && (
-              <p className="text-sm"><strong>Reported Symptoms:</strong> {Array.isArray(report.objective?.symptoms) ? report.objective.symptoms.join(', ') : report.objective?.symptoms || 'N/A'}</p>
-            )}
-          </div>
-        </div>
         </div>
 
         {/* === S.O.A.P CONTENT === */}
