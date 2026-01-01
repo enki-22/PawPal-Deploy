@@ -170,67 +170,67 @@
             
 
             <div className="text-center md:text-right mt-4 md:mt-0 z-10">
-              <p className="text-sm text-gray-500">Date Generated: <span className="text-black">{formatDate(report.date_generated)}</span></p>
-              <p className="text-sm text-gray-500">Case ID: <span className="text-black">#{report.case_id}</span></p>
+              <p className="text-xs md:text-sm text-gray-500">Date Generated: <span className="text-black">{formatDate(report.date_generated)}</span></p>
+              <p className="text-xs md:text-sm text-gray-500">Case ID: <span className="text-black">#{report.case_id}</span></p>
             </div>
           </div>
 
           {/* PET & OWNER INFO */}
           <div className="mt-6">
-            <div className="info-block bg-[rgba(187,159,228,0.15)] rounded-lg p-6 border border-[#815FB3]/20">
-              <div className="grid grid-cols-2 gap-x-16 gap-y-4 text-sm text-gray-900">
+            <div className="info-block bg-[rgba(187,159,228,0.15)] rounded-lg p-4 md:p-6 border border-[#815FB3]/20">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 md:gap-x-16 gap-y-3 md:gap-y-4 text-sm text-gray-900">
                 {/* Left Column */}
                 <div className="space-y-3">
-                  <div className="grid grid-cols-[140px_1fr]">
-                    <span className="font-bold text-gray-600">Pet Owner Name:</span>
-                    <span className="font-medium">{report.owner?.name || 'N/A'}</span>
+                  <div className="flex flex-col sm:grid sm:grid-cols-[140px_1fr] gap-1">
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider sm:font-bold sm:text-sm sm:text-gray-600 sm:normal-case sm:tracking-normal">Pet Owner Name:</span>
+                    <span className="font-semibold text-gray-900 sm:font-medium">{report.owner?.name || 'N/A'}</span>
                   </div>
-                  <div className="grid grid-cols-[140px_1fr]">
-                    <span className="font-bold text-gray-600">City/Province:</span>
-                    <span className="font-medium">{report.owner?.city || 'N/A'}</span>
+                  <div className="flex flex-col sm:grid sm:grid-cols-[140px_1fr] gap-1">
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider sm:font-bold sm:text-sm sm:text-gray-600 sm:normal-case sm:tracking-normal">City/Province:</span>
+                    <span className="font-semibold text-gray-900 sm:font-medium">{report.owner?.city || 'N/A'}</span>
                   </div>
-                  <div className="grid grid-cols-[140px_1fr]">
-                    <span className="font-bold text-gray-600">Contact Number:</span>
-                    <span className="font-medium">{report.owner?.contact_number || 'N/A'}</span>
+                  <div className="flex flex-col sm:grid sm:grid-cols-[140px_1fr] gap-1">
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider sm:font-bold sm:text-sm sm:text-gray-600 sm:normal-case sm:tracking-normal">Contact Number:</span>
+                    <span className="font-semibold text-gray-900 sm:font-medium">{report.owner?.contact_number || 'N/A'}</span>
                   </div>
-                  <div className="grid grid-cols-[140px_1fr]">
-                    <span className="font-bold text-gray-600">Pet Name:</span>
+                  <div className="flex flex-col sm:grid sm:grid-cols-[140px_1fr] gap-1">
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider sm:font-bold sm:text-sm sm:text-gray-600 sm:normal-case sm:tracking-normal">Pet Name:</span>
                     <span className="font-bold text-black">{report.pet?.name || 'N/A'}</span>
                   </div>
-                  <div className="grid grid-cols-[140px_1fr]">
-                    <span className="font-bold text-gray-600">Animal Type:</span>
+                  <div className="flex flex-col sm:grid sm:grid-cols-[140px_1fr] gap-1">
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider sm:font-bold sm:text-sm sm:text-gray-600 sm:normal-case sm:tracking-normal">Animal Type:</span>
                     <span className="font-bold text-black">{report.pet?.animal_type || 'N/A'}</span>
                   </div>
-                  <div className="grid grid-cols-[140px_1fr]">
-                    <span className="font-bold text-gray-600">Breed:</span>
+                  <div className="flex flex-col sm:grid sm:grid-cols-[140px_1fr] gap-1">
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider sm:font-bold sm:text-sm sm:text-gray-600 sm:normal-case sm:tracking-normal">Breed:</span>
                     <span className="font-bold text-black">{report.pet?.breed || 'N/A'}</span>
                   </div>
                 </div>
 
                 {/* Right Column */}
                 <div className="space-y-3">
-                  <div className="grid grid-cols-[140px_1fr]">
-                    <span className="font-bold text-gray-600">Sex:</span>
+                  <div className="flex flex-col sm:grid sm:grid-cols-[140px_1fr] gap-1">
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider sm:font-bold sm:text-sm sm:text-gray-600 sm:normal-case sm:tracking-normal">Sex:</span>
                     <span className="font-bold text-black">{report.pet?.sex || 'N/A'}</span>
                   </div>
-                  <div className="grid grid-cols-[140px_1fr]">
-                    <span className="font-bold text-gray-600">Blood Type:</span>
+                  <div className="flex flex-col sm:grid sm:grid-cols-[140px_1fr] gap-1">
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider sm:font-bold sm:text-sm sm:text-gray-600 sm:normal-case sm:tracking-normal">Blood Type:</span>
                     <span className="font-bold text-black">{report.pet?.blood_type || 'Unknown'}</span>
                   </div>
-                  <div className="grid grid-cols-[140px_1fr]">
-                    <span className="font-bold text-gray-600">Spayed/Neutered:</span>
+                  <div className="flex flex-col sm:grid sm:grid-cols-[140px_1fr] gap-1">
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider sm:font-bold sm:text-sm sm:text-gray-600 sm:normal-case sm:tracking-normal">Spayed/Neutered:</span>
                     <span className="font-bold text-black">{report.pet?.spayed_neutered || 'N/A'}</span>
                   </div>
-                  <div className="grid grid-cols-[140px_1fr]">
-                    <span className="font-bold text-gray-600">Age:</span>
+                  <div className="flex flex-col sm:grid sm:grid-cols-[140px_1fr] gap-1">
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider sm:font-bold sm:text-sm sm:text-gray-600 sm:normal-case sm:tracking-normal">Age:</span>
                     <span className="font-bold text-black">{report.pet?.age} {report.pet?.age == 1 ? 'year' : 'years'} old</span>
                   </div>
-                  <div className="grid grid-cols-[140px_1fr]">
-                    <span className="font-bold text-gray-600">Allergies:</span>
+                  <div className="flex flex-col sm:grid sm:grid-cols-[140px_1fr] gap-1">
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider sm:font-bold sm:text-sm sm:text-gray-600 sm:normal-case sm:tracking-normal">Allergies:</span>
                     <span className="font-bold text-black">{report.pet?.allergies || 'None'}</span>
                   </div>
-                  <div className="grid grid-cols-[140px_1fr]">
-                    <span className="font-bold text-gray-600">Chronic Disease:</span>
+                  <div className="flex flex-col sm:grid sm:grid-cols-[140px_1fr] gap-1">
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider sm:font-bold sm:text-sm sm:text-gray-600 sm:normal-case sm:tracking-normal">Chronic Disease:</span>
                     <span className="font-bold text-black">{report.pet?.chronic_disease || 'None'}</span>
                   </div>
                 </div>
@@ -241,23 +241,29 @@
 
           {/* TRIAGE */}
           <div className="triage-banner mt-6">
-            <div className={`${getUrgencyBadgeColor(report.plan?.severityLevel)} p-6 rounded-xl flex justify-between items-center shadow-lg border-b-4 border-black/10`}>
-              <div className="text-center md:text-left">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] opacity-70">Triage Priority</p>
-                  <h2 className="text-3xl font-black tracking-tight">{report.plan?.severityLevel?.toUpperCase()}</h2>
+            <div className={`${getUrgencyBadgeColor(report.plan?.severityLevel)} p-4 md:p-6 rounded-xl flex flex-col md:flex-row justify-between md:items-center gap-4 shadow-lg border-b-4 border-black/10`}>
+              <div className="text-center">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] opacity-70 mb-1">Triage Priority</p>
+                  <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-none">{report.plan?.severityLevel?.toUpperCase()}</h2>
+                  <p className="text-xs mt-2 opacity-80">Immediate attention recommended</p>
               </div>
-              <div className="text-center md:text-right md:border-l border-white/20 md:pl-6">
+              <div className="text-center md:border-l border-white/20 md:pl-6">
                   <p className="text-xs font-bold opacity-70 italic uppercase">Care Timeline</p>
-                  <p className="text-sm font-black">{report.plan?.action_timeline || "Consult Veterinarian"}</p>
+                  <p className="text-sm md:text-base font-black">{report.plan?.action_timeline || "Consult Veterinarian"}</p>
               </div>
             </div>
           </div>
 
-          {/* CLINICAL SUMMARY */}
-          <div className="mt-6">
+          {/* SYMPTOMS SUMMARY */}
+          <div className="mt-6 border-l-4 border-[#815FB3] pl-4">
             {(report.clinical_summary || report.ai_explanation) && (
-              <p className="text-sm md:text-base text-black leading-relaxed">
+              <p className="text-sm md:text-base text-black leading-relaxed italic mb-2">
                 {report.clinical_summary || report.ai_explanation}
+              </p>
+            )}
+            {report.objective?.symptoms && (
+              <p className="text-sm text-gray-700 font-medium">
+                The symptoms noted include: <span className="text-black font-bold">{Array.isArray(report.objective.symptoms) ? report.objective.symptoms.join(', ') : report.objective.symptoms}</span>.
               </p>
             )}
           </div>
