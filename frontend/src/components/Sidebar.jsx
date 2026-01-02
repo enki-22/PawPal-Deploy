@@ -65,7 +65,7 @@ const Sidebar = ({
   const menuItems = [
     {
       id: 'ai-assessments',
-      label: 'Triage Summary',
+      label: 'Assessments',
       path: '/ai-assessments',
       icon: (
         <img 

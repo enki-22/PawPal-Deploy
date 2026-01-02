@@ -123,7 +123,7 @@ const AdminReports = () => {
       <div className="pt-[80px]">
         {/* Controls Bar - Title, Search, Filters matches AdminPets */}
         <div className="flex items-center justify-between px-[129px] py-[28px]">
-          <h1 className="font-['Raleway:Bold',sans-serif] font-bold text-[20px] text-black tracking-[1px]">AI Triage Summaries</h1>
+          <h1 className="font-['Raleway:Bold',sans-serif] font-bold text-[20px] text-black tracking-[1px]">AI Decision Support Assessments</h1>
           <div className="flex items-center gap-4">
             <div className="relative">
               <div className="w-[465px] h-[31px] border border-[#888888] rounded-[5px] flex items-center px-3">

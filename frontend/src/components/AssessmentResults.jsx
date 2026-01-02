@@ -358,7 +358,7 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
                 className="w-4 h-4 object-contain" 
                 style={{ filter: 'brightness(0) saturate(100%) invert(98%) sepia(14%) saturate(865%) hue-rotate(314deg) brightness(105%) contrast(100%)' }}
               />
-              Save to Triage Summary
+              Save to Assessments
             </button>
             <button
               onClick={onLogSymptoms}
