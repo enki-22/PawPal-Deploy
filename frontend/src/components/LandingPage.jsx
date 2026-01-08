@@ -16,11 +16,10 @@ export default function LandingPage() {
   // eslint-disable-next-line
   const { user } = require('../context/AuthContext'); 
   
-  // State for Mobile Sidebar
+  // --- STATES ---
+  const [activeSection, setActiveSection] = React.useState('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  // State for Privacy Policy Modal
   const [showPrivacyPolicy, setShowPrivacyPolicy] = React.useState(false);
-  // State for Terms of Service Modal
   const [showTermsOfService, setShowTermsOfService] = React.useState(false);
 
 // Redirect on mount - DISABLED TO PREVENT LOGIN LOOPS
@@ -77,6 +76,44 @@ export default function LandingPage() {
 
   // --- PROMOTIONS STATE ---
   const [promotions, setPromotions] = React.useState([]);
+  // --- SECTION OBSERVER & URL SYNC ---
+  React.useEffect(() => {
+    const sectionIds = ['home', 'promotions', 'meet-pawpal', 'help', 'find-us'];
+    
+    const observerOptions = {
+      root: null, // Observe relative to viewport
+      rootMargin: '-40% 0px -40% 0px', // Trigger when section is in the middle of screen
+      threshold: 0
+    };
+
+    const observerCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          setActiveSection(id);
+          
+          // Update URL hash without causing a page jump
+          window.history.replaceState(null, '', `#${id}`);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    
+    sectionIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    // Handle initial hash on page load
+    const currentHash = window.location.hash.replace('#', '');
+    if (sectionIds.includes(currentHash)) {
+      scrollToSection(currentHash);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   React.useEffect(() => {
     const fetchPromotions = async () => {
       try {
@@ -126,13 +163,18 @@ export default function LandingPage() {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
-      setIsMobileMenuOpen(false); // Close sidebar on click
+      // Update hash immediately on click
+      window.history.pushState(null, '', `#${id}`);
+      setActiveSection(id);
+      setIsMobileMenuOpen(false);
     }
-        {/* Privacy Policy Modal */}
-        {showPrivacyPolicy && (
-          <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
-        )}
   };
+
+  // Helper for Link styling
+  const getNavLinkClass = (id) => `
+    font-['Raleway',sans-serif] font-semibold text-[15px] transition-all duration-300 relative
+    ${activeSection === id ? 'text-[#815FB3]' : 'text-[#666] hover:text-[#815FB3]'}
+  `;
 
   return (
     <div className="bg-[#f7f6fa] w-full h-screen flex flex-col relative overflow-hidden">
@@ -172,11 +214,16 @@ export default function LandingPage() {
           </div>
           
           <div className="flex-1 overflow-y-auto py-4 flex flex-col gap-2 px-4">
-            <motion.button onClick={() => scrollToSection('home')} whileTap={{ scale: 0.95 }} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Home</motion.button>
-            <motion.button onClick={() => scrollToSection('meet-pawpal')} whileTap={{ scale: 0.95 }} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Meet PawPal</motion.button>
-            <motion.button onClick={() => scrollToSection('promotions')} whileTap={{ scale: 0.95 }} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Promotions</motion.button>
-            <motion.button onClick={() => scrollToSection('help')} whileTap={{ scale: 0.95 }} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Help</motion.button>
-            <motion.button onClick={() => scrollToSection('find-us')} whileTap={{ scale: 0.95 }} className="text-left px-4 py-3 rounded-lg hover:bg-[#f0f1f1] text-[#333] font-semibold">Find Us</motion.button>
+            {['home', 'meet-pawpal', 'promotions', 'help', 'find-us'].map(id => (
+              <motion.button 
+                key={id}
+                onClick={() => scrollToSection(id)} 
+                whileTap={{ scale: 0.95 }} 
+                className={`text-left px-4 py-3 rounded-lg font-semibold capitalize ${activeSection === id ? 'bg-[#f0f1f1] text-[#815FB3]' : 'text-[#333]'}`}
+              >
+                {id.replace('-', ' ')}
+              </motion.button>
+            ))}
           </div>
 
           <div className="p-5 border-t flex flex-col gap-3 bg-[#f7f6fa]">
@@ -228,31 +275,20 @@ export default function LandingPage() {
         </button>
 
         {/* --- DESKTOP NAVIGATION LINKS (Hidden on mobile) --- */}
-        <div className="hidden lg:flex items-center gap-20">
-            <button 
-              onClick={() => scrollToSection('meet-pawpal')}
-              className="text-[#666] hover:text-[#815FB3] font-['Raleway',sans-serif] font-semibold text-[15px] transition-colors"
-            >
-              Meet PawPal
-            </button>
-            <button 
-              onClick={() => scrollToSection('promotions')}
-              className="text-[#666] hover:text-[#815FB3] font-['Raleway',sans-serif] font-semibold text-[15px] transition-colors"
-            >
-              Promotions
-            </button>
-            <button 
-              onClick={() => scrollToSection('help')}
-              className="text-[#666] hover:text-[#815FB3] font-['Raleway',sans-serif] font-semibold text-[15px] transition-colors"
-            >
-              Help
-            </button>
-            <button 
-              onClick={() => scrollToSection('find-us')}
-              className="text-[#666] hover:text-[#815FB3] font-['Raleway',sans-serif] font-semibold text-[15px] transition-colors"
-            >
-              Find Us
-            </button>
+        <div className="hidden lg:flex items-center gap-12">
+            {[
+                { id: 'meet-pawpal', label: 'Meet PawPal' },
+                { id: 'promotions', label: 'Promotions' },
+                { id: 'help', label: 'Help' },
+                { id: 'find-us', label: 'Find Us' }
+            ].map(link => (
+                <button key={link.id} onClick={() => scrollToSection(link.id)} className={getNavLinkClass(link.id)}>
+                    {link.label}
+                    {activeSection === link.id && (
+                        <motion.div layoutId="activeUnderline" className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#815FB3]" />
+                    )}
+                </button>
+            ))}
         </div>
 
         {/* --- DESKTOP BUTTONS (Hidden on mobile) --- */}
@@ -773,18 +809,10 @@ export default function LandingPage() {
                 © 2025 PuyaTechs. All rights reserved.
             </div>
         </footer>
-                  {/* Privacy Policy Modal */}
-                  {showPrivacyPolicy && (
-                    <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
-                  )}
-                  {/* Terms of Service Modal */}
-                  {showTermsOfService && (
-                    <TermsOfService onClose={() => setShowTermsOfService(false)} />
-                  )}
-            {/* Privacy Policy Modal */}
-            {showPrivacyPolicy && (
-              <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
-            )}
+
+        {/* Modals */}
+        {showPrivacyPolicy && <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />}
+        {showTermsOfService && <TermsOfService onClose={() => setShowTermsOfService(false)} />}
       </main>
     </div>
   );

@@ -230,6 +230,9 @@ const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) =>
   const [isFading, setIsFading] = useState(false);
   const [isAlertFading, setIsAlertFading] = useState(false);
 
+  // --- NEW: Check if form is complete for button state ---
+  const isFormComplete = formData.email.trim() !== '' && formData.password !== '';
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -518,7 +521,7 @@ const LoginForm = ({ onSwitchToRegister, successMessage, onSubmit, loading }) =>
                 fontFamily: 'Raleway',
                 boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)'
               }}
-              disabled={loading}
+              disabled={loading || !isFormComplete}
             >
               {loading ? 'Logging in...' : 'Login'}
             </button>
