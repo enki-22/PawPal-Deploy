@@ -149,6 +149,37 @@ class SymptomTrackerViewSet(viewsets.ModelViewSet):
             },
             'alert': alert_created
         }, status=status.HTTP_201_CREATED)
+
+        # Add these actions to the SymptomTrackerViewSet class in chatbot/views_symptom_tracker.py
+
+    @action(detail=True, methods=['delete'], url_path='remove-log')
+    def remove_log(self, request, pk=None):
+        """Delete a specific symptom log entry"""
+        log = get_object_or_404(SymptomLog, id=pk, user=request.user)
+        pet_id = log.pet.id
+        log.delete()
+        
+        # Recalculate trend after deletion
+        return Response({
+            'success': True, 
+            'message': 'Symptom log removed successfully',
+            'pet_id': pet_id
+        })
+
+    @action(detail=False, methods=['delete'], url_path='clear-pet-symptoms')
+    def clear_pet_symptoms(self, request):
+        """Remove all logged symptoms for a specific pet"""
+        pet_id = request.query_params.get('pet_id')
+        if not pet_id:
+            return Response({'error': 'pet_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        pet = get_object_or_404(Pet, id=pet_id, owner=request.user)
+        deleted_count, _ = SymptomLog.objects.filter(pet=pet, user=request.user).delete()
+        
+        return Response({
+            'success': True, 
+            'message': f'Cleared all {deleted_count} symptom logs for {pet.name}'
+        })
     
     @action(detail=False, methods=['get'], url_path='timeline')
     def timeline(self, request):
@@ -177,10 +208,7 @@ class SymptomTrackerViewSet(viewsets.ModelViewSet):
         start_date = timezone.now().date() - timedelta(days=days)
         
         # Get logs
-        logs = SymptomLog.objects.filter(
-            pet=pet,
-            symptom_date__gte=start_date
-        ).order_by('symptom_date')
+        logs = SymptomLog.objects.filter(pet=pet).order_by('-symptom_date', '-logged_date')[:14]
         
         # Calculate summary statistics
         if logs.exists():
@@ -242,9 +270,7 @@ class SymptomTrackerViewSet(viewsets.ModelViewSet):
         pet = get_object_or_404(Pet, id=pet_id, owner=request.user)
         
         # Get last 14 days of logs
-        logs = SymptomLog.objects.filter(
-            pet=pet
-        ).order_by('-symptom_date')[:14]
+        logs = SymptomLog.objects.filter(pet=pet).order_by('-symptom_date', '-logged_date')[:14]
         
         if not logs:
             return Response({
@@ -759,9 +785,7 @@ def get_pet_health_timeline(request):
         )
     
     # Get last 14 logs
-    logs = SymptomLog.objects.filter(
-        pet=pet
-    ).order_by('-symptom_date')[:14]
+    logs = SymptomLog.objects.filter(pet=pet).order_by('-symptom_date', '-logged_date')[:14]
     
     # Format logs
     logs_data = []
@@ -801,3 +825,40 @@ def get_pet_health_timeline(request):
         'logs': logs_data,
         'latest_trend': trend_data
     })
+
+
+
+@api_view(['DELETE'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def remove_symptom_log(request, pk):
+    """Standalone view to delete a specific log entry using custom auth"""
+    from utils.unified_permissions import check_user_or_admin
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    log = get_object_or_404(SymptomLog, id=pk, user=user_obj)
+    log.delete()
+    return Response({'success': True, 'message': 'Symptom log removed successfully'})
+
+@api_view(['DELETE'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def clear_all_pet_symptoms(request):
+    """Standalone view to clear all symptoms for a pet using custom auth"""
+    from utils.unified_permissions import check_user_or_admin
+    user_type, user_obj, error_response = check_user_or_admin(request)
+    if error_response:
+        return error_response
+    
+    pet_id = request.query_params.get('pet_id')
+    if not pet_id:
+        return Response({'error': 'pet_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    pet = get_object_or_404(Pet, id=pet_id, owner=user_obj)
+    SymptomLog.objects.filter(pet=pet, user=user_obj).delete()
+    # Also clear trends so the AI has a fresh start
+    PetHealthTrend.objects.filter(pet=pet).delete()
+    
+    return Response({'success': True, 'message': 'Pet health history cleared successfully'})

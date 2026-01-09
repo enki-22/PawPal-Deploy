@@ -37,6 +37,7 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showPetModal, setShowPetModal] = useState(false);
   const { token, logout } = useAuth();
   
   const {
@@ -161,6 +162,51 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
     });
   };
 
+  const handleClearAllLogs = async (petId) => {
+    if (!window.confirm(`Are you sure you want to clear all symptom logs for ${selectedPet?.name}? This cannot be undone.`)) {
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(
+        `${API_BASE_URL}/symptom-tracker/clear-pet-symptoms/?pet_id=${petId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      // Refresh the UI
+      loadData(); 
+      alert('Symptoms cleared successfully.');
+    } catch (err) {
+      console.error('Error clearing symptoms:', err);
+      alert('Failed to clear symptoms. Please try again.');
+    }
+  };
+
+  const handleRemoveSpecificLog = async (logId) => {
+    if (!window.confirm('Remove this specific log entry?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      // Ensure the URL matches the path we just created in urls.py
+      await axios.delete(`${API_BASE_URL}/symptom-tracker/${logId}/remove-log/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      loadData();
+    } catch (err) {
+      console.error('Delete error:', err);
+      alert('Failed to remove log.');
+    }
+  };
+
+
+  
+
   // Logout modal handlers
   const handleLogoutClick = () => {
     setShowLogoutModal(true);
@@ -214,7 +260,7 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
   };
 
   // Prepare chart data - show max severity per day
-  const chartData = logs.map(log => {
+  const chartData = [...logs].reverse().map(log => {
     const severityScores = log.severity_scores || {};
     const maxSeverity = Object.values(severityScores).length > 0
       ? Math.max(...Object.values(severityScores))
@@ -240,6 +286,49 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
     
     return dataPoint;
   });
+
+
+  // Pet Selection Modal UI
+  const PetSelectionModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div className="bg-[#815FB3] p-4">
+          <h3 className="text-xl font-bold text-white text-center" style={{ fontFamily: 'Raleway' }}>Select Your Pet</h3>
+        </div>
+        <div className="p-6 space-y-3 max-h-[60vh] overflow-y-auto">
+          {pets.map(pet => (
+            <button
+              key={pet.id}
+              onClick={() => {
+                handlePetSelect(pet.id);
+                setShowPetModal(false);
+              }}
+              className={`w-full p-4 text-left border-2 rounded-xl transition-all flex justify-between items-center ${
+                selectedPetId === pet.id 
+                ? 'border-[#815FB3] bg-[#F5E9B8]/20' 
+                : 'border-gray-100 hover:border-[#815FB3]/30 hover:bg-gray-50'
+              }`}
+            >
+              <div>
+                <div className="font-bold text-[#34113F]">{pet.name}</div>
+                <div className="text-xs text-gray-500">{pet.animal_type}</div>
+              </div>
+              {selectedPetId === pet.id && <span className="text-[#815FB3]">●</span>}
+            </button>
+          ))}
+        </div>
+        <div className="p-4 border-t bg-gray-50">
+          <button 
+            onClick={() => setShowPetModal(false)}
+            className="w-full py-2.5 text-gray-600 font-bold hover:text-gray-800 transition-colors"
+            style={{ fontFamily: 'Raleway' }}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   // Render the appropriate content based on state
   const renderContent = () => {
@@ -294,52 +383,82 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
 
     if (!logs || logs.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center py-12 px-6 bg-[#FFFFF2] rounded-xl shadow-sm border border-[#E0E0E0] max-w-2xl mx-auto mt-8">
-          <img 
-            src="/si_ai-note-fill.png" 
-            alt="No Logs" 
-            className="w-20 h-20 mb-6 opacity-90"
-            style={{ clipPath: 'inset(6% 6% 6% 6%)', objectFit: 'cover' }}
-          />
-          <h3 className="text-2xl font-bold text-[#34113F] mb-3 text-center" style={{ fontFamily: 'Raleway' }}>
-            No Symptom Logs Yet
-          </h3>
-          <p className="text-[#555555] mb-8 text-center max-w-md text-lg" style={{ fontFamily: 'Raleway', lineHeight: '1.6' }}>
-            Start tracking {selectedPet?.name || 'your pet'}&apos;s symptoms to see progression over time.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-            {/* Log via Chat Button */}
-            <button
-              onClick={() => navigate('/chat/new')}
-              className="group flex items-center justify-center gap-3 px-8 py-4 bg-[#F5E9B8] rounded-xl hover:bg-[#ebd78c] transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 w-full sm:w-auto"
-            >
-              <img 
-                src="/material-symbols_chat.png" 
-                alt="Chat" 
-                className="w-6 h-6"
-              />
-              <span className="font-bold text-[#34113F] text-lg" style={{ fontFamily: 'Raleway' }}>
-                Log via Chat
-              </span>
-            </button>
-
-            {/* Manual Log Button */}
-            <button
-              onClick={() => setShowLogger(true)}
-              className="group flex items-center justify-center gap-3 px-8 py-4 bg-[#F5E9B8] rounded-xl hover:bg-[#ebd78c] transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 w-full sm:w-auto"
-            >
-              <img 
-                src="/icon-park-solid_notebook-and-pen.png" 
-                alt="Manual" 
-                className="w-6 h-6"
-              />
-              <span className="font-bold text-[#34113F] text-lg" style={{ fontFamily: 'Raleway' }}>
-                Manual Log
-              </span>
-            </button>
+        <>
+          {/* 1. Header: Now included here so users can switch pets even with 0 logs */}
+          <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-[#34113F] mb-1" style={{ fontFamily: 'Raleway' }}>
+                📊 Health Timeline
+              </h2>
+              {selectedPet && (
+                <div className="text-gray-600 font-medium text-sm" style={{ fontFamily: 'Raleway' }}>
+                  <span className="text-[#815FB3] font-bold text-lg">{selectedPet.name}</span>
+                  <span className="mx-2 text-gray-300">|</span>
+                  <span>{selectedPet.animal_type}</span>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              {pets.length > 1 && (
+                <button
+                  onClick={() => setShowPetModal(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 border-2 border-[#E0E0E0] rounded-lg bg-white text-[#34113F] font-bold hover:border-[#815FB3] transition-colors"
+                  style={{ fontFamily: 'Raleway' }}
+                >
+                  <span>🐾 Switch Pet</span>
+                  <img src="/fa6-solid_sort.png" alt="sort" className="w-3 h-3 opacity-50" />
+                </button>
+              )}
+              <button
+                onClick={() => navigate('/chat/new')}
+                className="flex-1 sm:flex-none px-6 py-2.5 bg-[#815FB3] text-white rounded-lg hover:bg-[#6D4C9A] font-bold transition-all shadow-md"
+                style={{ fontFamily: 'Raleway' }}
+              >
+                📝 Log Symptoms
+              </button>
+            </div>
           </div>
-        </div>
+
+          {/* 2. Empty State: Contains both Log via Chat and Manual Log */}
+          <div className="flex flex-col items-center justify-center py-12 px-6 bg-[#FFFFF2] rounded-xl shadow-sm border border-[#E0E0E0] max-w-2xl mx-auto mt-8">
+            <img 
+              src="/si_ai-note-fill.png" 
+              alt="No Logs" 
+              className="w-20 h-20 mb-6 opacity-90"
+              style={{ clipPath: 'inset(6% 6% 6% 6%)', objectFit: 'cover' }}
+            />
+            <h3 className="text-2xl font-bold text-[#34113F] mb-3 text-center" style={{ fontFamily: 'Raleway' }}>
+              No Symptom Logs Yet
+            </h3>
+            <p className="text-[#555555] mb-8 text-center max-w-md text-lg" style={{ fontFamily: 'Raleway', lineHeight: '1.6' }}>
+              Start tracking {selectedPet?.name || 'your pet'}&apos;s symptoms to see progression over time.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+              {/* Log via Chat */}
+              <button
+                onClick={() => navigate('/chat/new')}
+                className="group flex items-center justify-center gap-3 px-8 py-4 bg-[#F5E9B8] rounded-xl hover:bg-[#ebd78c] transition-all duration-300 shadow-sm transform hover:-translate-y-1 w-full sm:w-auto"
+              >
+                <img src="/material-symbols_chat.png" alt="Chat" className="w-6 h-6" />
+                <span className="font-bold text-[#34113F] text-lg" style={{ fontFamily: 'Raleway' }}>
+                  Log via Chat
+                </span>
+              </button>
+
+              {/* Manual Log - KEPT INTACT */}
+              <button
+                onClick={() => setShowLogger(true)}
+                className="group flex items-center justify-center gap-3 px-8 py-4 bg-[#F5E9B8] rounded-xl hover:bg-[#ebd78c] transition-all duration-300 shadow-sm transform hover:-translate-y-1 w-full sm:w-auto"
+              >
+                <img src="/icon-park-solid_notebook-and-pen.png" alt="Manual" className="w-6 h-6" />
+                <span className="font-bold text-[#34113F] text-lg" style={{ fontFamily: 'Raleway' }}>
+                  Manual Log
+                </span>
+              </button>
+            </div>
+          </div>
+        </>
       );
     }
 
@@ -371,6 +490,28 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
             </div>
           </div>
         )}
+        {latestTrend?.trend === 'improving' && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl shadow-sm">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🎉</span>
+              <div className="flex-1">
+                <p className="text-green-800 font-bold mb-2" style={{ fontFamily: 'Raleway' }}>
+                  Great news! Symptoms are improving.
+                </p>
+                <p className="text-green-700 text-sm mb-3" style={{ fontFamily: 'Raleway' }}>
+                  Would you like to clear the records for {selectedPet?.name}? This will prevent old symptoms from affecting future AI assessments.
+                </p>
+                <button 
+                  onClick={() => handleClearAllLogs(selectedPetId)}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-bold text-sm shadow-sm"
+                  style={{ fontFamily: 'Raleway' }}
+                >
+                  Clear All Logged Symptoms
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Header */}
         <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -387,19 +528,15 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
             )}
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            {pets.length > 1 && (
-              <select
-                value={selectedPetId}
-                onChange={(e) => handlePetSelect(parseInt(e.target.value))}
-                className="px-4 py-2.5 border-2 border-[#E0E0E0] rounded-lg bg-white text-[#34113F] font-bold focus:outline-none focus:border-[#815FB3] cursor-pointer"
+          {pets.length > 1 && (
+              <button
+                onClick={() => setShowPetModal(true)}
+                className="flex items-center gap-2 px-4 py-2.5 border-2 border-[#E0E0E0] rounded-lg bg-white text-[#34113F] font-bold hover:border-[#815FB3] transition-colors"
                 style={{ fontFamily: 'Raleway' }}
               >
-                {pets.map(pet => (
-                  <option key={pet.id} value={pet.id}>
-                    {pet.name}
-                  </option>
-                ))}
-              </select>
+                <span>🐾 Switch Pet</span>
+                <img src="/fa6-solid_sort.png" alt="sort" className="w-3 h-3 opacity-50" />
+              </button>
             )}
             {/* Log Symptoms Button - Primary Action - Navigates to Chat */}
             <button
@@ -593,6 +730,14 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
                       </p>
                     </div>
                   </div>
+                  {/* Add this Delete Button */}
+                    <button 
+                      onClick={() => handleRemoveSpecificLog(log.id)}
+                      className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                      title="Remove this log entry"
+                    >
+                      <img src="/Delete.png" alt="Delete" className="w-5 h-5" />
+                    </button>
                 </div>
 
                 {/* Symptoms */}
@@ -807,6 +952,8 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
           </div>
         </div>
       )}
+
+      {showPetModal && <PetSelectionModal />}
     </div>
   );
 };

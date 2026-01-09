@@ -43,7 +43,9 @@ urlpatterns = [
     
     # Symptom checker endpoints
     path('symptom-checker/predict/', views.symptom_checker_predict, name='symptom_checker_predict'),
-    
+    path('symptom-tracker/<int:pk>/remove-log/', views_symptom_tracker.remove_symptom_log, name='remove-log'),
+    path('symptom-tracker/clear-pet-symptoms/', views_symptom_tracker.clear_all_pet_symptoms, name='clear-pet-symptoms'),
+        
     # Symptom Tracker endpoints (AI-powered)
     path('symptom-tracker/log-daily/', views_symptom_tracker.log_daily_symptoms, name='log_symptoms'),
     path('symptom-tracker/health-timeline/', views_symptom_tracker.get_pet_health_timeline, name='symptom_timeline'),
