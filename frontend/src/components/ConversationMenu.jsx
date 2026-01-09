@@ -13,10 +13,8 @@ const ConversationMenu = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [newTitle, setNewTitle] = useState(conversation.title);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  // const [showingAbove, setShowingAbove] = useState(false); // Removed: unused variable
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -70,51 +68,6 @@ const ConversationMenu = ({
 
   const handleMenuClick = (e) => {
     e.stopPropagation();
-    
-    if (!isOpen && buttonRef.current) {
-      // Calculate position when opening the menu
-      const buttonRect = buttonRef.current.getBoundingClientRect();
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-      
-      // Estimate dropdown height (approximate based on 4 menu items)
-      const dropdownHeight = 180; // More accurate estimate for 4 items with padding
-      const viewportHeight = window.innerHeight;
-      const spaceBelow = viewportHeight - buttonRect.bottom;
-      const spaceAbove = buttonRect.top;
-      
-      // Determine if dropdown should appear above or below
-      // Show above if: not enough space below AND there's enough space above
-  // Determine if dropdown should appear above or below
-  // Show above if: not enough space below AND there's enough space above
-  const showAbove = spaceBelow < dropdownHeight && spaceAbove >= dropdownHeight;
-      
-      // Calculate horizontal position (ensure it doesn't go off-screen)
-      const dropdownWidth = 128; // min-w-32 = 128px
-      let rightPosition = window.innerWidth - buttonRect.right - scrollLeft;
-      
-      // If dropdown would go off the left edge, adjust position
-      if (buttonRect.right - dropdownWidth < 0) {
-        rightPosition = window.innerWidth - buttonRect.left - dropdownWidth - scrollLeft;
-      }
-      
-      // Calculate top position with bounds checking
-      let topPosition;
-      if (showAbove) {
-        topPosition = Math.max(8, buttonRect.top + scrollTop - dropdownHeight - 4);
-      } else {
-        topPosition = buttonRect.bottom + scrollTop + 4;
-        // Ensure dropdown doesn't go below viewport
-        const maxTop = scrollTop + viewportHeight - dropdownHeight - 8;
-        topPosition = Math.min(topPosition, maxTop);
-      }
-      
-      setDropdownPosition({
-        top: topPosition,
-        right: Math.max(8, rightPosition) // Ensure at least 8px from edge
-      });
-    }
-    
     setIsOpen(!isOpen);
   };
 
@@ -289,11 +242,8 @@ const ConversationMenu = ({
             `}</style>
             <div 
               ref={dropdownRef}
-              className="z-[9999]"
+              className="absolute right-0 top-full mt-1 z-50"
               style={{
-                position: 'fixed',
-                top: `${dropdownPosition.top}px`,
-                right: `${dropdownPosition.right}px`,
                 width: '111px',
                 height: '92px',
                 background: '#EFE8BE',
