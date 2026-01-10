@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { authService } from '../services/api';
+import SignupConfirmationModal from './SignupConfirmationModal';
+
 
 const inputBase = 'w-12 h-12 md:w-14 md:h-14 text-center text-lg md:text-xl rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500';
 
@@ -16,7 +18,8 @@ export default function VerifyEmail() {
   const [seconds, setSeconds] = useState(0);
   const inputsRef = useRef([]);
   const [sentOnMount, setSentOnMount] = useState(false);
-  const [codeSent, setCodeSent] = useState(false);
+  const [codeSent, setCodeSent] = useState(!!emailFromNav);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
     inputsRef.current[0]?.focus();
@@ -29,6 +32,7 @@ export default function VerifyEmail() {
   }, [seconds]);
 
   // Auto-send OTP if we came from registration with an email
+  /*
   useEffect(() => {
     const autoSend = async () => {
       if (!emailFromNav || sentOnMount) return;
@@ -48,6 +52,7 @@ export default function VerifyEmail() {
     autoSend();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emailFromNav, sentOnMount]);
+  */
 
   const handleChange = (idx, val) => {
     if (!/^[0-9]?$/.test(val)) return;
@@ -71,15 +76,29 @@ export default function VerifyEmail() {
       setError('Enter your email and 6-digit code.');
       return;
     }
+
     try {
       setLoading(true);
       setError('');
       setSuccess('');
-      await authService.verifyOtp({ email, purpose: 'account_creation', code });
-      setSuccess('Email verified successfully. Redirecting to login...');
-  setTimeout(() => navigate('/petowner/login'), 1200);
+      
+      // We call the API. If it fails, it jumps straight to the "catch" block.
+      const response = await authService.verifyOtp({ 
+        email, 
+        purpose: 'account_creation', 
+        code 
+      });
+
+      // If we reach here, the code was correct.
+      if (response.data.success) {
+        setSuccess('Email verified successfully!');
+        
+        // This triggers the "Success" popup (SignupConfirmationModal)
+        // Note: The 'navigate' is now handled by the modal's onClose prop (see step 4)
+        setShowConfirmation(true);
+      }
     } catch (err) {
-      const msg = err?.response?.data?.error || 'Verification failed';
+      const msg = err?.response?.data?.error || 'Invalid code. Please try again.';
       setError(msg);
     } finally {
       setLoading(false);
@@ -162,6 +181,11 @@ export default function VerifyEmail() {
           {codeSent ? (seconds > 0 ? `Resend Code in ${seconds}s` : 'Resend Code') : 'Send Code'}
         </button>
       </div>
+      {/* Confirmation Modal */}
+      <SignupConfirmationModal 
+        show={showConfirmation} 
+        onClose={() => navigate('/petowner/login')} 
+      />
     </div>
   );
 }

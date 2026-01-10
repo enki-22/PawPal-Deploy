@@ -512,8 +512,12 @@ const RegisterStep2 = () => {
       await authService.registerWithOtp(completeData);
 
       // Mark success so the safety redirect doesn't fire, then show confirmation modal
-      setIsSuccess(true);
-      setShowConfirmation(true);
+      navigate('/verify-email', { 
+        state: { 
+          email: registrationData.step1.email,
+          purpose: 'account_creation' 
+        } 
+      });
     } catch (err) {
       const apiErrors = err?.response?.data?.error || err?.response?.data;
       if (apiErrors) {

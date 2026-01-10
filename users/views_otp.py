@@ -82,18 +82,30 @@ def register(request):
             'error': '; '.join(error_messages) if error_messages else 'Invalid registration data',
             'errors': serializer.errors  # Include detailed errors for debugging
         }, status=status.HTTP_400_BAD_REQUEST)
-
-    # Create active user (OTP verification temporarily disabled)
-    with transaction.atomic():
-        user = serializer.save()
         
-        # OTP verification temporarily disabled - accounts are created active
-        # TODO: Re-enable OTP verification later
+
+    with transaction.atomic():
+        # 1. Create the user but set as INACTIVE
+        user = serializer.save()
+        user.is_active = False
+        user.save()
+        
+        # 2. Generate and Save OTP
+        otp = OTP.create_new(email=user.email, purpose=OTP.PURPOSE_ACCOUNT, user=user)
+        otp.code = _generate_otp_code()
+        otp.save()
+
+        # 3. Send Email via Brevo (using threading to not block the response)
+        email_content = f"<html><body><p>Welcome to PawPal! Your verification code is <b>{otp.code}</b>. It will expire in 10 minutes.</p></body></html>"
+        threading.Thread(
+            target=send_via_brevo, 
+            args=(user.email, 'Verify Your PawPal Account', email_content)
+        ).start()
         
     return Response({
         'success': True,
-        'user_id': user.id,
-        'message': 'Account created successfully. You can now log in.'
+        'email': user.email, # Return email so frontend knows where to send verification
+        'message': 'OTP sent to email. Please verify your account.'
     }, status=status.HTTP_201_CREATED)
 
 

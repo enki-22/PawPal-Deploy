@@ -142,7 +142,7 @@ class UserRegistrationSerializer(serializers.Serializer):
             password=password,
             first_name=first_name,
             last_name=last_name,
-            is_active=True  # Temporarily skip OTP verification
+            is_active=False  # Temporarily skip OTP verification
         )
         
         # Update the profile created by signal
