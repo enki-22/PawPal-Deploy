@@ -1,11 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // Added useRef
 import axios from 'axios';
 import showToast from '../utils/toast';
 
 const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) => {
   const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
   const API_BASE_URL = `${API_ROOT}/api`;
-  // Blood type options by species
+
+  // Breed options for Dogs and Cats
+  const breedOptions = {
+    dog: [
+      "Airedale Terrier", "Akita", "Alaskan Malamute", "Australian Shepherd", "Beagle", 
+      "Belgian Malinois", "Bernese Mountain Dog", "Bichon Frise", "Border Collie", 
+      "Boston Terrier", "Boxer", "Bulldog", "Cane Corso", "Cavalier King Charles Spaniel", 
+      "Chihuahua", "Cocker Spaniel", "Dachshund", "Dalmatian", "Doberman Pinscher", 
+      "French Bulldog", "German Shepherd", "Golden Retriever", "Great Dane", "Havanese", 
+      "Labrador Retriever", "Maltese", "Miniature Schnauzer", "Newfoundland", "Papillon", 
+      "Pembroke Welsh Corgi", "Pomeranian", "Poodle", "Pug", "Rottweiler", "Saint Bernard", 
+      "Samoyed", "Shiba Inu", "Shih Tzu", "Siberian Husky", "Vizsla", "Yorkshire Terrier",
+      "Mixed Breed", "Unknown"
+    ],
+    cat: [
+      "Abyssinian", "American Shorthair", "Bengal", "Birman", "British Shorthair", 
+      "Burmese", "Chartreux", "Cornish Rex", "Devon Rex", "Egyptian Mau", "Exotic Shorthair", 
+      "Himalayan", "Maine Coon", "Manx", "Norwegian Forest Cat", "Ocicat", "Oriental", 
+      "Persian", "Ragdoll", "Russian Blue", "Scottish Fold", "Siamese", "Siberian", 
+      "Sphynx", "Tonkinese", "Turkish Angora", "Turkish Van", "Domestic Shorthair", 
+      "Domestic Mediumhair", "Domestic Longhair", "Mixed Breed", "Unknown"
+    ]
+  };
+
   const bloodTypeOptions = {
     dog: [
       { value: 'DEA 1.1', label: 'DEA 1.1 (Dog)' },
@@ -20,21 +43,15 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
       { value: 'B', label: 'B (Cat)' },
       { value: 'AB', label: 'AB (Cat)' },
     ],
-    other: [
-      { value: 'Unknown', label: 'Unknown' },
-    ],
-    /* hamster: [ { value: 'Unknown', label: 'Unknown' } ],
-    bird: [ { value: 'Unknown', label: 'Unknown' } ],
-    rabbit: [ { value: 'Unknown', label: 'Unknown' } ],
-    fish: [ { value: 'Unknown', label: 'Unknown' } ],
-    */
+    other: [{ value: 'Unknown', label: 'Unknown' }],
   };
+
   const initialPetState = {
     name: '',
     animal_type: '',
     breed: '',
     date_of_birth: '',
-    age: '', // for edit mode fallback
+    age: '', 
     sex: '',
     weight: '',
     blood_type: '',
@@ -47,6 +64,21 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
   const [newPet, setNewPet] = useState(initialPetState);
   const [addingPet, setAddingPet] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  
+  // New state for searchable breed dropdown
+  const [showBreedDropdown, setShowBreedDropdown] = useState(false);
+  const breedDropdownRef = useRef(null);
+
+  // Close breed dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (breedDropdownRef.current && !breedDropdownRef.current.contains(event.target)) {
+        setShowBreedDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Populate form when editing
   useEffect(() => {
@@ -90,8 +122,20 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
   }, [isOpen, petToEdit]);
 
   const handleInputChange = (field, value) => {
-    setNewPet(prev => ({ ...prev, [field]: value }));
+    setNewPet(prev => {
+      const next = { ...prev, [field]: value };
+      // Logic to clear breed if the user changes the animal type
+      if (field === 'animal_type' && value !== prev.animal_type) {
+        next.breed = '';
+      }
+      return next;
+    });
   };
+
+  // Filter logic for the breed dropdown
+  const filteredBreeds = (breedOptions[newPet.animal_type] || []).filter(b =>
+    b.toLowerCase().includes((newPet.breed || "").toLowerCase())
+  );
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -102,19 +146,9 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
   };
 
   const handleClose = () => {
-    setNewPet({
-      name: '',
-      animal_type: '',
-      breed: '',
-      date_of_birth: '',
-      sex: '',
-      blood_type: '',
-      allergies: '',
-      chronic_disease: '',
-      spayed_neutered: false,
-      image: null
-    });
+    setNewPet(initialPetState);
     setPreviewImage(null);
+    setShowBreedDropdown(false);
     onClose();
   };
 
@@ -274,96 +308,109 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
                   </h3>
 
                   {/* First Row - Name and Breed */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Name</label>
+                      <label className="block text-sm font-bold text-gray-700 mb-2 font-raleway">Name</label>
                       <input
-                        type="text"
-                        required
-                        value={newPet.name}
+                        type="text" required value={newPet.name}
                         onChange={(e) => handleInputChange('name', e.target.value)}
-                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
-                        placeholder="Name"
-                        style={{ fontFamily: 'Raleway' }}
+                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent font-raleway"
+                        placeholder="Pet Name"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Breed</label>
+                    {/* Searchable Breed Input */}
+                    <div className="relative" ref={breedDropdownRef}>
+                      <label className="block text-sm font-bold text-gray-700 mb-2 font-raleway">Breed</label>
                       <input
                         type="text"
                         value={newPet.breed}
-                        onChange={(e) => handleInputChange('breed', e.target.value)}
-                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
-                        placeholder="Breed"
-                        style={{ fontFamily: 'Raleway' }}
+                        onFocus={() => setShowBreedDropdown(true)}
+                        onChange={(e) => {
+                          handleInputChange('breed', e.target.value);
+                          setShowBreedDropdown(true);
+                        }}
+                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent font-raleway"
+                        placeholder={newPet.animal_type ? "Search or type breed" : "Select species first"}
+                        disabled={!newPet.animal_type}
                       />
+                      {showBreedDropdown && filteredBreeds.length > 0 && (
+                        <div className="absolute z-[1010] w-full mt-1 bg-white border border-gray-300 rounded-md shadow-xl max-h-60 overflow-y-auto custom-scrollbar">
+                          {filteredBreeds.map(b => (
+                            <div 
+                              key={b} 
+                              onClick={() => {
+                                handleInputChange('breed', b);
+                                setShowBreedDropdown(false);
+                              }}
+                              className="px-4 py-2 hover:bg-purple-100 cursor-pointer text-sm font-raleway text-gray-700"
+                            >
+                              {b}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Second Row - Species */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
+                  {/* Second Row - Species and Weight */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Species</label>
+                      <label className="block text-sm font-bold text-gray-700 mb-2 font-raleway">Species</label>
                       <select
-                        required
-                        value={newPet.animal_type}
+                        required value={newPet.animal_type}
                         onChange={(e) => handleInputChange('animal_type', e.target.value)}
-                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
-                        style={{ fontFamily: 'Raleway' }}
+                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent font-raleway"
                       >
-                        {/* Placeholder is now disabled and hidden so it's not clickable in the list */}
-                        <option value="" disabled hidden>Species</option>
+                        <option value="" disabled hidden>Select Species</option>
                         <option value="cat">Cat</option>
                         <option value="dog">Dog</option>
-                        {/* Commented out for Capstone Scope
-                        <option value="hamster">Hamster</option>
-                        <option value="bird">Bird</option>
-                        <option value="rabbit">Rabbit</option>
-                        <option value="fish">Fish</option>
-                        */}
-                        {/* The "Other" option has been removed per your request */}
                       </select>
                     </div>
-                  </div>
-
-                  {/* Third Row - Date of Birth and Weight */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Date of Birth</label>
+                      <label className="block text-sm font-bold text-gray-700 mb-2 font-raleway">Weight (kg)</label>
                       <input
-                        type="date"
-                        value={newPet.date_of_birth}
-                        onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
-                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
-                        style={{ fontFamily: 'Raleway' }}
-                      />
-                    </div>
-                    <div>
-                      {/* FIX: Label now indicates 'kg' explicitly */}
-                      <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Weight (kg)</label>
-                      <input
-                        type="text"
-                        // FIX: inputMode="decimal" enables the dot on mobile keyboards
-                        inputMode="decimal"
-                        // FIX: Removed pattern="[0-9]*" so valid decimals aren't flagged as errors
-                        value={newPet.weight || ''}
+                        type="text" inputMode="decimal" value={newPet.weight || ''}
                         onChange={(e) => {
                           const val = e.target.value;
-                          // FIX: Allow only numbers and a single decimal point
-                          if (val === '' || /^\d*\.?\d*$/.test(val)) {
-                            handleInputChange('weight', val);
-                          }
+                          if (val === '' || /^\d*\.?\d*$/.test(val)) handleInputChange('weight', val);
                         }}
-                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
-                        // FIX: Placeholder now prompts for 'kg'
-                        placeholder="Weight (kg)"
-                        style={{ fontFamily: 'Raleway' }}
+                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent font-raleway"
+                        placeholder="0.0 kg"
                       />
                     </div>
                   </div>
+                  
+                  {/* Third Row - Date of Birth and Gender */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2 font-raleway">Date of Birth</label>
+                      <input
+                        type="date" value={newPet.date_of_birth}
+                        onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
+                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent font-raleway"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-3 font-raleway">Gender</label>
+                      <div className="flex space-x-8">
+                        {['male', 'female'].map(s => (
+                          <label key={s} className="flex items-center cursor-pointer">
+                            <input
+                              type="radio" name="sex" value={s} checked={newPet.sex === s}
+                              onChange={(e) => handleInputChange('sex', e.target.value)}
+                              className="mr-3 w-4 h-4 text-[#815FB3]" required
+                            />
+                            <span className="text-base text-gray-700 font-raleway capitalize">{s}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-                  {/* Gender Section */}
-                  <div className="mb-6">
+                <div className="mb-8">
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6 font-raleway">Medical Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
                     <label className="block text-sm font-bold text-gray-700 mb-3" style={{ fontFamily: 'Raleway' }}>Gender</label>
                     <div className="flex space-x-8">
                       <label className="flex items-center cursor-pointer">
@@ -396,104 +443,35 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
 
                 {/* Medical Information Section */}
                 <div className="mb-8">
-                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6 text-center md:text-left" style={{ fontFamily: 'Raleway' }}>
-                    Medical Information
-                  </h3>
-
-                  {/* First Row - Blood Type and Spayed/Neutered */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6 font-raleway">Medical Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Blood Type <span className="text-gray-500 font-normal text-xs">(Optional)</span></label>
+                      <label className="block text-sm font-bold text-gray-700 mb-2 font-raleway">Blood Type <span className="text-gray-500 font-normal text-xs">(Optional)</span></label>
                       <select
                         value={newPet.blood_type}
                         onChange={(e) => handleInputChange('blood_type', e.target.value)}
-                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
-                        style={{ fontFamily: 'Raleway' }}
+                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent font-raleway"
                         disabled={!newPet.animal_type}
                       >
-                        <option value="">Select Blood Type (Optional)</option>
+                        <option value="">Select Blood Type</option>
                         {(bloodTypeOptions[newPet.animal_type] || bloodTypeOptions['other']).map(opt => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-3" style={{ fontFamily: 'Raleway' }}>Spayed or Neutered</label>
+                      <label className="block text-sm font-bold text-gray-700 mb-3 font-raleway">Spayed or Neutered</label>
                       <div className="flex space-x-8">
-                        <label className="flex items-center cursor-pointer">
-                          <input
-                            type="radio"
-                            name="spayed_neutered"
-                            value="true"
-                            checked={newPet.spayed_neutered === true}
-                            onChange={() => handleInputChange('spayed_neutered', true)}
-                            className="mr-3 w-4 h-4 text-[#815FB3]"
-                          />
-                          <span className="text-base text-gray-700" style={{ fontFamily: 'Raleway' }}>Yes</span>
-                        </label>
-                        <label className="flex items-center cursor-pointer">
-                          <input
-                            type="radio"
-                            name="spayed_neutered"
-                            value="false"
-                            checked={newPet.spayed_neutered === false}
-                            onChange={() => handleInputChange('spayed_neutered', false)}
-                            className="mr-3 w-4 h-4 text-[#815FB3]"
-                          />
-                          <span className="text-base text-gray-700" style={{ fontFamily: 'Raleway' }}>No</span>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Second Row - Allergies and Chronic Disease */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Allergies</label>
-                      <input
-                        type="text"
-                        value={newPet.allergies}
-                        onChange={(e) => handleInputChange('allergies', e.target.value)}
-                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
-                        placeholder="Allergies"
-                        style={{ fontFamily: 'Raleway' }}
-                        disabled={newPet.allergies === 'Unknown'}
-                      />
-                      <div className="mt-2 flex items-center">
-                        <input
-                          type="checkbox"
-                          id="allergiesUnknown"
-                          checked={newPet.allergies === 'Unknown'}
-                          onChange={() => handleInputChange('allergies', newPet.allergies === 'Unknown' ? '' : 'Unknown')}
-                          className="mr-2"
-                        />
-                        <label htmlFor="allergiesUnknown" className="text-sm text-gray-700" style={{ fontFamily: 'Raleway' }}>
-                          Allergies Unknown
-                        </label>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>Chronic Disease</label>
-                      <input
-                        type="text"
-                        value={newPet.chronic_disease}
-                        onChange={(e) => handleInputChange('chronic_disease', e.target.value)}
-                        className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-[#815FB3] focus:outline-none text-base bg-transparent"
-                        placeholder="Chronic Disease"
-                        style={{ fontFamily: 'Raleway' }}
-                        disabled={newPet.chronic_disease === 'Unknown'}
-                      />
-                      <div className="mt-2 flex items-center">
-                        <input
-                          type="checkbox"
-                          id="chronicDiseaseUnknown"
-                          checked={newPet.chronic_disease === 'Unknown'}
-                          onChange={() => handleInputChange('chronic_disease', newPet.chronic_disease === 'Unknown' ? '' : 'Unknown')}
-                          className="mr-2"
-                        />
-                        <label htmlFor="chronicDiseaseUnknown" className="text-sm text-gray-700" style={{ fontFamily: 'Raleway' }}>
-                          Chronic Disease Unknown
-                        </label>
+                        {[true, false].map(v => (
+                          <label key={v.toString()} className="flex items-center cursor-pointer">
+                            <input
+                              type="radio" name="spayed_neutered" checked={newPet.spayed_neutered === v}
+                              onChange={() => handleInputChange('spayed_neutered', v)}
+                              className="mr-3 w-4 h-4 text-[#815FB3]"
+                            />
+                            <span className="text-base text-gray-700 font-raleway">{v ? 'Yes' : 'No'}</span>
+                          </label>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -504,12 +482,10 @@ const AddPetModal = ({ isOpen, onClose, onPetAdded, token, petToEdit = null }) =
             {/* Create Pet Button - Centered in modal */}
             <div className="flex justify-center mt-8">
               <button
-                type="submit"
-                disabled={addingPet}
-                className="bg-[#815FB3] text-white px-12 py-3 rounded-lg hover:bg-[#6d4a96] transition-colors text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
-                style={{ fontFamily: 'Raleway' }}
+                type="submit" disabled={addingPet}
+                className="bg-[#815FB3] text-white px-12 py-3 rounded-lg hover:bg-[#6d4a96] transition-colors text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto font-raleway"
               >
-                {addingPet ? (petToEdit ? 'Saving...' : 'Creating Pet...') : (petToEdit ? 'Save Changes' : 'Create Pet')}
+                {addingPet ? 'Saving...' : (petToEdit ? 'Save Changes' : 'Create Pet')}
               </button>
             </div>
           </form>
