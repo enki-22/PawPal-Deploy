@@ -214,6 +214,11 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
     return newErrors;
   };
 
+  const isFormComplete = formData.phone_number.trim() !== '' && 
+                         formData.province !== '' && 
+                         formData.city !== '' && 
+                         formData.terms_agreement === true;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
@@ -445,7 +450,7 @@ const RegisterStep2Form = ({ onSubmit, loading, setShowTerms, setShowPrivacy }) 
           <button 
             type="submit"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || !isFormComplete}
             className="w-full max-w-[240px] h-12 bg-[#815FB3] shadow-md rounded-lg border-none font-raleway font-extrabold text-lg text-white text-center disabled:opacity-70 disabled:cursor-not-allowed"
             style={{ boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)' }}
           >
