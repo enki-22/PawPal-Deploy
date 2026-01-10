@@ -42,6 +42,12 @@ const RegisterStep1 = () => {
     }
   };
 
+  // Add this helper to determine if the form is ready
+  const isFormComplete = formData.username.trim() !== '' && 
+                         formData.email.trim() !== '' && 
+                         formData.password1 !== '' && 
+                         formData.password2 !== '';
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -325,6 +331,7 @@ const RegisterStep1 = () => {
                   <button 
                     type="submit" 
                     onClick={handleSubmit}
+                    disabled={!isFormComplete}
                     className="bg-[#815FB3] hover:bg-[#6d4a96] text-white font-medium py-2 md:py-3 px-6 md:px-16 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#815FB3] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-xs md:text-base"
                     style={{ fontFamily: 'Raleway', boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)' }}
                   >

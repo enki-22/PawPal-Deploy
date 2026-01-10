@@ -548,6 +548,12 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading, initialData }) => {
   const [isFading, setIsFading] = useState(false);
   const [isAlertFading, setIsAlertFading] = useState(false);
 
+  // Add form completion check for the registration side of the unified auth
+  const isFormComplete = formData.name.trim() !== '' && 
+                         formData.email.trim() !== '' && 
+                         formData.password !== '' && 
+                         formData.confirmPassword !== '';
+
   // --- MODIFIED: Removed error clearing from handleChange ---
   const handleChange = (e) => {
     setFormData({
@@ -959,9 +965,13 @@ const RegisterForm = ({ onSwitchToLogin, onSubmit, loading, initialData }) => {
           <div className="flex justify-center mt-4">
             <button
               type="submit"
-              disabled={loading}
-              className="w-full max-w-[201px] h-[40px] bg-[#815FB3] shadow-md rounded-lg border-none font-extrabold text-[16px] text-white text-center"
-              style={{ fontFamily: 'Raleway', boxShadow: '0px 4px 4px rgba(0,0,0,0.15)', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
+              disabled={loading || !isFormComplete}
+              className="w-full max-w-[201px] h-[40px] bg-[#815FB3] shadow-md rounded-lg border-none font-extrabold text-[16px] text-white text-center disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ 
+                fontFamily: 'Raleway', 
+                boxShadow: '0px 4px 4px rgba(0,0,0,0.15)', 
+                cursor: (loading || !isFormComplete) ? 'not-allowed' : 'pointer' 
+              }}
             >
               {loading ? 'Creating Account...' : 'Next'}
             </button>
