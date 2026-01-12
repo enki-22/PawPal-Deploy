@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import showToast from '../../utils/toast';
 import AdminTopNav from './AdminTopNav';
@@ -66,6 +67,7 @@ export default function AdminProfileSettings() {
   const fileInputRef = useRef(null);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [recoveryEmailOpen, setRecoveryEmailOpen] = useState(false);
+  const navigate = useNavigate();
   
   // Confirmation States
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', action: null });
@@ -347,7 +349,7 @@ export default function AdminProfileSettings() {
                 </div>
                 
                 <button 
-                  onClick={() => setChangePasswordOpen(true)}
+                  onClick={() => navigate('/admin/verify-reset-code')}
                   className="bg-[#815fb3] hover:bg-[#6f4ea0] text-white px-6 py-2 rounded-lg font-bold transition-colors shadow-sm w-full md:w-auto text-sm"
                 >
                   Change Password

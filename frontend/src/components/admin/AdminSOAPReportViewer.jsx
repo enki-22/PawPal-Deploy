@@ -42,7 +42,7 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
     const petName = report?.pet?.name?.replace(/[^a-z0-9]/gi, '_') || 'Pet';
     const cleanCaseId = report?.case_id || 'Case';
     
-    document.title = `Admin_${cleanCaseId}_${petName}_SOAP_Report`;
+    document.title = `Admin_${cleanCaseId}_${petName}_Triage_Summary`;
     window.print();
     document.title = originalTitle;
   };

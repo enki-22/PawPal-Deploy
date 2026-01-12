@@ -721,9 +721,8 @@ const ProfileSettings = () => {
 
                 <div className="mt-2">
                   <button
-                    onClick={() => setChangingPassword(true)}
+                    onClick={() => navigate('/verify-reset-code')}
                     className="w-full flex items-center gap-4 p-4 bg-[#FEFDF5] rounded-lg border border-transparent hover:bg-[#F7F3FB] transition-colors"
-                    aria-expanded={changingPassword}
                   >
                     <div className="w-8 h-8 flex items-center justify-center bg-transparent">
                       <img src="/Updatepass.png" alt="Change password" className="w-6 h-6" />

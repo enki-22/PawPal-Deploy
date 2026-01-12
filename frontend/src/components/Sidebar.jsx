@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { useAuth } from '../context/AuthContext';
 import ConversationMenu from './ConversationMenu';
 import './custom-scrollbar.css';
 
@@ -159,20 +158,20 @@ const Sidebar = ({
         )}
       </div>
 
-      {/* Expandable Content - Only visible when sidebar is expanded */}
+      {/* Expandable Content - Fully Scrollable */}
       {(sidebarVisible || isMobileOverlay) && (
-        <div className="px-4 flex-1 flex flex-col custom-scrollbar">
+        <div className="px-4 flex-1 flex flex-col overflow-y-auto custom-scrollbar pb-4">
           {/* New Chat Button */}
           <button 
             onClick={currentPage === 'chat' && onCreateNewConversation ? onCreateNewConversation : () => navigate('/chat/new')}
-            className="w-full bg-[#FFF4C9] text-black py-2 px-4 rounded-xl mb-5 text-[15px] font-extrabold shadow-md hover:shadow-lg transition-shadow duration-200" 
+            className="w-full bg-[#FFF4C9] text-black py-2 px-4 rounded-xl mb-5 text-[15px] font-extrabold shadow-md hover:shadow-lg transition-shadow duration-200 flex-shrink-0" 
             style={{ fontFamily: 'Raleway' }}
           >
             + New Chat
           </button>
 
           {/* Menu Items */}
-          <div className="space-y-2 mb-6">
+          <div className="space-y-2 mb-6 flex-shrink-0">
             {menuItems.map((item) => (
               <div 
                 key={item.id}
@@ -192,11 +191,11 @@ const Sidebar = ({
           </div>
 
           {/* Divider */}
-          <div className="border-b-2 border-black mb-5"></div>
+          <div className="border-b-2 border-black mb-5 flex-shrink-0"></div>
 
           {/* Search */}
           {showSearch && (
-            <div className="relative mb-5">
+            <div className="relative mb-5 flex-shrink-0">
               <input
                 type="text"
                 placeholder="Search"
@@ -230,7 +229,7 @@ const Sidebar = ({
 
           {/* Pinned Chats */}
           {showPinnedChats && (
-            <div className="mb-5">
+            <div className="mb-5 flex-shrink-0">
               <h3 className="text-[14px] font-medium text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>
                 Pinned Chats
               </h3>
@@ -305,13 +304,13 @@ const Sidebar = ({
             </div>
           )}
 
-          {/* Recent Chats */}
+          {/* Recent Chats - Now part of main flow, no separate scroll */}
           {showRecentChats && (
             <div className="flex-1 flex flex-col">
               <h3 className="text-[14px] font-medium text-gray-700 mb-2" style={{ fontFamily: 'Raleway' }}>
                 Recent Chats
               </h3>
-              <div className="space-y-1 max-h-[320px] overflow-y-auto w-full pr-1 flex-1">
+              <div className="space-y-1 w-full pr-1">
                 {loadingConversations && conversations.length === 0 ? (
                   <div className="text-center text-gray-600 text-sm">Loading...</div>
                 ) : (

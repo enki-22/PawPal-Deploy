@@ -12,6 +12,7 @@ const ConversationMenu = ({
   onCancelRename
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [openUp, setOpenUp] = useState(false); // NEW: State to track direction
   const [newTitle, setNewTitle] = useState(conversation.title);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -68,6 +69,15 @@ const ConversationMenu = ({
 
   const handleMenuClick = (e) => {
     e.stopPropagation();
+    
+    // NEW: Calculate position before opening
+    if (!isOpen) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      // If less than 120px space below (menu is ~92px), open upwards
+      setOpenUp(spaceBelow < 120);
+    }
+
     setIsOpen(!isOpen);
   };
 
@@ -242,7 +252,8 @@ const ConversationMenu = ({
             `}</style>
             <div 
               ref={dropdownRef}
-              className="absolute right-0 top-full mt-1 z-50"
+              // MODIFIED: Conditionally apply top-full or bottom-full based on openUp state
+              className={`absolute right-0 z-50 ${openUp ? 'bottom-full mb-1' : 'top-full mt-1'}`}
               style={{
                 width: '111px',
                 height: '92px',

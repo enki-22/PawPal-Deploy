@@ -8,6 +8,7 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
   const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState(null);
   const [error, setError] = useState(null);
+  const [isStarting, setIsStarting] = useState(false); // New state to track submission
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -29,6 +30,7 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
     if (isOpen) {
       setSelectedOption(null);
       setError(null);
+      setIsStarting(false); // Reset starting state when opening
       fetchUserPets();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -67,6 +69,11 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
   };
 
   const handleStartConversation = async (petId = null, isNewPet = false) => {
+    // Prevent multiple clicks if already starting
+    if (isStarting) return;
+    
+    setIsStarting(true); // Lock the buttons
+    
     try {
       const requestBody = {
         type: conversationType,
@@ -96,9 +103,11 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
         onClose();
       } else {
         setError(data.error || 'Failed to start conversation');
+        setIsStarting(false); // Unlock on API error
       }
     } catch (error) {
       setError(`Failed to start conversation: ${error.message}`);
+      setIsStarting(false); // Unlock on network error
     }
   };
 
@@ -171,7 +180,8 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
                   <button
                     key={pet.id}
                     onClick={() => handleStartConversation(pet.id, false)}
-                    className="w-full p-3 rounded-lg font-semibold text-base transition-colors flex items-center gap-4 border border-gray-200 hover:brightness-90 hover:shadow-md hover:bg-[#ede7f6]"
+                    disabled={isStarting} // Disable when processing
+                    className={`w-full p-3 rounded-lg font-semibold text-base transition-colors flex items-center gap-4 border border-gray-200 ${isStarting ? 'opacity-60 cursor-not-allowed' : 'hover:brightness-90 hover:shadow-md hover:bg-[#ede7f6]'}`}
                     style={{ backgroundColor: '#F6F4FA', color: '#181D27', fontFamily: 'Raleway', fontWeight: 500, textAlign: 'left' }}
                   >
                     <div className="w-14 h-14 rounded-lg overflow-hidden border border-gray-300 mr-3 flex items-center justify-center bg-gray-100" style={{ minWidth: '56px', minHeight: '56px' }}>
