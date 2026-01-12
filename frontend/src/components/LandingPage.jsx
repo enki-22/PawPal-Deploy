@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import axios from "axios";
 import PromotionCarousel from "./PromotionCarousel";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
@@ -117,8 +118,9 @@ export default function LandingPage() {
   React.useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        // Note: Make sure this URL matches  public Django route
-        const response = await api.get('/api/announcements/active');
+        // Use axios directly to bypass auth interceptors for public data
+        // Note: Make sure this URL matches public Django route
+        const response = await axios.get(`${API_ROOT}/api/announcements/active`);
         console.log("Landing Page Data:", response.data);
         
         if (response.data.success && response.data.announcements.length > 0) {
