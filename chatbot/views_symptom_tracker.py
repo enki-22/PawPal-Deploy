@@ -832,15 +832,45 @@ def get_pet_health_timeline(request):
 @authentication_classes([])
 @permission_classes([AllowAny])
 def remove_symptom_log(request, pk):
-    """Standalone view to delete a specific log entry using custom auth"""
+    """Standalone view to delete a specific log entry and RE-ANALYZE health status"""
     from utils.unified_permissions import check_user_or_admin
     user_type, user_obj, error_response = check_user_or_admin(request)
     if error_response:
         return error_response
     
+    # 1. Find the log
     log = get_object_or_404(SymptomLog, id=pk, user=user_obj)
+    pet = log.pet
+    
+    # 2. Delete the log
     log.delete()
-    return Response({'success': True, 'message': 'Symptom log removed successfully'})
+
+    # 3. TRIGGER RE-ANALYSIS
+    # Since the data has changed, we need the AI to look at the remaining logs
+    try:
+        # Import the logic that calculates trends
+        from .utils import analyze_symptom_progression
+        analysis_result = analyze_symptom_progression(pet.id)
+        
+        # Create a fresh trend snapshot based on the remaining logs
+        PetHealthTrend.objects.create(
+            pet=pet,
+            risk_score=analysis_result['risk_score'],
+            urgency_level=analysis_result['urgency'],
+            trend_analysis=analysis_result.get('trend_analysis', f"Updated after log removal. Trend: {analysis_result['trend']}"),
+            prediction=analysis_result['prediction'],
+            alert_needed=analysis_result['alert_needed']
+        )
+    except Exception as e:
+        # If there are no logs left, analyze_symptom_progression might fail
+        # In that case, we should clear the trends
+        PetHealthTrend.objects.filter(pet=pet).delete()
+        logger.warning(f"Cleared trends for pet {pet.id} because no logs remain or analysis failed: {e}")
+
+    return Response({
+        'success': True, 
+        'message': 'Symptom log removed and health status re-calculated'
+    })
 
 @api_view(['DELETE'])
 @authentication_classes([])

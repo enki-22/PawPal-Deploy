@@ -540,13 +540,23 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
             )}
             {/* Log Symptoms Button - Primary Action - Navigates to Chat */}
             <button
-              onClick={() => navigate('/chat/new')}
-              className="flex-1 sm:flex-none px-6 py-2.5 bg-[#815FB3] text-white rounded-lg hover:bg-[#6D4C9A] font-bold transition-all shadow-md active:transform active:scale-95"
-              style={{ fontFamily: 'Raleway' }}
-              title="Log symptoms via chat"
-            >
-              📝 Log Symptoms
-            </button>
+            onClick={() => navigate('/chat/new')}
+            className="flex-1 sm:flex-none px-4 py-2.5 bg-[#815FB3] text-white rounded-lg hover:bg-[#6D4C9A] font-bold transition-all shadow-md active:transform active:scale-95 text-sm"
+            style={{ fontFamily: 'Raleway' }}
+            title="Log symptoms via chat"
+          >
+            💬 Log via Chat
+          </button>
+
+          {/* Manual Log Entry */}
+          <button
+            onClick={() => setShowLogger(true)}
+            className="flex-1 sm:flex-none px-4 py-2.5 bg-[#F5E9B8] text-[#34113F] border border-[#ebd78c] rounded-lg hover:bg-[#ebd78c] font-bold transition-all shadow-md active:transform active:scale-95 text-sm"
+            style={{ fontFamily: 'Raleway' }}
+            title="Manual symptom entry"
+          >
+            📝 Manual Log
+          </button>
           </div>
         </div>
 
