@@ -606,7 +606,7 @@ def analyze_symptom_progression(pet_id: int) -> Dict[str, Any]:
             }
         
         # Fetch last 7 days of logs
-        seven_days_ago = timezone.now().date() - timedelta(days=14)
+        history_window = timezone.now().date() - timedelta(days=14)
         logs = SymptomLog.objects.filter(
             pet=pet,
             symptom_date__gte=history_window

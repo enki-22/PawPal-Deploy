@@ -26,7 +26,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.core.cache import cache
 from pets.models import Pet
-from .models import Conversation, Message, AIDiagnosis, SOAPReport, DiagnosisSuggestion
+from .models import Conversation, Message, AIDiagnosis, SOAPReport, DiagnosisSuggestion, SymptomLog, PetHealthTrend
 # Note: image_classifier is now lazily loaded via analyze_pet_image when needed
 import logging
 from .utils import get_gemini_client, get_cached_response, save_response_to_cache
@@ -2358,7 +2358,8 @@ def symptom_checker_predict(request):
         # and use vector similarity directly with user_notes
         if not is_standard_species:
             logger.info(f"🔄 Dynamic mode detected for species: {species}. Bypassing question-tree validation.")
-            
+
+            cleaned = payload.copy()
             # Get minimal required fields
             pet_id = payload.get('pet_id')
             pet_name = payload.get('pet_name', 'Unknown Pet')
@@ -2371,6 +2372,7 @@ def symptom_checker_predict(request):
             
             # Verify pet ownership if pet_id provided
             pet_id = cleaned.get('pet_id')
+
             pet = None
             if pet_id:
                 try:
@@ -2385,9 +2387,17 @@ def symptom_checker_predict(request):
                     
                     cleaned['pet_name'] = pet.name
                     
-                    # Rule #8: Omit Blood Type unless it's specifically known (Owners usually don't know it)
-                    if pet.blood_type and pet.blood_type.lower() not in ['unknown', 'n/a', '']:
-                        cleaned['blood_type'] = pet.blood_type
+                    
+
+                    recent_logs = SymptomLog.objects.filter(pet=pet).order_by('-symptom_date', '-logged_date')[:5]
+                    history_list = []
+                    for l in recent_logs:
+                        if isinstance(l.symptoms, list): history_list.extend(l.symptoms)
+                    
+                    if history_list:
+                        history_str = ", ".join(list(set(history_list)))
+                        cleaned['user_notes'] = f"[Episode Context - Previous Symptoms: {history_str}] {user_notes}".strip()
+                        logger.info(f"Merged history for exotic species: {history_str}")
                 except Pet.DoesNotExist:
                     return Response(
                         {
