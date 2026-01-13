@@ -1,4 +1,9 @@
 {
   "d26c03f631d27f969250b2265bed791d": "```json\n{\n    \"risk_score\": 15,\n    \"urgency\": \"Low\",\n    \"trend\": \"Stable\",\n    \"prediction\": \"Symptom is new and isolated. The dog will likely continue to experience a similar level of itching. Monitor for changes in severity or new symptoms.\",\n    \"alert_needed\": false\n}\n```",
+<<<<<<< Updated upstream
   "6b5ef6bf316accf3ec62f11ad1a8455b": "```json\n{\n    \"risk_score\": 75,\n    \"urgency\": \"High\",\n    \"trend\": \"Worsening\",\n    \"prediction\": \"The combination of moderate vomiting and diarrhea presents a significant risk for dehydration over the next 24 hours. Symptoms are likely to persist, and condition may decline without veterinary assessment.\",\n    \"alert_needed\": true\n}\n```"
+=======
+  "6b5ef6bf316accf3ec62f11ad1a8455b": "```json\n{\n    \"risk_score\": 75,\n    \"urgency\": \"High\",\n    \"trend\": \"Worsening\",\n    \"prediction\": \"The combination of moderate vomiting and diarrhea presents a significant risk for dehydration over the next 24 hours. Symptoms are likely to persist, and condition may decline without veterinary assessment.\",\n    \"alert_needed\": true\n}\n```",
+  "d693ef2ad61111d96ae47af255d4ed86": "{\n    \"risk_score\": 70,\n    \"urgency\": \"High\",\n    \"trend\": \"Stable\",\n    \"prediction\": \"Symptoms may persist; closely monitor for continued vomiting and dehydration.\",\n    \"alert_needed\": true\n}"
+>>>>>>> Stashed changes
 }
