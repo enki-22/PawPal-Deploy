@@ -606,10 +606,10 @@ def analyze_symptom_progression(pet_id: int) -> Dict[str, Any]:
             }
         
         # Fetch last 7 days of logs
-        seven_days_ago = timezone.now().date() - timedelta(days=7)
+        history_window = timezone.now().date() - timedelta(days=14)
         logs = SymptomLog.objects.filter(
             pet=pet,
-            symptom_date__gte=seven_days_ago
+            symptom_date__gte=history_window
         ).order_by('symptom_date')
         
         # If no logs, return default structure
@@ -673,7 +673,7 @@ def analyze_symptom_progression(pet_id: int) -> Dict[str, Any]:
             for log in logs_data
         ])
         
-        prompt = f"""You are a Veterinary Data Analyst. Review this 7-day symptom log for a {species} named {pet_name}.
+        prompt = f"""You are a Veterinary Data Analyst. Review this     -day symptom log for a {species} named {pet_name}.
 
 SYMPTOM LOG DATA:
 {logs_text}

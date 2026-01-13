@@ -26,7 +26,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.core.cache import cache
 from pets.models import Pet
-from .models import Conversation, Message, AIDiagnosis, SOAPReport, DiagnosisSuggestion
+from .models import Conversation, Message, AIDiagnosis, SOAPReport, DiagnosisSuggestion, SymptomLog, PetHealthTrend
 # Note: image_classifier is now lazily loaded via analyze_pet_image when needed
 import logging
 from .utils import get_gemini_client, get_cached_response, save_response_to_cache
@@ -546,6 +546,12 @@ Medical Notes: {pet_context['medical_notes']}
 Known Allergies: {pet_context['allergies']}
 Chronic Conditions: {pet_context['chronic_diseases']}
 
+RECENT SYMPTOM HISTORY:
+{pet_context.get('symptom_history', 'No recent logs.')}
+
+AI HEALTH TREND:
+{pet_context.get('health_trend', 'No trend analysis available.')}
+
 You already know about {pet_context['name']}, so don't ask for basic information again. Provide advice specific to this {pet_context['species']}.
 
 """
@@ -792,6 +798,15 @@ def chat(request):
         pet_context = None
         if hasattr(conversation, 'pet') and conversation.pet:
             pet = conversation.pet
+
+            recent_logs = SymptomLog.objects.filter(pet=pet).order_by('-symptom_date', '-logged_date')[:5]
+            history_summary = []
+            for log in recent_logs:
+                syms = ", ".join(log.symptoms) if isinstance(log.symptoms, list) else str(log.symptoms)
+                history_summary.append(f"- {log.symptom_date}: {syms} ({log.overall_severity})")
+            
+            # Fetch the latest trend calculated by the tracker
+            latest_trend = PetHealthTrend.objects.filter(pet=pet).order_by('-analysis_date').first()
             pet_context = {
                 'name': pet.name,
                 'species': getattr(pet, 'animal_type', 'Unknown'),
@@ -802,6 +817,8 @@ def chat(request):
                 'medical_notes': getattr(pet, 'medical_notes', ''),
                 'allergies': getattr(pet, 'allergies', ''),
                 'chronic_diseases': getattr(pet, 'chronic_diseases', ''),
+                'symptom_history': "\n".join(history_summary) if history_summary else "No recent logs.",
+                'health_trend': latest_trend.trend_analysis if latest_trend else "Stable"
             }
        
         # Generate AI response using Gemini with pet context
@@ -2341,23 +2358,21 @@ def symptom_checker_predict(request):
         # and use vector similarity directly with user_notes
         if not is_standard_species:
             logger.info(f"🔄 Dynamic mode detected for species: {species}. Bypassing question-tree validation.")
-            
+
+            cleaned = payload.copy()
             # Get minimal required fields
             pet_id = payload.get('pet_id')
             pet_name = payload.get('pet_name', 'Unknown Pet')
             user_notes = payload.get('user_notes', '')
             
             if not user_notes or not user_notes.strip():
-                return Response(
-                    {
-                        'success': False,
-                        'error': 'user_notes is required for dynamic mode species.',
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                # Instead of returning a 400 error, provide a default fallback string
+                user_notes = "Assessment triggered by health trend tracker."
+                cleaned['user_notes'] = user_notes # Ensure the rest of the code has it
             
             # Verify pet ownership if pet_id provided
             pet_id = cleaned.get('pet_id')
+
             pet = None
             if pet_id:
                 try:
@@ -2372,9 +2387,17 @@ def symptom_checker_predict(request):
                     
                     cleaned['pet_name'] = pet.name
                     
-                    # Rule #8: Omit Blood Type unless it's specifically known (Owners usually don't know it)
-                    if pet.blood_type and pet.blood_type.lower() not in ['unknown', 'n/a', '']:
-                        cleaned['blood_type'] = pet.blood_type
+                    
+
+                    recent_logs = SymptomLog.objects.filter(pet=pet).order_by('-symptom_date', '-logged_date')[:5]
+                    history_list = []
+                    for l in recent_logs:
+                        if isinstance(l.symptoms, list): history_list.extend(l.symptoms)
+                    
+                    if history_list:
+                        history_str = ", ".join(list(set(history_list)))
+                        cleaned['user_notes'] = f"[Episode Context - Previous Symptoms: {history_str}] {user_notes}".strip()
+                        logger.info(f"Merged history for exotic species: {history_str}")
                 except Pet.DoesNotExist:
                     return Response(
                         {
@@ -2428,6 +2451,18 @@ def symptom_checker_predict(request):
                     cleaned['breed'] = pet.breed
                     cleaned['sex'] = pet.sex    
                     cleaned['pet_name'] = pet.name
+
+                    recent_logs = SymptomLog.objects.filter(pet=pet).order_by('-symptom_date', '-logged_date')[:5]
+                    history_list = []
+                    for l in recent_logs:
+                        if isinstance(l.symptoms, list): history_list.extend(l.symptoms)
+                    
+                    # Merge historical symptoms into the notes so the "Hybrid Brain" sees them all
+                    if history_list:
+                        history_str = ", ".join(list(set(history_list)))
+                        current_notes = cleaned.get('user_notes', '')
+                        cleaned['user_notes'] = f"[Episode Context - Previous Symptoms: {history_str}] {current_notes}".strip()
+                        logger.info(f"Merged history into AI context: {history_str}")   
                 except Pet.DoesNotExist:
                     return Response(
                         {
