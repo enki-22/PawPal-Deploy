@@ -159,6 +159,13 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
     return 'severity-severe'; // Red
   };
 
+  // Get severity hex color for slider thumb
+  const getSeverityHexColor = (value) => {
+    if (value <= 3) return '#10b981'; // Green (Mild)
+    if (value <= 7) return '#f59e0b'; // Yellow (Moderate)
+    return '#ef4444'; // Red (Severe)
+  };
+
   // Filter symptoms by search term
   const filterSymptoms = (symptoms) => {
     if (!searchTerm) return symptoms;
@@ -238,14 +245,14 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
 
   return (
     <div className="symptom-logger bg-white rounded-lg shadow-md p-6">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-          <img src="/maki_doctor.png" alt="Doctor" className="w-6 h-6 inline-block" />
+      <div className="mb-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-[#34113F] mb-1" style={{ fontFamily: 'Raleway' }}>
+          <img src="/maki_doctor.png" alt="Doctor" className="w-8 h-8 inline-block mr-2 mb-1" />
           Daily Symptom Log
         </h2>
-        <div className="text-sm text-gray-600">
-          <span className="font-semibold">{pet?.name}</span>
-          <span className="mx-2">•</span>
+        <div className="text-gray-600 font-medium text-sm">
+          <span className="text-[#815FB3] font-bold">{pet?.name}</span>
+          <span className="mx-2">|</span>
           <span>{new Date().toLocaleDateString('en-US', { 
             weekday: 'long', 
             year: 'numeric', 
@@ -256,29 +263,33 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
       </div>
 
       <form onSubmit={handleSubmit}>
-        {/* Search Bar */}
-        <div className="mb-6">
+        {/* Uniform Section: Search */}
+        <div className="logger-section">
+          <h3 style={{ color: '#815FB3' }} className="font-bold mb-4 flex items-center gap-2">
+            <img src="/mingcute_search-fill.png" alt="Search" className="w-5 h-5" />
+            Search Symptoms
+          </h3>
           <input
             type="text"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Search symptoms..."
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#815FB3] focus:border-transparent outline-none"
+            placeholder="Search Symptoms"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
-        {/* Selected Symptoms Summary */}
+        {/* Uniform Section: Selected Summary */}
         {selectedSymptoms.length > 0 && (
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-            <div className="flex justify-between items-center mb-2">
-              <strong className="text-blue-800">Selected Symptoms ({selectedSymptoms.length})</strong>
+          <div className="logger-section bg-blue-50/30">
+            <div className="flex justify-between items-center mb-4">
+              <h3 style={{ color: '#815FB3' }} className="font-bold m-0">Selected ({selectedSymptoms.length})</h3>
               <button
                 type="button"
                 onClick={() => {
                   setSelectedSymptoms([]);
                   setSeverityValues({});
                 }}
-                className="text-sm text-blue-600 hover:text-blue-800"
+                className="text-xs font-bold text-red-500 hover:text-red-700 uppercase tracking-wider"
               >
                 Clear All
               </button>
@@ -287,13 +298,13 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
               {selectedSymptoms.map(symptom => (
                 <span
                   key={symptom}
-                  className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm flex items-center gap-2"
+                  className="px-3 py-1 bg-white border border-[#DCCEF1] text-[#34113F] rounded-full text-xs font-bold flex items-center gap-2 shadow-sm"
                 >
                   {formatSymptomName(symptom)}
                   <button
                     type="button"
                     onClick={() => handleToggleSymptom(symptom)}
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-red-400 hover:text-red-600"
                   >
                     ✕
                   </button>
@@ -303,39 +314,41 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
           </div>
         )}
 
-        {/* Symptom Selection */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Select Symptoms</h3>
+        {/* Uniform Section: Symptom Selection */}
+        <div className="logger-section">
+          <h3 style={{ color: '#815FB3' }} className="font-bold mb-4">Select Symptoms</h3>
           <div className="space-y-4">
-            {Object.entries(SYMPTOM_CATEGORIES).map(([category, { symptoms, icon }]) => {
+            {Object.entries(SYMPTOM_CATEGORIES).map(([category, { symptoms, icon }], index, array) => {
               const filteredSymptoms = filterSymptoms(symptoms);
               if (searchTerm && filteredSymptoms.length === 0) return null;
 
               return (
-                <div key={category} className="border border-gray-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    {icon}
-                    <span>{category}</span>
+                <div 
+                  key={category} 
+                  className={`mb-4 ${index !== array.length - 1 ? 'border-b border-gray-100 pb-6' : ''}`}
+                >
+                  <h4 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2 opacity-80">
+                    {icon} {category}
                   </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     {filteredSymptoms.map(symptom => {
                       const isSelected = selectedSymptoms.includes(symptom);
                       return (
                         <label
                           key={symptom}
-                          className={`flex items-center p-2 border rounded cursor-pointer transition-colors ${
+                          className={`flex items-center p-2.5 border rounded-lg cursor-pointer transition-all ${
                             isSelected
-                              ? 'bg-blue-100 border-blue-500'
-                              : 'bg-white border-gray-300 hover:border-blue-300'
+                              ? 'bg-[#DCCEF1]/30 border-[#815FB3]'
+                              : 'bg-white border-gray-200 hover:border-[#DCCEF1]'
                           }`}
                         >
                           <input
                             type="checkbox"
                             checked={isSelected}
                             onChange={() => handleToggleSymptom(symptom)}
-                            className="mr-2"
+                            className="mr-2 accent-[#815FB3]"
                           />
-                          <span className="text-sm">{formatSymptomName(symptom)}</span>
+                          <span className="text-xs font-medium text-gray-800">{formatSymptomName(symptom)}</span>
                         </label>
                       );
                     })}
@@ -346,40 +359,38 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
           </div>
         </div>
 
-        {/* Dynamic Severity Sliders */}
+        {/* Uniform Section: Dynamic Severity Sliders */}
         {selectedSymptoms.length > 0 && (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Severity (1-10 scale)</h3>
-            <div className="space-y-4">
+          <div className="logger-section">
+            <h3 style={{ color: '#815FB3' }} className="font-bold mb-6">Severity (1-10 scale)</h3>
+            <div className="space-y-6">
               {selectedSymptoms.map(symptom => {
-                const severity = severityValues[symptom] || 5;
-                const colorClass = getSeverityColor(severity);
+                const severityVal = severityValues[symptom] || 5;
+                const colorClass = getSeverityColor(severityVal);
+                
+                // Calculate percentage: 1 becomes 0%, 10 becomes 100%
+                const fillPercent = ((severityVal - 1) / 9) * 100;
+                
                 return (
                   <div key={symptom} className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <label className="text-sm font-medium text-gray-700">
+                      <label className="text-sm font-bold text-gray-700">
                         {formatSymptomName(symptom)}
                       </label>
-                      <span className={`text-sm font-bold ${colorClass}`}>
-                        {severity}/10
-                        {severity <= 3 && ' (Mild)'}
-                        {severity > 3 && severity <= 7 && ' (Moderate)'}
-                        {severity > 7 && ' (Severe)'}
+                      <span className={`text-sm font-black ${colorClass}`}>
+                        {severityVal}/10
                       </span>
                     </div>
                     <input
                       type="range"
                       min="1"
                       max="10"
-                      value={severity}
+                      value={severityVal}
                       onChange={(e) => handleSeverityChange(symptom, e.target.value)}
-                      className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${colorClass}`}
-                      style={{
-                        background: severity <= 3 
-                          ? `linear-gradient(to right, #10b981 0%, #10b981 ${(severity/10)*100}%, #e5e7eb ${(severity/10)*100}%, #e5e7eb 100%)`
-                          : severity <= 7
-                          ? `linear-gradient(to right, #f59e0b 0%, #f59e0b ${(severity/10)*100}%, #e5e7eb ${(severity/10)*100}%, #e5e7eb 100%)`
-                          : `linear-gradient(to right, #ef4444 0%, #ef4444 ${(severity/10)*100}%, #e5e7eb ${(severity/10)*100}%, #e5e7eb 100%)`
+                      className="severity-slider"
+                      style={{ 
+                        '--thumb-color': getSeverityHexColor(severityVal),
+                        '--fill-percent': `${fillPercent}%` 
                       }}
                     />
                   </div>
@@ -389,28 +400,29 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
           </div>
         )}
 
-        {/* Notes */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Any other observations?
-          </label>
+        {/* Uniform Section: Notes */}
+        <div className="logger-section">
+          <h3 style={{ color: '#815FB3' }} className="font-bold mb-4 flex items-center gap-2">
+            <img src="/gg_notes.png" alt="Notes" className="w-5 h-5" />
+            Additional Observations
+          </h3>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Add any additional notes about your pet&apos;s condition..."
-            rows={4}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Add any additional notes about your pet's condition"
+            rows={3}
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#815FB3] focus:border-transparent outline-none text-sm bg-gray-50/50"
           />
       </div>
 
-      {/* Severity Selection */}
-      <div className="severity-section">
-        <h3 className="flex items-center gap-2">
-          <img src="/picon_chart.png" alt="Chart" className="w-5 h-5 inline-block" />
+      {/* Uniform Section: Overall Severity */}
+      <div className="logger-section">
+        <h3 style={{ color: '#815FB3' }} className="font-bold mb-2 flex items-center gap-2">
+          <img src="/picon_chart.png" alt="Chart" className="w-5 h-5" />
           Overall Severity
         </h3>
-        <p className="section-description">How severe are {pet.name}&apos;s symptoms overall?</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <p className="text-xs text-gray-500 mb-4 font-medium">How severe are {pet.name}&apos;s symptoms overall?</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {[
             { 
               value: 'mild', 
