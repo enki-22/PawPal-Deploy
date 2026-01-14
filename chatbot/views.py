@@ -2777,6 +2777,8 @@ def symptom_checker_predict(request):
             'triage_assessment': triage_assessment,
             'soap_data': soap_data,
             'symptoms_text': full_symptoms_text,
+            'duration': payload.get('duration') or duration_str, 
+            'duration_days': duration_days,
         }
         
         logger.info(f"Symptom checker predict returning {len(predictions)} predictions: {[p.get('disease') for p in predictions]}")
@@ -2866,7 +2868,7 @@ def create_ai_diagnosis(request):
                 'symptoms': input_symptoms,
                 'symptoms_text': symptoms_text or assessment_data.get('symptoms_text', ''),
                 
-                'duration': assessment_data.get('duration_days', 'Unspecified'),
+                'duration': assessment_data.get('duration', assessment_data.get('duration_days', 'Unspecified')),
                 'species': pet.animal_type if pet else 'Dog', # Added species for summary generation
                 'case_id': explicit_case_id
             }
@@ -2975,11 +2977,11 @@ def create_ai_diagnosis(request):
         # ==============================================================
         objective_data = soap_data.get('objective', {
             'symptoms': predictions[0].get('matching_symptoms', []) if predictions else [],
-            'duration': assessment_data.get('symptoms_text', ''),
+            'duration': assessment_data.get('duration', 'Unspecified'),
             'severity': assessment_data.get('severity', 'moderate')
         }) if soap_data else {
             'symptoms': predictions[0].get('matching_symptoms', []) if predictions else [],
-            'duration': assessment_data.get('symptoms_text', ''),
+            'duration': assessment_data.get('duration', 'Unspecified'),
             'severity': assessment_data.get('severity', 'moderate')
         }
         

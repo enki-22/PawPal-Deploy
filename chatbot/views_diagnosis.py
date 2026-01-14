@@ -303,6 +303,7 @@ def get_soap_report_by_case_id(request, case_id):
 
         # A. Parse Plan
         plan_data = safe_parse(soap_report.plan)
+        objective_data = safe_parse(soap_report.objective)
         
         # B. Parse Assessment (Handle List, String of List, List of Strings, or Dict Wrapper)
         raw_assessment = soap_report.assessment
@@ -493,7 +494,7 @@ def get_soap_report_by_case_id(request, case_id):
                     'city': owner_city
                 },
                 'subjective': soap_report.subjective,
-                'objective': soap_report.objective,
+                'objective': objective_data,
                 
                 # === USE THE CLEAN NORMALIZED LIST ===
                 'assessment': final_assessment,

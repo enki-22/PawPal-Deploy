@@ -489,6 +489,7 @@ const ConversationalSymptomChecker = ({ selectedPet, onComplete, onCancel, sessi
       pet_name: petName,
       species: petSpecies.charAt(0).toUpperCase() + petSpecies.slice(1), // Capitalize first letter
       urgency,
+      duration: durationLabel,
       duration_days: typeof durationDays === 'number' ? durationDays : null,
       symptoms_list: symptomsList,
       symptoms_text: symptomsList.join(', '),

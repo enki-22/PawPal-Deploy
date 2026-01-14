@@ -303,7 +303,7 @@ const AdminSOAPReportViewer = ({ caseId, onClose }) => {
                     <div className="space-y-1 text-gray-800">
                         <p><strong>Symptoms Entered:</strong> {Array.isArray(report.objective?.symptoms) ? report.objective.symptoms.join(', ') : report.objective?.symptoms || 'N/A'}</p>
                         <p><strong>Symptom Duration:</strong> {report.objective?.duration || 'Unspecified'}</p>
-                        {report.objective?.vitals?.temperature && <p><strong>Temperature:</strong> {report.objective.vitals.temperature}</p>}
+                        
                     </div>
                 </div>
             </div>
