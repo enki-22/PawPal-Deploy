@@ -146,10 +146,11 @@ def get_pet_detail(request, pet_id):
         pet_data = {
             'pet_id': f"RP-{str(pet.id).zfill(6)}",
             'name': pet.name,
+            'owner_name': owner_name,
             'species': pet.get_animal_type_display(),
             'breed': pet.breed or 'Unknown',
             'sex': pet.get_sex_display(),
-            'age': f"{pet.age} years old",
+            'age': pet.age,
             'blood_type': None,  # Placeholder - not in current Pet model
             'spayed_neutered': None,  # Placeholder - not in current Pet model
             'allergies': None,  # Placeholder - can be added to medical_notes

@@ -464,55 +464,66 @@ const AdminPetProfile = () => {
                 </table>
               </div>
             </div>
-            {/* AI Diagnosis Section - Admin Format, filtered by petId */}
+            {/* AI Diagnosis Section - Admin Format */}
             <div className="rounded-lg p-6" style={{ background: '#FFFFF2', borderRadius: '10px' }}>
               <h3 className="mb-4" style={{ fontFamily: 'Raleway', fontSize: '20px', fontWeight: 600, color: '#333333' }}>
-                 Assessments
+                Assessments
               </h3>
-              {(() => {
-                // Normalize petId for comparison
-                const numericPetId = typeof petId === 'string' && petId.startsWith('RP-') ? petId.replace('RP-', '').replace(/^0+/, '') : String(petId);
-                // Filter diagnoses for this pet
-                const filteredDiagnoses = diagnoses.filter(
-                  diag => String(diag.pet_id) === numericPetId || String(diag.pet?.id) === numericPetId
-                );
-                return filteredDiagnoses.length > 0 ? (
-                  <div className="grid gap-4">
-                    {filteredDiagnoses.map((diag, idx) => (
-                      <div key={diag.case_id || idx} className="rounded-lg p-4 shadow" style={{ background: '#F7F7F7', border: '1px solid #E5E7EB' }}>
-                        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-2">
-                          <span className="font-bold text-[#815FB3]" style={{ fontFamily: 'Raleway', fontSize: '16px' }}>Case ID: {diag.case_id}</span>
-                          <span style={getUrgencyStyle(diag.urgency || diag.flag_level)}>{diag.urgency || diag.flag_level}</span>
-                        </div>
-                        <div className="mb-1">
-                          <span className="font-semibold text-gray-700" style={{ fontFamily: 'Raleway', fontSize: '15px' }}>Main Condition:</span>
-                          <span className="ml-2 text-gray-900" style={{ fontFamily: 'Raleway', fontWeight: 600 }}>{diag.main_condition || diag.top_condition || 'N/A'}</span>
-                        </div>
-                        <div className="mb-1">
-                          <span className="font-semibold text-gray-700" style={{ fontFamily: 'Raleway', fontSize: '15px' }}>Likelihood:</span>
-                          <span className="ml-2 text-gray-900" style={{ fontFamily: 'Raleway', fontWeight: 600 }}>{typeof diag.likelihood !== 'undefined' ? `${(diag.likelihood * 100).toFixed(1)}%` : 'N/A'}</span>
-                        </div>
-                        <div className="mb-1">
-                          <span className="font-semibold text-gray-700" style={{ fontFamily: 'Raleway', fontSize: '15px' }}>Date Generated:</span>
-                          <span className="ml-2 text-gray-900" style={{ fontFamily: 'Raleway', fontWeight: 600 }}>{diag.date_generated ? formatDate(diag.date_generated) : 'N/A'}</span>
-                        </div>
-                        {diag.subjective_snippet && (
-                          <div className="mb-1">
-                            <span className="font-semibold text-gray-700" style={{ fontFamily: 'Raleway', fontSize: '15px' }}>Summary:</span>
-                            <span className="ml-2 text-gray-900" style={{ fontFamily: 'Raleway', fontWeight: 400 }}>{diag.subjective_snippet}</span>
-                          </div>
-                        )}
+              {diagnoses && diagnoses.length > 0 ? (
+                <div className="grid gap-4">  
+                  {diagnoses.map((diag, idx) => (
+                    <div 
+                      key={diag.case_id || idx} 
+                      className="rounded-lg p-4 shadow cursor-pointer transition-all hover:bg-gray-50 border border-gray-200" 
+                      style={{ background: '#F7F7F7' }}
+                      onClick={() => navigate(`/admin/reports/${diag.case_id}`)}
+                      title="Click to view full assessment report"
+                    >
+                      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-2">
+                        <span className="font-bold text-[#815FB3]" style={{ fontFamily: 'Raleway', fontSize: '16px' }}>
+                          Case ID: {diag.case_id}
+                        </span>
+                        <span style={getUrgencyStyle(diag.urgency || diag.flag_level)}>
+                          {diag.urgency || diag.flag_level}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p style={{ fontFamily: 'Raleway', fontSize: '14px', fontWeight: 400, color: '#999999' }}>
-                      No Assessments found for this pet.
-                    </p>
-                  </div>
-                );
-              })()}
+
+                      <div className="mb-1">
+                        <span className="font-semibold text-gray-700" style={{ fontFamily: 'Raleway', fontSize: '15px' }}>
+                          Potential Consideration:
+                        </span>
+                        <span className="ml-2 text-gray-900" style={{ fontFamily: 'Raleway', fontWeight: 600 }}>
+                          {diag.main_condition || diag.top_condition || 'N/A'}
+                        </span>
+                      </div>
+
+                      <div className="mb-1">
+                        <span className="font-semibold text-gray-700" style={{ fontFamily: 'Raleway', fontSize: '15px' }}>
+                          Triage Priority:
+                        </span>
+                        <span className="ml-2 text-gray-900" style={{ fontFamily: 'Raleway', fontWeight: 600 }}>
+                          {diag.urgency || diag.flag_level || 'N/A'}
+                        </span>
+                      </div>
+
+                      <div className="mb-1">
+                        <span className="font-semibold text-gray-700" style={{ fontFamily: 'Raleway', fontSize: '15px' }}>
+                          Date Generated:
+                        </span>
+                        <span className="ml-2 text-gray-900" style={{ fontFamily: 'Raleway', fontWeight: 600 }}>
+                          {diag.date_generated ? formatDate(diag.date_generated) : 'N/A'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p style={{ fontFamily: 'Raleway', fontSize: '14px', fontWeight: 400, color: '#999999' }}>
+                    No Assessments found for this pet.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
