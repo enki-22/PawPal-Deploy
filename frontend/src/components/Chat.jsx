@@ -450,29 +450,16 @@ const Chat = () => {
     const usedChatMode = chatMode || 'general';
     const usedPetContext = currentPetContext || null;
 
-    // OPTIMISTIC UPDATE: Display user message immediately
     const userMessage = {
       id: Date.now() + Math.random(),
       content: message,
       isUser: true,
       sender: 'You',
       timestamp: new Date().toISOString(),
-      _optimistic: true, // Mark as optimistic
     };
     setMessages(prev => [...prev, userMessage]);
     setMessageInput('');
     setLoading(true);
-    
-    // OPTIMISTIC UPDATE: Show typing indicator immediately
-    const typingIndicator = {
-      id: 'typing-' + Date.now(),
-      content: '',
-      isUser: false,
-      sender: 'PawPal',
-      isTyping: true,
-      _temporary: true, // Mark as temporary
-    };
-    setMessages(prev => [...prev, typingIndicator]);
     
     try {
       const response = await axios.post(
@@ -496,9 +483,6 @@ const Chat = () => {
       // Guard against session switch
       if (chatSessionIdRef.current !== mySessionId) return;
 
-      // Remove typing indicator
-      setMessages(prev => prev.filter(msg => !msg._temporary));
-
       if (response.data && response.data.response) {
         let aiResponseText = response.data.response;
         let shouldShowLogger = false;
@@ -511,7 +495,7 @@ const Chat = () => {
         }
         
         const aiMessage = {
-          id: response.data.message_id || Date.now() + Math.random(),
+          id: Date.now() + Math.random(),
           content: aiResponseText,
           isUser: false,
           sender: 'PawPal',
@@ -533,18 +517,10 @@ const Chat = () => {
           setCurrentConversationTitle(response.data.conversation_title);
         }
       }
-      
-      // Only fetch conversations if this is a new conversation
-      if (!currentConversationId && response.data.conversation_id) {
-        fetchConversations();
-      }
+      fetchConversations();
     } catch (error) {
       if (chatSessionIdRef.current === mySessionId) {
         console.error('Error:', error);
-        
-        // Remove typing indicator on error
-        setMessages(prev => prev.filter(msg => !msg._temporary));
-        
         const errorMessage = {
           id: Date.now() + Math.random(),
           content: 'Sorry, there was an error processing your message. Please try again.',
@@ -1224,11 +1200,6 @@ const Chat = () => {
 
             <motion.div variants={listContainerVariants} initial="hidden" animate="show" className="flex flex-col">
               {messages.map((message) => {
-              // Handle typing indicator
-              if (message.isTyping || message._temporary) {
-                return <TypingIndicator key={message.id} />;
-              }
-              
               // === CRITICAL: Only render assessment results in symptom_checker mode ===
               // This prevents assessments from appearing in "general" mode conversations
               if (message.isAssessment && message.assessmentData) {
