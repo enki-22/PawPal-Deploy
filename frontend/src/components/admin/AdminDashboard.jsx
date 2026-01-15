@@ -7,6 +7,58 @@ import AdminTopNav from './AdminTopNav';
 
 import { ChevronDown, X } from 'lucide-react';
 
+const renderFormattedText = (text) => {
+  if (!text) return '';
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={index} className="font-bold text-[#34113F]">{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+};
+
+const FAQContentRenderer = ({ content }) => {
+  if (!content) return null;
+  const lines = content.split('\n');
+  return (
+    <div className="space-y-2">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) return <div key={idx} className="h-2" />;
+
+        // Handle Headers
+        if (trimmed.startsWith('###')) {
+          return (
+            <h3 key={idx} className="text-lg font-bold mt-4 mb-2 text-[#815FB3]" style={{ fontFamily: 'Raleway' }}>
+              {renderFormattedText(trimmed.replace(/^###\s*/, ''))}
+            </h3>
+          );
+        }
+
+        // Handle Bullet Points
+        if (/^[-*]\s/.test(trimmed)) {
+          return (
+            <div key={idx} className="flex items-start ml-4 mb-1">
+              <span className="mr-2 text-[#815FB3] font-bold">•</span>
+              <div className="text-sm md:text-base text-gray-800 leading-relaxed">
+                {renderFormattedText(trimmed.replace(/^[-*]\s*/, ''))}
+              </div>
+            </div>
+          );
+        }
+
+        // Regular Paragraph
+        return (
+          <p key={idx} className="text-sm md:text-base text-gray-800 leading-relaxed">
+            {renderFormattedText(trimmed)}
+          </p>
+        );
+      })}
+    </div>
+  );
+};
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   // --- State and Data Definitions ---
@@ -524,8 +576,8 @@ const AdminDashboard = () => {
                 <div className="mb-4 inline-block bg-gray-100 rounded-full px-3 py-1 text-xs font-bold text-gray-600">
                   Asked {selectedFaq.count} times
                 </div>
-                <div className="prose max-w-none font-inter text-gray-800 whitespace-pre-wrap leading-relaxed">
-                  {selectedFaq.full_answer || "No response content available."}
+                <div className="prose max-w-none font-inter">
+                  <FAQContentRenderer content={selectedFaq.full_answer} />
                 </div>
               </div>
               <div className="p-4 border-t bg-gray-50 text-right">
