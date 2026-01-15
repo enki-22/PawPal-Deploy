@@ -1,17 +1,61 @@
 import React, { useEffect, useState, useCallback } from 'react';
 // Helper function to style urgency type
+// Helper function to style urgency type with full color scheme
 function getUrgencyStyle(urgency) {
-  switch (urgency) {
-    case 'Critical':
-      return { color: '#dc2626', fontWeight: 'bold' };
-    case 'High':
-      return { color: '#f59e42', fontWeight: 'bold' };
-    case 'Medium':
-      return { color: '#eab308', fontWeight: 'bold' };
-    case 'Low':
-      return { color: '#22c55e', fontWeight: 'bold' };
+  const level = urgency?.toLowerCase();
+  switch (level) {
+    case 'critical':
+    case 'emergency':
+      return { 
+        color: '#dc2626', // Red-600
+        backgroundColor: '#fee2e2', // Red-100
+        border: '1px solid #fecaca', // Red-200
+        padding: '2px 10px',
+        borderRadius: '12px',
+        fontWeight: 'bold',
+        fontSize: '12px'
+      };
+    case 'high':
+    case 'urgent':
+      return { 
+        color: '#d97706', // Amber-600
+        backgroundColor: '#fef3c7', // Amber-100
+        border: '1px solid #fde68a', // Amber-200
+        padding: '2px 10px',
+        borderRadius: '12px',
+        fontWeight: 'bold',
+        fontSize: '12px'
+      };
+    case 'medium':
+    case 'moderate':
+      return { 
+        color: '#ca8a04', // Yellow-600
+        backgroundColor: '#fef9c3', // Yellow-100
+        border: '1px solid #fef08a', // Yellow-200
+        padding: '2px 10px',
+        borderRadius: '12px',
+        fontWeight: 'bold',
+        fontSize: '12px'
+      };
+    case 'low':
+    case 'routine':
+      return { 
+        color: '#16a34a', // Green-600
+        backgroundColor: '#dcfce7', // Green-100
+        border: '1px solid #bbf7d0', // Green-200
+        padding: '2px 10px',
+        borderRadius: '12px',
+        fontWeight: 'bold',
+        fontSize: '12px'
+      };
     default:
-      return { color: '#64748b' };
+      return { 
+        color: '#64748b', 
+        backgroundColor: '#f1f5f9',
+        padding: '2px 10px',
+        borderRadius: '12px',
+        fontSize: '12px'
+      };
   }
 }
 import { useNavigate, useParams } from 'react-router-dom';
@@ -476,7 +520,13 @@ const AdminPetProfile = () => {
                       key={diag.case_id || idx} 
                       className="rounded-lg p-4 shadow cursor-pointer transition-all hover:bg-gray-50 border border-gray-200" 
                       style={{ background: '#F7F7F7' }}
-                      onClick={() => navigate(`/admin/reports/${diag.case_id}`)}
+                      onClick={() => {
+                        // Remove the # if it exists because the router expects the ID as a clean string
+                        const cleanId = diag.case_id?.startsWith('#') 
+                          ? diag.case_id.substring(1) 
+                          : diag.case_id;
+                        navigate(`/admin/reports/${cleanId}`);
+                      }}
                       title="Click to view full assessment report"
                     >
                       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-2">
