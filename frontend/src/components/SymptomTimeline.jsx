@@ -16,6 +16,7 @@ import { useConversations } from '../context/ConversationsContext';
 import Sidebar from './Sidebar';
 import ProfileButton from './ProfileButton';
 import LogoutModal from './LogoutModal';
+import DeleteLogModal from './DeleteLogModal';
 import './SymptomTimeline.css';
 import SymptomLogger from './SymptomLogger';
 
@@ -38,6 +39,9 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showPetModal, setShowPetModal] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [logToDelete, setLogToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { logout } = useAuth();
   
   const {
@@ -190,19 +194,28 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
     }
   };
 
-  const handleRemoveSpecificLog = async (logId) => {
-    if (!window.confirm('Remove this specific log entry?')) return;
+  const handleRemoveSpecificLog = (logId) => {
+    setLogToDelete(logId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!logToDelete) return;
     
+    setIsDeleting(true);
     try {
       const token = localStorage.getItem('token');
-      // Ensure the URL matches the path we just created in urls.py
-      await axios.delete(`${API_BASE_URL}/symptom-tracker/${logId}/remove-log/`, {
+      await axios.delete(`${API_BASE_URL}/symptom-tracker/${logToDelete}/remove-log/`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      loadData();
+      await loadData();
+      setIsDeleteModalOpen(false);
     } catch (err) {
       console.error('Delete error:', err);
       alert('Failed to remove log.');
+    } finally {
+      setIsDeleting(false);
+      setLogToDelete(null);
     }
   };
 
@@ -387,7 +400,7 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
       return (
         <>
           {/* 1. Header: Now included here so users can switch pets even with 0 logs */}
-          <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-[#34113F] mb-1" style={{ fontFamily: 'Raleway' }}>
                 <img src="/picon_chart.png" alt="Timeline" className="w-8 h-8 inline-block mr-2 mb-1" />
@@ -401,11 +414,11 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto">
               {pets.length > 1 && (
                 <button
                   onClick={() => setShowPetModal(true)}
-                  className="flex items-center gap-2 px-4 py-2.5 border-2 border-[#E0E0E0] rounded-lg bg-white text-[#34113F] font-bold hover:border-[#815FB3] transition-colors"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-[#E0E0E0] rounded-lg bg-white text-[#34113F] font-bold hover:border-[#815FB3] transition-colors"
                   style={{ fontFamily: 'Raleway' }}
                 >
                   <span>🐾 Switch Pet</span>
@@ -414,10 +427,10 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
               )}
               <button
                 onClick={() => navigate('/chat/new')}
-                className="flex-1 sm:flex-none px-6 py-2.5 bg-[#F5E9B8] text-[#34113F] border border-[#ebd78c] rounded-lg hover:bg-[#ebd78c] font-bold transition-all shadow-md"
+                className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#F5E9B8] text-[#34113F] border border-[#ebd78c] rounded-lg hover:bg-[#ebd78c] font-bold transition-all shadow-md"
                 style={{ fontFamily: 'Raleway' }}
               >
-                <img src="/garden_notes-fill-12.png" alt="Log" className="w-5 h-5 inline-block mr-2" />
+                <img src="/garden_notes-fill-12.png" alt="Log" className="w-5 h-5" />
                 Log Symptoms
               </button>
             </div>
@@ -438,11 +451,11 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
               Start tracking {selectedPet?.name || 'your pet'}&apos;s symptoms to see progression over time.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4 w-full justify-center">
               {/* Log via Chat */}
               <button
                 onClick={() => navigate('/chat/new')}
-                className="group flex items-center justify-center gap-3 px-8 py-4 bg-[#F5E9B8] rounded-xl hover:bg-[#ebd78c] transition-all duration-300 shadow-sm transform hover:-translate-y-1 w-full sm:w-auto"
+                className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-[#F5E9B8] rounded-xl hover:bg-[#ebd78c] transition-all duration-300 shadow-sm transform hover:-translate-y-1"
               >
                 <img src="/material-symbols_chat.png" alt="Chat" className="w-6 h-6" />
                 <span className="font-bold text-[#34113F] text-lg" style={{ fontFamily: 'Raleway' }}>
@@ -453,7 +466,7 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
               {/* Manual Log - KEPT INTACT */}
               <button
                 onClick={() => setShowLogger(true)}
-                className="group flex items-center justify-center gap-3 px-8 py-4 bg-[#F5E9B8] rounded-xl hover:bg-[#ebd78c] transition-all duration-300 shadow-sm transform hover:-translate-y-1 w-full sm:w-auto"
+                className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-[#F5E9B8] rounded-xl hover:bg-[#ebd78c] transition-all duration-300 shadow-sm transform hover:-translate-y-1"
               >
                 <img src="/icon-park-solid_notebook-and-pen.png" alt="Manual" className="w-6 h-6" />
                 <span className="font-bold text-[#34113F] text-lg" style={{ fontFamily: 'Raleway' }}>
@@ -533,11 +546,11 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto">
           {pets.length > 1 && (
               <button
                 onClick={() => setShowPetModal(true)}
-                className="flex items-center gap-2 px-4 py-2.5 border-2 border-[#E0E0E0] rounded-lg bg-white text-[#34113F] font-bold hover:border-[#815FB3] transition-colors"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-[#E0E0E0] rounded-lg bg-white text-[#34113F] font-bold hover:border-[#815FB3] transition-colors"
                 style={{ fontFamily: 'Raleway' }}
               >
                 <span>🐾 Switch Pet</span>
@@ -547,22 +560,22 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
             {/* Log Symptoms Button - Primary Action - Navigates to Chat */}
             <button
               onClick={() => navigate('/chat/new')}
-              className="flex-1 sm:flex-none px-4 py-2.5 bg-[#F5E9B8] text-[#34113F] border border-[#ebd78c] rounded-lg hover:bg-[#ebd78c] font-bold transition-all shadow-md active:transform active:scale-95 text-sm"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#F5E9B8] text-[#34113F] border border-[#ebd78c] rounded-lg hover:bg-[#ebd78c] font-bold transition-all shadow-md active:transform active:scale-95 text-sm"
               style={{ fontFamily: 'Raleway' }}
               title="Log symptoms via chat"
             >
-              <img src="/material-symbols_chat.png" alt="Chat" className="w-5 h-5 inline-block mr-2" />
+              <img src="/material-symbols_chat.png" alt="Chat" className="w-5 h-5" />
               Log via Chat
             </button>
 
             {/* Manual Log Entry */}
             <button
               onClick={() => setShowLogger(true)}
-              className="flex-1 sm:flex-none px-4 py-2.5 bg-[#F5E9B8] text-[#34113F] border border-[#ebd78c] rounded-lg hover:bg-[#ebd78c] font-bold transition-all shadow-md active:transform active:scale-95 text-sm"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#F5E9B8] text-[#34113F] border border-[#ebd78c] rounded-lg hover:bg-[#ebd78c] font-bold transition-all shadow-md active:transform active:scale-95 text-sm"
               style={{ fontFamily: 'Raleway' }}
               title="Manual symptom entry"
             >
-              <img src="/icon-park-solid_notebook-and-pen.png" alt="Manual" className="w-5 h-5 inline-block mr-2" />
+              <img src="/icon-park-solid_notebook-and-pen.png" alt="Manual" className="w-5 h-5" />
               Manual Log
             </button>
           </div>
@@ -721,7 +734,7 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
         )}
 
         {/* Log History */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-[#E0E0E0]">
+        <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-[#E0E0E0]">
           <h3 className="text-lg font-bold text-[#34113F] mb-6 pl-2 border-l-4 border-[#F5E9B8]" style={{ fontFamily: 'Raleway' }}>
             Detailed Log History
           </h3>
@@ -729,11 +742,11 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
             {logs.map((log) => (
               <div
                 key={log.id}
-                className="border border-[#F0F0F0] rounded-xl p-5 hover:border-[#815FB3]/30 hover:shadow-md transition-all duration-200 bg-[#FAFAFA]"
+                className="border border-[#F0F0F0] rounded-xl p-4 md:p-5 hover:border-[#815FB3]/30 hover:shadow-md transition-all duration-200 bg-[#FAFAFA]"
               >
-                <div className="flex justify-between items-start mb-3">
+                <div className="flex flex-col md:flex-row justify-between items-start gap-3 mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#EFE9F5] flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-[#EFE9F5] flex items-center justify-center flex-shrink-0">
                       <img src="/solar_calendar-bold.png" alt="Calendar" className="w-6 h-6" />
                     </div>
                     <div>
@@ -762,7 +775,7 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
 
                 {/* Symptoms */}
                 {log.symptoms && log.symptoms.length > 0 && (
-                  <div className="ml-13 pl-13 mt-2">
+                  <div className="ml-0 md:ml-13 pl-0 md:pl-13 mt-2">
                     <div className="flex flex-wrap gap-2">
                       {log.symptoms.map((symptom, idx) => {
                         const severity = log.severity_scores?.[symptom] || 5;
@@ -936,6 +949,14 @@ const SymptomTimeline = ({ petId: propPetId, pet: propPet }) => {
         onClose={handleLogoutCancel}
         onConfirm={handleLogoutConfirm}
         loading={false}
+      />
+
+      {/* Delete Log Modal */}
+      <DeleteLogModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        loading={isDeleting}
       />
 
       {/* Manual Log Option - Shown as Modal */}

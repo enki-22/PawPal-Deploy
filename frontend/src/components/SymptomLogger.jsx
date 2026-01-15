@@ -425,8 +425,8 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {[
             { 
-              value: 'mild', 
-              label: 'Mild', 
+              value: 'low', 
+              label: 'Low', 
               desc: 'Eating & acting mostly normal', 
               activeClass: 'border-green-300 bg-green-50',
               circleClass: 'bg-emerald-200'
@@ -439,8 +439,8 @@ const SymptomLogger = ({ pet, onComplete, showToast }) => {
               circleClass: 'bg-amber-200' 
             },
             { 
-              value: 'severe', 
-              label: 'Severe', 
+              value: 'high', 
+              label: 'High', 
               desc: 'Very unwell, major changes', 
               activeClass: 'border-red-300 bg-red-50',
               circleClass: 'bg-rose-300' 

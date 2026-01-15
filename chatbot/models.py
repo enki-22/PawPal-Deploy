@@ -16,6 +16,12 @@ class Conversation(models.Model):
     
     class Meta:
         ordering = ['-updated_at']
+        indexes = [
+            models.Index(fields=['user', '-updated_at'], name='conv_user_updated_idx'),
+            models.Index(fields=['user', 'pet', '-updated_at'], name='conv_user_pet_updated_idx'),
+            models.Index(fields=['user', 'is_pinned'], name='conv_user_pinned_idx'),
+            models.Index(fields=['-created_at'], name='conv_created_idx'),
+        ]
     
     def __str__(self):
         return f"{self.title} - {self.user.username}"

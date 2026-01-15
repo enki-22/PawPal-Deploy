@@ -170,11 +170,17 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
           </p>
 
           {/* Predictions - Top 3 */}
-          {predictions.slice(0, 3).map((prediction, index) => (
+          {predictions.slice(0, 3).map((prediction, index) => {
+            const diseaseLabel = prediction.disease || prediction.label;
+            const displayLabel = diseaseLabel?.includes('Potential Concern') 
+              ? diseaseLabel 
+              : `Potential Concern: ${diseaseLabel}`;
+            
+            return (
             <div key={index} className="border border-gray-200 rounded-lg p-3 mb-3 bg-gray-50">
               <div className="mb-2">
                 <h4 className="font-bold text-gray-800 text-base">
-                  {index + 1}. Potential Concern: {prediction.disease || prediction.label}
+                  {index + 1}. {displayLabel}
                 </h4>
                 <div className="text-sm text-gray-600 mt-1 space-y-1">
                   <div>
@@ -267,7 +273,8 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
                 </div>
               )}
             </div>
-          ))}
+          );
+          })}
 
           {/* Overall Recommendation - Respects Safety Override */}
           <div className={`border-t pt-3 ${
