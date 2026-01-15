@@ -517,17 +517,9 @@ const AdminPetProfile = () => {
                 <div className="grid gap-4">  
                   {diagnoses.map((diag, idx) => (
                     <div 
-                      key={diag.case_id || idx} 
-                      className="rounded-lg p-4 shadow cursor-pointer transition-all hover:bg-gray-50 border border-gray-200" 
-                      style={{ background: '#F7F7F7' }}
-                      onClick={() => {
-                        // Remove the # if it exists because the router expects the ID as a clean string
-                        const cleanId = diag.case_id?.startsWith('#') 
-                          ? diag.case_id.substring(1) 
-                          : diag.case_id;
-                        navigate(`/admin/reports/${cleanId}`);
-                      }}
-                      title="Click to view full assessment report"
+                    key={idx} 
+                    className="rounded-lg p-4 shadow border border-gray-200" 
+                    style={{ background: '#F7F7F7' }}
                     >
                       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-2">
                         <span className="font-bold text-[#815FB3]" style={{ fontFamily: 'Raleway', fontSize: '16px' }}>
