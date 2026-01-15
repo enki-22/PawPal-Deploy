@@ -482,7 +482,7 @@ export default function LandingPage() {
                 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400 }}
                 variants={itemVariants}
               >
-                Get instant answers to your pet care questions, check symptoms, and receive
+                Get answers to your pet care questions, check symptoms, and receive
                 guidance on when to visit our clinic. PawPal is here to help you provide the best care for
                 your furry friends.
               </motion.p>
