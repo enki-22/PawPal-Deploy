@@ -37,6 +37,11 @@ const API_BASE_URL = `${API_ROOT}/api`;
   }, [API_BASE_URL, token]);
 
   const handlePinConversation = async (conversationId) => {
+    // Optimistically update local state immediately for instant UI feedback
+    setConversations(prev => prev.map(conv => 
+      conv.id === conversationId ? { ...conv, is_pinned: !conv.is_pinned } : conv
+    ));
+
     try {
       console.log('Attempting to toggle pin for conversation:', conversationId);
       const response = await axios.post(`${API_BASE_URL}/chatbot/conversations/${conversationId}/pin/`, {}, {
@@ -46,13 +51,18 @@ const API_BASE_URL = `${API_ROOT}/api`;
       });
 
       console.log('Pin toggle response:', response.data);
-      if (response.data) {
-        // Force reload conversations to update the list
-        fetchConversations(true);
+      
+      // Update with server response if it includes the full conversation object
+      if (response.data && response.data.conversation) {
+        setConversations(prev => prev.map(conv => 
+          conv.id === conversationId ? response.data.conversation : conv
+        ));
       }
     } catch (error) {
       console.error('Error pinning/unpinning conversation:', error);
       console.error('Error details:', error.response?.data);
+      // Roll back the optimistic update by re-fetching conversations
+      fetchConversations();
     }
   };
 

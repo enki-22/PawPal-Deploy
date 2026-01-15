@@ -947,13 +947,15 @@ def get_conversations(request):
     GET /api/chatbot/conversations/
     (CONSOLIDATED: Enhanced to replace /api/admin/pets/:petId/chat-history)
     
-    Get conversation list with optional pet filter
+    Get conversation list with optional pet filter and pagination
     Supports both Pet Owners and Admins with role-based access
     
     Query Parameters:
         - pet_id (int, optional): Filter conversations by pet
           Pet Owners: Must be their own pet
           Admins: Can filter by any pet, or omit for all
+        - page (int, optional): Page number (default: 1)
+        - per_page (int, optional): Items per page (default: 20, max: 100)
     
     Permissions:
         - Admins: Can view conversations for any pet or all conversations
@@ -975,6 +977,10 @@ def get_conversations(request):
     try:
         pet_id = request.query_params.get('pet_id')
         
+        # Get pagination parameters
+        page = int(request.query_params.get('page', 1))
+        per_page = min(int(request.query_params.get('per_page', 20)), 100)  # Max 100 items per page
+        
         # Build base queryset
         if request.user_type == 'admin':
             if pet_id:
@@ -982,7 +988,7 @@ def get_conversations(request):
                 from pets.models import Pet
                 try:
                     pet = Pet.objects.get(id=pet_id)
-                    conversations = Conversation.objects.filter(pet=pet).prefetch_related('messages', 'soap_reports')
+                    conversations = Conversation.objects.filter(pet=pet).select_related('pet', 'user').prefetch_related('messages', 'soap_reports')
                 except Pet.DoesNotExist:
                     return Response({
                         'success': False,
@@ -991,10 +997,10 @@ def get_conversations(request):
                     }, status=status.HTTP_404_NOT_FOUND)
             else:
                 # Admin viewing all conversations
-                conversations = Conversation.objects.all().prefetch_related('messages', 'soap_reports', 'pet', 'user')
+                conversations = Conversation.objects.all().select_related('pet', 'user').prefetch_related('messages', 'soap_reports')
         else:  # pet_owner
             # Pet owners see only their conversations
-            conversations = Conversation.objects.filter(user=request.user)
+            conversations = Conversation.objects.filter(user=request.user).select_related('pet')
             
             if pet_id:
                 # Filter by pet (must be their own)
@@ -1011,8 +1017,17 @@ def get_conversations(request):
         # Format based on user type
         if request.user_type == 'admin' and pet_id:
             # Admin format for specific pet (similar to admin endpoint)
+            ordered_conversations = conversations.order_by('-created_at')
+            
+            # Apply pagination
+            paginator = Paginator(ordered_conversations, per_page)
+            try:
+                paginated_conversations = paginator.page(page)
+            except Exception:
+                paginated_conversations = paginator.page(1)
+            
             chats = []
-            for conv in conversations.order_by('-created_at'):
+            for conv in paginated_conversations:
                 preview = ""
                 first_message = conv.messages.filter(is_user=True).first()
                 if first_message:
@@ -1031,12 +1046,24 @@ def get_conversations(request):
             return Response({
                 'success': True,
                 'chats': chats,
-                'total_count': len(chats)
+                'total_count': paginator.count,
+                'page': page,
+                'per_page': per_page,
+                'total_pages': paginator.num_pages
             }, status=status.HTTP_200_OK)
         else:
             # Pet owner format or admin without pet filter
+            ordered_conversations = conversations.order_by('-updated_at', '-created_at')
+            
+            # Apply pagination
+            paginator = Paginator(ordered_conversations, per_page)
+            try:
+                paginated_conversations = paginator.page(page)
+            except Exception:
+                paginated_conversations = paginator.page(1)
+            
             conversation_data = []
-            for conv in conversations.order_by('-updated_at', '-created_at'):
+            for conv in paginated_conversations:
                 last_message = conv.messages.last()
                 conversation_data.append({
                     'id': conv.id,
@@ -1053,7 +1080,10 @@ def get_conversations(request):
            
             return Response({
                 'conversations': conversation_data,
-                'total': len(conversation_data)
+                'total': paginator.count,
+                'page': page,
+                'per_page': per_page,
+                'total_pages': paginator.num_pages
             }, status=status.HTTP_200_OK)
        
     except Exception as e:
@@ -1086,9 +1116,23 @@ def toggle_pin_conversation(request, conversation_id):
         conversation.is_pinned = not conversation.is_pinned
         conversation.save()
         
+        # Return full conversation object to avoid re-fetching
+        last_message = conversation.messages.last()
         return Response({
             'id': conversation.id,
-            'is_pinned': conversation.is_pinned
+            'is_pinned': conversation.is_pinned,
+            'conversation': {
+                'id': conversation.id,
+                'title': conversation.title,
+                'created_at': conversation.created_at.isoformat(),
+                'updated_at': conversation.updated_at.isoformat(),
+                'is_pinned': conversation.is_pinned,
+                'message_count': conversation.messages.count(),
+                'last_message': last_message.content[:50] + "..." if last_message else "",
+                'last_message_time': last_message.created_at.isoformat() if last_message else conversation.created_at.isoformat(),
+                'pet_id': conversation.pet.id if conversation.pet else None,
+                'pet_name': conversation.pet.name if conversation.pet else None
+            }
         })
         
     except Conversation.DoesNotExist:
@@ -1412,10 +1456,24 @@ def toggle_pin_conversation(request, conversation_id):
         conversation = Conversation.objects.get(id=conversation_id, user=user_obj)
         conversation.is_pinned = not conversation.is_pinned
         conversation.save()
-       
+        
+        # Return full conversation object to avoid re-fetching
+        last_message = conversation.messages.last()
         return Response({
             'id': conversation.id,
-            'is_pinned': conversation.is_pinned
+            'is_pinned': conversation.is_pinned,
+            'conversation': {
+                'id': conversation.id,
+                'title': conversation.title,
+                'created_at': conversation.created_at.isoformat(),
+                'updated_at': conversation.updated_at.isoformat(),
+                'is_pinned': conversation.is_pinned,
+                'message_count': conversation.messages.count(),
+                'last_message': last_message.content[:50] + "..." if last_message else "",
+                'last_message_time': last_message.created_at.isoformat() if last_message else conversation.created_at.isoformat(),
+                'pet_id': conversation.pet.id if conversation.pet else None,
+                'pet_name': conversation.pet.name if conversation.pet else None
+            }
         })
        
     except Conversation.DoesNotExist:
