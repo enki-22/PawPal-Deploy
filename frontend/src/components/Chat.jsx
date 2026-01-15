@@ -560,24 +560,6 @@ const Chat = () => {
       }
     }
   };
-    } catch (error) {
-      if (chatSessionIdRef.current === mySessionId) {
-        console.error('Error:', error);
-        const errorMessage = {
-          id: Date.now() + Math.random(),
-          content: 'Sorry, there was an error processing your message. Please try again.',
-          isUser: false,
-          sender: 'PawPal',
-          timestamp: new Date().toISOString(),
-        };
-        setMessages(prev => [...prev, errorMessage]);
-      }
-    } finally {
-      if (chatSessionIdRef.current === mySessionId) {
-        setLoading(false);
-      }
-    }
-  };
 
   // Auto-resize handler for textarea and Enter-to-send (shift+Enter for newline)
   const handleInputResize = (e) => {
