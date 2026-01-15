@@ -245,7 +245,7 @@
               <div className="text-center">
                   <p className="text-xs font-black uppercase tracking-[0.2em] opacity-70 mb-1">Triage Priority</p>
                   <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-none">{report.plan?.severityLevel?.toUpperCase()}</h2>
-                  <p className="text-xs mt-2 opacity-80">Immediate attention recommended</p>
+                  <p className="text-xs mt-2 opacity-80"></p>
               </div>
               <div className="text-center md:border-l border-white/20 md:pl-6">
                   <p className="text-xs font-bold opacity-70 italic uppercase">Care Timeline</p>
@@ -265,7 +265,7 @@
               <p className="text-sm text-gray-700 font-medium">
                 The symptoms noted include: <span className="text-black font-bold">{Array.isArray(report.objective.symptoms) ? report.objective.symptoms.join(', ') : report.objective.symptoms}</span>.
               </p>
-            )}
+            )}  
           </div>
 
           
