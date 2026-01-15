@@ -65,6 +65,25 @@ except Exception:
 def load_pawpal_lightgbm():
     global PAWPAL_MODEL, PAWPAL_PREPROCESSOR, PAWPAL_LABEL_ENCODER, PAWPAL_DISEASE_METADATA, PAWPAL_MODEL_LOADED, PAWPAL_MODEL_ERROR
 
+    # First, try to get pre-loaded models from apps.py
+    from django.apps import apps
+    try:
+        chatbot_config = apps.get_app_config('chatbot')
+        if (chatbot_config.pawpal_model is not None and 
+            chatbot_config.pawpal_preprocessor is not None and 
+            chatbot_config.pawpal_label_encoder is not None):
+            PAWPAL_MODEL = chatbot_config.pawpal_model
+            PAWPAL_PREPROCESSOR = chatbot_config.pawpal_preprocessor
+            PAWPAL_LABEL_ENCODER = chatbot_config.pawpal_label_encoder
+            PAWPAL_DISEASE_METADATA = chatbot_config.pawpal_disease_metadata or {}
+            PAWPAL_MODEL_LOADED = True
+            PAWPAL_MODEL_ERROR = None
+            logger.info("✅ Using pre-loaded PawPal model from apps.py (fast path)")
+            return PAWPAL_MODEL, PAWPAL_PREPROCESSOR, PAWPAL_LABEL_ENCODER, PAWPAL_DISEASE_METADATA
+    except Exception as e:
+        logger.warning(f"Could not get pre-loaded model from apps.py: {e}")
+
+    # Fallback: Check if already loaded in global variables
     if (
         PAWPAL_MODEL_LOADED
         and PAWPAL_MODEL is not None
@@ -73,6 +92,8 @@ def load_pawpal_lightgbm():
     ):
         return PAWPAL_MODEL, PAWPAL_PREPROCESSOR, PAWPAL_LABEL_ENCODER, PAWPAL_DISEASE_METADATA
 
+    # Last resort: Load from disk (this is slow and should only happen if apps.py failed)
+    logger.warning("⚠️ Loading PawPal model from disk (slow path) - this should not happen in production")
     base_dir = getattr(settings, "BASE_DIR", None)
     if base_dir is None:
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -116,7 +137,7 @@ def load_pawpal_lightgbm():
         PAWPAL_MODEL_LOADED = True
         PAWPAL_MODEL_ERROR = None
 
-        logger.info("PawPal LightGBM model loaded successfully for symptom checker.")
+        logger.info("PawPal LightGBM model loaded successfully from disk (slow path).")
         return PAWPAL_MODEL, PAWPAL_PREPROCESSOR, PAWPAL_LABEL_ENCODER, PAWPAL_DISEASE_METADATA
     except Exception as e:
         PAWPAL_MODEL = None
