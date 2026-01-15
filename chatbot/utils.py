@@ -383,9 +383,9 @@ def determine_severity_level_from_urgency(urgency: str) -> str:
         'urgent': 'Urgent',
         'soon': 'Urgent',
         'moderate': 'Moderate',
-        'mild': 'Moderate',
-        'routine': 'Moderate',
-        'low': 'Moderate',
+        'mild': 'low',
+        'routine': 'low',
+        'low': 'low',
     }
     
     return severity_map.get(urgency_lower, 'Moderate')

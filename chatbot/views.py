@@ -2886,6 +2886,7 @@ def create_ai_diagnosis(request):
                 verification_result,
                 override_severity=triage_urgency 
             )
+            final_severity = soap_data['plan']['severityLevel'].lower()
             
             logger.info(f"Assessment data keys: {assessment_data.keys()}")
             logger.info(f"SOAP data generated: {bool(soap_data)}")
@@ -2934,7 +2935,7 @@ def create_ai_diagnosis(request):
             ml_predictions=ml_predictions_storage,
             ai_explanation=overall_recommendation,
             suggested_diagnoses=suggested_diagnoses,
-            overall_severity=triage_assessment.get('overall_urgency', urgency_level),
+            overall_severity=final_severity,
             urgency_level=urgency_level,
             pet_context={
                 'pet_name': pet.name,
@@ -2957,7 +2958,7 @@ def create_ai_diagnosis(request):
             'moderate': 'moderate',
             'low': 'low'
         }
-        flag_level = flag_level_map.get(urgency_level, 'moderate')
+        flag_level = flag_level_map.get(final_severity, 'moderate')
         print("🔵 Step 4: Building SOAP data...")
         
         # Build SOAP report data
