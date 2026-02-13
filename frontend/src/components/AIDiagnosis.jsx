@@ -344,10 +344,10 @@ const AIDiagnosis = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#815FB3]" />
             </div>
           ) : (
-            <div className="overflow-x-auto w-full flex justify-center">
+            <div className="overflow-x-auto w-full flex md:justify-center">
               <table
-                className="w-full md:w-[1100px] rounded-xl shadow border text-[10px] md:text-[15px] md:table-fixed mx-auto"
-                style={{ fontFamily: 'Raleway', background: '#FFFFF2', tableLayout: 'fixed' }}
+                className="w-full md:max-w-[1100px] rounded-xl shadow border text-[10px] md:text-[15px] table-fixed mx-auto"
+                style={{ fontFamily: 'Raleway', background: '#FFFFF2', minWidth: '800px' }}
               >
                 <colgroup>
                   <col style={{ width: '18%' }} />

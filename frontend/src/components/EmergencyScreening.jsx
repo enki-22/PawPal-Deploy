@@ -55,6 +55,7 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
   const [criticalSymptoms, setCriticalSymptoms] = useState([]);
   const [showEmergencyWarning, setShowEmergencyWarning] = useState(false);
   const [isEmergency, setIsEmergency] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
   
   const containerRef = useRef(null);
   const petName = selectedPet?.name || 'your pet';
@@ -234,13 +235,14 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
                 >
                   Continue Assessment
                 </button>
-                <a
-                  href="tel:"
+                <button
+                  type="button"
+                  onClick={() => setShowContactModal(true)}
                   className="px-5 py-2.5 rounded-[10px] text-[14px] font-bold text-white transition-opacity hover:opacity-90 inline-block shadow-md"
                   style={{ backgroundColor: EMERGENCY_COLOR }}
                 >
-                  Call Emergency Vet
-                </a>
+                  Contact Emergency Vet
+                </button>
               </div>
             </div>
 
@@ -251,6 +253,46 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
             </div>
           </div>
         </div>
+        {showContactModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-[20px] p-8 max-w-sm w-full shadow-2xl relative" style={{ fontFamily: 'Raleway' }}>
+            <button 
+              onClick={() => setShowContactModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"
+            >
+              ×
+            </button>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <img src="/line-md_phone-filled.png" alt="Contact" className="w-8 h-8" style={{ filter: 'invert(20%) sepia(80%) saturate(5000%) hue-rotate(350deg)' }} />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">SouthValley Veterinary Clinic</h3>
+              <p className="text-sm text-red-600 font-semibold mb-6">OPEN 24/7 FOR EMERGENCIES</p>
+            </div>
+            <div className="space-y-4 text-gray-700">
+              <div className="flex gap-3">
+                <img src="/location.png" className="w-5 h-5 flex-shrink-0 mt-1" alt="Location" />
+                <p className="text-[13px]">A. Gomez, National Highway, Balibago, Sta. Rosa, Laguna, Philippines</p>
+              </div>
+              <div className="flex gap-3">
+                <img src="/line-md_phone-filled.png" className="w-5 h-5 flex-shrink-0" alt="Phone" />
+                <p className="text-[15px] font-bold">0928 960 7250</p>
+              </div>
+              <div className="flex gap-3">
+                <img src="/email.png" className="w-5 h-5 flex-shrink-0" alt="Email" />
+                <p className="text-[13px]">southvalleyvc20@gmail.com</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowContactModal(false)}
+              className="w-full mt-8 py-3 rounded-[10px] text-white font-bold transition-all"
+              style={{ backgroundColor: PRIMARY_COLOR }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
       </div>
     );
   }
@@ -452,6 +494,49 @@ const EmergencyScreening = ({ selectedPet, onComplete, onEmergencyDetected }) =>
           </div>
         </div>
       </div>
+        {showContactModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-[20px] p-8 max-w-sm w-full shadow-2xl relative" style={{ fontFamily: 'Raleway' }}>
+            <button 
+              onClick={() => setShowContactModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"
+            >
+              ×
+            </button>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <img src="/line-md_phone-filled.png" alt="Contact" className="w-8 h-8" style={{ filter: 'invert(20%) sepia(80%) saturate(5000%) hue-rotate(350deg)' }} />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">SouthValley Veterinary Clinic</h3>
+              <p className="text-sm text-red-600 font-semibold mb-6">OPEN 24/7 FOR EMERGENCIES</p>
+            </div>
+
+            <div className="space-y-4 text-gray-700">
+              <div className="flex gap-3">
+                <img src="/location.png" className="w-5 h-5 flex-shrink-0 mt-1" alt="Location" />
+                <p className="text-[13px]">A. Gomez, National Highway, Balibago, Sta. Rosa, Laguna, Philippines</p>
+              </div>
+              <div className="flex gap-3">
+                <img src="/line-md_phone-filled.png" className="w-5 h-5 flex-shrink-0" alt="Phone" />
+                <p className="text-[15px] font-bold">0928 960 7250</p>
+              </div>
+              <div className="flex gap-3">
+                <img src="/email.png" className="w-5 h-5 flex-shrink-0" alt="Email" />
+                <p className="text-[13px]">southvalleyvc20@gmail.com</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowContactModal(false)}
+              className="w-full mt-8 py-3 rounded-[10px] text-white font-bold transition-all"
+              style={{ backgroundColor: PRIMARY_COLOR }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
       <AssessmentMethodology />
     </div>
   );

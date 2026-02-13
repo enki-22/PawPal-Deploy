@@ -29,6 +29,11 @@ class Pet(models.Model):
     medical_notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    blood_type = models.CharField(max_length=20, blank=True, null=True)
+    spayed_neutered = models.BooleanField(default=False)
+    allergies = models.TextField(blank=True, null=True)
+    chronic_disease = models.TextField(blank=True, null=True)
     
     class Meta:
         ordering = ['name']

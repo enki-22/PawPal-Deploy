@@ -626,9 +626,11 @@ const Chat = () => {
         .join(' ');
     
     // Merge user_notes from payload (typed symptoms) with chat history
-    const combinedNotes = [payload.user_notes, recentUserMessages]
-        .filter(Boolean)
-        .join(' ');
+    const combinedNotes = [
+      payload.user_notes, 
+      recentUserMessages, 
+      location.state?.history_summary // Use the trend summary as a fallback
+  ].filter(Boolean).join(' ') || "Assessment triggered by worsening symptom trend.";  
         
     setShowSymptomChecker(false);
     setIsAnalyzing(true);

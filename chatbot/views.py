@@ -26,7 +26,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.core.cache import cache
 from pets.models import Pet
-from .models import Conversation, Message, AIDiagnosis, SOAPReport, DiagnosisSuggestion
+from .models import Conversation, Message, AIDiagnosis, SOAPReport, DiagnosisSuggestion, SymptomLog, PetHealthTrend
 # Note: image_classifier is now lazily loaded via analyze_pet_image when needed
 import logging
 from .utils import get_gemini_client, get_cached_response, save_response_to_cache
@@ -546,6 +546,12 @@ Medical Notes: {pet_context['medical_notes']}
 Known Allergies: {pet_context['allergies']}
 Chronic Conditions: {pet_context['chronic_diseases']}
 
+RECENT SYMPTOM HISTORY:
+{pet_context.get('symptom_history', 'No recent logs.')}
+
+AI HEALTH TREND:
+{pet_context.get('health_trend', 'No trend analysis available.')}
+
 You already know about {pet_context['name']}, so don't ask for basic information again. Provide advice specific to this {pet_context['species']}.
 
 """
@@ -792,6 +798,15 @@ def chat(request):
         pet_context = None
         if hasattr(conversation, 'pet') and conversation.pet:
             pet = conversation.pet
+
+            recent_logs = SymptomLog.objects.filter(pet=pet).order_by('-symptom_date', '-logged_date')[:5]
+            history_summary = []
+            for log in recent_logs:
+                syms = ", ".join(log.symptoms) if isinstance(log.symptoms, list) else str(log.symptoms)
+                history_summary.append(f"- {log.symptom_date}: {syms} ({log.overall_severity})")
+            
+            # Fetch the latest trend calculated by the tracker
+            latest_trend = PetHealthTrend.objects.filter(pet=pet).order_by('-analysis_date').first()
             pet_context = {
                 'name': pet.name,
                 'species': getattr(pet, 'animal_type', 'Unknown'),
@@ -802,6 +817,8 @@ def chat(request):
                 'medical_notes': getattr(pet, 'medical_notes', ''),
                 'allergies': getattr(pet, 'allergies', ''),
                 'chronic_diseases': getattr(pet, 'chronic_diseases', ''),
+                'symptom_history': "\n".join(history_summary) if history_summary else "No recent logs.",
+                'health_trend': latest_trend.trend_analysis if latest_trend else "Stable"
             }
        
         # Generate AI response using Gemini with pet context
@@ -930,13 +947,15 @@ def get_conversations(request):
     GET /api/chatbot/conversations/
     (CONSOLIDATED: Enhanced to replace /api/admin/pets/:petId/chat-history)
     
-    Get conversation list with optional pet filter
+    Get conversation list with optional pet filter and pagination
     Supports both Pet Owners and Admins with role-based access
     
     Query Parameters:
         - pet_id (int, optional): Filter conversations by pet
           Pet Owners: Must be their own pet
           Admins: Can filter by any pet, or omit for all
+        - page (int, optional): Page number (default: 1)
+        - per_page (int, optional): Items per page (default: 20, max: 100)
     
     Permissions:
         - Admins: Can view conversations for any pet or all conversations
@@ -958,6 +977,10 @@ def get_conversations(request):
     try:
         pet_id = request.query_params.get('pet_id')
         
+        # Get pagination parameters
+        page = int(request.query_params.get('page', 1))
+        per_page = min(int(request.query_params.get('per_page', 20)), 100)  # Max 100 items per page
+        
         # Build base queryset
         if request.user_type == 'admin':
             if pet_id:
@@ -965,7 +988,7 @@ def get_conversations(request):
                 from pets.models import Pet
                 try:
                     pet = Pet.objects.get(id=pet_id)
-                    conversations = Conversation.objects.filter(pet=pet).prefetch_related('messages', 'soap_reports')
+                    conversations = Conversation.objects.filter(pet=pet).select_related('pet', 'user').prefetch_related('messages', 'soap_reports')
                 except Pet.DoesNotExist:
                     return Response({
                         'success': False,
@@ -974,10 +997,10 @@ def get_conversations(request):
                     }, status=status.HTTP_404_NOT_FOUND)
             else:
                 # Admin viewing all conversations
-                conversations = Conversation.objects.all().prefetch_related('messages', 'soap_reports', 'pet', 'user')
+                conversations = Conversation.objects.all().select_related('pet', 'user').prefetch_related('messages', 'soap_reports')
         else:  # pet_owner
             # Pet owners see only their conversations
-            conversations = Conversation.objects.filter(user=request.user)
+            conversations = Conversation.objects.filter(user=request.user).select_related('pet')
             
             if pet_id:
                 # Filter by pet (must be their own)
@@ -994,8 +1017,17 @@ def get_conversations(request):
         # Format based on user type
         if request.user_type == 'admin' and pet_id:
             # Admin format for specific pet (similar to admin endpoint)
+            ordered_conversations = conversations.order_by('-created_at')
+            
+            # Apply pagination
+            paginator = Paginator(ordered_conversations, per_page)
+            try:
+                paginated_conversations = paginator.page(page)
+            except Exception:
+                paginated_conversations = paginator.page(1)
+            
             chats = []
-            for conv in conversations.order_by('-created_at'):
+            for conv in paginated_conversations:
                 preview = ""
                 first_message = conv.messages.filter(is_user=True).first()
                 if first_message:
@@ -1014,12 +1046,24 @@ def get_conversations(request):
             return Response({
                 'success': True,
                 'chats': chats,
-                'total_count': len(chats)
+                'total_count': paginator.count,
+                'page': page,
+                'per_page': per_page,
+                'total_pages': paginator.num_pages
             }, status=status.HTTP_200_OK)
         else:
             # Pet owner format or admin without pet filter
+            ordered_conversations = conversations.order_by('-updated_at', '-created_at')
+            
+            # Apply pagination
+            paginator = Paginator(ordered_conversations, per_page)
+            try:
+                paginated_conversations = paginator.page(page)
+            except Exception:
+                paginated_conversations = paginator.page(1)
+            
             conversation_data = []
-            for conv in conversations.order_by('-updated_at', '-created_at'):
+            for conv in paginated_conversations:
                 last_message = conv.messages.last()
                 conversation_data.append({
                     'id': conv.id,
@@ -1036,7 +1080,10 @@ def get_conversations(request):
            
             return Response({
                 'conversations': conversation_data,
-                'total': len(conversation_data)
+                'total': paginator.count,
+                'page': page,
+                'per_page': per_page,
+                'total_pages': paginator.num_pages
             }, status=status.HTTP_200_OK)
        
     except Exception as e:
@@ -1069,9 +1116,23 @@ def toggle_pin_conversation(request, conversation_id):
         conversation.is_pinned = not conversation.is_pinned
         conversation.save()
         
+        # Return full conversation object to avoid re-fetching
+        last_message = conversation.messages.last()
         return Response({
             'id': conversation.id,
-            'is_pinned': conversation.is_pinned
+            'is_pinned': conversation.is_pinned,
+            'conversation': {
+                'id': conversation.id,
+                'title': conversation.title,
+                'created_at': conversation.created_at.isoformat(),
+                'updated_at': conversation.updated_at.isoformat(),
+                'is_pinned': conversation.is_pinned,
+                'message_count': conversation.messages.count(),
+                'last_message': last_message.content[:50] + "..." if last_message else "",
+                'last_message_time': last_message.created_at.isoformat() if last_message else conversation.created_at.isoformat(),
+                'pet_id': conversation.pet.id if conversation.pet else None,
+                'pet_name': conversation.pet.name if conversation.pet else None
+            }
         })
         
     except Conversation.DoesNotExist:
@@ -1395,10 +1456,24 @@ def toggle_pin_conversation(request, conversation_id):
         conversation = Conversation.objects.get(id=conversation_id, user=user_obj)
         conversation.is_pinned = not conversation.is_pinned
         conversation.save()
-       
+        
+        # Return full conversation object to avoid re-fetching
+        last_message = conversation.messages.last()
         return Response({
             'id': conversation.id,
-            'is_pinned': conversation.is_pinned
+            'is_pinned': conversation.is_pinned,
+            'conversation': {
+                'id': conversation.id,
+                'title': conversation.title,
+                'created_at': conversation.created_at.isoformat(),
+                'updated_at': conversation.updated_at.isoformat(),
+                'is_pinned': conversation.is_pinned,
+                'message_count': conversation.messages.count(),
+                'last_message': last_message.content[:50] + "..." if last_message else "",
+                'last_message_time': last_message.created_at.isoformat() if last_message else conversation.created_at.isoformat(),
+                'pet_id': conversation.pet.id if conversation.pet else None,
+                'pet_name': conversation.pet.name if conversation.pet else None
+            }
         })
        
     except Conversation.DoesNotExist:
@@ -2341,23 +2416,21 @@ def symptom_checker_predict(request):
         # and use vector similarity directly with user_notes
         if not is_standard_species:
             logger.info(f"🔄 Dynamic mode detected for species: {species}. Bypassing question-tree validation.")
-            
+
+            cleaned = payload.copy()
             # Get minimal required fields
             pet_id = payload.get('pet_id')
             pet_name = payload.get('pet_name', 'Unknown Pet')
             user_notes = payload.get('user_notes', '')
             
             if not user_notes or not user_notes.strip():
-                return Response(
-                    {
-                        'success': False,
-                        'error': 'user_notes is required for dynamic mode species.',
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                # Instead of returning a 400 error, provide a default fallback string
+                user_notes = "Assessment triggered by health trend tracker."
+                cleaned['user_notes'] = user_notes # Ensure the rest of the code has it
             
             # Verify pet ownership if pet_id provided
             pet_id = cleaned.get('pet_id')
+
             pet = None
             if pet_id:
                 try:
@@ -2372,9 +2445,17 @@ def symptom_checker_predict(request):
                     
                     cleaned['pet_name'] = pet.name
                     
-                    # Rule #8: Omit Blood Type unless it's specifically known (Owners usually don't know it)
-                    if pet.blood_type and pet.blood_type.lower() not in ['unknown', 'n/a', '']:
-                        cleaned['blood_type'] = pet.blood_type
+                    
+
+                    recent_logs = SymptomLog.objects.filter(pet=pet).order_by('-symptom_date', '-logged_date')[:5]
+                    history_list = []
+                    for l in recent_logs:
+                        if isinstance(l.symptoms, list): history_list.extend(l.symptoms)
+                    
+                    if history_list:
+                        history_str = ", ".join(list(set(history_list)))
+                        cleaned['user_notes'] = f"[Episode Context - Previous Symptoms: {history_str}] {user_notes}".strip()
+                        logger.info(f"Merged history for exotic species: {history_str}")
                 except Pet.DoesNotExist:
                     return Response(
                         {
@@ -2428,6 +2509,18 @@ def symptom_checker_predict(request):
                     cleaned['breed'] = pet.breed
                     cleaned['sex'] = pet.sex    
                     cleaned['pet_name'] = pet.name
+
+                    recent_logs = SymptomLog.objects.filter(pet=pet).order_by('-symptom_date', '-logged_date')[:5]
+                    history_list = []
+                    for l in recent_logs:
+                        if isinstance(l.symptoms, list): history_list.extend(l.symptoms)
+                    
+                    # Merge historical symptoms into the notes so the "Hybrid Brain" sees them all
+                    if history_list:
+                        history_str = ", ".join(list(set(history_list)))
+                        current_notes = cleaned.get('user_notes', '')
+                        cleaned['user_notes'] = f"[Episode Context - Previous Symptoms: {history_str}] {current_notes}".strip()
+                        logger.info(f"Merged history into AI context: {history_str}")   
                 except Pet.DoesNotExist:
                     return Response(
                         {
@@ -2742,6 +2835,8 @@ def symptom_checker_predict(request):
             'triage_assessment': triage_assessment,
             'soap_data': soap_data,
             'symptoms_text': full_symptoms_text,
+            'duration': payload.get('duration') or duration_str, 
+            'duration_days': duration_days,
         }
         
         logger.info(f"Symptom checker predict returning {len(predictions)} predictions: {[p.get('disease') for p in predictions]}")
@@ -2831,7 +2926,7 @@ def create_ai_diagnosis(request):
                 'symptoms': input_symptoms,
                 'symptoms_text': symptoms_text or assessment_data.get('symptoms_text', ''),
                 
-                'duration': assessment_data.get('duration_days', 'Unspecified'),
+                'duration': assessment_data.get('duration', assessment_data.get('duration_days', 'Unspecified')),
                 'species': pet.animal_type if pet else 'Dog', # Added species for summary generation
                 'case_id': explicit_case_id
             }
@@ -2849,6 +2944,7 @@ def create_ai_diagnosis(request):
                 verification_result,
                 override_severity=triage_urgency 
             )
+            final_severity = soap_data['plan']['severityLevel'].lower()
             
             logger.info(f"Assessment data keys: {assessment_data.keys()}")
             logger.info(f"SOAP data generated: {bool(soap_data)}")
@@ -2897,7 +2993,7 @@ def create_ai_diagnosis(request):
             ml_predictions=ml_predictions_storage,
             ai_explanation=overall_recommendation,
             suggested_diagnoses=suggested_diagnoses,
-            overall_severity=triage_assessment.get('overall_urgency', urgency_level),
+            overall_severity=final_severity,
             urgency_level=urgency_level,
             pet_context={
                 'pet_name': pet.name,
@@ -2920,7 +3016,7 @@ def create_ai_diagnosis(request):
             'moderate': 'moderate',
             'low': 'low'
         }
-        flag_level = flag_level_map.get(urgency_level, 'moderate')
+        flag_level = flag_level_map.get(final_severity, 'moderate')
         print("🔵 Step 4: Building SOAP data...")
         
         # Build SOAP report data
@@ -2940,11 +3036,11 @@ def create_ai_diagnosis(request):
         # ==============================================================
         objective_data = soap_data.get('objective', {
             'symptoms': predictions[0].get('matching_symptoms', []) if predictions else [],
-            'duration': assessment_data.get('symptoms_text', ''),
+            'duration': assessment_data.get('duration', 'Unspecified'),
             'severity': assessment_data.get('severity', 'moderate')
         }) if soap_data else {
             'symptoms': predictions[0].get('matching_symptoms', []) if predictions else [],
-            'duration': assessment_data.get('symptoms_text', ''),
+            'duration': assessment_data.get('duration', 'Unspecified'),
             'severity': assessment_data.get('severity', 'moderate')
         }
         

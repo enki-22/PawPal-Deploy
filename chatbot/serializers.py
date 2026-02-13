@@ -44,6 +44,8 @@ class SOAPReportSerializer(serializers.ModelSerializer):
     pet = PetBasicSerializer(read_only=True)
     owner = serializers.SerializerMethodField()
     chat_conversation_id = serializers.SerializerMethodField()
+    symptom_duration = serializers.CharField(source='diagnosis.duration', read_only=True)
+    symptoms_entered = serializers.CharField(source='diagnosis.symptoms', read_only=True)
     
     class Meta:
         model = SOAPReport
@@ -58,7 +60,9 @@ class SOAPReportSerializer(serializers.ModelSerializer):
             'flag_level',
             'date_generated',
             'date_flagged',
-            'chat_conversation_id'
+            'chat_conversation_id',
+            'symptom_duration',
+            'symptoms_entered'
         ]
         read_only_fields = ['case_id', 'date_generated', 'date_flagged']
     

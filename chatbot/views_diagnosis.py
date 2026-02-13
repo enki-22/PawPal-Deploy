@@ -303,6 +303,7 @@ def get_soap_report_by_case_id(request, case_id):
 
         # A. Parse Plan
         plan_data = safe_parse(soap_report.plan)
+        objective_data = safe_parse(soap_report.objective)
         
         # B. Parse Assessment (Handle List, String of List, List of Strings, or Dict Wrapper)
         raw_assessment = soap_report.assessment
@@ -493,7 +494,7 @@ def get_soap_report_by_case_id(request, case_id):
                     'city': owner_city
                 },
                 'subjective': soap_report.subjective,
-                'objective': soap_report.objective,
+                'objective': objective_data,
                 
                 # === USE THE CLEAN NORMALIZED LIST ===
                 'assessment': final_assessment,
@@ -608,27 +609,83 @@ def get_pet_diagnoses(request, pet_id):
         soap_reports = soap_reports[offset:offset + limit]
         
         # Format based on user type
+        # Format based on user type
         if request.user_type == 'admin':
-            # Admin format: summary version similar to admin endpoint
             diagnoses = []
+            
+
             for report in soap_reports:
-                main_condition = None
-                likelihood = None
+                # 1. Initialize variables
+                main_condition = safe_get_condition(report.assessment)
                 urgency = None
                 
-                if report.assessment and isinstance(report.assessment, list) and len(report.assessment) > 0:
-                    main_condition = report.assessment[0].get('condition')
-                    likelihood = report.assessment[0].get('likelihood')
-                    urgency = report.assessment[0].get('urgency')
+                # 2. Get the primary assessment list from SOAPReport
+                raw_assessment = report.assessment
+                assessment_list = []
                 
+                try:
+                    if isinstance(raw_assessment, list):
+                        assessment_list = raw_assessment
+                    elif isinstance(raw_assessment, str) and raw_assessment.strip():
+                        try:
+                            parsed = ast.literal_eval(raw_assessment)
+                        except:
+                            parsed = json.loads(raw_assessment)
+                        
+                        if isinstance(parsed, list):
+                            assessment_list = parsed
+                        elif isinstance(parsed, dict):
+                            assessment_list = parsed.get('diagnoses', parsed.get('assessment', []))
+                except:
+                    assessment_list = []
+
+                # 3. CRITICAL PDX FIX: If list is empty, fetch from AIDiagnosis suggested_diagnoses
+                # (This is where PDX cases store the actual condition names)
+                if not assessment_list or (len(assessment_list) == 1 and not assessment_list[0]):
+                    try:
+                        clean_id = report.case_id.lstrip('#')
+                        ai_diag = AIDiagnosis.objects.filter(Q(case_id=report.case_id) | Q(case_id=clean_id)).first()
+                        if ai_diag and ai_diag.suggested_diagnoses:
+                            # suggested_diagnoses is usually a list of dicts
+                            assessment_list = ai_diag.suggested_diagnoses
+                    except:
+                        pass
+
+                # 4. Extract Top Condition with Exhaustive Key Search
+                if assessment_list and len(assessment_list) > 0:
+                    top_item = assessment_list[0]
+                    
+                    # Handle double-stringified JSON items
+                    if isinstance(top_item, str) and (top_item.startswith('{') or top_item.startswith('[')):
+                        try: top_item = ast.literal_eval(top_item)
+                        except: pass
+                    
+                    if isinstance(top_item, dict):
+                        # Try every possible key used by the Vector Engine, ML model, and Vet UI
+                        main_condition = (
+                            top_item.get('condition') or 
+                            top_item.get('condition_name') or 
+                            top_item.get('name') or 
+                            top_item.get('label') or 
+                            top_item.get('conditionName') or 
+                            "Unknown"
+                        )
+                        urgency = (
+                            top_item.get('urgency') or 
+                            top_item.get('priority') or 
+                            top_item.get('severity') or
+                            top_item.get('flag_level')
+                        )
+                    elif isinstance(top_item, str):
+                        main_condition = top_item
+
+                # 5. Build the object for AdminPetProfile.jsx
                 diagnoses.append({
                     'case_id': report.case_id,
                     'date_generated': report.date_generated.isoformat(),
                     'flag_level': report.flag_level,
-                    'main_condition': main_condition,
-                    'likelihood': likelihood,
-                    'urgency': urgency,
-                    'subjective_snippet': (report.subjective[:100] + '...') if len(report.subjective) > 100 else report.subjective
+                    'main_condition': main_condition, # This maps to "Potential Consideration"
+                    'urgency': urgency or report.flag_level, # This maps to "Triage Priority"
                 })
             
             return Response({

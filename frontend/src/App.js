@@ -32,6 +32,7 @@ import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
 import AdminReports from './components/admin/AdminReports';
 import AdminRoles from './components/admin/AdminRoles';
 import AdminVerifyResetCode from './components/admin/AdminVerifyResetCode';
+import AdminSOAPReportViewer from './components/admin/AdminSOAPReportViewer';
 
 import LegalModal from './components/LegalModal';
 import { AdminAuthProvider } from './context/AdminAuthContext';
@@ -153,13 +154,21 @@ function AppWithFade() {
         } 
       />
       <Route 
+        path="/admin/reports/:caseId" 
+        element={
+          <AdminProtectedRoute>
+            <FadeWrapper><AdminSOAPReportViewer /></FadeWrapper>
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
         path="/admin/clients" 
         element={
           <AdminProtectedRoute>
             <FadeWrapper><AdminClients /></FadeWrapper>
           </AdminProtectedRoute>
         } 
-      />
+      />  
       <Route 
         path="/admin/pets" 
         element={

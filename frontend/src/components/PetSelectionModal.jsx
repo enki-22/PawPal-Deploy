@@ -8,6 +8,7 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
   const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState(null);
   const [error, setError] = useState(null);
+  const [isStarting, setIsStarting] = useState(false); // New state to track submission
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -29,6 +30,7 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
     if (isOpen) {
       setSelectedOption(null);
       setError(null);
+      setIsStarting(false); // Reset starting state when opening
       fetchUserPets();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -67,6 +69,11 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
   };
 
   const handleStartConversation = async (petId = null, isNewPet = false) => {
+    // Prevent multiple clicks if already starting
+    if (isStarting) return;
+    
+    setIsStarting(true); // Lock the buttons
+    
     try {
       const requestBody = {
         type: conversationType,
@@ -96,9 +103,11 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
         onClose();
       } else {
         setError(data.error || 'Failed to start conversation');
+        setIsStarting(false); // Unlock on API error
       }
     } catch (error) {
       setError(`Failed to start conversation: ${error.message}`);
+      setIsStarting(false); // Unlock on network error
     }
   };
 
@@ -111,26 +120,28 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center animate-fade-in" style={{ zIndex: 70 }}>
-      <div className="relative w-[544px] min-h-[220px] bg-white rounded-2xl animate-scale-in"
+      <div className="relative w-[90%] md:w-[544px] max-h-[90vh] overflow-y-auto bg-white rounded-2xl animate-scale-in flex flex-col"
            style={{
              boxShadow: '0px 20px 24px -4px rgba(10, 13, 18, 0.1), 0px 8px 8px -4px rgba(10, 13, 18, 0.04)',
-             padding: '32px 32px 24px 32px',
-             display: 'flex',
-             flexDirection: 'column',
-             alignItems: 'center',
+             padding: '24px 24px 24px 24px', // Reduced padding slightly for mobile optimization
            }}>
-  <h2 className="w-full text-[22px] font-bold text-center mb-2" style={{ fontFamily: 'Raleway', color: '#181D27' }}>
+        
+        {/* Header */}
+        <h2 className="w-full text-xl md:text-[22px] font-bold text-center mb-2" style={{ fontFamily: 'Raleway', color: '#181D27' }}>
           {conversationType === 'general' ? 'General Pet Healthcare' : 'Symptom Checker'}
         </h2>
-  <p className="text-gray-700 mb-6 text-center" style={{ fontFamily: 'Raleway', fontSize: '16px', color: '#535862' }}>
+        
+        {/* Prompt - Made smaller on mobile to save space */}
+        <p className="text-gray-700 mb-4 md:mb-6 text-center text-sm md:text-base" style={{ fontFamily: 'Raleway', color: '#535862' }}>
           {conversationType === 'general' 
             ? "Want to check what's normal for your pet? Let's start with: Do you want to check for an existing pet or add a new one?"
             : "Let's analyze your pet's symptoms. Do you want to check an existing pet or add a new one?"
           }
         </p>
+
         {/* Error Display */}
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
             {error}
             <button 
               onClick={() => setError(null)}
@@ -140,41 +151,48 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
             </button>
           </div>
         )}
+
+        {/* Initial Selection Buttons */}
         {!selectedOption && (
-          <div className="flex flex-col gap-4 w-full">
+          <div className="flex flex-col gap-3 md:gap-4 w-full">
             <button
               onClick={() => setSelectedOption('existing')}
-              className="w-full py-3 rounded-lg font-semibold text-lg transition-colors hover:brightness-90 hover:shadow-md"
+              className="w-full py-3 rounded-lg font-semibold text-base md:text-lg transition-colors hover:brightness-90 hover:shadow-md"
               style={{ backgroundColor: '#815FB3', color: '#fff', fontFamily: 'Raleway', fontWeight: 600 }}
             >
               Existing Pet
             </button>
             <button
               onClick={() => setSelectedOption('new')}
-              className="w-full py-3 rounded-lg font-semibold text-lg transition-colors hover:brightness-90 hover:shadow-md"
+              className="w-full py-3 rounded-lg font-semibold text-base md:text-lg transition-colors hover:brightness-90 hover:shadow-md"
               style={{ backgroundColor: '#F0E4B3', color: '#34113F', fontFamily: 'Raleway', fontWeight: 600 }}
             >
               Add New Pet
             </button>
           </div>
         )}
+
+        {/* Existing Pet Selection */}
         {selectedOption === 'existing' && (
-          <div className="w-full min-h-[180px] bg-white rounded-2xl p-6 flex flex-col items-center" style={{ boxShadow: '0px 8px 16px -4px rgba(10,13,18,0.08)', marginTop: '12px' }}>
-            <h3 className="w-full text-lg font-bold text-center mb-2" style={{ fontFamily: 'Raleway', color: '#181D27' }}>Select your pet:</h3>
+          <div className="w-full bg-white rounded-2xl p-4 md:p-6 flex flex-col items-center border border-gray-100" style={{ boxShadow: '0px 8px 16px -4px rgba(10,13,18,0.08)', marginTop: '8px' }}>
+            <h3 className="w-full text-lg font-bold text-center mb-3" style={{ fontFamily: 'Raleway', color: '#181D27' }}>Select your pet:</h3>
+            
             {loading ? (
               <div className="text-center py-4 w-full" style={{ fontFamily: 'Raleway', color: '#535862' }}>
                 Loading pets...
               </div>
             ) : pets.length > 0 ? (
-              <div className="space-y-2 max-h-60 overflow-y-auto w-full">
+              // Adjusted height: max-h-[50vh] for mobile (bigger), max-h-60 for desktop (original)
+              <div className="space-y-2 overflow-y-auto w-full max-h-[50vh] md:max-h-60 pr-1 custom-scrollbar">
                 {pets.map(pet => (
                   <button
                     key={pet.id}
                     onClick={() => handleStartConversation(pet.id, false)}
-                    className="w-full p-3 rounded-lg font-semibold text-base transition-colors flex items-center gap-4 border border-gray-200 hover:brightness-90 hover:shadow-md hover:bg-[#ede7f6]"
+                    disabled={isStarting}
+                    className={`w-full p-3 rounded-lg font-semibold text-base transition-colors flex items-center gap-4 border border-gray-200 ${isStarting ? 'opacity-60 cursor-not-allowed' : 'hover:brightness-90 hover:shadow-md hover:bg-[#ede7f6]'}`}
                     style={{ backgroundColor: '#F6F4FA', color: '#181D27', fontFamily: 'Raleway', fontWeight: 500, textAlign: 'left' }}
                   >
-                    <div className="w-14 h-14 rounded-lg overflow-hidden border border-gray-300 mr-3 flex items-center justify-center bg-gray-100" style={{ minWidth: '56px', minHeight: '56px' }}>
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-lg overflow-hidden border border-gray-300 mr-2 flex items-center justify-center bg-gray-100 shrink-0">
                       {pet.photo ? (
                         <img
                           src={getImageUrl(pet.photo)}
@@ -183,14 +201,14 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
                           onError={(e) => { e.target.src = '/pawpalicon.png'; }}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-[#E9E6F2] text-[#815FB3] font-bold text-xl">
+                        <div className="w-full h-full flex items-center justify-center bg-[#E9E6F2] text-[#815FB3] font-bold text-lg md:text-xl">
                           {pet.name?.charAt(0).toUpperCase()}
                         </div>
                       )}
                     </div>
-                    <div className="flex flex-col justify-center" style={{ textAlign: 'left' }}>
-                      <div className="font-medium text-[#34113F] text-left" style={{ textAlign: 'left' }}>{pet.name}</div>
-                      <div className="text-sm text-gray-500 text-left" style={{ textAlign: 'left' }}>
+                    <div className="flex flex-col justify-center min-w-0" style={{ textAlign: 'left' }}>
+                      <div className="font-medium text-[#34113F] text-left truncate">{pet.name}</div>
+                      <div className="text-xs md:text-sm text-gray-500 text-left truncate">
                         {pet.species} • {pet.breed} • {pet.age} years old
                       </div>
                     </div>
@@ -211,28 +229,30 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
             )}
             <button
               onClick={() => setSelectedOption(null)}
-              className="w-full mt-4 p-2 text-gray-500 hover:text-gray-700 border-t pt-4 font-bold transition-colors hover:brightness-90 hover:shadow-md"
+              className="w-full mt-4 p-2 text-gray-500 hover:text-gray-700 border-t pt-3 font-bold transition-colors hover:brightness-90 hover:shadow-md text-sm md:text-base"
               style={{ fontFamily: 'Raleway', fontWeight: 700 }}
             >
               ← Back
             </button>
           </div>
         )}
+
+        {/* New Pet Selection - SIMPLIFIED TEXT */}
         {selectedOption === 'new' && (
-          <div className="w-full min-h-[180px] bg-white rounded-2xl p-6 flex flex-col items-center" style={{ boxShadow: '0px 8px 16px -4px rgba(10,13,18,0.08)', marginTop: '12px' }}>
+          <div className="w-full bg-white rounded-2xl p-4 md:p-6 flex flex-col items-center border border-gray-100" style={{ boxShadow: '0px 8px 16px -4px rgba(10,13,18,0.08)', marginTop: '8px' }}>
             <div className="w-full text-center">
-              <p className="text-gray-700 mb-4 text-base" style={{ fontFamily: 'Raleway', color: '#535862' }}>
-                Let&apos;s add your new pet&apos;s information first so I can provide better assistance.
+              <p className="text-gray-700 mb-4 text-sm md:text-base" style={{ fontFamily: 'Raleway', color: '#535862' }}>
+                Please create a profile for your new pet to continue.
               </p>
               <div className="space-y-3 w-full">
                 <button
                   onClick={handleAddNewPet}
-                  className="w-full py-3 rounded-lg font-semibold text-lg transition-colors hover:brightness-90 hover:shadow-md"
+                  className="w-full py-3 rounded-lg font-semibold text-base md:text-lg transition-colors hover:brightness-90 hover:shadow-md"
                   style={{ backgroundColor: '#F0E4B3', color: '#34113F', fontFamily: 'Raleway', fontWeight: 600 }}
                 >
-                  Add Pet Details First
-                  <div className="text-sm mt-1 opacity-90">
-                    Go to Pet Health Records to add your pet&apos;s information
+                  Create Pet Profile
+                  <div className="text-xs md:text-sm mt-1 opacity-90">
+                    Go to Health Records
                   </div>
                 </button>
                 <div className="relative w-full">
@@ -243,32 +263,21 @@ const PetSelectionModal = ({ isOpen, onClose, onSelectPet, conversationType }) =
                     <span className="px-2 bg-white text-gray-500">or</span>
                   </div>
                 </div>
-                {/* TEMPORARILY REMOVED: Continue Without Details
-                <button
-                  onClick={() => handleStartConversation(null, true)}
-                  className="w-full py-3 rounded-lg font-semibold text-base transition-colors hover:brightness-90 hover:shadow-md"
-                  style={{ backgroundColor: '#815FB3', color: '#fff', fontFamily: 'Raleway', fontWeight: 600 }}
-                >
-                  Continue Without Details
-                  <div className="text-sm mt-1 opacity-75" style={{ color: '#fff' }}>
-                    Start chatting now, add details later
-                  </div>
-                </button>
-                */}
               </div>
             </div>
             <button
               onClick={() => setSelectedOption(null)}
-              className="w-full mt-4 p-2 text-gray-500 hover:text-gray-700 border-t pt-4 font-semibold transition-colors hover:brightness-90 hover:shadow-md"
+              className="w-full mt-4 p-2 text-gray-500 hover:text-gray-700 border-t pt-3 font-semibold transition-colors hover:brightness-90 hover:shadow-md text-sm md:text-base"
               style={{ fontFamily: 'Raleway', fontWeight: 600 }}
             >
               ← Back
             </button>
           </div>
         )}
+
         <button
           onClick={onClose}
-          className="w-full mt-6 p-2 text-gray-500 hover:text-gray-700 border-t pt-4 transition-colors hover:brightness-90 hover:shadow-md"
+          className="w-full mt-4 md:mt-6 p-2 text-gray-500 hover:text-gray-700 border-t pt-4 transition-colors hover:brightness-90 hover:shadow-md text-sm md:text-base"
           style={{ fontFamily: 'Raleway', fontWeight: 600 }}
         >
           Cancel

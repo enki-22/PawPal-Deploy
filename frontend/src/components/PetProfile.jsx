@@ -54,9 +54,18 @@ const PetProfile = () => {
   const [currentPetId, setCurrentPetId] = useState(null); // Add state for current pet ID
   const [showAddPetModal, setShowAddPetModal] = useState(false); // Modal state for AddPetModal
   const [editingPet, setEditingPet] = useState(null);
+
+  const { petId } = useParams();
+  const { user, token, logout } = useAuth();
+
+  // Define dynamic keys for isolation
+  const medicalRecordsKey = `medicalRecords_${user?.id}_${petId}`;
+  const vaccinationRecordsKey = `vaccinationRecords_${user?.id}_${petId}`;
+  const filesKey = `petProfileFiles_${user?.id}_${petId}`;
+
   // Medical records state and search
   const [medicalRecords, setMedicalRecords] = useState(() => {
-    const saved = localStorage.getItem('medicalRecords');
+    const saved = localStorage.getItem(medicalRecordsKey);
     return saved ? JSON.parse(saved) : [];
   });
   const [medicalSearch, setMedicalSearch] = useState("");
@@ -74,11 +83,9 @@ const PetProfile = () => {
   const [selectedVaccinationRecord, setSelectedVaccinationRecord] = useState(null);
   const [showVaccinationDetailsModal, setShowVaccinationDetailsModal] = useState(false);
   const [vaccinationRecords, setVaccinationRecords] = useState(() => {
-    const saved = localStorage.getItem('vaccinationRecords');
+    const saved = localStorage.getItem(vaccinationRecordsKey);
     return saved ? JSON.parse(saved) : [];
   });
-  const { petId } = useParams();
-  const { token, logout } = useAuth();
   const navigate = useNavigate();
   const API_ROOT = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
   const API_BASE_URL = `${API_ROOT}/api`;
@@ -97,7 +104,7 @@ const PetProfile = () => {
 
   // Files state for uploaded PDFs, persisted in localStorage
   const [files, setFiles] = useState(() => {
-    const saved = localStorage.getItem('petProfileFiles');
+    const saved = localStorage.getItem(filesKey);
     if (saved) {
       try {
         const arr = JSON.parse(saved);
@@ -161,19 +168,47 @@ const PetProfile = () => {
     setCurrentPetId(parseInt(petId));
   }, [petId, token, fetchAllPets, fetchPetDetails]);
 
+  // Reload data when pet or user changes
+  useEffect(() => {
+    if (user?.id && petId) {
+      const savedMed = localStorage.getItem(medicalRecordsKey);
+      setMedicalRecords(savedMed ? JSON.parse(savedMed) : []);
+
+      const savedVac = localStorage.getItem(vaccinationRecordsKey);
+      setVaccinationRecords(savedVac ? JSON.parse(savedVac) : []);
+
+      const savedFiles = localStorage.getItem(filesKey);
+      if (savedFiles) {
+        try {
+          const arr = JSON.parse(savedFiles);
+          // Restore File objects from base64
+          const restoredFiles = arr.map(f => {
+            if (f.fileData) {
+              const byteString = atob(f.fileData.split(',')[1]);
+              const ab = new ArrayBuffer(byteString.length);
+              const ia = new Uint8Array(ab);
+              for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+              }
+              const fileObj = new File([ab], f.name, { type: 'application/pdf' });
+              return { ...f, file: fileObj };
+            }
+            return f;
+          });
+          setFiles(restoredFiles);
+        } catch {
+          setFiles([]);
+        }
+      } else {
+        setFiles([]);
+      }
+    }
+  }, [petId, user?.id, medicalRecordsKey, vaccinationRecordsKey, filesKey]);
+
   const handlePetSelect = (selectedPetId) => {
     if (selectedPetId !== currentPetId) {
-      window.history.pushState(null, '', `/pet-profile/${selectedPetId}`);
-      setCurrentPetId(selectedPetId);
-      const selectedPet = allPets.find(p => p.id === selectedPetId);
-      if (selectedPet) {
-        setPet(selectedPet);
-        setMedicalRecords([]);
-        setVaccinationRecords([]);
-        localStorage.setItem('medicalRecords', JSON.stringify([]));
-        localStorage.setItem('vaccinationRecords', JSON.stringify([]));
-      }
-      fetchPetDetailsByIdDirectly(selectedPetId);
+      // Use navigate instead of pushState to properly trigger useParams update
+      navigate(`/pet-profile/${selectedPetId}`);
     }
   };
 
@@ -372,16 +407,8 @@ const PetProfile = () => {
           setShowAddPetModal(false);
           setEditingPet(null);
           fetchAllPets();
-          setMedicalRecords([]);
-          setVaccinationRecords([]);
-          localStorage.setItem('medicalRecords', JSON.stringify([]));
-          localStorage.setItem('vaccinationRecords', JSON.stringify([]));
-          // Refresh details to get the new weight
-          if (currentPetId) {
-            fetchPetDetailsByIdDirectly(currentPetId);
-          } else {
-            fetchPetDetails();
-          }
+          // Refresh details to get the updated pet data
+          fetchPetDetails();
         }}
         token={token}
       />
@@ -805,7 +832,7 @@ const PetProfile = () => {
                                 const fileData = ev.target.result;
                                 setFiles(prev => {
                                   const newFiles = [...prev, { id: Date.now(), name: file.name, size: `${Math.round(file.size/1024)} kb`, file, fileData }];
-                                  localStorage.setItem('petProfileFiles', JSON.stringify(newFiles));
+                                  localStorage.setItem(filesKey, JSON.stringify(newFiles));
                                   return newFiles;
                                 });
                               };
@@ -890,7 +917,7 @@ const PetProfile = () => {
                                     setShowDeleteFileModal(true);
                                   }}
                                 >
-                                  <img src="/delete.png" alt="Delete" className="w-5 h-5 md:w-6 md:h-6" />
+                                  <img src="/Delete.png" alt="Delete" className="w-5 h-5 md:w-6 md:h-6" />
                                 </button>
                {showDeleteFileModal && fileToDelete && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
@@ -915,7 +942,7 @@ const PetProfile = () => {
                         onClick={() => {
                           setFiles(prev => {
                             const newFiles = prev.filter(f => f.id !== fileToDelete.id);
-                            localStorage.setItem('petProfileFiles', JSON.stringify(newFiles));
+                            localStorage.setItem(filesKey, JSON.stringify(newFiles));
                             return newFiles;
                           });
                           setShowDeleteFileModal(false);
@@ -947,7 +974,7 @@ const PetProfile = () => {
                             htmlFor="file-upload-empty" 
                             className="px-4 py-2 bg-white border border-[#815FB3] text-[#815FB3] rounded-lg text-xs font-bold cursor-pointer hover:bg-[#F0F0FF] transition-colors shadow-sm"
                           >
-                            Upload First File
+                            Upload File
                             <input
                               id="file-upload-empty"
                               type="file"
@@ -1011,7 +1038,7 @@ const PetProfile = () => {
                         onSave={record => {
                           setMedicalRecords(prev => {
                             const updated = [...prev, record];
-                            localStorage.setItem('medicalRecords', JSON.stringify(updated));
+                            localStorage.setItem(medicalRecordsKey, JSON.stringify(updated));
                             return updated;
                           });
                           setShowMedicalRecordModal(false);
@@ -1076,7 +1103,7 @@ const PetProfile = () => {
                       onSave={record => {
                         setVaccinationRecords(prev => {
                           const updated = [...prev, record];
-                          localStorage.setItem('vaccinationRecords', JSON.stringify(updated));
+                          localStorage.setItem(vaccinationRecordsKey, JSON.stringify(updated));
                           return updated;
                         });
                         setShowVaccinationRecordModal(false);
@@ -1164,7 +1191,7 @@ const PetProfile = () => {
           onDelete={() => {
             setMedicalRecords(prev => {
               const updated = prev.filter((_, i) => i !== selectedRecord);
-              localStorage.setItem('medicalRecords', JSON.stringify(updated));
+              localStorage.setItem(medicalRecordsKey, JSON.stringify(updated));
               return updated;
             });
             setShowDetailsModal(false);
@@ -1178,7 +1205,7 @@ const PetProfile = () => {
                 }
                 return item;
               });
-              localStorage.setItem('medicalRecords', JSON.stringify(updated));
+              localStorage.setItem(medicalRecordsKey, JSON.stringify(updated));
               return updated;
             });
             setShowDetailsModal(false);
@@ -1194,7 +1221,7 @@ const PetProfile = () => {
           onDelete={() => {
             setVaccinationRecords(prev => {
               const updated = prev.filter((_, i) => i !== selectedVaccinationRecord);
-              localStorage.setItem('vaccinationRecords', JSON.stringify(updated));
+              localStorage.setItem(vaccinationRecordsKey, JSON.stringify(updated));
               return updated;
             });
             setShowVaccinationDetailsModal(false);
@@ -1208,7 +1235,7 @@ const PetProfile = () => {
                 }
                 return item;
               });
-              localStorage.setItem('vaccinationRecords', JSON.stringify(updated));
+              localStorage.setItem(vaccinationRecordsKey, JSON.stringify(updated));
               return updated;
             });
             setShowVaccinationDetailsModal(false);

@@ -44,7 +44,7 @@ const AddMedicalRecordModal = ({ isOpen, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
-      <div className="bg-white rounded-xl shadow-xl max-w-xl w-full p-3 md:p-8 relative max-h-[80vh] md:max-h-none flex flex-col overflow-hidden" style={{ fontFamily: 'Raleway' }}>
+      <div className="bg-white rounded-xl shadow-xl max-w-xl w-[90%] md:w-full p-3 md:p-8 relative max-h-[80vh] md:max-h-none flex flex-col overflow-hidden" style={{ fontFamily: 'Raleway' }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Add New Medical Record</h2>

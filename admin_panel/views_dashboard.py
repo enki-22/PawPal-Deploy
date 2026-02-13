@@ -623,6 +623,7 @@ def dashboard_faqs(request):
         # Heuristic keywords to identify questions if no '?' is present
         q_words = ('what', 'how', 'why', 'can', 'does', 'do', 'is', 'are', 'where', 'when', 'who', 'help', 'my dog', 'my cat')
         
+        import re
         for item in stats:
             text = item['lower_content']
             count = item['frequency']
@@ -636,7 +637,7 @@ def dashboard_faqs(request):
                 continue
 
             # 4. Get the latest instance of this question to preserve original casing/context
-            latest_instance = Message.objects.filter(
+            latest_instance = Message.objects.select_related('conversation', 'conversation__pet').filter(
                 content__iexact=text, 
                 is_user=True
             ).order_by('-created_at').first()
@@ -652,6 +653,15 @@ def dashboard_faqs(request):
             ).order_by('id').first()
             
             full_ans = ai_response.content if ai_response else "No response recorded."
+            
+            # Better Solution: Generalize the response by replacing the specific pet name
+            # This ensures privacy and makes the FAQ generic for all admins.
+            pet = latest_instance.conversation.pet
+            if pet and pet.name:
+                escaped_name = re.escape(pet.name)
+                # Matches pet name as a whole word, case-insensitive
+                full_ans = re.sub(rf'\b{escaped_name}\b', '[Pet Name]', full_ans, flags=re.IGNORECASE)
+
             summary = full_ans[:150] + "..." if len(full_ans) > 150 else full_ans
             
             # Use original casing for display

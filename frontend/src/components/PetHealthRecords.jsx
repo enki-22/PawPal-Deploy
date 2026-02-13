@@ -350,7 +350,7 @@ const PetHealthRecords = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 justify-items-center py-4 md:py-8 min-h-[200px] md:min-h-[300px]">
+          <div className="grid grid-cols-2 gap-2 justify-items-center md:flex md:flex-wrap md:justify-center md:gap-6 py-4 md:py-8 min-h-[200px] md:min-h-[300px]">
             {loading ? (
               // MODERN SKELETON LOADING STATE
               Array.from({ length: 4 }).map((_, index) => (

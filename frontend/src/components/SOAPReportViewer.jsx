@@ -25,7 +25,7 @@
       const petName = report?.pet?.name?.replace(/[^a-z0-9]/gi, '_') || 'Pet';
       const cleanCaseId = report?.case_id || 'Case';
       
-      document.title = `${cleanCaseId}_${petName}_SOAP_Report`;
+      document.title = `${cleanCaseId}_${petName}_Triage_Summary`;
       window.print();
       document.title = originalTitle;
     };
@@ -77,7 +77,7 @@
       }
     };
 
-    if (loading) return <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"><div className="bg-white rounded-lg p-8"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#815fb3] mx-auto mb-4"></div><p className="text-gray-600">Loading SOAP report...</p></div></div>;
+    if (loading) return <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"><div className="bg-white rounded-lg p-8"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#815fb3] mx-auto mb-4"></div><p className="text-gray-600">Loading Triage Summary...</p></div></div>;
     if (error) return <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"><div className="bg-white rounded-lg p-6 text-center"><h3 className="text-xl text-red-600 mb-2">Error</h3><p className="text-gray-600 mb-4">{error}</p><button onClick={onClose} className="px-6 py-2 bg-[#815fb3] text-white rounded-lg">Close</button></div></div>;
     if (!report) return null;
 
@@ -245,7 +245,7 @@
               <div className="text-center">
                   <p className="text-xs font-black uppercase tracking-[0.2em] opacity-70 mb-1">Triage Priority</p>
                   <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-none">{report.plan?.severityLevel?.toUpperCase()}</h2>
-                  <p className="text-xs mt-2 opacity-80">Immediate attention recommended</p>
+                  <p className="text-xs mt-2 opacity-80"></p>
               </div>
               <div className="text-center md:border-l border-white/20 md:pl-6">
                   <p className="text-xs font-bold opacity-70 italic uppercase">Care Timeline</p>
@@ -265,7 +265,7 @@
               <p className="text-sm text-gray-700 font-medium">
                 The symptoms noted include: <span className="text-black font-bold">{Array.isArray(report.objective.symptoms) ? report.objective.symptoms.join(', ') : report.objective.symptoms}</span>.
               </p>
-            )}
+            )}  
           </div>
 
           

@@ -146,10 +146,11 @@ def get_pet_detail(request, pet_id):
         pet_data = {
             'pet_id': f"RP-{str(pet.id).zfill(6)}",
             'name': pet.name,
+            'owner_name': owner_name,
             'species': pet.get_animal_type_display(),
             'breed': pet.breed or 'Unknown',
             'sex': pet.get_sex_display(),
-            'age': f"{pet.age} years old",
+            'age': pet.age,
             'blood_type': None,  # Placeholder - not in current Pet model
             'spayed_neutered': None,  # Placeholder - not in current Pet model
             'allergies': None,  # Placeholder - can be added to medical_notes
@@ -323,19 +324,51 @@ def get_pet_diagnoses(request, pet_id):
         
         # Get SOAP reports for this pet
         soap_reports = SOAPReport.objects.filter(pet=pet).order_by('-date_generated')
+
+
+        def safe_get_condition(assessment_data):
+            if not assessment_data: 
+                return None
+            if isinstance(assessment_data, str):
+                try: 
+                    assessment_data = json.loads(assessment_data)
+                except: 
+                    try: 
+                        assessment_data = ast.literal_eval(assessment_data)
+                    except: 
+                        return None
+            if isinstance(assessment_data, dict):
+                assessment_data = assessment_data.get('diagnoses', assessment_data.get('assessment', []))
+            if isinstance(assessment_data, list) and len(assessment_data) > 0:
+                first = assessment_data[0]
+                if isinstance(first, str):
+                    try: 
+                        first = json.loads(first)
+                    except: 
+                        return None
+                if isinstance(first, dict):
+                    return first.get('condition') or first.get('condition_name')
+            return None
         
         # Format diagnoses
         diagnoses = []
         for report in soap_reports:
             # Extract main condition from assessment
-            main_condition = None
+            main_condition = safe_get_condition(report.assessment)
             likelihood = None
             urgency = None
             
-            if report.assessment and isinstance(report.assessment, list) and len(report.assessment) > 0:
-                main_condition = report.assessment[0].get('condition')
-                likelihood = report.assessment[0].get('likelihood')
-                urgency = report.assessment[0].get('urgency')
+            try:
+                # Re-parse if it's a list to get other fields
+                raw = report.assessment
+                if isinstance(raw, str): raw = json.loads(raw)
+                if isinstance(raw, list) and len(raw) > 0:
+                    item = raw[0]
+                    if isinstance(item, str): item = json.loads(item)
+                    likelihood = item.get('likelihood')
+                    urgency = item.get('urgency')
+            except:
+                pass
             
             diagnoses.append({
                 'case_id': report.case_id,
@@ -346,6 +379,11 @@ def get_pet_diagnoses(request, pet_id):
                 'urgency': urgency,
                 'subjective_snippet': (report.subjective[:100] + '...') if len(report.subjective) > 100 else report.subjective
             })
+
+
+
+        
+
         
         logger.info(f"Admin {request.admin.email} viewed diagnoses for pet {pet_id}")
         

@@ -170,11 +170,17 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
           </p>
 
           {/* Predictions - Top 3 */}
-          {predictions.slice(0, 3).map((prediction, index) => (
+          {predictions.slice(0, 3).map((prediction, index) => {
+            const diseaseLabel = prediction.disease || prediction.label;
+            const displayLabel = diseaseLabel?.includes('Potential Concern') 
+              ? diseaseLabel 
+              : `Potential Concern: ${diseaseLabel}`;
+            
+            return (
             <div key={index} className="border border-gray-200 rounded-lg p-3 mb-3 bg-gray-50">
               <div className="mb-2">
                 <h4 className="font-bold text-gray-800 text-base">
-                  {index + 1}. Potential Concern: {prediction.disease || prediction.label}
+                  {index + 1}. {displayLabel}
                 </h4>
                 <div className="text-sm text-gray-600 mt-1 space-y-1">
                   <div>
@@ -267,7 +273,8 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
                 </div>
               )}
             </div>
-          ))}
+          );
+          })}
 
           {/* Overall Recommendation - Respects Safety Override */}
           <div className={`border-t pt-3 ${
@@ -348,18 +355,7 @@ const AssessmentResults = ({ assessmentData, onSaveToAIDiagnosis, onStartNewAsse
         {/* Action Buttons */}
         <div className="border-t border-gray-300 pt-4 mt-4">
           <div className="flex flex-wrap gap-2 justify-center">
-            <button
-              onClick={() => onSaveToAIDiagnosis(assessmentData)}
-              className="px-4 py-2 bg-[#815FB3] text-white rounded-lg text-sm font-semibold hover:bg-[#6d4c96] transition-colors flex items-center gap-2"
-            >
-              <img 
-                src="/material-symbols_save.png" 
-                alt="Save" 
-                className="w-4 h-4 object-contain" 
-                style={{ filter: 'brightness(0) saturate(100%) invert(98%) sepia(14%) saturate(865%) hue-rotate(314deg) brightness(105%) contrast(100%)' }}
-              />
-              Save to Assessments
-            </button>
+            
             <button
               onClick={onLogSymptoms}
               className="px-4 py-2 bg-[#3498db] text-white rounded-lg text-sm font-semibold hover:bg-[#2980b9] transition-colors flex items-center gap-2"
